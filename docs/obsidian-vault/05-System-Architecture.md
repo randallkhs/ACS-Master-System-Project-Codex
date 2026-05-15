@@ -121,6 +121,24 @@ AI remains a future advisory layer only. Deterministic validation and Manual Rev
 
 ---
 
+## Phase 0 Module 6 Manual Review Queue Boundary
+
+The backend now includes the first persistent Manual Review Queue architecture:
+
+- intake processing state enum for raw, normalized, validated, flagged, approved, rejected, deferred, and archived states
+- persistent review fields for status, severity, reasons, source references, snapshots, operator notes, timestamps, and audit correlation
+- queue creation service for deterministic review items
+- classification service for review categories
+- escalation service for severity assignment
+- transition service for approve, reject, defer, and archive lifecycle steps
+- audit trace builder for explainable flagging evidence
+
+The boundary is intentionally pre-dispatch. A review item can be approved, rejected, deferred, or archived, but that transition does not create a job, route a technician, export to Sheets/FastField, call AI, or update live vendor systems.
+
+Future workflow modules should connect approved review outcomes to dispatch orchestration through explicit services and transactions, not hidden side effects inside review-state updates.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

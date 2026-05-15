@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, and review-preparation services
+- deterministic normalization, validation, confidence, review-preparation, and Manual Review Queue services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -183,7 +183,38 @@ Responsibilities:
 - Confidence scoring is deterministic only; AI scoring is intentionally not implemented.
 - Manual Review preparation translates validation/confidence results into review-ready reason codes and recommended actions.
 
-The pipeline does not import Google Calendar data, persist review items, route technicians, export to Sheets/FastField, run background workers, or call AI.
+The intake pipeline itself does not import Google Calendar data, route technicians, export to Sheets/FastField, run background workers, or call AI. Durable review persistence is handled by the Manual Review Queue service after deterministic review preparation.
+
+## Manual Review Queue Foundation
+
+Phase 0 Module 6 adds the first durable operational safety layer for intake records that cannot continue safely.
+
+Persistent review items can now store:
+
+- review status and intake processing state
+- deterministic reason codes and review categories
+- severity and recommended operator action
+- source system/source ID references
+- normalization, validation, warning, and confidence snapshots
+- operator notes and decision timestamps
+- audit correlation IDs for future traceability
+- queryable audit-log correlation support
+
+Current lifecycle states:
+
+```text
+raw -> normalized -> validated -> flagged_for_review -> approved/rejected/deferred/archived
+```
+
+Current services keep responsibilities separate:
+
+- `ManualReviewQueueService` creates persistent review items from normalized, validated intake.
+- `ReviewClassificationService` maps deterministic issues to review categories.
+- `ReviewEscalationService` assigns deterministic severity.
+- `ReviewStateTransitionService` records approve, reject, defer, and archive transitions with operator decisions.
+- `ReviewAuditTraceBuilder` prepares traceable audit-log evidence.
+
+This foundation does not approve dispatch, create jobs, route technicians, call AI, or write to external systems.
 
 ## Safety Rules
 

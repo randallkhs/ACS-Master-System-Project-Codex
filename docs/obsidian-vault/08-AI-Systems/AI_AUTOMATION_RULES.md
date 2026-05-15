@@ -85,6 +85,14 @@ AI is not used in this module.
 
 Future AI may assist with ambiguous text extraction or explanation, but it must consume deterministic results as context and must not override validation failures, dispatch safety blocks, cancellation handling, Water Emergency separation, or Manual Review requirements.
 
+## Phase 0 Module 6 Boundary
+
+The persistent Manual Review Queue foundation stores deterministic review reasons, severity, confidence snapshots, validation evidence, normalization evidence, source references, operator notes, and audit correlation.
+
+AI is still not used in this module.
+
+Future AI may add advisory context to a review item only if deterministic validation and queue state remain authoritative. AI must not approve, reject, defer, archive, dispatch, route, export, or silently clear any Manual Review item.
+
 ---
 
 ## Confidence And Review

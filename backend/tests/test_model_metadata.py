@@ -67,7 +67,31 @@ def test_manual_review_items_can_target_non_job_entities() -> None:
     assert "entity_id" in columns
 
 
+def test_manual_review_table_supports_persistent_queue_traceability() -> None:
+    columns = Base.metadata.tables["review_items"].columns
+
+    expected_columns = {
+        "severity",
+        "review_reasons",
+        "confidence_snapshot",
+        "operator_notes",
+        "reviewed_at",
+        "deferred_until",
+        "intake_processing_state",
+        "source_system",
+        "source_id",
+        "warning_snapshot",
+        "normalization_snapshot",
+        "validation_snapshot",
+        "audit_correlation_id",
+        "review_metadata",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
 def test_audit_logs_timestamp_events_by_default() -> None:
     columns = Base.metadata.tables["audit_logs"].columns
 
     assert columns["occurred_at"].server_default is not None
+    assert "audit_correlation_id" in columns

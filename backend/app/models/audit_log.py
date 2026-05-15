@@ -24,4 +24,5 @@ class AuditLog(UUIDPrimaryKeyMixin, Base):
     action: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
     entity_type: Mapped[str | None] = mapped_column(String(120), index=True)
     entity_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), index=True)
+    audit_correlation_id: Mapped[str | None] = mapped_column(String(120), index=True)
     details: Mapped[dict | None] = mapped_column(JSON)

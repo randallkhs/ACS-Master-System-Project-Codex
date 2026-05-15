@@ -117,3 +117,35 @@ Unresolved:
 - whether future workflow services should use a formal Unit of Work class or explicit `session_scope` blocks
 - whether read-only request dependencies should be separated from write transaction dependencies
 - how long-running background workers should manage transactional boundaries once workers exist
+
+## Manual Review Queue Persistence
+
+Phase 0 Module 6 expands `ReviewItem` from a lightweight safety placeholder into the persistent Manual Review Queue foundation.
+
+The queue stores:
+
+- review status
+- intake processing state
+- severity
+- deterministic review reasons
+- source system and source ID
+- confidence, warning, normalization, and validation snapshots
+- review metadata
+- operator notes
+- reviewed, deferred, and resolved timestamps
+- audit correlation IDs
+
+Review persistence rules:
+
+- Manual Review items are durable operational records, not temporary validation messages.
+- Review items must explain why automation stopped.
+- Queue state transitions require an operator decision.
+- Approval, rejection, deferral, and archival are review lifecycle actions only; they do not execute dispatch.
+- Audit records can reference the same queryable correlation ID and evidence snapshots.
+
+Unresolved:
+
+- whether Manual Review items should eventually have a dedicated state-transition history table
+- exact retention/archive policy for completed review items
+- exact relationship between intake review items and future persisted job/visit records created after approval
+- operator identity/auth fields once authentication exists

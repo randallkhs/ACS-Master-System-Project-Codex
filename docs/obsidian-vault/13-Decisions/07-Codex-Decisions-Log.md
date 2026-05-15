@@ -259,3 +259,33 @@ Use this file for durable decisions that affect future development. Do not recor
   - Confidence scoring service
   - Manual Review preparation service
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 6 Persistent Manual Review Queue Foundation
+
+- Decision type: Implementation / operational safety
+- Status: Implemented
+- Decision:
+  - Add explicit intake processing states for raw, normalized, validated, flagged for review, approved, rejected, deferred, and archived intake.
+  - Expand `ReviewItem` into the persistent Manual Review Queue foundation with status, severity, deterministic reasons, source references, confidence snapshots, warning snapshots, normalization snapshots, validation snapshots, operator notes, timestamps, and audit correlation.
+  - Add a queryable audit correlation field to audit logs so future review/audit joins do not depend only on JSON details.
+  - Add deterministic services for review queue creation, review classification, severity escalation, state transitions, and audit-trace preparation.
+  - Keep review state transitions operator-driven and side-effect-free with respect to dispatch execution.
+- Rationale:
+  - Manual Review is a core ACS safety system and must be durable, explainable, and auditable before dispatch workflows are introduced.
+  - Unsafe, canceled, Water Emergency, conflicting, malformed, missing-field, or low-confidence intake must stop automation and preserve evidence.
+  - Review approval should resolve review uncertainty, but it should not silently dispatch, route, export, or call external systems.
+- Future implications:
+  - Future dispatch modules should consume approved review outcomes through explicit workflow services and transactions.
+  - Authentication will need to add operator identity to review decisions.
+  - A dedicated review transition history table may be needed once multi-operator review workflows are defined.
+  - Background reminders or SLA timers for deferred review items remain undecided.
+- Affected systems:
+  - ReviewItem model
+  - AuditLog model
+  - Alembic migrations
+  - Manual Review services
+  - Intake processing domain
+  - Audit traceability foundation
+  - Backend documentation

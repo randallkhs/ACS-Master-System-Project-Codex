@@ -307,6 +307,46 @@ Unresolved normalization questions:
 
 ---
 
+Phase 0 Module 6 Manual Review Persistence
+
+The dispatch pipeline now has a persistent Manual Review Queue foundation for intake that cannot safely continue.
+
+Current intake processing states:
+
+* raw
+* normalized
+* validated
+* flagged_for_review
+* approved
+* rejected
+* deferred
+* archived
+
+Persistent review items store deterministic traceability:
+
+* why the item was flagged
+* validation evidence
+* normalization evidence
+* confidence explanation
+* warning snapshot
+* source system/source ID
+* operator notes and decision timestamps
+* audit correlation ID
+
+Review generation remains deterministic. It can classify cancellation review, Water Emergency review, malformed address review, missing field review, conflicting state review, low confidence review, and unsafe dispatch review.
+
+Review approval means an operator has resolved the review item. It does not automatically dispatch, route, export, or complete workflow execution.
+
+Unresolved review questions:
+
+* exact operator roles and permission boundaries
+* whether deferred review items need SLA timers or scheduled reminders
+* exact severity escalation thresholds once ACS confirms operational urgency categories
+* how review decisions should attach to future created jobs, visits, and Water Emergency records
+* whether some review categories should require a second operator confirmation
+
+---
+
 13. Routing Engine
 
 Current Routing
