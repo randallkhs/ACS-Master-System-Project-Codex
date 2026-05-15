@@ -1,0 +1,322 @@
+# ACS FSM — Water Emergency Workflow
+
+# Purpose
+
+This document defines the official operational lifecycle of Water Emergency jobs inside the ACS FSM platform.
+
+Water Emergency jobs are NOT normal jobs.
+
+They are long-lived operational workflows with:
+- multiple visits
+- multiple technicians
+- equipment tracking
+- moisture monitoring
+- staged completion logic
+
+---
+
+# 1. Water Emergency Philosophy
+
+Water Emergency jobs behave more like:
+- operational cases
+or
+- projects
+
+than traditional same-day work orders.
+
+The system must support:
+- continuity
+- history
+- visit tracking
+- technician notes
+- equipment lifecycle
+- staged completion
+
+---
+
+# 2. Core Operational Lifecycle
+
+## Phase 1 — Emergency Intake
+
+Typical trigger:
+- burst pipe
+- flooding
+- water intrusion
+- sewage backup
+- storm damage
+
+Initial information is received from:
+- customer
+- apartment complex
+- property manager
+- insurance-related contact
+
+---
+
+## Phase 2 — Initial Dispatch
+
+The first technician visit typically includes:
+- water extraction
+- initial inspection
+- equipment setup
+- moisture measurements
+- emergency stabilization
+
+Typical equipment:
+- air movers
+- dehumidifiers
+- extraction machines
+- air scrubbers
+
+The job remains OPEN.
+
+---
+
+## Phase 3 — Drying Monitoring
+
+Additional technician visits may include:
+- moisture checks
+- equipment repositioning
+- progress verification
+- contamination monitoring
+
+Multiple technicians may participate.
+
+The job remains OPEN.
+
+---
+
+## Phase 4 — Cleaning / Treatment
+
+After drying:
+- carpet cleaning
+- antimicrobial treatment
+- deodorization
+- floor treatment
+- structural cleaning
+
+The job may still remain OPEN.
+
+---
+
+## Phase 5 — Equipment Pickup
+
+Final technician visit:
+- remove equipment
+- final moisture verification
+- confirm completion
+- customer signoff (future)
+
+Only after this phase:
+- the job may CLOSE
+
+---
+
+# 3. Water Emergency Job Structure
+
+A Water Emergency job may contain:
+
+- one customer
+- one property
+- multiple visits
+- multiple technicians
+- multiple equipment assignments
+- multiple notes
+- multiple status changes
+
+---
+
+# 4. Visits
+
+Visits are separate operational records.
+
+A visit represents:
+- one technician interaction
+- one scheduled service occurrence
+
+Examples:
+- extraction visit
+- drying check
+- cleaning visit
+- pickup visit
+
+---
+
+# 5. Equipment Lifecycle
+
+Equipment tracking is critical.
+
+Equipment examples:
+- dehumidifiers
+- air movers
+- extraction machines
+- HEPA systems
+
+Future system requirements:
+- assignment tracking
+- deployment timestamps
+- pickup timestamps
+- location tracking
+- technician accountability
+
+---
+
+# 6. Water Emergency Status States
+
+Suggested initial statuses:
+
+## Intake
+- NEW
+- PENDING_REVIEW
+
+## Active
+- DISPATCHED
+- EXTRACTION_IN_PROGRESS
+- DRYING_IN_PROGRESS
+- CLEANING_IN_PROGRESS
+- WAITING_FOR_NEXT_VISIT
+
+## Completion
+- READY_FOR_PICKUP
+- PICKUP_SCHEDULED
+- COMPLETED
+
+## Exception States
+- ON_HOLD
+- CUSTOMER_DELAY
+- CANCELLED
+- MANUAL_REVIEW_REQUIRED
+
+---
+
+# 7. Technician Notes
+
+Each visit may include:
+- work performed
+- moisture readings
+- equipment updates
+- contamination notes
+- customer communication
+- recommendations
+
+Notes must be:
+- timestamped
+- tied to technician
+- immutable in audit logs
+
+---
+
+# 8. Scheduling Rules
+
+Water Emergency jobs:
+- may overlap multiple days
+- may require recurring visits
+- may require priority dispatching
+- may interrupt standard scheduling
+
+Future versions should support:
+- dynamic reprioritization
+- emergency escalation
+- technician reassignment
+
+---
+
+# 9. FastField Compatibility
+
+Current workflow uses:
+- separate FastField forms
+
+Examples:
+- standard work order form
+- water emergency form
+
+Water Emergency forms remain open until:
+- final equipment pickup
+- operational completion
+
+The future ACS FSM platform must replicate this behavior internally.
+
+---
+
+# 10. Manual Review Requirements
+
+Water Emergency jobs require higher operational scrutiny.
+
+Examples:
+- missing drying visit
+- missing equipment
+- invalid pickup state
+- incomplete moisture tracking
+- technician conflict
+- duplicate dispatch
+
+These conditions should trigger:
+- operational warnings
+- manual review queue
+- escalation states
+
+---
+
+# 11. Future Expansion
+
+Future Water Emergency functionality may include:
+
+- moisture graphs
+- equipment QR tracking
+- technician mobile uploads
+- insurance exports
+- customer signatures
+- before/after photos
+- GPS technician verification
+- automated revisit scheduling
+- billing integration
+- inventory consumption tracking
+
+---
+
+# 12. Critical Architectural Rules
+
+## Rule 1
+Water Emergency jobs are NOT simple jobs.
+
+---
+
+## Rule 2
+A Water Emergency job may contain MANY visits.
+
+---
+
+## Rule 3
+Visits must be independently tracked.
+
+---
+
+## Rule 4
+Equipment must become first-class data entities.
+
+---
+
+## Rule 5
+The system must preserve complete operational history.
+
+---
+
+## Rule 6
+The workflow must support future mobile technician apps.
+
+---
+
+## Rule 7
+Operational continuity is more important than automation speed.
+
+---
+
+# 13. Operational Goal
+
+The final system should allow ACS to completely replace:
+- FastField water emergency workflows
+- fragmented tracking
+- manual coordination
+- spreadsheet dependency
+
+with one integrated operational workflow system.
