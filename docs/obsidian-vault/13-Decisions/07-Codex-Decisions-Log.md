@@ -231,3 +231,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Future service layer
   - Future workflow engines
   - Backend documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 5 Intake Normalization And Validation Foundation
+
+- Decision type: Implementation / dispatch pipeline foundation
+- Status: Implemented
+- Decision:
+  - Add intake domain structures for raw intake payloads, normalized intake, detection results, validation issues, validation results, confidence scores, and review recommendations.
+  - Replace placeholder normalization and validation services with deterministic pipeline foundations.
+  - Add a deterministic confidence scoring service separate from validation.
+  - Add Manual Review preparation that turns validation and confidence results into review-ready reason codes and actions.
+  - Keep cancellation and Water Emergency detections as dispatch-safety blockers until future workflows define persistence and execution behavior.
+- Rationale:
+  - External intake data will be messy, but dispatch safety requires normalized, validated, explainable internal structures before routing or export.
+  - Manual Review must receive structured reasons instead of relying on freeform text.
+  - AI may later assist, but deterministic validation must be the first authority.
+- Future implications:
+  - Google Calendar ingestion can later adapt vendor events into `RawIntakePayload` without owning core workflow state.
+  - Future AI services should consume normalized/validated structures and return advisory context only.
+  - Future persistence should map review recommendations into Manual Review records after transaction boundaries are confirmed.
+- Affected systems:
+  - Intake domain structures
+  - Normalization service
+  - Validation service
+  - Confidence scoring service
+  - Manual Review preparation service
+  - Dispatch pipeline documentation

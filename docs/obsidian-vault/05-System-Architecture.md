@@ -105,6 +105,22 @@ The boundary is intentionally narrow. Repositories are for data access only; bus
 
 ---
 
+## Phase 0 Module 5 Intake Pipeline Boundary
+
+The backend now includes deterministic intake processing foundations:
+
+- intake domain structures in `app/domain/intake.py`
+- normalization service for text cleanup and marker/keyword detection
+- validation service for required fields, malformed intake foundations, conflicts, and unsafe dispatch signals
+- deterministic confidence scoring service
+- Manual Review preparation service
+
+The boundary is intentionally pre-ingestion and pre-dispatch. It transforms raw external-like payloads into normalized internal structures and review recommendations, but it does not connect to Google Calendar, persist jobs, dispatch work, route technicians, export to Sheets/FastField, or call AI.
+
+AI remains a future advisory layer only. Deterministic validation and Manual Review safety must remain authoritative.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

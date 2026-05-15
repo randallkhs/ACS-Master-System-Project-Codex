@@ -6,8 +6,8 @@ This repository is the long-term ACS FSM foundation. It is not a temporary scrip
 
 ## Current Status
 
-- Phase: Phase 0 Module 4
-- Current implementation: hardened FastAPI backend foundation with repository/session boundary
+- Phase: Phase 0 Module 5
+- Current implementation: hardened FastAPI backend foundation with deterministic intake pipeline foundation
 - Frontend: deferred for a later Phase 0 module
 - Production target: Linux VPS, Apache reverse proxy, HTTPS, FastAPI backend, PostgreSQL database, future Next.js frontend
 
@@ -29,11 +29,12 @@ The backend scaffold includes:
 - SQLAlchemy 2 model foundation
 - Alembic migration environment and initial migration
 - PostgreSQL connection setup
-- service-layer placeholders
+- service-layer placeholders and intake pipeline foundations
 - integration adapter placeholders
 - structured logging and request ID middleware
 - lifecycle/readiness foundation
 - repository-layer and request-scoped DB session foundation
+- deterministic intake normalization, validation, confidence, and Manual Review preparation foundation
 - backend Makefile developer commands
 - pytest and Ruff configuration
 

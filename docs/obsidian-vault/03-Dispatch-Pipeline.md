@@ -248,6 +248,65 @@ The system must NEVER auto-dispatch uncertain jobs.
 
 ---
 
+## Phase 0 Module 5 Intake Pipeline Foundation
+
+Module 5 establishes the deterministic intake foundation for future dispatch ingestion.
+
+Current internal pipeline:
+
+```text
+RawIntakePayload
+    ↓
+Normalization
+    ↓
+Validation
+    ↓
+Deterministic Confidence Scoring
+    ↓
+Manual Review Preparation
+```
+
+Implemented foundations:
+
+* raw intake payload structure
+* normalized intake structure
+* detection result structure
+* validation issue and result structures
+* deterministic confidence score structure
+* Manual Review recommendation structure
+* whitespace cleanup
+* AM/PM marker extraction
+* supported state marker extraction
+* cancellation keyword detection, including known misspellings
+* Water Emergency keyword detection
+* required-field validation
+* malformed-address foundation
+* conflicting state and time-window detection
+* unsafe dispatch detection foundation
+* warning/error aggregation
+* review reason generation
+
+Safety boundary:
+
+* no live Google Calendar ingestion
+* no route generation
+* no Sheets/FastField export
+* no AI orchestration
+* no dispatch execution
+
+Deterministic rules run before any future AI support. AI may later assist with ambiguous parsing, but it must not become the source of truth or bypass Manual Review.
+
+Unresolved normalization questions:
+
+* exact ACS service taxonomy and keyword list
+* whether `AM` and `PM` should be detected from human time phrases such as `9 AM` or only from route markers such as `AM/DE`
+* whether state markers should be trusted from title text, address text, or both when they conflict
+* exact cancellation fuzzy-match thresholds for auto-cancel versus Manual Review
+* full Water Emergency keyword taxonomy and stage mapping
+* whether missing scheduled date should always block dispatch in every future intake source
+
+---
+
 13. Routing Engine
 
 Current Routing

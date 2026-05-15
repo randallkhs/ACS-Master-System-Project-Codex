@@ -1,3 +1,3 @@
-from app.services.normalization.service import normalization_service
+from app.services.normalization.service import IntakeNormalizationService, normalization_service
 
-__all__ = ["normalization_service"]
+__all__ = ["IntakeNormalizationService", "normalization_service"]

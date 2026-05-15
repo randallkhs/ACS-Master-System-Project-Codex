@@ -1,3 +1,3 @@
-from app.services.validation.service import validation_service
+from app.services.validation.service import IntakeValidationService, validation_service
 
-__all__ = ["validation_service"]
+__all__ = ["IntakeValidationService", "validation_service"]

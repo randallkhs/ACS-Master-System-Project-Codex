@@ -65,6 +65,28 @@ AI may help explain ambiguous cases, but deterministic rules and operator decisi
 
 ---
 
+## Phase 0 Module 5 Boundary
+
+The intake normalization and validation foundation is deterministic only.
+
+Current deterministic responsibilities:
+
+- whitespace cleanup
+- AM/PM marker extraction
+- supported state marker extraction
+- cancellation keyword detection
+- Water Emergency keyword detection
+- required-field validation
+- conflicting marker detection
+- confidence scoring from validation results
+- Manual Review recommendation preparation
+
+AI is not used in this module.
+
+Future AI may assist with ambiguous text extraction or explanation, but it must consume deterministic results as context and must not override validation failures, dispatch safety blocks, cancellation handling, Water Emergency separation, or Manual Review requirements.
+
+---
+
 ## Confidence And Review
 
 Suggested confidence behavior:
