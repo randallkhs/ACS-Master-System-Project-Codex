@@ -8,7 +8,7 @@ This roadmap captures the pre-implementation project direction. It should stay c
 
 ## Current State
 
-Status: Pre-implementation architecture and planning.
+Status: Phase 0 Module 1 backend foundation in progress.
 
 The repository currently contains:
 
@@ -18,8 +18,14 @@ The repository currently contains:
 - Phase 0 build prompt
 - first-module scope
 - operational planning documents
+- FastAPI backend scaffold
+- Pydantic Settings configuration
+- SQLAlchemy model foundation
+- Alembic migration environment and initial migration
+- health-check endpoint
+- service and integration adapter placeholders
 
-The repository does not yet contain production backend or frontend implementation.
+The repository does not yet contain frontend implementation or full production business workflows.
 
 ---
 
@@ -38,11 +44,13 @@ Expected foundation:
 - adapter layer folders
 - audit logging foundation
 - health endpoints
-- Next.js dashboard skeleton
-- admin layout and starter pages
+- future Next.js dashboard skeleton
+- future admin layout and starter pages
 - concise setup documentation
 
 Do not build full routing, full FastField integration, billing, inventory, customer portal, technician mobile app, or AI workflow logic in Phase 0.
+
+Module 1 completed the backend foundation first. Frontend foundation remains deferred for a later Phase 0 module unless explicitly directed.
 
 ---
 

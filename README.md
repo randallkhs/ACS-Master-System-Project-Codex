@@ -1,91 +1,55 @@
 # ACS Master System Project
 
-Custom AI-assisted Field Service Management (FSM) platform for Apple Cleaning Systems.
+Custom Field Service Management platform for Apple Cleaning Systems.
 
-## Phase 0 Goals
+This repository is the long-term ACS FSM foundation. It is not a temporary script launcher.
 
-The purpose of Phase 0 is to establish:
+## Current Status
 
-- Repository structure
-- Codex operating environment
-- Obsidian knowledge vault integration
-- System architecture foundation
-- Engineering rules
-- AI operational directives
-- Dispatch engine planning
-- Water Emergency workflow planning
-- Documentation-first development workflow
+- Phase: Phase 0 Module 1
+- Current implementation: FastAPI backend foundation
+- Frontend: deferred for a later Phase 0 module
+- Production target: Linux VPS, Apache reverse proxy, HTTPS, FastAPI backend, PostgreSQL database, future Next.js frontend
 
----
+## Repository Structure
+
+```text
+backend/                 FastAPI backend foundation
+docs/obsidian-vault/     Project architecture vault and decisions
+docs/codex-system/       AI memory/documentation standards
+```
+
+## Backend
+
+The backend scaffold includes:
+
+- FastAPI app factory
+- `/api/v1/health` endpoint
+- Pydantic Settings configuration
+- SQLAlchemy 2 model foundation
+- Alembic migration environment and initial migration
+- PostgreSQL connection setup
+- service-layer placeholders
+- integration adapter placeholders
+- pytest and Ruff configuration
+
+See [backend/README.md](backend/README.md).
 
 ## Critical Rules
 
-Before generating code:
+Before generating implementation code:
 
-1. Read `AGENTS.md`
-2. Read all architecture documents
-3. Read all Phase 0 planning documents
-4. Follow `CODEX_PHASE_0_BUILD_PROMPT.md`
-5. Never bypass manual review safety rules
-6. Never silently process uncertain jobs
+1. Read `AGENTS.md`.
+2. Read the relevant architecture documents under `docs/obsidian-vault/`.
+3. Follow `docs/obsidian-vault/CODEX_PHASE_0_BUILD_PROMPT.md` for Phase 0 boundaries.
+4. Never bypass manual review safety rules.
+5. Never silently process uncertain jobs.
 
----
+## Operational Safety
 
-## Main Documentation
-
-Primary project documentation lives in:
-
-```text
-/docs/obsidian-vault/
-⸻
-
-Architecture
-
-Main architecture directives:
-
-* SYSTEM_ARCHITECTURE_V1.md
-* PROJECT_ARCHITECTURE_VISION.md
-* 04-Database-Architecture.md
-
-⸻
-
-Current Development Status
-
-Current phase:
-
-PHASE 0 — FOUNDATION & ARCHITECTURE
-
-System status:
-
-PLANNING / INITIALIZATION
-
-backend/
-frontend/
-infrastructure/
-docs/
-
-⸻
-
-Important Notes
-
-This system is intended to replace multiple operational platforms currently used by ACS, including:
-
-* FastField
-* Spreadsheet-based dispatch workflows
-* Manual routing systems
-* Fragmented workflow tools
-
-The system is being designed as a long-term scalable internal company platform.
-
-⸻
-
-AI Safety Rule
-
-If the system is not confident:
-
-* DO NOT auto-process
-* DO NOT auto-dispatch
-* Flag for manual review
-* Explain uncertainty
-
-```text
+- The database is the operational source of truth.
+- External systems are adapters only.
+- Manual Review is a core safety system.
+- AI is advisory only.
+- Water Emergency workflows are first-class workflows.
+- Uncertain jobs must never auto-dispatch.

@@ -117,3 +117,34 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database models
   - Integration adapters
   - Documentation roadmap
+
+---
+
+## 2026-05-15 — Phase 0 Module 1 Backend Foundation
+
+- Decision type: Implementation / architecture
+- Status: Implemented
+- Decision:
+  - Build Phase 0 Module 1 as the backend foundation only.
+  - Create a production-oriented FastAPI backend under `backend/`.
+  - Use Pydantic Settings for environment-driven configuration.
+  - Use SQLAlchemy 2 typed declarative models and Alembic for PostgreSQL migrations.
+  - Add adapter placeholders for Google Calendar, Google Sheets, FastField, Verizon Connect, and AI without implementing live vendor integrations.
+  - Add service placeholders for dispatch pipeline layers and core domains without implementing business workflow logic.
+  - Defer frontend creation to a later Phase 0 module unless explicitly directed.
+- Rationale:
+  - The user directive for Module 1 listed backend foundation requirements and explicitly prohibited full FSM workflow implementation.
+  - Production VPS and Apache reverse-proxy deployment require environment-based configuration and no localhost-hardcoded assumptions.
+  - Clean backend/frontend separation is better preserved by finishing the backend foundation before adding Next.js structure.
+- Future implications:
+  - Future backend work should add repositories, validators, workflow engines, and route handlers inside the existing module boundaries.
+  - Future frontend work should consume API responses and avoid business logic in components.
+  - Live integrations must be implemented inside adapters and guarded by manual-review safety rules.
+- Affected systems:
+  - Backend package
+  - Database models
+  - Alembic migrations
+  - API routing
+  - Service layer
+  - Adapter layer
+  - Documentation
