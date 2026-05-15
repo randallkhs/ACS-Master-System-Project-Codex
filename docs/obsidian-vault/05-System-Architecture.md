@@ -76,6 +76,22 @@ Frontend should display state, warnings, review items, route results, and dispat
 
 ---
 
+## Phase 0 Module 3 Backend Hardening
+
+The backend foundation now includes production-oriented operating structure without implementing business workflows:
+
+- explicit development, testing, and production settings behavior
+- production database URL safety checks
+- versioned API docs/OpenAPI URLs under `/api/v1`
+- request ID middleware for request-safe logging and future audit correlation
+- FastAPI lifespan hooks for startup/shutdown readiness state
+- structured JSON logging by default
+- Makefile developer commands for install, run, test, lint, format, migrations, compileall, and verification
+
+No deployment scripts, Docker/Kubernetes infrastructure, auth, frontend, external integrations, or dispatch workflow logic were added.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

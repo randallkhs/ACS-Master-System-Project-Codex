@@ -175,3 +175,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database documentation
   - Manual Review foundation
   - Water Emergency foundation
+
+---
+
+## 2026-05-15 — Phase 0 Module 3 Backend Hardening
+
+- Decision type: Implementation / backend operations
+- Status: Implemented
+- Decision:
+  - Harden backend settings, logging, lifecycle, API metadata, and developer workflow without adding business workflow logic.
+  - Keep environment behavior explicit for development, testing, and production, including production database URL safety checks.
+  - Version OpenAPI and documentation routes under `/api/v1`, with environment control to disable docs when needed.
+  - Add request ID middleware and structured JSON logging using request-safe fields only.
+  - Add FastAPI lifespan readiness state for future service initialization and shutdown hooks.
+  - Add backend Makefile commands for install, startup, testing, linting, formatting, migrations, Alembic history, compileall, and full verification.
+- Rationale:
+  - The production target is a Linux VPS behind Apache with environment-based configuration, so the backend needs safe runtime boundaries before workflow modules are added.
+  - Request IDs, structured logs, and lifecycle readiness prepare future audit correlation and operational troubleshooting without implementing audit workflow behavior yet.
+  - Makefile commands reduce command drift across future modules.
+- Future implications:
+  - Production deployment still needs a real process manager, Apache reverse-proxy configuration, HTTPS setup, secret management, database backup/rollback strategy, and migration runbook.
+  - Future workflow modules can attach service initialization, background workers, and audit correlation to the lifecycle/logging foundations.
+- Affected systems:
+  - Backend settings
+  - FastAPI application factory
+  - Health endpoint
+  - Structured logging
+  - Developer workflow
+  - Backend documentation

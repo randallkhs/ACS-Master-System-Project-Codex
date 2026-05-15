@@ -81,3 +81,11 @@ These additions are schema foundation only. They do not implement dispatch workf
 - Avoid hidden state in JSON files except debug/export snapshots.
 - Never store secrets in source or plain documentation.
 - Persist Manual Review reasons and operator decisions.
+
+## Environment And Migration Safety
+
+- Database configuration must come from environment-based settings.
+- Production must not use local database hosts, placeholder example hosts, placeholder passwords, or SQL echo logging.
+- Alembic must read the same settings layer as the application.
+- New migrations should be added as forward revisions after committed migrations; do not rewrite committed migrations unless explicitly instructed.
+- Local Phase 0 tests and health checks must not require connecting to a real PostgreSQL database.

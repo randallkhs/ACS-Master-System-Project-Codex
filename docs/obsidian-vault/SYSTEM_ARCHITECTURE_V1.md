@@ -314,7 +314,9 @@ backend/
     main.py
     core/
       config.py
+      lifecycle.py
       logging.py
+      middleware.py
       security.py
     db/
       session.py
@@ -518,6 +520,8 @@ The deployment must support:
 Future deployment may use:
 
 * Docker
+
+Phase 0 backend hardening prepares for VPS deployment through environment-based settings, structured logs, request IDs, health readiness state, and migration/developer commands. It does not implement production deployment infrastructure yet.
 * managed database
 * cloud object storage
 * background workers

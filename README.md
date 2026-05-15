@@ -6,8 +6,8 @@ This repository is the long-term ACS FSM foundation. It is not a temporary scrip
 
 ## Current Status
 
-- Phase: Phase 0 Module 1
-- Current implementation: FastAPI backend foundation
+- Phase: Phase 0 Module 3
+- Current implementation: hardened FastAPI backend foundation
 - Frontend: deferred for a later Phase 0 module
 - Production target: Linux VPS, Apache reverse proxy, HTTPS, FastAPI backend, PostgreSQL database, future Next.js frontend
 
@@ -31,6 +31,9 @@ The backend scaffold includes:
 - PostgreSQL connection setup
 - service-layer placeholders
 - integration adapter placeholders
+- structured logging and request ID middleware
+- lifecycle/readiness foundation
+- backend Makefile developer commands
 - pytest and Ruff configuration
 
 See [backend/README.md](backend/README.md).
