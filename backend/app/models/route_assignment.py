@@ -32,6 +32,7 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     time_window: Mapped[str | None] = mapped_column(String(20), index=True)
     status: Mapped[str] = mapped_column(String(60), default="PLANNED", nullable=False, index=True)
     estimated_arrival_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    estimated_drive_time_minutes: Mapped[int | None] = mapped_column(Integer)
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

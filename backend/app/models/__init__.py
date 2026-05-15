@@ -1,3 +1,4 @@
+from app.models.associations import visit_technicians, work_order_technicians
 from app.models.audit_log import AuditLog
 from app.models.base import Base
 from app.models.customer import Customer
@@ -22,4 +23,6 @@ __all__ = [
     "Visit",
     "WaterEmergency",
     "WorkOrder",
+    "visit_technicians",
+    "work_order_technicians",
 ]

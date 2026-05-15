@@ -194,6 +194,23 @@ Log important actions:
 
 ---
 
+## Phase 0 Module 2 Model Refinements
+
+The Module 2 backend model pass refined only fields and relationships already supported by the documented ACS domain model.
+
+Decisions:
+
+- Customers include flexible billing and property manager contact fields plus tags. Full CRM contact records are deferred.
+- Work orders and visits support multiple assigned technicians through association tables. The existing single technician reference remains available for primary assignment compatibility until operations confirms the exact assignment semantics.
+- Technicians include vehicle/truck context and a flexible availability status. No fixed availability state machine has been implemented yet.
+- Route assignments include estimated drive time minutes in addition to estimated arrival time.
+- Manual Review items keep direct job, visit, and route links and also include a generic entity target for future export actions or other reviewable operations.
+- Audit logs timestamp events by default so trace records are durable even before full workflow services exist.
+
+No workflow logic, CRUD behavior, auth behavior, integration behavior, or Water Emergency stage automation was added in Module 2.
+
+---
+
 ## Initial Status Concepts
 
 Suggested statuses to refine with operations:
@@ -239,3 +256,6 @@ Water Emergency-specific statuses may include:
 - exact FastField forms and approval requirements
 - cancellation confidence behavior
 - next-day vs next-business-day processing rules
+- whether customer billing and property manager contacts need structured person records or flexible text fields are sufficient for the first dispatch module
+- how ACS wants to distinguish primary technician, helper technician, crew lead, and reassigned technician on work orders and visits
+- whether route drive-time estimates should come from Verizon Connect, a mapping provider, operator entry, or internal calculation

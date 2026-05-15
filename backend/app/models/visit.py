@@ -8,6 +8,7 @@ from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models.associations import visit_technicians
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
@@ -39,5 +40,9 @@ class Visit(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     job: Mapped[Job] = relationship(back_populates="visits")
     technician: Mapped[Technician | None] = relationship(back_populates="visits")
+    assigned_technicians: Mapped[list[Technician]] = relationship(
+        secondary=visit_technicians,
+        back_populates="assigned_visits",
+    )
     route_assignments: Mapped[list[RouteAssignment]] = relationship(back_populates="visit")
     review_items: Mapped[list[ReviewItem]] = relationship(back_populates="visit")

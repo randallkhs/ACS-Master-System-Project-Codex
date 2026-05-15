@@ -25,6 +25,8 @@ class ReviewItem(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         PG_UUID(as_uuid=True),
         ForeignKey("route_assignments.id"),
     )
+    entity_type: Mapped[str | None] = mapped_column(String(120), index=True)
+    entity_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), index=True)
     reason_code: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
     status: Mapped[str] = mapped_column(String(60), default="OPEN", nullable=False, index=True)
     confidence_score: Mapped[float | None] = mapped_column(Float)

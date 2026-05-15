@@ -148,3 +148,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - Service layer
   - Adapter layer
   - Documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 2 Domain Model Refinement
+
+- Decision type: Implementation / data model
+- Status: Implemented
+- Decision:
+  - Refine the Module 1 SQLAlchemy model foundation only where supported by the documented ACS core data model.
+  - Add flexible customer billing/property-manager contact fields and tags without creating full CRM contact tables yet.
+  - Add many-to-many technician assignment tables for work orders and visits so Water Emergency and larger jobs are not limited to one technician.
+  - Keep the existing single technician reference available as a primary assignment field until ACS confirms exact crew semantics.
+  - Add technician vehicle and availability context, route drive-time estimates, generic Manual Review target fields, and audit-log default timestamps.
+  - Add a new Alembic revision for these changes instead of rewriting the committed initial migration.
+- Rationale:
+  - The documented model explicitly calls for assigned technician(s), multiple technicians on Water Emergency visits, vehicle/truck context, estimated drive time, export-action review targets, and durable traceability.
+  - The build directive prohibited workflow logic, CRUD endpoints, auth, real integrations, and invented business rules, so the changes stay at schema and relationship level.
+- Future implications:
+  - Operations still needs to confirm structured contact requirements, crew/primary technician semantics, route drive-time source, and exact Water Emergency stages.
+  - Future workflow modules can build on multi-technician assignments and Manual Review targets without changing core table identity.
+- Affected systems:
+  - SQLAlchemy models
+  - Alembic migrations
+  - Model metadata tests
+  - Database documentation
+  - Manual Review foundation
+  - Water Emergency foundation

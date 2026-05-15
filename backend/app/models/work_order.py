@@ -7,6 +7,7 @@ from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models.associations import work_order_technicians
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
@@ -36,3 +37,7 @@ class WorkOrder(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     job: Mapped[Job] = relationship(back_populates="work_orders")
     assigned_technician: Mapped[Technician | None] = relationship(back_populates="work_orders")
+    assigned_technicians: Mapped[list[Technician]] = relationship(
+        secondary=work_order_technicians,
+        back_populates="assigned_work_orders",
+    )

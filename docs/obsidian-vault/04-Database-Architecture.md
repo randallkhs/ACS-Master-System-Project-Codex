@@ -58,6 +58,21 @@ The first implementation may keep models minimal, but relationships should not b
 
 ---
 
+## Phase 0 Module 2 Foundation Decisions
+
+The domain model foundation now includes:
+
+- flexible customer contact and tag fields without introducing full CRM contact tables yet
+- many-to-many technician assignment support for work orders and visits
+- technician vehicle and availability context
+- route drive-time estimate storage
+- generic Manual Review entity targeting for future export or integration actions
+- default audit timestamps for traceability
+
+These additions are schema foundation only. They do not implement dispatch workflows, Water Emergency workflow transitions, CRUD APIs, authentication, or external integrations.
+
+---
+
 ## Data Safety Rules
 
 - Use UUIDs for durable identifiers where appropriate.
