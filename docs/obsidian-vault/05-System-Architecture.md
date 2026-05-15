@@ -139,6 +139,21 @@ Future workflow modules should connect approved review outcomes to dispatch orch
 
 ---
 
+## Phase 0 Module 7 Dispatch Orchestration Boundary
+
+The backend now includes a deterministic dispatch orchestration preparation layer:
+
+- orchestration domain structures for state, warnings, decision result, evidence, intake processing result, and dispatch eligibility
+- `DispatchOrchestrationService` to compose normalization, validation, confidence scoring, Manual Review recommendation, review classification, and eligibility determination
+- evidence snapshots for normalization, validation, confidence, review, and deterministic decision output
+- tests for valid intake, cancellation, malformed intake, Water Emergency separation, low-confidence cancellation, conflicting state/time markers, unsafe required-field failures, and review-required scheduling failures
+
+The boundary is intentionally pre-persistence and pre-execution. Orchestration prepares a deterministic result; it does not write jobs, visits, review records, route assignments, integration exports, or workflow state.
+
+Future modules should treat orchestration output as an input to explicit transactional workflow services.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

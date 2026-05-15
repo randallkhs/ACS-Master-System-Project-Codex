@@ -289,3 +289,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - Intake processing domain
   - Audit traceability foundation
   - Backend documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 7 Dispatch Orchestration Preparation
+
+- Decision type: Implementation / dispatch pipeline foundation
+- Status: Implemented
+- Decision:
+  - Add orchestration domain structures for orchestration state, warnings, dispatch eligibility, evidence, decision result, and intake processing result.
+  - Replace the dispatch service placeholder with `DispatchOrchestrationService`.
+  - Compose the existing deterministic normalization, validation, confidence scoring, Manual Review preparation, review classification, and review escalation services into one orchestration result.
+  - Keep orchestration output in-memory and side-effect-free.
+  - Represent dispatch eligibility separately from dispatch execution.
+- Rationale:
+  - Future dispatch workflows need one explainable preparation result before persistence, routing, exports, integrations, or AI assistance are introduced.
+  - Unsafe intake, cancellations, malformed data, conflicts, low-confidence intake, and Water Emergency intake must stop before dispatch execution and preserve deterministic evidence.
+  - Eligibility should make safety decisions visible without creating hidden workflow transitions.
+- Future implications:
+  - Future modules can persist orchestration outcomes through explicit transactions once intake/job/review persistence decisions are finalized.
+  - Duplicate detection, next-day import policy, and warning-only intake behavior still need operational decisions.
+  - Future AI orchestration must consume this deterministic evidence and remain advisory only.
+- Affected systems:
+  - Dispatch service layer
+  - Orchestration domain structures
+  - Intake pipeline services
+  - Manual Review preparation/classification/escalation
+  - Dispatch pipeline documentation

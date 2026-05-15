@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, and Manual Review Queue services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, and dispatch orchestration services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -215,6 +215,43 @@ Current services keep responsibilities separate:
 - `ReviewAuditTraceBuilder` prepares traceable audit-log evidence.
 
 This foundation does not approve dispatch, create jobs, route technicians, call AI, or write to external systems.
+
+## Dispatch Orchestration Preparation
+
+Phase 0 Module 7 adds the deterministic preparation layer that composes intake processing into one explainable orchestration result.
+
+Current internal flow:
+
+```text
+RawIntakePayload
+  -> IntakeNormalizationService
+  -> IntakeValidationService
+  -> DeterministicConfidenceScoringService
+  -> ManualReviewPreparationService
+  -> DispatchOrchestrationService
+```
+
+The orchestration result includes:
+
+- normalized intake
+- validation result
+- confidence score
+- Manual Review recommendation
+- orchestration warnings
+- dispatch eligibility
+- deterministic decision evidence
+
+Dispatch eligibility currently tracks:
+
+- eligible for dispatch
+- requires review
+- blocked
+- deferred
+- unsafe
+- Water Emergency separated from standard dispatch
+- deterministic reason codes
+
+This layer does not persist jobs, create Manual Review records, approve dispatch, route technicians, export data, call AI, run background work, or execute integrations.
 
 ## Safety Rules
 

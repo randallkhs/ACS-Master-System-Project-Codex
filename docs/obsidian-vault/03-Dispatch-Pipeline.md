@@ -347,6 +347,64 @@ Unresolved review questions:
 
 ---
 
+Phase 0 Module 7 Dispatch Orchestration Preparation
+
+The dispatch pipeline now has a deterministic orchestration preparation layer.
+
+Current orchestration flow:
+
+```text
+Raw Intake
+    ↓
+Normalization
+    ↓
+Validation
+    ↓
+Confidence Scoring
+    ↓
+Manual Review Recommendation
+    ↓
+Dispatch Eligibility Decision
+```
+
+The orchestration result preserves:
+
+* normalized intake
+* validation result
+* confidence score
+* Manual Review recommendation
+* review reasons
+* orchestration warnings
+* dispatch eligibility
+* normalization evidence
+* validation evidence
+* confidence evidence
+* review evidence
+* deterministic decision evidence
+
+Dispatch eligibility is a preparation result only. It can mark intake as eligible, review-required, blocked, deferred, unsafe, or Water Emergency-separated, but it does not dispatch work.
+
+Safety boundary:
+
+* no live Google Calendar ingestion
+* no job persistence
+* no Manual Review persistence from orchestration
+* no route generation
+* no Sheets/FastField export
+* no AI orchestration
+* no dispatch execution
+* no hidden state transitions
+
+Unresolved orchestration questions:
+
+* exact rule for warning-only intake that is technically dispatch-safe but still operationally sensitive
+* whether dispatch eligibility should later include date-window policy such as next-day only
+* how approved review outcomes become persisted jobs, visits, and Water Emergency records
+* exact point where duplicate detection enters the deterministic orchestration flow
+* whether future AI advisory context should be attached before or after Manual Review recommendation
+
+---
+
 13. Routing Engine
 
 Current Routing

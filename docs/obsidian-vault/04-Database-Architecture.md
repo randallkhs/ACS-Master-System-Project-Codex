@@ -149,3 +149,20 @@ Unresolved:
 - exact retention/archive policy for completed review items
 - exact relationship between intake review items and future persisted job/visit records created after approval
 - operator identity/auth fields once authentication exists
+
+## Dispatch Orchestration Persistence Boundary
+
+Phase 0 Module 7 adds dispatch orchestration preparation without adding new database tables.
+
+The orchestration result is currently an in-memory deterministic decision structure. It composes normalized intake, validation, confidence, review recommendation, dispatch eligibility, warnings, and decision evidence.
+
+Persistence boundary:
+
+- orchestration does not create jobs
+- orchestration does not create visits or work orders
+- orchestration does not create route assignments
+- orchestration does not persist Manual Review items
+- orchestration does not call integrations
+- orchestration does not mutate workflow state
+
+Future workflow modules should persist orchestration outcomes through explicit service transactions after the storage model for imported intake and approved review outcomes is confirmed.

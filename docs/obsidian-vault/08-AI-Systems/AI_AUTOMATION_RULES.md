@@ -93,6 +93,16 @@ AI is still not used in this module.
 
 Future AI may add advisory context to a review item only if deterministic validation and queue state remain authoritative. AI must not approve, reject, defer, archive, dispatch, route, export, or silently clear any Manual Review item.
 
+## Phase 0 Module 7 Boundary
+
+The dispatch orchestration preparation layer is deterministic only.
+
+It may compose normalized intake, validation results, deterministic confidence scores, Manual Review recommendations, review reasons, warnings, dispatch eligibility, and evidence snapshots.
+
+AI is still not used in this module.
+
+Future AI orchestration may provide advisory context only after deterministic evidence exists. AI must not change dispatch eligibility, clear unsafe flags, remove Water Emergency separation, bypass Manual Review, create jobs, route technicians, or execute integrations.
+
 ---
 
 ## Confidence And Review
