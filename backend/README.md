@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, and operational job creation services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, and operational work generation services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -328,6 +328,55 @@ Creation rules:
 - job creation sets the job to `awaiting_dispatch` only; dispatch has not executed
 
 This layer does not route technicians, create visits or work orders, execute integrations, run background workers, call AI, or dispatch work.
+
+## Operational Work Generation Foundation
+
+Phase 0 Module 10 adds the first scheduling-ready operational execution preparation layer.
+
+Current generation flow:
+
+```text
+Job + JobCreationRecord
+  -> OperationalWorkGenerationService
+  -> WorkOrder
+  -> Visit
+```
+
+Work Orders now preserve:
+
+- job linkage
+- job creation record linkage
+- review item linkage when present
+- audit correlation ID
+- generation snapshot
+- intake snapshot
+- orchestration snapshot
+- dispatch eligibility snapshot
+- review linkage snapshot
+- deterministic evidence snapshot
+- lifecycle metadata
+
+Visits now preserve:
+
+- job linkage
+- work order linkage
+- audit correlation ID
+- generation snapshot
+- work order snapshot
+- review linkage snapshot
+- deterministic evidence snapshot
+- lifecycle metadata
+
+Generation rules:
+
+- only approved standard jobs in `awaiting_dispatch` can generate standard Work Orders
+- blocked jobs, review-required jobs, invalid-lifecycle jobs, and Water Emergency jobs are rejected
+- duplicate Work Order generation for the same job is blocked
+- duplicate Visit generation for the same Work Order is blocked
+- generated Work Orders are scheduling-ready, not dispatched
+- generated Visits are awaiting assignment, not assigned or routed
+
+This layer does not execute dispatch, route technicians, assign technicians, schedule visits, call integrations, run background workers, or call AI.
 
 ## Safety Rules
 

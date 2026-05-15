@@ -528,6 +528,85 @@ Unresolved creation questions:
 
 ---
 
+Phase 0 Module 10 Work Order And Visit Generation Foundation
+
+The dispatch pipeline now has a scheduling-ready operational generation boundary.
+
+Current generation flow:
+
+```text
+Standard Job
+    ↓
+Work Order Generation
+    ↓
+Work Order
+    ↓
+Visit Generation
+    ↓
+Visit
+```
+
+The Work Order generation service creates standard Work Orders only from approved standard jobs that came through the explicit intake-to-job creation boundary.
+
+Work Order evidence preserves:
+
+* job ID
+* work order ID
+* job creation record ID
+* review item linkage when present
+* audit correlation ID
+* intake snapshot
+* orchestration snapshot
+* dispatch eligibility snapshot
+* deterministic evidence snapshot
+* generation snapshot
+* lifecycle metadata
+
+Visit evidence preserves:
+
+* job ID
+* work order ID
+* visit ID
+* audit correlation ID
+* work order snapshot
+* deterministic evidence snapshot
+* review linkage snapshot
+* generation snapshot
+* lifecycle metadata
+
+Generation safety rules:
+
+* blocked jobs cannot create Work Orders
+* review-required jobs cannot create Work Orders
+* Water Emergency jobs cannot use the standard Work Order path
+* invalid lifecycle states cannot create Work Orders or Visits
+* duplicate Work Order generation for the same job is blocked
+* duplicate Visit generation for the same Work Order is blocked
+* generated Work Orders are not dispatched
+* generated Visits are not assigned, scheduled, routed, or dispatched
+
+Safety boundary:
+
+* generation does not execute dispatch
+* generation does not route technicians
+* generation does not assign technicians
+* generation does not run a scheduling engine
+* generation does not export to Sheets/FastField
+* generation does not call integrations
+* generation does not run background workers
+* generation does not call AI
+
+Unresolved generation questions:
+
+* exact Work Order numbering policy for production operations
+* exact default required forms and equipment notes by service type
+* whether one standard job should always create exactly one Work Order and one Visit
+* whether future reviewed jobs need a second operator confirmation before Work Order generation
+* how standard Work Order generation differs from the future Water Emergency operational path
+* when technician assignment, schedule time windows, and routing should become durable workflow steps
+
+---
+
 13. Routing Engine
 
 Current Routing

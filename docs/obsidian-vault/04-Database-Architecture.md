@@ -237,3 +237,48 @@ Unresolved:
 - whether duplicate protection should also be enforced on source-system/source-ID
 - how Water Emergency intake should link to dedicated Water Emergency records instead of standard jobs
 - whether creation attempts that fail should eventually be persisted as separate audit/history records
+
+## Work Order And Visit Generation Traceability
+
+Phase 0 Module 10 expands `work_orders` and `visits` with scheduling-ready generation traceability.
+
+Work Orders store:
+
+- job creation record ID
+- review item ID when present
+- audit correlation ID
+- generation snapshot
+- intake snapshot
+- orchestration snapshot
+- dispatch eligibility snapshot
+- review linkage snapshot
+- deterministic evidence snapshot
+- lifecycle metadata
+- generated-from-job timestamp
+
+Visits store:
+
+- work order ID
+- audit correlation ID
+- generation snapshot
+- work order snapshot
+- review linkage snapshot
+- deterministic evidence snapshot
+- lifecycle metadata
+- generated-from-work-order timestamp
+
+Persistence philosophy:
+
+- Job creation and Work Order generation are separate boundaries.
+- Work Order generation prepares technician-facing operational structure.
+- Visit generation prepares assignment/scheduling/routing input.
+- Generation does not assign technicians, run routing, schedule exact times, dispatch work, export to vendors, or call AI.
+- Standard Work Order/Visit generation blocks Water Emergency jobs because Water Emergency requires a separated operational path.
+
+Unresolved:
+
+- whether production Work Order numbers should use date, branch, service type, or operator-visible sequence
+- whether source-level duplicate protection should extend from intake into Work Order generation
+- which service types require multiple visits or multiple Work Orders
+- where future schedule-window persistence should live
+- how Water Emergency Work Orders and Visits should differ from the standard path

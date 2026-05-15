@@ -376,3 +376,36 @@ Use this file for durable decisions that affect future development. Do not recor
   - Operational intake lifecycle
   - Audit traceability foundation
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 10 Work Order And Visit Generation Foundation
+
+- Decision type: Implementation / operational execution preparation
+- Status: Implemented
+- Decision:
+  - Add a deterministic Work Order and Visit generation boundary after operational job creation.
+  - Add `OperationalGenerationLifecycleState`, failure reasons, traceability, evidence, and result structures for Work Order and Visit generation.
+  - Expand Work Orders with job creation linkage, review linkage, audit correlation, snapshots, lifecycle metadata, and generated-from-job timestamp.
+  - Expand Visits with Work Order linkage, audit correlation, snapshots, lifecycle metadata, and generated-from-work-order timestamp.
+  - Add repository lookup helpers for duplicate Work Order generation by job and duplicate Visit generation by Work Order.
+  - Add `OperationalWorkGenerationService` to create scheduling-ready standard Work Orders and unassigned standard Visits.
+  - Block Work Order generation for blocked, review-required, invalid-lifecycle, duplicate, or Water Emergency jobs.
+- Rationale:
+  - The platform needs technician-facing operational structures before dispatch/routing modules can consume jobs.
+  - Work Order generation should preserve the intake/orchestration/job creation evidence chain instead of relying on transient service context.
+  - Visits must become durable before future technician assignment, scheduling, routing, and dispatch can operate safely.
+  - Water Emergency requires a separated path because it can involve multi-day, multi-visit, equipment-tracked workflows.
+- Future implications:
+  - Future dispatch/routing should consume generated Work Orders and Visits through explicit workflow services.
+  - Production Work Order numbering, service-specific form/equipment defaults, one-job-to-one-work-order assumptions, and schedule-window persistence still need operational decisions.
+  - Water Emergency Work Order/Visit generation needs a separate module rather than reuse of the standard path.
+- Affected systems:
+  - WorkOrder model
+  - Visit model
+  - JobCreationRecord relationships
+  - Alembic migrations
+  - Repository layer
+  - Operational work generation service
+  - Audit traceability foundation
+  - Dispatch pipeline documentation

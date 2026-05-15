@@ -119,6 +119,14 @@ AI is still not used in this module.
 
 Only explicitly approved standard intake records can create standard jobs. AI must not create jobs, bypass duplicate protection, mark review-required intake as approved, convert Water Emergency intake into standard jobs, change lifecycle state, dispatch work, route technicians, or alter creation evidence.
 
+## Phase 0 Module 10 Boundary
+
+Work Order and Visit generation is deterministic only.
+
+AI is still not used in this module.
+
+Only approved standard jobs can generate standard Work Orders, and only generated standard Work Orders can generate Visits. AI must not create Work Orders or Visits, bypass duplicate prevention, approve review-required jobs, convert Water Emergency jobs into the standard path, assign technicians, schedule visits, route work, dispatch work, or alter generation evidence.
+
 ---
 
 ## Confidence And Review

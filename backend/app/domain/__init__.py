@@ -19,6 +19,15 @@ from app.domain.job_creation import (
     JobCreationTraceability,
 )
 from app.domain.manual_review import IntakeProcessingState, ReviewStatus
+from app.domain.operational_generation import (
+    OperationalGenerationEvidence,
+    OperationalGenerationFailureCode,
+    OperationalGenerationFailureReason,
+    OperationalGenerationLifecycleState,
+    OperationalGenerationTraceability,
+    VisitGenerationResult,
+    WorkOrderGenerationResult,
+)
 from app.domain.operational_intake import OperationalLifecycleState
 from app.domain.orchestration import (
     DispatchEligibility,
@@ -49,10 +58,17 @@ __all__ = [
     "OrchestrationEvidence",
     "OrchestrationState",
     "OrchestrationWarning",
+    "OperationalGenerationEvidence",
+    "OperationalGenerationFailureCode",
+    "OperationalGenerationFailureReason",
+    "OperationalGenerationLifecycleState",
+    "OperationalGenerationTraceability",
     "OperationalLifecycleState",
     "RawIntakePayload",
     "ReviewRecommendation",
     "ReviewStatus",
     "TimeWindow",
     "ValidationResult",
+    "VisitGenerationResult",
+    "WorkOrderGenerationResult",
 ]

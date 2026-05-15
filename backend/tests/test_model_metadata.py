@@ -149,3 +149,40 @@ def test_job_creation_records_link_intake_to_jobs_with_traceability() -> None:
     }
 
     assert expected_columns.issubset(set(columns.keys()))
+
+
+def test_work_orders_store_generation_traceability() -> None:
+    columns = Base.metadata.tables["work_orders"].columns
+
+    expected_columns = {
+        "job_creation_record_id",
+        "review_item_id",
+        "audit_correlation_id",
+        "generation_snapshot",
+        "intake_snapshot",
+        "orchestration_snapshot",
+        "dispatch_eligibility_snapshot",
+        "review_linkage_snapshot",
+        "deterministic_evidence_snapshot",
+        "lifecycle_metadata",
+        "generated_from_job_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
+def test_visits_store_work_order_linkage_and_generation_traceability() -> None:
+    columns = Base.metadata.tables["visits"].columns
+
+    expected_columns = {
+        "work_order_id",
+        "audit_correlation_id",
+        "generation_snapshot",
+        "work_order_snapshot",
+        "review_linkage_snapshot",
+        "deterministic_evidence_snapshot",
+        "lifecycle_metadata",
+        "generated_from_work_order_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))

@@ -188,6 +188,25 @@ Future dispatch execution should consume created jobs and creation records throu
 
 ---
 
+## Phase 0 Module 10 Work Order And Visit Generation Boundary
+
+The backend now includes the first scheduling-ready operational execution preparation layer:
+
+- `OperationalGenerationLifecycleState` and failure-code domain structures
+- Work Order traceability fields for job creation linkage, review linkage, snapshots, audit correlation, and lifecycle metadata
+- Visit traceability fields for Work Order linkage, snapshots, audit correlation, and lifecycle metadata
+- repository duplicate lookup helpers for generated Work Orders and Visits
+- `OperationalWorkGenerationService` for deterministic Work Order and Visit generation
+- audit-log preparation for generated Work Orders and Visits
+
+The boundary is intentionally pre-dispatch and pre-routing. It can create a standard Work Order from an approved standard job and create an unassigned Visit from that Work Order, but it does not assign technicians, schedule exact times, route work, dispatch work, export to vendors, call integrations, run background workers, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Blocked, review-required, invalid-lifecycle, duplicate, or Water Emergency jobs cannot use the standard Work Order generation path.
+
+Future dispatch/routing modules should consume generated Work Orders and Visits through explicit workflow services and transactions.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

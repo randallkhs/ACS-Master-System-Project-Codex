@@ -13,6 +13,7 @@ from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 if TYPE_CHECKING:
     from app.models.intake_processing_record import IntakeProcessingRecord
     from app.models.job import Job
+    from app.models.work_order import WorkOrder
 
 
 class JobCreationRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -57,3 +58,4 @@ class JobCreationRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         back_populates="job_creation_records",
     )
     job: Mapped[Job] = relationship(back_populates="job_creation_records")
+    work_orders: Mapped[list[WorkOrder]] = relationship(back_populates="job_creation_record")

@@ -84,6 +84,8 @@ Prepare for:
 - completion status
 - technician-facing notes
 
+Work Orders generated from standard jobs must preserve intake/job creation traceability and start as scheduling-ready records. Work Order generation does not assign technicians, schedule exact times, route work, or dispatch work.
+
 ## Visits
 
 Represents one technician interaction at a property on a date/time.
@@ -100,6 +102,8 @@ Prepare for:
 - moisture readings in future
 - equipment actions in future
 - visit status
+
+Visits generated from Work Orders must preserve Work Order linkage and generation evidence. A generated Visit starts awaiting assignment; technician assignment, exact scheduling, routing, and dispatch remain future workflow steps.
 
 ## Technicians
 
@@ -214,6 +218,25 @@ Prepare for:
 - duplicate creation prevention
 
 Job creation records should make intake-to-job transitions traceable without executing dispatch, routing technicians, creating visits/work orders, or bypassing Manual Review.
+
+## Work Order And Visit Generation
+
+Represents the controlled transition from a standard operational job into technician-facing execution structures.
+
+Prepare for:
+
+- job-to-work-order linkage
+- job creation record linkage
+- work-order-to-visit linkage
+- audit correlation continuity
+- intake/orchestration/dispatch eligibility evidence on Work Orders
+- deterministic evidence snapshots
+- review linkage snapshots
+- generation snapshots
+- scheduling-ready lifecycle states
+- duplicate generation prevention
+
+The standard path is intentionally separated from Water Emergency. Water Emergency work will need its own generation rules because it may require multiple visits, equipment lifecycle actions, and long-lived workflow state.
 
 ---
 
