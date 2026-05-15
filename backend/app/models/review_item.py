@@ -11,6 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from app.models.intake_processing_record import IntakeProcessingRecord
     from app.models.job import Job
     from app.models.route_assignment import RouteAssignment
     from app.models.visit import Visit
@@ -52,3 +53,6 @@ class ReviewItem(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     job: Mapped[Job | None] = relationship(back_populates="review_items")
     visit: Mapped[Visit | None] = relationship(back_populates="review_items")
     route_assignment: Mapped[RouteAssignment | None] = relationship(back_populates="review_items")
+    intake_processing_records: Mapped[list[IntakeProcessingRecord]] = relationship(
+        back_populates="review_item",
+    )

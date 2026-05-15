@@ -11,6 +11,7 @@ from app.domain.intake import (
     ValidationResult,
 )
 from app.domain.manual_review import IntakeProcessingState, ReviewStatus
+from app.domain.operational_intake import OperationalLifecycleState
 from app.domain.orchestration import (
     DispatchEligibility,
     IntakeProcessingResult,
@@ -34,6 +35,7 @@ __all__ = [
     "OrchestrationEvidence",
     "OrchestrationState",
     "OrchestrationWarning",
+    "OperationalLifecycleState",
     "RawIntakePayload",
     "ReviewRecommendation",
     "ReviewStatus",

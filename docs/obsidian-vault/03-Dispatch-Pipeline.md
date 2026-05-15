@@ -405,6 +405,68 @@ Unresolved orchestration questions:
 
 ---
 
+Phase 0 Module 8 Operational Intake Persistence
+
+The dispatch pipeline now has a durable operational intake persistence boundary.
+
+Current persistence flow:
+
+```text
+Orchestration Result
+    ↓
+Operational Intake Persistence
+    ↓
+Intake Processing Record
+```
+
+The persisted intake processing record stores:
+
+* source system/source ID
+* lifecycle state
+* orchestration state
+* dispatch eligibility snapshot
+* orchestration result snapshot
+* raw payload snapshot
+* normalized evidence
+* validation evidence
+* confidence evidence
+* review evidence
+* warning evidence
+* deterministic decision evidence
+* review item linkage
+* audit correlation ID
+
+Current operational lifecycle states:
+
+* intake_received
+* normalized
+* validated
+* review_required
+* approved_for_dispatch
+* blocked
+* deferred
+* archived
+
+Safety boundary:
+
+* persistence does not execute dispatch
+* persistence does not create jobs, visits, work orders, or route assignments
+* persistence does not call integrations
+* persistence does not run background workers
+* unsafe intake cannot be marked approved for dispatch
+* Water Emergency intake remains separated from standard dispatch approval
+* review-required intake remains review-required until explicitly resolved
+
+Unresolved persistence questions:
+
+* whether imported intake records need deduplication keys before persistence
+* when approved intake becomes a real job/work order/visit
+* whether review resolution should create a second immutable lifecycle event record
+* exact retention/archive policy for intake processing records
+* how future operator identity should be stored on lifecycle transitions
+
+---
+
 13. Routing Engine
 
 Current Routing

@@ -316,3 +316,32 @@ Use this file for durable decisions that affect future development. Do not recor
   - Intake pipeline services
   - Manual Review preparation/classification/escalation
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 8 Operational Intake Persistence
+
+- Decision type: Implementation / persistence boundary
+- Status: Implemented
+- Decision:
+  - Add `OperationalLifecycleState` for intake_received, normalized, validated, review_required, approved_for_dispatch, blocked, deferred, and archived records.
+  - Add `IntakeProcessingRecord` as the durable operational intake record for orchestration outcomes.
+  - Add `IntakeProcessingRecordRepository` and `OperationalIntakePersistenceService`.
+  - Persist raw payload, orchestration, dispatch eligibility, normalized, validation, confidence, review, warning, and deterministic evidence snapshots.
+  - Preserve review item linkage and audit correlation on the intake processing record.
+  - Keep persistence separate from orchestration and dispatch execution.
+- Rationale:
+  - The platform needs a durable, auditable handoff between deterministic orchestration and future operational workflow creation.
+  - Evidence must persist before dispatch execution exists so operators can inspect why a record is approved, blocked, or review-required.
+  - Unsafe and Water Emergency intake must remain blocked from standard dispatch approval at the persistence boundary.
+- Future implications:
+  - Future dispatch execution should consume `approved_for_dispatch` intake records through explicit transactions.
+  - Intake-to-job/work-order/visit creation remains unresolved and should not be hidden inside persistence.
+  - Future review resolution, operator identity, deduplication, and immutable lifecycle history need separate design decisions.
+- Affected systems:
+  - Intake processing model
+  - Alembic migrations
+  - Repository layer
+  - Operational intake persistence service
+  - Audit traceability foundation
+  - Dispatch pipeline documentation

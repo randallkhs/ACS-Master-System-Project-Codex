@@ -12,6 +12,7 @@ def test_foundational_domain_tables_are_registered() -> None:
         "route_assignments",
         "water_emergencies",
         "review_items",
+        "intake_processing_records",
         "audit_logs",
     }
 
@@ -95,3 +96,33 @@ def test_audit_logs_timestamp_events_by_default() -> None:
 
     assert columns["occurred_at"].server_default is not None
     assert "audit_correlation_id" in columns
+
+
+def test_intake_processing_records_store_orchestration_traceability() -> None:
+    columns = Base.metadata.tables["intake_processing_records"].columns
+
+    expected_columns = {
+        "source_system",
+        "source_id",
+        "lifecycle_state",
+        "orchestration_state",
+        "review_item_id",
+        "audit_correlation_id",
+        "raw_payload_snapshot",
+        "orchestration_result_snapshot",
+        "dispatch_eligibility_snapshot",
+        "normalized_snapshot",
+        "validation_snapshot",
+        "confidence_snapshot",
+        "review_snapshot",
+        "warning_snapshot",
+        "deterministic_evidence_snapshot",
+        "review_linkage_snapshot",
+        "dispatch_eligible",
+        "requires_review",
+        "blocked",
+        "unsafe",
+        "water_emergency_separated",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))

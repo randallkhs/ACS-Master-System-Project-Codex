@@ -52,6 +52,7 @@ Initial architecture should prepare:
 - RouteAssignment
 - WaterEmergency
 - ReviewItem
+- IntakeProcessingRecord
 - AuditLog
 
 The first implementation may keep models minimal, but relationships should not block future CRM, technician app, inventory, billing, or customer portal work.
@@ -166,3 +167,35 @@ Persistence boundary:
 - orchestration does not mutate workflow state
 
 Future workflow modules should persist orchestration outcomes through explicit service transactions after the storage model for imported intake and approved review outcomes is confirmed.
+
+## Intake Processing Records
+
+Phase 0 Module 8 adds `intake_processing_records` as the first persistent operational intake boundary.
+
+The table stores:
+
+- source references
+- lifecycle state
+- orchestration state
+- review item linkage
+- audit correlation ID
+- dispatch eligibility flags
+- raw payload snapshot
+- orchestration result snapshot
+- dispatch eligibility snapshot
+- normalized, validation, confidence, review, warning, and deterministic evidence snapshots
+
+Persistence philosophy:
+
+- Orchestration remains in-memory decision preparation.
+- Persistence stores the orchestration outcome and evidence.
+- Persistence does not create jobs, visits, work orders, route assignments, exports, or integration calls.
+- `approved_for_dispatch` means the intake record is eligible for a future dispatch workflow step, not that dispatch has executed.
+- Review-required records must remain review-required unless a future explicit review-resolution transaction moves them forward.
+
+Unresolved:
+
+- whether intake processing records need immutable transition history rows
+- whether source-system/source-ID uniqueness should be enforced per import source
+- exact relationship between intake records and future persisted job/work-order records
+- how operator identity and authorization should be captured on lifecycle transitions

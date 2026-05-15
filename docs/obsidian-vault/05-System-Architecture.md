@@ -154,6 +154,22 @@ Future modules should treat orchestration output as an input to explicit transac
 
 ---
 
+## Phase 0 Module 8 Operational Intake Persistence Boundary
+
+The backend now includes the first persistent operational transition after orchestration:
+
+- `OperationalLifecycleState` for intake_received, normalized, validated, review_required, approved_for_dispatch, blocked, deferred, and archived states
+- `IntakeProcessingRecord` model for durable orchestration outcome storage
+- `IntakeProcessingRecordRepository` for thin persistence access
+- `OperationalIntakePersistenceService` for storing orchestration outcomes and deterministic evidence
+- audit-log builder support for persisted intake records
+
+The boundary is intentionally storage-only. It persists orchestration outputs and lifecycle state, but it does not create jobs, dispatch work, route technicians, export to vendors, call AI, or run background workers.
+
+Future dispatch execution should consume approved intake records through explicit transactional services, with Manual Review and Water Emergency boundaries preserved.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

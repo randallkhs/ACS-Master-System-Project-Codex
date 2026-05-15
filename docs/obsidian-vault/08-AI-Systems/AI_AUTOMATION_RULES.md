@@ -103,6 +103,14 @@ AI is still not used in this module.
 
 Future AI orchestration may provide advisory context only after deterministic evidence exists. AI must not change dispatch eligibility, clear unsafe flags, remove Water Emergency separation, bypass Manual Review, create jobs, route technicians, or execute integrations.
 
+## Phase 0 Module 8 Boundary
+
+Operational intake persistence stores deterministic orchestration outcomes and evidence.
+
+AI is still not used in this module.
+
+Future AI may add advisory evidence only through explicit fields and after deterministic orchestration has produced auditable results. AI must not mark records approved for dispatch, resolve review-required records, convert Water Emergency intake into standard dispatch, create jobs, or alter persisted deterministic evidence.
+
 ---
 
 ## Confidence And Review

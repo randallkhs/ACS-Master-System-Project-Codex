@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, and dispatch orchestration services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, and operational intake persistence services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -252,6 +252,46 @@ Dispatch eligibility currently tracks:
 - deterministic reason codes
 
 This layer does not persist jobs, create Manual Review records, approve dispatch, route technicians, export data, call AI, run background work, or execute integrations.
+
+## Operational Intake Persistence
+
+Phase 0 Module 8 adds the first durable storage boundary for deterministic orchestration outcomes.
+
+Current persistence flow:
+
+```text
+DispatchOrchestrationService result
+  -> OperationalIntakePersistenceService
+  -> IntakeProcessingRecordRepository
+  -> intake_processing_records
+```
+
+`IntakeProcessingRecord` stores:
+
+- source system/source ID
+- lifecycle state
+- orchestration state
+- review item linkage
+- audit correlation ID
+- orchestration result snapshot
+- dispatch eligibility snapshot
+- raw payload, normalized, validation, confidence, review, warning, and deterministic evidence snapshots
+
+Current lifecycle states:
+
+```text
+intake_received -> normalized -> validated -> review_required/approved_for_dispatch/blocked/deferred/archived
+```
+
+Persistence rules:
+
+- orchestration prepares decisions; persistence stores outcomes
+- unsafe intake cannot be marked approved for dispatch
+- Water Emergency intake cannot enter standard dispatch approval
+- review-required intake remains review-required until explicitly resolved
+- deterministic evidence must be stored with the operational intake record
+
+This layer does not create jobs, visits, work orders, routes, exports, background jobs, AI actions, or live integrations.
 
 ## Safety Rules
 

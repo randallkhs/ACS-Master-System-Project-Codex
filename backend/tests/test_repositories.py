@@ -3,6 +3,7 @@ from uuid import uuid4
 from app.models import (
     AuditLog,
     Customer,
+    IntakeProcessingRecord,
     Job,
     Property,
     ReviewItem,
@@ -16,6 +17,7 @@ from app.repositories import (
     AuditLogRepository,
     BaseRepository,
     CustomerRepository,
+    IntakeProcessingRecordRepository,
     JobRepository,
     PropertyRepository,
     ReviewItemRepository,
@@ -63,6 +65,7 @@ def test_domain_repositories_bind_expected_models() -> None:
     expected_models = [
         (AuditLogRepository, AuditLog),
         (CustomerRepository, Customer),
+        (IntakeProcessingRecordRepository, IntakeProcessingRecord),
         (JobRepository, Job),
         (PropertyRepository, Property),
         (ReviewItemRepository, ReviewItem),

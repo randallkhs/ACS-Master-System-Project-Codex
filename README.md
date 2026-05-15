@@ -6,8 +6,8 @@ This repository is the long-term ACS FSM foundation. It is not a temporary scrip
 
 ## Current Status
 
-- Phase: Phase 0 Module 7
-- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, and dispatch orchestration preparation foundations
+- Phase: Phase 0 Module 8
+- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, and operational intake persistence foundations
 - Frontend: deferred for a later Phase 0 module
 - Production target: Linux VPS, Apache reverse proxy, HTTPS, FastAPI backend, PostgreSQL database, future Next.js frontend
 
@@ -37,6 +37,7 @@ The backend scaffold includes:
 - deterministic intake normalization, validation, confidence, and Manual Review preparation foundation
 - persistent Manual Review Queue fields, lifecycle states, traceability snapshots, and audit-correlation foundation
 - deterministic dispatch orchestration preparation and dispatch eligibility result foundation
+- operational intake processing record persistence with orchestration snapshots, eligibility snapshots, review linkage, and audit correlation
 - backend Makefile developer commands
 - pytest and Ruff configuration
 

@@ -2,6 +2,7 @@ from app.models.associations import visit_technicians, work_order_technicians
 from app.models.audit_log import AuditLog
 from app.models.base import Base
 from app.models.customer import Customer
+from app.models.intake_processing_record import IntakeProcessingRecord
 from app.models.job import Job
 from app.models.property import Property
 from app.models.review_item import ReviewItem
@@ -15,6 +16,7 @@ __all__ = [
     "AuditLog",
     "Base",
     "Customer",
+    "IntakeProcessingRecord",
     "Job",
     "Property",
     "ReviewItem",
