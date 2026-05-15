@@ -53,6 +53,7 @@ Initial architecture should prepare:
 - WaterEmergency
 - ReviewItem
 - IntakeProcessingRecord
+- JobCreationRecord
 - AuditLog
 
 The first implementation may keep models minimal, but relationships should not block future CRM, technician app, inventory, billing, or customer portal work.
@@ -199,3 +200,40 @@ Unresolved:
 - whether source-system/source-ID uniqueness should be enforced per import source
 - exact relationship between intake records and future persisted job/work-order records
 - how operator identity and authorization should be captured on lifecycle transitions
+
+## Operational Job Creation Records
+
+Phase 0 Module 9 adds `job_creation_records` as the durable linkage between an approved intake processing record and the standard job created from it.
+
+The table stores:
+
+- intake processing record ID
+- created job ID
+- review item ID when present
+- lifecycle state
+- audit correlation ID
+- creation snapshot
+- intake snapshot
+- orchestration snapshot
+- dispatch eligibility snapshot
+- review linkage snapshot
+- deterministic evidence snapshot
+- lifecycle metadata
+- created-from-intake timestamp
+
+Persistence philosophy:
+
+- Intake persistence stores orchestration outcomes.
+- Job creation consumes only explicitly approved intake records.
+- Job creation records preserve why and how a job was created.
+- A unique intake-processing-record link prevents duplicate standard job creation from the same intake record.
+- Standard job creation sets the created job to `awaiting_dispatch`; it does not route or dispatch work.
+- Water Emergency intake remains separated from standard job creation.
+
+Unresolved:
+
+- whether future job creation should materialize customer/property records at the same boundary
+- whether future standard job creation should also create a work order or wait for a dispatch module
+- whether duplicate protection should also be enforced on source-system/source-ID
+- how Water Emergency intake should link to dedicated Water Emergency records instead of standard jobs
+- whether creation attempts that fail should eventually be persisted as separate audit/history records

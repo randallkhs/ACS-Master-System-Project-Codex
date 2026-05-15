@@ -345,3 +345,34 @@ Use this file for durable decisions that affect future development. Do not recor
   - Operational intake persistence service
   - Audit traceability foundation
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 9 Operational Job Creation Foundation
+
+- Decision type: Implementation / operational workflow boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic operational job creation boundary after operational intake persistence.
+  - Create `JobCreationRecord` as the durable intake-to-job linkage and creation evidence record.
+  - Add `OperationalJobCreationService` to create standard jobs only from explicitly approved intake records.
+  - Preserve orchestration, dispatch eligibility, review linkage, deterministic evidence, audit correlation, and lifecycle metadata snapshots when a job is created.
+  - Block job creation for review-required, blocked, unsafe, invalid-lifecycle, duplicate, missing-linkage, and Water Emergency-separated intake.
+  - Set created standard jobs to `awaiting_dispatch` only, preserving the boundary that job creation is not dispatch execution.
+- Rationale:
+  - The platform needs a controlled transition from approved intake into operational entities before routing or dispatch modules are added.
+  - Intake persistence should not hide job creation side effects, and dispatch orchestration should remain side-effect-free.
+  - Water Emergency and Manual Review safety boundaries must remain enforceable before any future dispatch execution exists.
+- Future implications:
+  - Future dispatch execution should consume created jobs and job creation records through explicit workflow services and transactions.
+  - Customer/property materialization, standard work-order creation, review-resolution approval semantics, source-level duplicate keys, and Water Emergency workflow creation remain unresolved.
+  - Creation failures may eventually need separate persisted attempt history if operations requires audit visibility for failed creation attempts.
+- Affected systems:
+  - Job model lifecycle usage
+  - JobCreationRecord model
+  - Alembic migrations
+  - Repository layer
+  - Operational job creation service
+  - Operational intake lifecycle
+  - Audit traceability foundation
+  - Dispatch pipeline documentation

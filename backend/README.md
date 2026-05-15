@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, and operational intake persistence services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, and operational job creation services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -292,6 +292,42 @@ Persistence rules:
 - deterministic evidence must be stored with the operational intake record
 
 This layer does not create jobs, visits, work orders, routes, exports, background jobs, AI actions, or live integrations.
+
+## Operational Job Creation Foundation
+
+Phase 0 Module 9 adds the first controlled transition from approved intake records into durable operational job structures.
+
+Current creation flow:
+
+```text
+Approved IntakeProcessingRecord
+  -> OperationalJobCreationService
+  -> Job
+  -> JobCreationRecord
+```
+
+`JobCreationRecord` stores:
+
+- intake-to-job linkage
+- review item linkage when present
+- audit correlation ID
+- creation snapshot
+- intake snapshot
+- orchestration snapshot
+- dispatch eligibility snapshot
+- review linkage snapshot
+- deterministic evidence snapshot
+- lifecycle metadata
+
+Creation rules:
+
+- only `approved_for_dispatch` intake records can create standard jobs
+- blocked, unsafe, review-required, and invalid-lifecycle intake records are rejected
+- Water Emergency intake remains separated and cannot create standard jobs
+- duplicate job creation from the same intake record is blocked
+- job creation sets the job to `awaiting_dispatch` only; dispatch has not executed
+
+This layer does not route technicians, create visits or work orders, execute integrations, run background workers, call AI, or dispatch work.
 
 ## Safety Rules
 

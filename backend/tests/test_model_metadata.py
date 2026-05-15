@@ -13,6 +13,7 @@ def test_foundational_domain_tables_are_registered() -> None:
         "water_emergencies",
         "review_items",
         "intake_processing_records",
+        "job_creation_records",
         "audit_logs",
     }
 
@@ -123,6 +124,28 @@ def test_intake_processing_records_store_orchestration_traceability() -> None:
         "blocked",
         "unsafe",
         "water_emergency_separated",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
+def test_job_creation_records_link_intake_to_jobs_with_traceability() -> None:
+    columns = Base.metadata.tables["job_creation_records"].columns
+
+    expected_columns = {
+        "intake_processing_record_id",
+        "job_id",
+        "review_item_id",
+        "lifecycle_state",
+        "audit_correlation_id",
+        "creation_snapshot",
+        "intake_snapshot",
+        "orchestration_snapshot",
+        "dispatch_eligibility_snapshot",
+        "review_linkage_snapshot",
+        "deterministic_evidence_snapshot",
+        "lifecycle_metadata",
+        "created_from_intake_at",
     }
 
     assert expected_columns.issubset(set(columns.keys()))

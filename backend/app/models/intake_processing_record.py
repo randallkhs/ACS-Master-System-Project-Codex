@@ -11,6 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from app.models.job_creation_record import JobCreationRecord
     from app.models.review_item import ReviewItem
 
 
@@ -56,4 +57,7 @@ class IntakeProcessingRecord(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     review_item: Mapped[ReviewItem | None] = relationship(
         back_populates="intake_processing_records",
+    )
+    job_creation_records: Mapped[list[JobCreationRecord]] = relationship(
+        back_populates="intake_processing_record",
     )

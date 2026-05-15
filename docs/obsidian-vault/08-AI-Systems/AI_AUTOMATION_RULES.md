@@ -111,6 +111,14 @@ AI is still not used in this module.
 
 Future AI may add advisory evidence only through explicit fields and after deterministic orchestration has produced auditable results. AI must not mark records approved for dispatch, resolve review-required records, convert Water Emergency intake into standard dispatch, create jobs, or alter persisted deterministic evidence.
 
+## Phase 0 Module 9 Boundary
+
+Operational job creation is deterministic only.
+
+AI is still not used in this module.
+
+Only explicitly approved standard intake records can create standard jobs. AI must not create jobs, bypass duplicate protection, mark review-required intake as approved, convert Water Emergency intake into standard jobs, change lifecycle state, dispatch work, route technicians, or alter creation evidence.
+
 ---
 
 ## Confidence And Review

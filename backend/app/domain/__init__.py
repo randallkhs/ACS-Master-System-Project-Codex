@@ -10,6 +10,14 @@ from app.domain.intake import (
     TimeWindow,
     ValidationResult,
 )
+from app.domain.job_creation import (
+    JobCreationEvidence,
+    JobCreationFailureCode,
+    JobCreationFailureReason,
+    JobCreationLifecycleState,
+    JobCreationResult,
+    JobCreationTraceability,
+)
 from app.domain.manual_review import IntakeProcessingState, ReviewStatus
 from app.domain.operational_intake import OperationalLifecycleState
 from app.domain.orchestration import (
@@ -30,6 +38,12 @@ __all__ = [
     "DetectionResult",
     "IntakeIssue",
     "IssueSeverity",
+    "JobCreationEvidence",
+    "JobCreationFailureCode",
+    "JobCreationFailureReason",
+    "JobCreationLifecycleState",
+    "JobCreationResult",
+    "JobCreationTraceability",
     "NormalizedIntake",
     "OrchestrationDecisionResult",
     "OrchestrationEvidence",

@@ -467,6 +467,67 @@ Unresolved persistence questions:
 
 ---
 
+Phase 0 Module 9 Operational Job Creation Foundation
+
+The dispatch pipeline now has a controlled intake-to-job transition boundary.
+
+Current creation flow:
+
+```text
+Approved Intake Processing Record
+    ↓
+Operational Job Creation
+    ↓
+Standard Job
+    ↓
+Job Creation Record
+```
+
+The job creation service only creates standard operational jobs from intake records that have already been explicitly approved for dispatch by deterministic orchestration or a future explicit review-resolution path.
+
+Creation evidence preserves:
+
+* intake processing record ID
+* created job ID
+* job creation record ID
+* review item linkage when present
+* audit correlation ID
+* orchestration snapshot
+* dispatch eligibility snapshot
+* deterministic evidence snapshot
+* creation snapshot
+* lifecycle metadata
+
+Creation safety rules:
+
+* blocked intake cannot create jobs
+* review-required intake cannot create jobs
+* unsafe intake cannot create jobs
+* Water Emergency intake cannot create standard jobs
+* invalid lifecycle states cannot create jobs
+* duplicate job creation from the same intake record is blocked
+* created standard jobs start at `awaiting_dispatch`, not dispatched
+
+Safety boundary:
+
+* job creation does not execute dispatch
+* job creation does not route technicians
+* job creation does not create visits or work orders
+* job creation does not export to Sheets/FastField
+* job creation does not call integrations
+* job creation does not run background workers
+* job creation does not call AI
+
+Unresolved creation questions:
+
+* exact future mapping from approved intake to customer/property/job records
+* whether standard job creation should also create a work order in a later module
+* how review-resolution approvals should be represented before job creation
+* whether duplicate prevention should use source-system/source-ID in addition to intake record ID
+* how Water Emergency intake becomes a separate Water Emergency workflow record
+
+---
+
 13. Routing Engine
 
 Current Routing

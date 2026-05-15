@@ -170,6 +170,24 @@ Future dispatch execution should consume approved intake records through explici
 
 ---
 
+## Phase 0 Module 9 Operational Job Creation Boundary
+
+The backend now includes the first controlled operational creation step after intake persistence:
+
+- `JobCreationLifecycleState` and failure-code domain structures for deterministic creation results
+- `JobCreationRecord` model for intake-to-job linkage and creation snapshots
+- `JobCreationRecordRepository` for thin persistence access
+- `OperationalJobCreationService` for creating standard jobs from approved intake records
+- creation evidence, failure reasons, traceability references, and audit-log preparation
+
+The boundary is intentionally pre-dispatch. It can create a standard job in `awaiting_dispatch` from an approved intake record, but it does not route technicians, create visits, create work orders, export to vendors, call integrations, run background workers, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Review-required, blocked, unsafe, invalid-lifecycle, duplicate, or Water Emergency intake records cannot create standard jobs.
+
+Future dispatch execution should consume created jobs and creation records through explicit workflow services and transactions.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

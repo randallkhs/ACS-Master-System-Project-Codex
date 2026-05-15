@@ -67,6 +67,8 @@ Prepare for:
 - review status
 - operational notes
 
+Jobs created from intake must preserve traceability to the approved intake processing record through a job creation record. Standard jobs created by the Phase 0 foundation start as `awaiting_dispatch`; creation does not mean routing or dispatch has happened.
+
 ## Work Orders
 
 Represents operational instructions sent to technicians.
@@ -191,6 +193,27 @@ Log important actions:
 - FastField preview/send
 - status changes
 - operator overrides
+
+## Job Creation Records
+
+Represents the controlled transition from an approved intake processing record into a standard operational job.
+
+Prepare for:
+
+- related intake processing record
+- related created job
+- review item linkage when present
+- creation lifecycle state
+- audit correlation ID
+- intake snapshot
+- orchestration snapshot
+- dispatch eligibility snapshot
+- review linkage snapshot
+- deterministic evidence snapshot
+- creation snapshot
+- duplicate creation prevention
+
+Job creation records should make intake-to-job transitions traceable without executing dispatch, routing technicians, creating visits/work orders, or bypassing Manual Review.
 
 ---
 

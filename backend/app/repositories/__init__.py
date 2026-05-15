@@ -2,6 +2,7 @@ from app.repositories.audit_logs import AuditLogRepository
 from app.repositories.base import BaseRepository
 from app.repositories.customers import CustomerRepository
 from app.repositories.intake_processing_records import IntakeProcessingRecordRepository
+from app.repositories.job_creation_records import JobCreationRecordRepository
 from app.repositories.jobs import JobRepository
 from app.repositories.properties import PropertyRepository
 from app.repositories.review_items import ReviewItemRepository
@@ -16,6 +17,7 @@ __all__ = [
     "BaseRepository",
     "CustomerRepository",
     "IntakeProcessingRecordRepository",
+    "JobCreationRecordRepository",
     "JobRepository",
     "PropertyRepository",
     "ReviewItemRepository",
