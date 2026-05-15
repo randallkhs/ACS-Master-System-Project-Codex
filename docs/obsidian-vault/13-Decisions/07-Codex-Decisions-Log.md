@@ -1,0 +1,119 @@
+# ACS FSM — Codex Decisions Log
+
+This log records major architecture, workflow, implementation, and documentation decisions for the ACS FSM platform.
+
+Use this file for durable decisions that affect future development. Do not record trivial edits or one-time debugging noise.
+
+---
+
+## 2026-05-15 — Pre-Implementation Architecture Ingestion Baseline
+
+- Decision type: Architecture / workflow / AI operating policy
+- Status: Accepted planning baseline
+- Context:
+  - The project is in pre-implementation planning for the long-term ACS Field Service Management platform.
+  - The repository currently contains documentation and vault structure, not production backend/frontend implementation.
+  - External folders are references only unless explicitly authorized.
+- Decision:
+  - Treat `docs/obsidian-vault/` as the primary project architecture vault.
+  - Treat `docs/codex-system/AI_MEMORY_SYSTEM/` as the project AI memory and documentation-standard reference.
+  - All production implementation must occur inside `ACS-Workflow-Master-System`.
+  - `ACS-Home-Page-Project` is a public website/template reference only.
+  - `ACS-dashboardpack-admindek` is dashboard/UI inspiration and possible component reference only; do not copy blindly.
+- Rationale:
+  - The ACS FSM is intended as a long-term operational platform, not a temporary automation script.
+  - Project continuity depends on preserving business rules, architecture decisions, and AI safety constraints in established documentation locations.
+- Future implications:
+  - Before implementation prompts, Codex should re-read `AGENTS.md`, `SYSTEM_ARCHITECTURE_V1.md`, `PROJECT_ARCHITECTURE_VISION.md`, `01-Business-Rules.md`, `02-Water-Emergency-Workflow.md`, `03-Dispatch-Pipeline.md`, and `09-First-Module-Build-Scope.md`.
+  - Major architecture decisions, workflow changes, implementation decisions, important fixes, and discovered constraints must be recorded in the vault.
+  - Documentation should remain compact and high-signal.
+- Affected systems:
+  - Documentation workflow
+  - Future backend architecture
+  - Future frontend architecture
+  - AI-assisted development workflow
+
+---
+
+## 2026-05-15 — Source of Truth and Integration Boundary
+
+- Decision type: Architecture
+- Status: Accepted planning baseline
+- Decision:
+  - PostgreSQL will be the operational source of truth for the ACS FSM.
+  - Google Calendar, Google Sheets, FastField, Verizon Connect, and AI providers are integration adapters only.
+  - No external vendor system should own internal workflow state.
+- Rationale:
+  - Vendor lock-in and fragmented state caused operational fragility in the old workflow.
+  - A database-first model supports auditability, future portals, technician apps, CRM, billing, inventory, and analytics.
+- Future implications:
+  - Adapter modules translate vendor data into internal ACS domain models.
+  - Core business rules must live in backend services/domain modules, not frontend components or vendor-specific adapter code.
+- Affected systems:
+  - Database
+  - Integration adapters
+  - Dispatch pipeline
+  - Water Emergency workflow
+
+---
+
+## 2026-05-15 — Manual Review Queue as Safety System
+
+- Decision type: Workflow / operational safety
+- Status: Accepted planning baseline
+- Decision:
+  - Manual Review Queue is a core safety system, not a secondary UI feature.
+  - Any uncertain cancellation, malformed address, low-confidence classification, duplicate, conflicting tag, unclear Water Emergency state, or unsafe dispatch/export condition must stop automation and require human review.
+- Rationale:
+  - Unsafe automation is worse than slower automation for ACS operations.
+  - The old system risked dispatching canceled or malformed jobs due to weak interpretation of human-written text.
+- Future implications:
+  - Review items need durable persistence, reason codes, confidence scores, operator decisions, and audit logs.
+  - Dispatch, sheet export, and FastField send actions should require explicit approval when warnings exist.
+- Affected systems:
+  - Dispatch pipeline
+  - Review service
+  - Admin dashboard
+  - Audit logs
+
+---
+
+## 2026-05-15 — AI Assistant Boundary
+
+- Decision type: AI rule / operational safety
+- Status: Accepted planning baseline
+- Decision:
+  - AI may assist with classification, anomaly detection, confidence scoring, summarization, and recommendations.
+  - AI must never override operators, silently dispatch jobs, auto-confirm cancellations, auto-close Water Emergency workflows, or bypass manual review.
+- Rationale:
+  - ACS workflows require deterministic, auditable, human-controlled operations.
+  - AI interpretation of messy human-written text is useful as support, but unsafe as operational authority.
+- Future implications:
+  - AI outputs should be treated as advisory signals with confidence and explanation.
+  - Deterministic validation rules should run before and after AI assistance.
+- Affected systems:
+  - AI adapters
+  - Classification services
+  - Validation services
+  - Manual review queue
+
+---
+
+## 2026-05-15 — First Implementation Boundary
+
+- Decision type: Scope
+- Status: Accepted planning baseline
+- Decision:
+  - The first implementation module will be the Dispatch Operations Engine foundation.
+  - It should replace the current Google Calendar to Google Sheets to FastField workflow over time, while preserving transitional compatibility.
+  - It must not attempt to build billing, full CRM, full customer portal, technician mobile app, payroll, inventory, or full Verizon Connect integration in the first module.
+- Rationale:
+  - The first module must be small enough to build safely but structured as the foundation of the full FSM.
+- Future implications:
+  - Initial architecture should include clean placeholders and extensible model boundaries for future modules without implementing their full behavior prematurely.
+- Affected systems:
+  - Backend scaffold
+  - Frontend scaffold
+  - Database models
+  - Integration adapters
+  - Documentation roadmap
