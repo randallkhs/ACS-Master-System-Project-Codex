@@ -203,3 +203,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Structured logging
   - Developer workflow
   - Backend documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 4 Repository And Session Boundary
+
+- Decision type: Implementation / database access architecture
+- Status: Implemented
+- Decision:
+  - Add a thin repository layer under `backend/app/repositories/`.
+  - Add one repository class for each core ACS domain model.
+  - Keep the base repository limited to simple data access helpers: `get`, `list`, `add`, and `delete`.
+  - Add request-scoped DB session handling with rollback-on-error and close-on-exit behavior.
+  - Add an explicit `session_scope` context manager for future service-level transaction boundaries.
+  - Add a FastAPI DB session dependency alias in `app/db/dependencies.py`.
+- Rationale:
+  - The long-term FSM architecture needs a stable data access boundary before workflow modules are added.
+  - API routes should not accumulate SQLAlchemy query logic.
+  - Repositories should isolate persistence without owning dispatch, Manual Review, integration, or AI behavior.
+- Future implications:
+  - Future workflow modules should coordinate transactions at the service/workflow level, not inside generic repositories.
+  - A formal Unit of Work may be useful once multi-repository dispatch workflows begin.
+  - Background workers will need their own session lifecycle policy when introduced.
+- Affected systems:
+  - Database session handling
+  - Repository layer
+  - Future service layer
+  - Future workflow engines
+  - Backend documentation

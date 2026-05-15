@@ -322,6 +322,18 @@ backend/
       session.py
       base.py
       migrations/
+    repositories/
+      base.py
+      customer.py
+      property.py
+      job.py
+      work_order.py
+      visit.py
+      technician.py
+      route_assignment.py
+      review_item.py
+      audit_log.py
+      water_emergency.py
     models/
       customer.py
       property.py
@@ -520,15 +532,37 @@ The deployment must support:
 Future deployment may use:
 
 * Docker
-
-Phase 0 backend hardening prepares for VPS deployment through environment-based settings, structured logs, request IDs, health readiness state, and migration/developer commands. It does not implement production deployment infrastructure yet.
 * managed database
 * cloud object storage
 * background workers
 
+Phase 0 backend hardening prepares for VPS deployment through environment-based settings, structured logs, request IDs, health readiness state, and migration/developer commands. It does not implement production deployment infrastructure yet.
+
 ---
 
-15. Documentation Philosophy
+15. Repository And Transaction Philosophy
+
+Database access should move through repositories rather than direct SQLAlchemy calls in API routes.
+
+Repositories must stay thin:
+
+* model persistence
+* simple entity lookup
+* query construction
+
+Repositories must not own:
+
+* dispatch workflow decisions
+* routing decisions
+* Manual Review safety policy
+* integration send/export behavior
+* AI orchestration
+
+Transaction boundaries should be explicit at service or workflow level. The Phase 0 foundation provides request-scoped session cleanup and a `session_scope` transaction helper, but it does not yet implement a formal Unit of Work abstraction.
+
+---
+
+16. Documentation Philosophy
 
 Codex and future developers must keep documentation updated.
 

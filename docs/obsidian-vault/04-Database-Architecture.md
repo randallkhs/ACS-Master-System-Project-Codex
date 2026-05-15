@@ -89,3 +89,31 @@ These additions are schema foundation only. They do not implement dispatch workf
 - Alembic must read the same settings layer as the application.
 - New migrations should be added as forward revisions after committed migrations; do not rewrite committed migrations unless explicitly instructed.
 - Local Phase 0 tests and health checks must not require connecting to a real PostgreSQL database.
+
+## Repository And Session Boundary
+
+Phase 0 Module 4 adds the first database access boundary:
+
+```text
+API routes -> services/workflow modules -> repositories -> SQLAlchemy session -> PostgreSQL
+```
+
+Repository rules:
+
+- Repositories are thin data-access wrappers.
+- Repositories may build SQLAlchemy queries and persist models.
+- Repositories must not contain dispatch workflow logic, routing decisions, integration calls, AI orchestration, or operator-safety decisions.
+- Domain-specific repositories should exist for core ACS entities so future services do not query directly from API routes.
+
+Session rules:
+
+- Request-scoped DB access should use the FastAPI dependency wrapper around `get_db_session`.
+- `get_db_session` closes sessions and rolls back when request handling raises an exception.
+- `session_scope` is the explicit transaction foundation for future non-request workflows and service-level units of work.
+- Automatic commits should remain outside generic repositories; future services or unit-of-work orchestration should decide transaction boundaries.
+
+Unresolved:
+
+- whether future workflow services should use a formal Unit of Work class or explicit `session_scope` blocks
+- whether read-only request dependencies should be separated from write transaction dependencies
+- how long-running background workers should manage transactional boundaries once workers exist

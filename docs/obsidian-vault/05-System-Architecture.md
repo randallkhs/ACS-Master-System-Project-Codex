@@ -92,6 +92,19 @@ No deployment scripts, Docker/Kubernetes infrastructure, auth, frontend, externa
 
 ---
 
+## Phase 0 Module 4 Repository Boundary
+
+The backend now includes a thin repository layer and request-scoped session foundation:
+
+- `app/repositories/` contains one repository class per core ACS domain model.
+- `BaseRepository` provides minimal `get`, `list`, `add`, and `delete` helpers.
+- `app/db/session.py` owns engine/session factory creation, request-scoped session cleanup, rollback-on-error behavior, and explicit transactional `session_scope`.
+- `app/db/dependencies.py` exposes a FastAPI dependency alias for future API modules.
+
+The boundary is intentionally narrow. Repositories are for data access only; business workflows belong in services, validators, workflow engines, and Manual Review orchestration.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

@@ -14,6 +14,8 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - app lifecycle and health readiness state in `app/core/lifecycle.py`
 - SQLAlchemy 2 models in `app/models/`
 - PostgreSQL session foundation in `app/db/session.py`
+- request-scoped DB dependency alias in `app/db/dependencies.py`
+- thin repository layer in `app/repositories/`
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business service placeholders under `app/services/`
@@ -137,6 +139,25 @@ The backend defaults to structured JSON logs with request-safe fields:
 - duration
 
 Request logging records the path only, not query-string values. Future audit correlation can build on `X-Request-ID` and later correlation IDs.
+
+## Database Access Boundaries
+
+Database access should flow through explicit boundaries:
+
+```text
+API routes -> services / workflow modules -> repositories -> SQLAlchemy session -> PostgreSQL
+```
+
+Rules:
+
+- API routes should not contain SQLAlchemy query logic.
+- Repositories are thin data-access objects only.
+- Repositories should not contain business workflow decisions, dispatch orchestration, integration calls, or AI decisions.
+- Services and future workflow engines should coordinate transactions; repositories should use the session they are given.
+- Request-scoped dependencies should use `get_db_session` or the `DBSession` alias from `app/db/dependencies.py`.
+- `session_scope()` is available for future explicit transactional units outside request dependency wiring.
+
+The current repository layer provides foundational `get`, `list`, `add`, and `delete` helpers plus domain-specific repository classes. It does not expose CRUD endpoints or implement operational workflows.
 
 ## Safety Rules
 
