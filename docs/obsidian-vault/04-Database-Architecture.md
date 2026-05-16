@@ -402,3 +402,34 @@ Unresolved:
 - how failed external adapter execution should attach to the internal dispatch record
 - whether dispatch retries create revisions or update the current Route Assignment
 - how Water Emergency dispatch execution persistence should differ from the standard path
+
+## External Dispatch Adapter Snapshots
+
+Phase 0 Module 15 expands `route_assignments` with the first durable external adapter preparation boundary.
+
+Route assignments store:
+
+- external adapter state
+- external adapter request snapshot
+- external adapter payload snapshot
+- external adapter lifecycle snapshot
+- external adapter evidence snapshot
+- external adapter audit snapshot
+- external-adapter prepared timestamp
+- future external-adapter failed timestamp
+
+Persistence philosophy:
+
+- Adapter preparation consumes an internally dispatched Route Assignment; it does not perform dispatch execution itself.
+- Adapter payloads are prepared as deterministic snapshots for future FastField, Google Sheets, Google Calendar, and technician mobile workflows.
+- External API calls remain explicitly not executed in this module.
+- Duplicate adapter preparation attempts are blocked by adapter state and preparation timestamp.
+- Blocked, review-required, Water Emergency, unauthorized, undispatched, invalid-lifecycle, or missing-linkage records cannot enter the standard external adapter path.
+
+Unresolved:
+
+- exact vendor payload schemas and field mappings
+- whether external execution attempts need a dedicated immutable attempt table
+- how retries, partial failures, and confirmations should be versioned
+- how operator approval and credential scoping should be recorded once auth exists
+- how Water Emergency external adapter persistence should differ from the standard path

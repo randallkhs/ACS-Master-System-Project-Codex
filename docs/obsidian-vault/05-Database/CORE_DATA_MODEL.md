@@ -146,9 +146,12 @@ Prepare for:
 - dispatch lifecycle snapshot
 - dispatch audit snapshot
 - dispatched timestamp
+- external adapter state
+- external adapter payload and evidence snapshots
+- external adapter prepared timestamp
 - deterministic route assignment evidence
 
-Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally, but this still does not mean route optimization has run or external systems have been updated.
+Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence, but this still does not mean route optimization has run or external systems have been updated.
 
 ## Water Emergency Records
 
@@ -323,6 +326,24 @@ Prepare for:
 - future external adapter outcome linkage
 
 This layer may update internal ACS records to `dispatched` after deterministic blockers pass. It must not call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, run background workers, execute external APIs, optimize routes, or call AI.
+
+## External Dispatch Adapter Preparation
+
+Represents the deterministic boundary between internal dispatch execution and future vendor/mobile integration execution.
+
+Prepare for:
+
+- adapter execution request snapshots
+- adapter lifecycle state
+- FastField standard dispatch payload preparation
+- Google Sheets dispatch export payload preparation
+- Google Calendar dispatch sync payload preparation
+- technician mobile sync payload preparation
+- external adapter audit evidence
+- duplicate adapter preparation prevention
+- future external execution failure and confirmation evidence
+
+This layer may prepare payload snapshots after internal dispatch execution completes. It must not call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, run background workers, execute external APIs, optimize routes, or call AI.
 
 ---
 

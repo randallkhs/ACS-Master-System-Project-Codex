@@ -93,3 +93,22 @@ See [[08-AI-Systems/AI_AUTOMATION_RULES]].
 - Log imports, exports, sends, failures, and operator approvals.
 - Support preview/dry-run for risky outputs.
 - Send uncertain records to Manual Review before external write/send.
+
+## Phase 0 Module 15 External Adapter Boundary
+
+External dispatch adapter preparation is deterministic and prepare-only.
+
+Current payload foundations:
+
+- FastField standard dispatch payload snapshot
+- Google Sheets standard-job dispatch row snapshot
+- Google Calendar dispatch-status sync snapshot
+- technician mobile standard-visit sync snapshot
+
+Rules:
+
+- prepared payloads are evidence, not live sends
+- external API calls remain `not_executed`
+- Water Emergency work cannot use the standard adapter path
+- blocked, review-required, unauthorized, undispatched, or duplicate-prepared records cannot reach adapter preparation
+- future live adapters must write execution outcomes back to the database without becoming workflow authority

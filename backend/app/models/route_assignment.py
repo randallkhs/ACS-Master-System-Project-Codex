@@ -49,6 +49,17 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     dispatch_audit_snapshot: Mapped[dict | None] = mapped_column(JSON)
     dispatched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
     dispatch_failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    external_adapter_state: Mapped[str | None] = mapped_column(String(80), index=True)
+    external_adapter_request_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_adapter_payload_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_adapter_lifecycle_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_adapter_evidence_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_adapter_audit_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_adapter_prepared_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    external_adapter_failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

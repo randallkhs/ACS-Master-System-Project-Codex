@@ -96,6 +96,23 @@ def test_route_assignments_store_dispatch_execution_traceability() -> None:
     assert expected_columns.issubset(set(columns.keys()))
 
 
+def test_route_assignments_store_external_adapter_traceability() -> None:
+    columns = Base.metadata.tables["route_assignments"].columns
+
+    expected_columns = {
+        "external_adapter_state",
+        "external_adapter_request_snapshot",
+        "external_adapter_payload_snapshot",
+        "external_adapter_lifecycle_snapshot",
+        "external_adapter_evidence_snapshot",
+        "external_adapter_audit_snapshot",
+        "external_adapter_prepared_at",
+        "external_adapter_failed_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
 def test_manual_review_items_can_target_non_job_entities() -> None:
     columns = Base.metadata.tables["review_items"].columns
 

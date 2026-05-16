@@ -848,6 +848,63 @@ Unresolved dispatch execution questions:
 
 ---
 
+Phase 0 Module 15 External Dispatch Adapter Foundation
+
+The dispatch pipeline now has a deterministic external adapter preparation boundary.
+
+Current adapter preparation flow:
+
+```text
+Dispatched Route Assignment
+    ↓
+Adapter Preparation Validation
+    ↓
+External Payload Evidence
+    ↓
+Awaiting External Execution
+```
+
+Adapter evidence preserves:
+
+* Route Assignment, Visit, Work Order, Job, technician, and audit-correlation references
+* adapter execution request snapshot
+* FastField payload preparation snapshot
+* Google Sheets payload preparation snapshot
+* Google Calendar payload preparation snapshot
+* technician mobile payload preparation snapshot
+* lifecycle evidence and deterministic blocker reasons
+* explicit `not_executed` markers for all external API calls
+
+Adapter safety rules:
+
+* only internally dispatched Visits may prepare external adapter payloads
+* blocked Visits cannot prepare external adapter payloads
+* review-required lifecycle blocks adapter preparation
+* Water Emergency Visits cannot use the standard external adapter path
+* unauthorized Route Assignments cannot prepare external adapter payloads
+* duplicate adapter preparation attempts are blocked
+* invalid lifecycle transitions are blocked
+
+Safety boundary:
+
+* adapter preparation does not call FastField
+* adapter preparation does not sync Google Calendar
+* adapter preparation does not write Google Sheets
+* adapter preparation does not update technician mobile workflows
+* adapter preparation does not run background workers
+* adapter preparation does not call AI
+
+Unresolved external adapter questions:
+
+* exact payload schema for FastField standard dispatch forms
+* exact transitional Google Sheets row format after database-first dispatch
+* whether Calendar sync should create events, update existing events, or record status only
+* how external adapter retry/failure attempts should be versioned
+* how operator approval and credential scoping should work once auth and secrets exist
+* how Water Emergency external adapter payloads should differ from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

@@ -275,6 +275,22 @@ Manual Review and Water Emergency separation remain authoritative. Blocked, revi
 
 Future external dispatch integration should consume the internal dispatch execution snapshot through isolated adapters and preserve adapter outcomes without letting vendors become the source of truth.
 
+## Phase 0 Module 15 External Dispatch Adapter Boundary
+
+The backend now includes the deterministic preparation boundary between internal dispatch execution and future external integrations:
+
+- `ExternalAdapterLifecycleState` and adapter failure-code domain structures
+- adapter execution request, result, evidence, failure reason, and audit evidence structures
+- Route Assignment fields for adapter state, request snapshot, payload snapshot, lifecycle snapshot, evidence snapshot, audit snapshot, prepared timestamp, and future failure timestamp
+- `ExternalDispatchAdapterPreparationService` for preparing future FastField, Google Sheets, Google Calendar, and technician mobile payload snapshots
+- audit-log preparation for adapter-prepared Route Assignments
+
+The boundary is intentionally prepare-only. It can move an internally dispatched standard Route Assignment into `awaiting_external_execution`, but it does not call vendor APIs, sync calendars, write Sheets, update mobile workflows, run background workers, optimize routes, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Blocked, review-required, Water Emergency, undispatched, unauthorized, duplicate-prepared, invalid-lifecycle, or missing-linkage records cannot use the standard external adapter preparation path.
+
+Future live integration execution should consume adapter payload snapshots through isolated vendor adapters and write execution outcomes without giving vendors authority over internal ACS workflow state.
+
 ---
 
 ## First Module Boundary

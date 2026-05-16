@@ -159,6 +159,14 @@ AI is still not used in this module.
 
 AI must not execute dispatch, clear execution blockers, create standard dispatch execution for Water Emergency Visits, treat inactive technicians as dispatch-ready, bypass Manual Review, retry duplicate dispatch, sync calendars, write Sheets/FastField, call external integrations, update technician mobile workflows, or alter execution evidence. Future AI may only add advisory context after deterministic execution evidence exists and must remain subordinate to Manual Review and operator/system authorization.
 
+## Phase 0 Module 15 Boundary
+
+External dispatch adapter preparation is deterministic only.
+
+AI is still not used in this module.
+
+AI must not prepare external adapter payloads, clear adapter blockers, create standard external payloads for Water Emergency Visits, bypass Manual Review, retry duplicate adapter preparation, call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, run background execution, call external APIs, or alter adapter evidence. Future AI may only add advisory context after deterministic adapter evidence exists and must remain subordinate to Manual Review and operator/system authorization.
+
 ---
 
 ## Confidence And Review

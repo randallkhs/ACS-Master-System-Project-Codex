@@ -18,6 +18,14 @@ from app.domain.dispatch_execution import (
     DispatchExecutionTraceability,
     DispatchLifecycleTransition,
 )
+from app.domain.external_dispatch_adapter import (
+    AdapterExecutionEvidence,
+    AdapterExecutionRequest,
+    AdapterExecutionResult,
+    AdapterFailureReason,
+    ExternalAdapterFailureCode,
+    ExternalAdapterLifecycleState,
+)
 from app.domain.intake import (
     ConfidenceLevel,
     ConfidenceScore,
@@ -90,6 +98,10 @@ __all__ = [
     "AssignmentPreparationResult",
     "AssignmentPreparationTraceability",
     "AssignmentReadiness",
+    "AdapterExecutionEvidence",
+    "AdapterExecutionRequest",
+    "AdapterExecutionResult",
+    "AdapterFailureReason",
     "DispatchEligibility",
     "DispatchExecutionBlockerCode",
     "DispatchExecutionEvidence",
@@ -101,6 +113,8 @@ __all__ = [
     "DispatchExecutionAuthorization",
     "DispatchExecutionAuthorizationState",
     "DispatchLifecycleTransition",
+    "ExternalAdapterFailureCode",
+    "ExternalAdapterLifecycleState",
     "IntakeProcessingState",
     "IntakeProcessingResult",
     "DetectionResult",

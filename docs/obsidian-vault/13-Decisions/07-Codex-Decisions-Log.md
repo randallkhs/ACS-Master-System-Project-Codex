@@ -524,3 +524,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Dispatch execution service
   - Audit traceability foundation
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 15 External Dispatch Adapter Foundation
+
+- Decision type: Implementation / external adapter preparation boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic external adapter preparation boundary after internal dispatch execution.
+  - Add domain structures for adapter lifecycle state, failure codes, execution request, execution result, evidence, failure reasons, and audit evidence.
+  - Expand Route Assignments with external adapter state, request snapshot, payload snapshot, lifecycle snapshot, evidence snapshot, audit snapshot, prepared timestamp, and future failure timestamp.
+  - Add `ExternalDispatchAdapterPreparationService` to prepare FastField, Google Sheets, Google Calendar, and technician mobile payload snapshots without calling external APIs.
+  - Move standard internally dispatched Route Assignments to `awaiting_external_execution` only after deterministic adapter-preparation blockers pass.
+  - Block adapter preparation for blocked, review-required, Water Emergency, undispatched, unauthorized, duplicate-prepared, invalid-lifecycle, and missing-linkage records.
+- Rationale:
+  - Future vendor/mobile execution needs a clean handoff from internal dispatch execution without letting vendors own ACS workflow state.
+  - Payload preparation should be auditable before any external write/send occurs.
+  - Manual Review and Water Emergency separation must remain authoritative before external systems receive work.
+- Future implications:
+  - Future live adapters should consume payload snapshots and record execution outcomes separately from internal lifecycle truth.
+  - Vendor schemas, retry/failure versioning, confirmation semantics, operator approval, credential scoping, and Water Emergency adapter payloads remain separate decisions.
+- Affected systems:
+  - External adapter domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - External dispatch adapter preparation service
+  - Audit traceability foundation
+  - Integration and dispatch pipeline documentation

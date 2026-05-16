@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, and internal dispatch execution services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, and external adapter preparation services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -526,6 +526,41 @@ Execution rules:
 - duplicate dispatch is blocked
 
 This layer updates internal ACS lifecycle state only. It does not call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, call external APIs, run background workers, optimize routes, or call AI.
+
+## External Dispatch Adapter Preparation
+
+Phase 0 Module 15 adds the deterministic boundary between internal dispatch execution and future external systems.
+
+Current preparation flow:
+
+```text
+Dispatched RouteAssignment
+  -> ExternalDispatchAdapterPreparationService
+  -> external adapter request snapshot
+  -> external payload snapshot
+  -> awaiting external execution
+```
+
+Route assignments now preserve:
+
+- external adapter lifecycle state
+- adapter execution request snapshot
+- adapter payload snapshots for FastField, Google Sheets, Google Calendar, and technician mobile sync
+- adapter lifecycle and evidence snapshots
+- adapter audit snapshot
+- external-adapter prepared timestamp
+- future external-adapter failed timestamp
+
+Preparation rules:
+
+- only internally dispatched Visits can prepare external adapter payloads
+- blocked Visits cannot prepare external adapter payloads
+- review-required lifecycle blocks adapter preparation
+- Water Emergency Visits cannot use the standard external adapter path
+- unauthorized Route Assignments cannot prepare external adapter payloads
+- duplicate adapter preparation is blocked
+
+This layer prepares payload evidence only. It does not call FastField, sync Google Calendar, write Google Sheets, update technician mobile workflows, call external APIs, run background workers, optimize routes, or call AI.
 
 ## Safety Rules
 
