@@ -464,3 +464,36 @@ Unresolved:
 - how retry attempt limits and operator approval should be modeled once live execution exists
 - how reconciliation cases should become Manual Review or operator tasks
 - how Water Emergency confirmation persistence should differ from the standard path
+
+## Operational Event History
+
+Phase 0 Module 17 adds `operational_event_records` as the append-only operational history and timeline foundation.
+
+Operational event records store:
+
+- occurred and recorded timestamps
+- event type and event state
+- generic entity type and entity ID
+- Route Assignment, Visit, Work Order, Job, and technician references when available
+- audit correlation ID
+- previous and new lifecycle states
+- deterministic event fingerprint
+- immutable marker
+- event, transition, immutable evidence, retry/recovery, reconciliation, and audit snapshots
+
+Persistence philosophy:
+
+- Event history is append-only and exists beside current audit logs and lifecycle snapshots.
+- Services may append timeline evidence, but they must not mutate existing event records.
+- Event records are evidence, not workflow commands.
+- Duplicate event fingerprints are blocked before persistence.
+- No-op lifecycle transitions and missing audit correlation are blocked.
+- Timeline queries sort by event occurrence time and recorded time.
+
+Unresolved:
+
+- whether external execution attempts should become a separate immutable attempt table
+- whether authentication should add actor identity to the event fingerprint
+- retention, archive, and legal hold policy for immutable operational events
+- whether analytics should query event history directly or consume derived reporting tables
+- how Water Emergency timelines should differ from the standard operational execution timeline

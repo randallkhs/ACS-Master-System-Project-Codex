@@ -14,6 +14,7 @@ def test_foundational_domain_tables_are_registered() -> None:
         "review_items",
         "intake_processing_records",
         "job_creation_records",
+        "operational_event_records",
         "audit_logs",
     }
 

@@ -307,6 +307,23 @@ Manual Review and Water Emergency separation remain authoritative. Blocked, revi
 
 Future live external execution should write vendor outcomes into this boundary through isolated adapters while preserving the ACS database as the workflow source of truth.
 
+## Phase 0 Module 17 Operational Event History Boundary
+
+The backend now includes the append-only operational history and immutable timeline foundation:
+
+- `OperationalEventState` and operational event failure-code domain structures
+- lifecycle event, timeline entry, immutable audit, transition, retry/recovery, reconciliation, evidence, and result structures
+- `OperationalEventRecord` model for durable event history
+- `OperationalEventRecordRepository` for append/query-only event access
+- `OperationalEventHistoryService` for recording lifecycle, dispatch execution, adapter preparation, confirmation, retry, and reconciliation evidence
+- route-assignment and Visit timeline helpers
+
+The boundary is intentionally evidence-only. It can append immutable operational event records and build ordered timelines, but it does not execute workflows, mutate prior events, run analytics, replay events, run reconciliation engines, call integrations, or call AI.
+
+Manual Review, Water Emergency separation, and deterministic workflow services remain authoritative. Event history records what happened or what was blocked; it does not authorize hidden lifecycle transitions.
+
+Future analytics, replay, operator-forensics, and external-attempt versioning should consume this event history through explicit reporting or investigation services rather than mutating operational records.
+
 ---
 
 ## First Module Boundary

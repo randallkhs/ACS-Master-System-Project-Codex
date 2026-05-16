@@ -579,3 +579,32 @@ Use this file for durable decisions that affect future development. Do not recor
   - External execution confirmation service
   - Audit traceability foundation
   - Integration and dispatch pipeline documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 17 Operational Event History And Immutable Audit Timeline
+
+- Decision type: Implementation / immutable operational history boundary
+- Status: Implemented
+- Decision:
+  - Add an append-only operational event history boundary after confirmation/recovery preparation.
+  - Add domain structures for operational event state, timeline entries, immutable audit evidence, transition evidence, retry/recovery evidence, reconciliation evidence, event results, and failure reasons.
+  - Add `OperationalEventRecord` as the durable timeline table for lifecycle, dispatch, adapter, confirmation, retry, and reconciliation events.
+  - Add `OperationalEventRecordRepository` with append/query behavior and repository-level deletion blocking.
+  - Add `OperationalEventHistoryService` to record deterministic lifecycle transitions, dispatch execution events, adapter preparation events, confirmation/recovery events, and ordered route-assignment or Visit timelines.
+  - Block duplicate event fingerprints, missing entity linkage, missing audit correlation, missing transition states, and hidden no-op transitions.
+- Rationale:
+  - ACS needs forensic operational traceability across lifecycle transitions and external execution preparation without turning history into a workflow engine.
+  - Immutable event history should preserve why transitions happened, what was blocked, and what evidence existed at the time.
+  - Audit logs and lifecycle snapshots remain useful, but a dedicated event table gives future debugging, reporting, and operator review a chronological operational timeline.
+- Future implications:
+  - Future live integrations should append execution/confirmation/failure events without mutating prior history.
+  - Analytics, event replay, retention/legal hold, actor identity, and external attempt versioning remain separate decisions.
+  - Water Emergency timelines may need a separated event taxonomy instead of reusing the standard dispatch path.
+- Affected systems:
+  - Operational event history domain structures
+  - OperationalEventRecord model
+  - Alembic migrations
+  - Repository layer
+  - Operational event history service
+  - Audit traceability and dispatch pipeline documentation

@@ -5,6 +5,7 @@ from app.models.customer import Customer
 from app.models.intake_processing_record import IntakeProcessingRecord
 from app.models.job import Job
 from app.models.job_creation_record import JobCreationRecord
+from app.models.operational_event_record import OperationalEventRecord
 from app.models.property import Property
 from app.models.review_item import ReviewItem
 from app.models.route_assignment import RouteAssignment
@@ -20,6 +21,7 @@ __all__ = [
     "IntakeProcessingRecord",
     "Job",
     "JobCreationRecord",
+    "OperationalEventRecord",
     "Property",
     "ReviewItem",
     "RouteAssignment",

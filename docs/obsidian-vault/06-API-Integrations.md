@@ -134,3 +134,25 @@ Rules:
 - Water Emergency work cannot use the standard external confirmation path
 - blocked, review-required, unauthorized, duplicate-confirmed, adapter-unready, or invalid-lifecycle records cannot reach confirmation
 - future live adapters must write confirmation outcomes back to the database without becoming workflow authority
+
+## Phase 0 Module 17 Operational Event History Boundary
+
+Operational event history is deterministic and append-only.
+
+Current event foundations:
+
+- dispatch execution timeline events
+- external adapter preparation timeline events
+- external confirmation and failure timeline events
+- retry-preparation timeline events
+- reconciliation-required timeline events
+- immutable audit evidence snapshots
+
+Rules:
+
+- event history records evidence only
+- duplicate event fingerprints are blocked
+- no live external API calls are made by event history
+- event history does not execute retries or reconciliation
+- event history does not become a workflow engine or analytics engine
+- future live adapters should append confirmation/failure events while preserving database workflow authority

@@ -4,6 +4,7 @@ from app.repositories.customers import CustomerRepository
 from app.repositories.intake_processing_records import IntakeProcessingRecordRepository
 from app.repositories.job_creation_records import JobCreationRecordRepository
 from app.repositories.jobs import JobRepository
+from app.repositories.operational_event_records import OperationalEventRecordRepository
 from app.repositories.properties import PropertyRepository
 from app.repositories.review_items import ReviewItemRepository
 from app.repositories.route_assignments import RouteAssignmentRepository
@@ -19,6 +20,7 @@ __all__ = [
     "IntakeProcessingRecordRepository",
     "JobCreationRecordRepository",
     "JobRepository",
+    "OperationalEventRecordRepository",
     "PropertyRepository",
     "ReviewItemRepository",
     "RouteAssignmentRepository",

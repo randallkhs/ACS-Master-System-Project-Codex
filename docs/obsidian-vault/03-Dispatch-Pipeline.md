@@ -962,6 +962,63 @@ Unresolved confirmation and recovery questions:
 
 ---
 
+Phase 0 Module 17 Operational Event History And Immutable Audit Timeline
+
+The dispatch pipeline now has an append-only operational event history boundary.
+
+Current event-history flow:
+
+```text
+Lifecycle / Dispatch / Adapter / Confirmation Evidence
+    ↓
+Operational Event History Validation
+    ↓
+Immutable Event Record
+    ↓
+Operational Timeline
+```
+
+Event history preserves:
+
+* event type and event lifecycle state
+* occurred and recorded timestamps
+* Route Assignment, Visit, Work Order, Job, technician, and audit-correlation references
+* previous and new lifecycle states
+* transition evidence
+* dispatch execution evidence
+* external adapter preparation evidence
+* confirmation, retry, recovery, and reconciliation evidence
+* deterministic event fingerprint for duplicate prevention
+* immutable audit evidence with explicit append-only markers
+
+Event-history safety rules:
+
+* event history is append-only
+* duplicate event fingerprints are blocked
+* hidden no-op transitions are blocked
+* audit correlation continuity is required
+* chronological timeline ordering is deterministic
+* event history records evidence only
+
+Safety boundary:
+
+* event history does not execute workflows
+* event history does not run route optimization
+* event history does not call external APIs
+* event history does not run reconciliation
+* event history does not run analytics or replay engines
+* event history does not call AI
+
+Unresolved event-history questions:
+
+* whether future external execution attempts need dedicated attempt records separate from the general event table
+* retention and archive policy for immutable operational events
+* whether event fingerprints should include actor identity after authentication exists
+* whether production analytics should read directly from event history or from derived reporting tables
+* how Water Emergency event timelines should diverge from standard route-assignment timelines
+
+---
+
 13. Routing Engine
 
 Current Routing

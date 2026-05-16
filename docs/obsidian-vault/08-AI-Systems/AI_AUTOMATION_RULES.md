@@ -175,6 +175,14 @@ AI is still not used in this module.
 
 AI must not confirm external execution, clear confirmation blockers, create standard confirmation records for Water Emergency Visits, bypass Manual Review, execute retries, run reconciliation, call external APIs, update technician mobile workflows, run background execution, or alter confirmation/recovery evidence. Future AI may only add advisory context after deterministic confirmation, failure, retry, or reconciliation evidence exists and must remain subordinate to Manual Review and operator/system authorization.
 
+## Phase 0 Module 17 Boundary
+
+Operational event history is deterministic and append-only.
+
+AI is still not used in this module.
+
+AI must not create, mutate, delete, reorder, replay, summarize into authoritative state, or reinterpret immutable operational event records as workflow authority. Future AI may help explain event timelines for operators only after deterministic event records exist, and those explanations must remain advisory context separate from the source-of-truth event history.
+
 ---
 
 ## Confidence And Review

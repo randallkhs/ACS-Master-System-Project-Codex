@@ -218,6 +218,26 @@ Log important actions:
 - status changes
 - operator overrides
 
+## Operational Event History
+
+Represents immutable operational lifecycle and execution history.
+
+Prepare for:
+
+- lifecycle transition events
+- dispatch execution events
+- external adapter preparation events
+- confirmation and failure recovery events
+- retry-preparation events
+- reconciliation-preparation events
+- route-assignment timelines
+- Visit timelines
+- audit-correlation continuity
+- deterministic duplicate event prevention
+- future forensic/debugging workflows
+
+Operational event history is append-only evidence. It must not execute workflows, replace Manual Review, mutate lifecycle state, call integrations, run analytics/replay engines, or call AI.
+
 ## Job Creation Records
 
 Represents the controlled transition from an approved intake processing record into a standard operational job.

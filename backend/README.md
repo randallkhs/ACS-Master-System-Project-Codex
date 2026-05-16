@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, and external confirmation/recovery services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, external confirmation/recovery, and operational event history services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -596,6 +596,39 @@ Confirmation and recovery rules:
 - reconciliation preparation records evidence but does not run a reconciliation engine
 
 This layer processes simulated external confirmation states and prepares evidence only. It does not call external APIs, execute retries, run reconciliation, update technician mobile workflows, run background workers, optimize routes, or call AI.
+
+## Operational Event History And Immutable Timeline
+
+Phase 0 Module 17 adds the append-only operational history boundary.
+
+Current event flow:
+
+```text
+Lifecycle or execution evidence
+  -> OperationalEventHistoryService
+  -> immutable OperationalEventRecord
+  -> route assignment / Visit / dispatch / recovery timeline
+```
+
+Operational event records preserve:
+
+- event type and event state
+- occurred and recorded timestamps
+- entity, Route Assignment, Visit, Work Order, Job, technician, and audit-correlation references
+- previous and new lifecycle states
+- deterministic event fingerprint for duplicate prevention
+- event, transition, immutable evidence, retry/recovery, reconciliation, and audit snapshots
+
+Event-history rules:
+
+- event history is append-only
+- duplicate event fingerprints are blocked
+- no hidden no-op lifecycle transitions are recorded
+- audit correlation is required
+- timeline entries are ordered chronologically
+- event history records evidence; they do not execute workflows
+
+This layer does not run workflow engines, analytics engines, reconciliation engines, AI orchestration, external integrations, event replay, or mutable history updates.
 
 ## Safety Rules
 
