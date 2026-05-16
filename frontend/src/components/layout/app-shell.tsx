@@ -23,7 +23,14 @@ const navItems = [
 export function AppShell({ children, generatedAt, source }: AppShellProps) {
   return (
     <div className="min-h-screen bg-[#f5f7f9] text-[#162033]">
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-72 border-r border-white/10 bg-[#111827] text-white lg:block">
+      <a
+        href="#main-content"
+        className="sr-only z-50 rounded-md bg-white px-4 py-2 font-semibold text-[#162033] shadow focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Skip to dashboard content
+      </a>
+
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-[17rem] border-r border-white/10 bg-[#111827] text-white lg:block">
         <div className="flex h-full flex-col">
           <div className="border-b border-white/10 px-6 py-6">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#84cc16]">
@@ -37,12 +44,15 @@ export function AppShell({ children, generatedAt, source }: AppShellProps) {
             </div>
           </div>
 
-          <nav className="flex-1 space-y-1 px-3 py-5" aria-label="Dashboard sections">
+          <nav
+            className="flex-1 space-y-1 px-3 py-5"
+            aria-label="Dashboard sections"
+          >
             {navItems.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="block rounded-md px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10 hover:text-white"
+                className="block rounded-md px-3 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white focus-visible:outline-white"
               >
                 {item.label}
               </a>
@@ -56,15 +66,15 @@ export function AppShell({ children, generatedAt, source }: AppShellProps) {
         </div>
       </aside>
 
-      <div className="lg:pl-72">
+      <div className="lg:pl-[17rem]">
         <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur">
           <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <div className="text-sm font-semibold uppercase tracking-[0.14em] text-[#2563eb]">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2563eb]">
                   Admin Dashboard
                 </div>
-                <h1 className="mt-1 text-2xl font-semibold tracking-normal text-[#162033] sm:text-3xl">
+                <h1 className="mt-1 text-2xl font-semibold leading-tight tracking-normal text-[#162033] sm:text-3xl">
                   Operational Control View
                 </h1>
               </div>
@@ -78,14 +88,14 @@ export function AppShell({ children, generatedAt, source }: AppShellProps) {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-              <span>Generated {formatDateTime(generatedAt)}</span>
-              <div className="flex gap-2 overflow-x-auto pb-1 lg:hidden">
+            <div className="flex flex-col gap-3 text-sm text-slate-600 lg:flex-row lg:items-center lg:justify-between">
+              <span className="font-medium">Generated {formatDateTime(generatedAt)}</span>
+              <div className="no-scrollbar grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:hidden">
                 {navItems.map((item) => (
                   <a
                     key={item.href}
                     href={item.href}
-                    className="shrink-0 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700"
+                    className="min-h-9 rounded-md border border-slate-200 bg-white px-3 py-2 text-center text-xs font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700 sm:shrink-0"
                   >
                     {item.label}
                   </a>
@@ -95,7 +105,10 @@ export function AppShell({ children, generatedAt, source }: AppShellProps) {
           </div>
         </header>
 
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <main
+          id="main-content"
+          className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8"
+        >
           {children}
         </main>
       </div>

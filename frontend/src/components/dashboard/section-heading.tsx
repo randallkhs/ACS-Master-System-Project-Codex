@@ -12,7 +12,7 @@ export function SectionHeading({
   description
 }: SectionHeadingProps) {
   return (
-    <div id={id} className="scroll-mt-36">
+    <div id={id} className="scroll-mt-44 border-l-4 border-[#2563eb] pl-4">
       <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[#2563eb]">
         {label}
       </div>

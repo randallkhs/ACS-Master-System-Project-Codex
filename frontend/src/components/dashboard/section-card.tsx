@@ -14,7 +14,10 @@ export function SectionCard({
   id
 }: SectionCardProps) {
   return (
-    <section id={id} className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+    <section
+      id={id}
+      className="rounded-md border border-slate-200 bg-white p-5 shadow-sm ring-1 ring-black/[0.02]"
+    >
       <div className="mb-5">
         <h2 className="text-lg font-semibold tracking-normal text-[#162033]">
           {title}

@@ -15,11 +15,11 @@ export function TimelineList({ entries }: TimelineListProps) {
   }
 
   return (
-    <ol className="space-y-4">
+    <ol className="space-y-3">
       {entries.map((entry) => (
         <li
           key={`${entry.audit_correlation_id}-${entry.occurred_at}-${entry.entity_id}`}
-          className="border-l-2 border-slate-200 pl-4"
+          className="rounded-md border border-slate-200 bg-slate-50/70 p-4"
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -40,11 +40,14 @@ export function TimelineList({ entries }: TimelineListProps) {
                 {humanizeLabel(entry.previous_state)} to{" "}
                 {humanizeLabel(entry.new_state)}
               </div>
-              <div className="mt-2 text-xs font-medium text-slate-500">
+              <div className="mt-2 font-mono text-xs font-medium text-slate-500">
                 Audit correlation: {entry.audit_correlation_id}
               </div>
             </div>
-            <time className="text-sm text-slate-500" dateTime={entry.occurred_at}>
+            <time
+              className="shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-medium text-slate-600 ring-1 ring-slate-200"
+              dateTime={entry.occurred_at}
+            >
               {formatDateTime(entry.occurred_at)}
             </time>
           </div>
