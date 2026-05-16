@@ -143,6 +143,14 @@ AI is still not used in this module.
 
 AI must not declare Visits routing-ready or dispatch-ready, clear blocked/review-required/Water Emergency lifecycle blockers, treat inactive technicians as dispatch-ready, assign technicians, schedule Visits, optimize routes, create route assignments, execute dispatch, sync calendars, or alter readiness evidence. Future AI may only add advisory context after deterministic routing and dispatch readiness evidence exists, and Manual Review remains authoritative.
 
+## Phase 0 Module 13 Boundary
+
+Route assignment and dispatch authorization is deterministic only.
+
+AI is still not used in this module.
+
+AI must not authorize dispatch, clear route or dispatch blockers, create standard route assignments for Water Emergency Visits, treat inactive technicians as dispatch-authorized, bypass Manual Review, execute dispatch, optimize routes, sync calendars, write Sheets/FastField, call integrations, or alter authorization evidence. Future AI may only add advisory context after deterministic authorization evidence exists and must remain subordinate to Manual Review and operator/system authorization.
+
 ---
 
 ## Confidence And Review

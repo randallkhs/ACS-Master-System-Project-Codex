@@ -243,6 +243,24 @@ Future dispatch execution should consume these readiness snapshots and explicit 
 
 ---
 
+## Phase 0 Module 13 Route Assignment And Dispatch Authorization Boundary
+
+The backend now includes the deterministic boundary between dispatch preparation and future dispatch execution:
+
+- `DispatchExecutionAuthorizationState` and route-assignment blocker-code domain structures
+- route grouping, route assignment readiness, technician route compatibility, dispatch authorization readiness, execution authorization, evidence, and traceability structures
+- Route Assignment fields for grouping, readiness, technician compatibility, dispatch authorization, execution-boundary, and deterministic evidence snapshots
+- `RouteAssignmentPreparationService` for deterministic route assignment preparation and dispatch authorization
+- audit-log preparation for dispatch authorization
+
+The boundary is intentionally pre-execution. It can create a prepared `RouteAssignment` and move a standard Visit to `awaiting_dispatch_execution`, but it does not optimize routes, execute dispatch, sync calendars, export to Sheets/FastField, call integrations, run background workers, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Blocked, review-required, archived, invalid-lifecycle, missing-linkage, Water Emergency, inactive-technician, unassigned, unscheduled, route-unready, or dispatch-unready Visits cannot become dispatch-authorized.
+
+Future dispatch execution should consume authorized route assignments through a separate transactional service that records operator/system identity and integration outcomes.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

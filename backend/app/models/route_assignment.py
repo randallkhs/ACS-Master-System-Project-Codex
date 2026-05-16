@@ -4,7 +4,7 @@ from datetime import date, datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, String
+from sqlalchemy import JSON, Date, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -31,8 +31,18 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     region: Mapped[str | None] = mapped_column(String(80), index=True)
     time_window: Mapped[str | None] = mapped_column(String(20), index=True)
     status: Mapped[str] = mapped_column(String(60), default="PLANNED", nullable=False, index=True)
+    route_group_key: Mapped[str | None] = mapped_column(String(160), index=True)
+    audit_correlation_id: Mapped[str | None] = mapped_column(String(120), index=True)
     estimated_arrival_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     estimated_drive_time_minutes: Mapped[int | None] = mapped_column(Integer)
+    route_grouping_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    route_assignment_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    technician_route_compatibility_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_authorization_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_execution_boundary_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    deterministic_evidence_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    authorization_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    authorized_for_dispatch_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

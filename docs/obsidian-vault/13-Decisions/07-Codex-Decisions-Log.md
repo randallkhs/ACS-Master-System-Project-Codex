@@ -468,3 +468,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Routing/dispatch preparation service
   - Audit traceability foundation
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 13 Route Assignment And Dispatch Authorization Foundation
+
+- Decision type: Implementation / dispatch authorization boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic route assignment preparation and dispatch authorization boundary after routing/dispatch preparation.
+  - Add domain structures for route grouping, route assignment readiness, technician route compatibility, dispatch authorization readiness, execution authorization state, blocker codes, traceability, and evidence.
+  - Expand Route Assignments with route grouping, readiness, technician compatibility, dispatch authorization, execution-boundary, deterministic evidence, route group key, audit correlation, and authorization timestamps.
+  - Add `RouteAssignmentPreparationService` to create prepared route assignments for standard dispatch-ready Visits without optimizing routes or executing dispatch.
+  - Move authorized standard Visits to `awaiting_dispatch_execution`, preserving the boundary that dispatch has not run.
+  - Block dispatch authorization for blocked, review-required, Water Emergency, inactive-technician, unassigned, unscheduled, route-unready, dispatch-unready, invalid-lifecycle, archived, and missing-linkage Visits.
+- Rationale:
+  - Future dispatch execution needs one explicit durable authorization record instead of inferring execution readiness from Visit status text.
+  - Route grouping evidence should be preserved before optimization exists, without pretending that optimization has run.
+  - Manual Review and Water Emergency boundaries must remain authoritative at the final pre-execution gate.
+- Future implications:
+  - Future dispatch execution should consume authorized Route Assignments through a separate transactional execution service.
+  - Operator identity, route optimization revisioning, warning-heavy second approval, integration export outcomes, and Water Emergency dispatch authorization remain separate decisions.
+- Affected systems:
+  - Route assignment authorization domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - Route assignment preparation service
+  - Audit traceability foundation
+  - Dispatch pipeline documentation

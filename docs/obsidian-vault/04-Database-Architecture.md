@@ -340,3 +340,36 @@ Unresolved:
 - whether assigned technician readiness must always be revalidated from the database before dispatch
 - how future route optimization results should attach to these preparation snapshots
 - how Water Emergency routing/dispatch persistence should differ from the standard path
+
+## Route Assignment And Dispatch Authorization Snapshots
+
+Phase 0 Module 13 expands `route_assignments` into the first durable dispatch authorization boundary.
+
+Route assignments store:
+
+- route grouping key
+- audit correlation ID
+- route grouping snapshot
+- route assignment readiness snapshot
+- technician route compatibility snapshot
+- dispatch authorization snapshot
+- dispatch execution boundary snapshot
+- deterministic evidence snapshot
+- authorization-prepared timestamp
+- authorized-for-dispatch timestamp
+
+Persistence philosophy:
+
+- Route assignment preparation records deterministic grouping and authorization evidence; it does not run route optimization.
+- Dispatch authorization records whether a Visit is allowed to wait for future dispatch execution; it does not execute dispatch.
+- Authorized route assignments move to `awaiting_dispatch_execution`.
+- Blocked, review-required, Water Emergency, inactive-technician, unassigned, unscheduled, or route-unready Visits cannot become dispatch-authorized.
+- Authorization evidence lives on `RouteAssignment` so future execution can consume one explicit boundary record rather than infer from Visit strings.
+
+Unresolved:
+
+- exact operator identity and approval semantics for dispatch authorization once auth exists
+- whether future route optimization creates a new revision or updates the prepared route assignment
+- exact production route grouping beyond state and AM/PM preparation
+- whether warning-heavy but valid jobs need a second authorization step
+- how the Water Emergency dispatch authorization record should differ from the standard route assignment path

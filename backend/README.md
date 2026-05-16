@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, and routing/dispatch preparation services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, and route-assignment/dispatch-authorization services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -451,6 +451,44 @@ Preparation rules:
 - routing-ready and dispatch-ready are preparation states only
 
 This layer does not optimize routes, create route assignments, assign technicians, schedule Visits, execute dispatch, sync calendars, call integrations, run background workers, or call AI.
+
+## Route Assignment And Dispatch Authorization
+
+Phase 0 Module 13 adds the deterministic boundary between dispatch preparation and future dispatch execution.
+
+Current authorization flow:
+
+```text
+Dispatch-ready Visit
+  -> RouteAssignmentPreparationService
+  -> route grouping snapshot
+  -> route assignment readiness snapshot
+  -> dispatch authorization snapshot
+  -> awaiting dispatch execution
+```
+
+Route assignments now preserve:
+
+- route grouping key, route date, region, and AM/PM window
+- Visit, Job, technician, and audit-correlation references
+- route assignment readiness evidence
+- technician route compatibility evidence
+- dispatch authorization evidence
+- dispatch execution boundary evidence
+- deterministic evidence snapshots
+
+Authorization rules:
+
+- blocked Visits cannot become dispatch-authorized
+- review-required lifecycle blocks dispatch authorization
+- Water Emergency Visits cannot use the standard authorization path
+- inactive technicians block dispatch authorization
+- unscheduled Visits cannot become dispatch-authorized
+- unassigned Visits cannot become dispatch-authorized
+- route-unready Visits cannot become dispatch-authorized
+- authorization moves records to `awaiting_dispatch_execution`; dispatch execution has not run
+
+This layer does not optimize routes, execute dispatch, sync calendars, write Sheets/FastField, call integrations, update technician mobile workflows, run background workers, or call AI.
 
 ## Safety Rules
 

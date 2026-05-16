@@ -732,6 +732,65 @@ Unresolved routing and dispatch preparation questions:
 
 ---
 
+Phase 0 Module 13 Route Assignment And Dispatch Authorization
+
+The dispatch pipeline now has a deterministic route assignment and dispatch authorization boundary.
+
+Current authorization flow:
+
+```text
+Dispatch-ready Visit
+    ↓
+Route Grouping Preparation
+    ↓
+Route Assignment Preparation
+    ↓
+Dispatch Authorization
+    ↓
+Awaiting Dispatch Execution
+```
+
+Authorization evidence preserves:
+
+* route grouping key, route date, region, and AM/PM window
+* Visit, Work Order, Job, technician, and audit-correlation references
+* route assignment readiness
+* technician route compatibility
+* dispatch authorization readiness
+* dispatch execution boundary state
+* deterministic blocker reasons
+
+Authorization safety rules:
+
+* blocked Visits cannot become dispatch-authorized
+* review-required lifecycle blocks dispatch authorization
+* Water Emergency Visits cannot use the standard dispatch authorization path
+* inactive technicians block dispatch authorization
+* unassigned Visits cannot become dispatch-authorized
+* unscheduled Visits cannot become dispatch-authorized
+* route-unready Visits cannot become dispatch-authorized
+* `awaiting_dispatch_execution` is an authorization boundary only
+
+Safety boundary:
+
+* route grouping preparation does not optimize routes
+* route assignment preparation does not run a routing engine
+* dispatch authorization does not execute dispatch
+* dispatch authorization does not sync calendars
+* dispatch authorization does not export to Sheets/FastField
+* dispatch authorization does not call integrations
+* dispatch authorization does not call AI
+
+Unresolved route assignment and dispatch authorization questions:
+
+* exact ACS route grouping model beyond deterministic state/time-window grouping
+* whether route assignment authorization should require operator identity once auth exists
+* how future route optimization results should update or supersede prepared route assignments
+* whether dispatch authorization should require second approval for warning-heavy but valid jobs
+* how Water Emergency dispatch authorization should be modeled separately from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

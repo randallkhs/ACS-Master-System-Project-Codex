@@ -62,6 +62,25 @@ def test_route_assignments_can_store_drive_time_estimates() -> None:
     assert "estimated_drive_time_minutes" in columns
 
 
+def test_route_assignments_store_dispatch_authorization_traceability() -> None:
+    columns = Base.metadata.tables["route_assignments"].columns
+
+    expected_columns = {
+        "route_group_key",
+        "audit_correlation_id",
+        "route_grouping_snapshot",
+        "route_assignment_readiness_snapshot",
+        "technician_route_compatibility_snapshot",
+        "dispatch_authorization_snapshot",
+        "dispatch_execution_boundary_snapshot",
+        "deterministic_evidence_snapshot",
+        "authorization_prepared_at",
+        "authorized_for_dispatch_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
 def test_manual_review_items_can_target_non_job_entities() -> None:
     columns = Base.metadata.tables["review_items"].columns
 

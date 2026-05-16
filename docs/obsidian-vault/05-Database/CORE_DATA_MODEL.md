@@ -139,6 +139,12 @@ Prepare for:
 - region
 - AM/PM designation
 - route status
+- route grouping key
+- dispatch authorization readiness
+- dispatch execution boundary
+- deterministic route assignment evidence
+
+Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. They do not mean route optimization has run, dispatch has executed, or external systems have been updated.
 
 ## Water Emergency Records
 
@@ -280,6 +286,23 @@ Prepare for:
 - future route optimization evidence
 
 This layer must not optimize routes, create route assignments, execute dispatch, sync calendars, update technician mobile workflows, call integrations, or call AI.
+
+## Route Assignment And Dispatch Authorization
+
+Represents the deterministic boundary between dispatch-ready Visits and future dispatch execution.
+
+Prepare for:
+
+- route grouping foundation
+- route assignment readiness
+- technician route compatibility
+- dispatch authorization readiness
+- execution authorization state
+- route blockers and dispatch blockers
+- audit correlation continuity
+- future route optimization handoff
+
+This layer may create a prepared `RouteAssignment` in `awaiting_dispatch_execution`, but it must not execute dispatch, optimize routes, call integrations, sync calendars, update technician mobile workflows, or call AI.
 
 ---
 
