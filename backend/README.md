@@ -2,7 +2,7 @@
 
 FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
-This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets, FastField, Verizon Connect, AI, routing, or dispatch business workflows yet.
+This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or dispatch execution workflows yet.
 
 ## Architecture
 
@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, and assignment preparation services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, and routing/dispatch preparation services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -415,6 +415,42 @@ Preparation rules:
 - compatible technician candidates can move the Visit to `scheduling_ready`
 
 This layer does not assign technicians, set scheduled times, route work, execute dispatch, sync calendars, call integrations, run background workers, or call AI.
+
+## Routing And Dispatch Preparation
+
+Phase 0 Module 12 adds deterministic readiness preparation for future routing and dispatch execution.
+
+Current preparation flow:
+
+```text
+Prepared Visit
+  -> RoutingDispatchPreparationService
+  -> routing readiness snapshot
+  -> technician readiness snapshot
+  -> Visit dispatch readiness snapshot
+  -> dispatch readiness snapshot
+```
+
+Visit readiness snapshots now preserve:
+
+- routing readiness and routing blockers
+- technician readiness, active/inactive state, skills, service areas, vehicle label, and availability context
+- assignment readiness evidence from the Module 11 preparation boundary
+- scheduling readiness evidence, AM/PM preference, service-state markers, and scheduled timestamps
+- dispatch eligibility and dispatch blockers
+- lifecycle state, audit correlation, and deterministic evidence
+
+Preparation rules:
+
+- blocked Visits cannot become dispatch-ready
+- review-required lifecycle blocks dispatch preparation
+- Water Emergency Visits cannot use the standard routing/dispatch path
+- inactive technicians block dispatch readiness
+- unscheduled Visits cannot become dispatch-ready
+- unassigned Visits cannot become dispatch-ready
+- routing-ready and dispatch-ready are preparation states only
+
+This layer does not optimize routes, create route assignments, assign technicians, schedule Visits, execute dispatch, sync calendars, call integrations, run background workers, or call AI.
 
 ## Safety Rules
 

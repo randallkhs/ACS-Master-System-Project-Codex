@@ -225,6 +225,24 @@ Future routing and dispatch modules should consume readiness snapshots and expli
 
 ---
 
+## Phase 0 Module 12 Routing And Dispatch Preparation Boundary
+
+The backend now includes the deterministic preparation layer immediately before future route optimization and dispatch execution:
+
+- `RoutingDispatchLifecycleState` and blocker-code domain structures
+- routing readiness, technician readiness, Visit dispatch readiness, dispatch eligibility, evidence, and traceability structures
+- Visit readiness snapshot fields for routing readiness, dispatch readiness, technician readiness, and Visit dispatch readiness
+- `RoutingDispatchPreparationService` for deterministic routing and dispatch preparation
+- audit-log preparation for dispatch readiness
+
+The boundary is intentionally pre-routing-engine and pre-dispatch-execution. It can prepare readiness snapshots and move a standard Visit to `routing_ready` or `dispatch_ready`, but it does not optimize routes, create route assignments, assign technicians, schedule Visits, sync calendars, call integrations, run background workers, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Blocked, review-required, archived, invalid-lifecycle, missing-linkage, or Water Emergency Visits cannot use the standard routing/dispatch preparation path. Inactive technicians, unassigned Visits, and unscheduled Visits cannot become dispatch-ready.
+
+Future dispatch execution should consume these readiness snapshots and explicit Visit lifecycle state through a separate transactional service.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

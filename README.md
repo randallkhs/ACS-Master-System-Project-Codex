@@ -6,8 +6,8 @@ This repository is the long-term ACS FSM foundation. It is not a temporary scrip
 
 ## Current Status
 
-- Phase: Phase 0 Module 11
-- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, operational intake persistence, controlled operational job creation, Work Order/Visit generation, and technician assignment/scheduling preparation foundations
+- Phase: Phase 0 Module 12
+- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, operational intake persistence, controlled operational job creation, Work Order/Visit generation, technician assignment/scheduling preparation, and routing/dispatch preparation foundations
 - Frontend: deferred for a later Phase 0 module
 - Production target: Linux VPS, Apache reverse proxy, HTTPS, FastAPI backend, PostgreSQL database, future Next.js frontend
 
@@ -41,6 +41,7 @@ The backend scaffold includes:
 - controlled job creation from explicitly approved intake records with creation snapshots, intake-to-job linkage, and duplicate prevention foundation
 - deterministic Work Order and Visit generation foundations with scheduling-ready lifecycle states and traceability snapshots
 - deterministic technician assignment and scheduling preparation with readiness snapshots and lifecycle blockers
+- deterministic routing and dispatch preparation with readiness snapshots, dispatch blockers, and no dispatch execution
 - backend Makefile developer commands
 - pytest and Ruff configuration
 

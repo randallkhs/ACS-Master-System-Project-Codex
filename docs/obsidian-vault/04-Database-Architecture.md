@@ -311,3 +311,32 @@ Unresolved:
 - how service-area matching should interact with routing
 - how multi-technician readiness should be represented for standard jobs
 - when schedule-window readiness becomes an actual scheduled timestamp
+
+## Routing And Dispatch Preparation Snapshots
+
+Phase 0 Module 12 expands `visits` with deterministic routing and dispatch preparation snapshots.
+
+Visits store:
+
+- routing readiness snapshot
+- dispatch readiness snapshot
+- technician readiness snapshot
+- Visit dispatch readiness snapshot
+- routing-prepared timestamp
+- dispatch-prepared timestamp
+
+Persistence philosophy:
+
+- Routing preparation records readiness and blockers; it does not optimize routes.
+- Dispatch preparation records eligibility and blockers; it does not execute dispatch.
+- Standard dispatch readiness requires explicit technician assignment and a scheduled start time.
+- Inactive technicians, unassigned Visits, unscheduled Visits, blocked lifecycle, review-required lifecycle, and Water Emergency Visits block dispatch readiness.
+- Readiness snapshots preserve deterministic evidence so future route optimization and dispatch execution do not infer safety from freeform text.
+
+Unresolved:
+
+- whether a future persisted `RouteAssignment` should be required before `dispatch_ready`
+- exact route zone/region model for ACS production routing
+- whether assigned technician readiness must always be revalidated from the database before dispatch
+- how future route optimization results should attach to these preparation snapshots
+- how Water Emergency routing/dispatch persistence should differ from the standard path

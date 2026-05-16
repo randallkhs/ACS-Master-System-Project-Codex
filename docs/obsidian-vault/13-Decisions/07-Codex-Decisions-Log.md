@@ -439,3 +439,32 @@ Use this file for durable decisions that affect future development. Do not recor
   - Assignment preparation service
   - Audit traceability foundation
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 12 Routing And Dispatch Preparation Foundation
+
+- Decision type: Implementation / routing and dispatch preparation
+- Status: Implemented
+- Decision:
+  - Add a deterministic routing and dispatch preparation boundary after assignment/scheduling preparation.
+  - Add domain structures for routing readiness, technician readiness, Visit dispatch readiness, dispatch eligibility, lifecycle state, blocker codes, traceability, and deterministic evidence.
+  - Expand Visits with routing readiness, dispatch readiness, technician readiness, Visit dispatch readiness snapshots, and preparation timestamps.
+  - Add `RoutingDispatchPreparationService` to prepare standard Visits for future routing and dispatch execution without optimizing routes or executing dispatch.
+  - Preserve assignment readiness and scheduling readiness evidence from the Module 11 preparation boundary.
+  - Block dispatch readiness for blocked Visits, review-required lifecycle, Water Emergency Visits, inactive technicians, unassigned Visits, unscheduled Visits, invalid lifecycle, and missing linkage.
+- Rationale:
+  - Future route optimization and dispatch execution need explicit readiness evidence before any live operational action can run.
+  - Dispatch-ready must mean deterministic prerequisites are present, not that dispatch has executed.
+  - Manual Review and Water Emergency boundaries must remain enforceable immediately before technician-facing execution.
+- Future implications:
+  - Future dispatch execution should consume `dispatch_ready` Visits through a separate transactional workflow service.
+  - Route optimization, persisted route assignments, technician availability revalidation, calendar sync, vendor exports, and mobile technician workflows remain separate modules.
+  - Exact route grouping, whether dispatch readiness should require a persisted route assignment, and Water Emergency routing semantics remain unresolved.
+- Affected systems:
+  - Routing/dispatch preparation domain structures
+  - Visit model
+  - Alembic migrations
+  - Routing/dispatch preparation service
+  - Audit traceability foundation
+  - Dispatch pipeline documentation

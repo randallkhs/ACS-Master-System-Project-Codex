@@ -56,6 +56,12 @@ class Visit(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     operational_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
     assignment_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     scheduling_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    routing_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    technician_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    visit_dispatch_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    routing_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    dispatch_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     job: Mapped[Job] = relationship(back_populates="visits")
     work_order: Mapped[WorkOrder | None] = relationship(back_populates="visits")

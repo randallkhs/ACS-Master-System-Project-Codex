@@ -201,3 +201,18 @@ def test_visits_store_assignment_and_scheduling_preparation_snapshots() -> None:
     }
 
     assert expected_columns.issubset(set(columns.keys()))
+
+
+def test_visits_store_routing_and_dispatch_preparation_snapshots() -> None:
+    columns = Base.metadata.tables["visits"].columns
+
+    expected_columns = {
+        "routing_readiness_snapshot",
+        "dispatch_readiness_snapshot",
+        "technician_readiness_snapshot",
+        "visit_dispatch_readiness_snapshot",
+        "routing_prepared_at",
+        "dispatch_prepared_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))

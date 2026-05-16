@@ -107,6 +107,8 @@ Visits generated from Work Orders must preserve Work Order linkage and generatio
 
 Visit assignment and scheduling preparation should persist readiness snapshots before future dispatch execution. These snapshots should record eligibility, assignment blockers, technician compatibility context, AM/PM scheduling preference, service-state markers, and operational readiness without assigning a technician or setting exact schedule times.
 
+Visit routing and dispatch preparation should persist readiness snapshots before future dispatch execution. These snapshots should record routing blockers, technician readiness, assignment evidence, scheduling evidence, dispatch eligibility, dispatch blockers, and lifecycle state without creating route assignments, optimizing routes, or executing dispatch.
+
 ## Technicians
 
 Represents field workers and future technician app users.
@@ -259,6 +261,25 @@ Prepare for:
 - future vehicle/routing compatibility
 
 This layer must not assign technicians, set scheduled times, route work, dispatch work, sync calendars, or call integrations.
+
+## Routing And Dispatch Preparation
+
+Represents the deterministic readiness layer between prepared Visits and future dispatch execution.
+
+Prepare for:
+
+- routing readiness
+- routing blockers
+- technician readiness snapshots
+- Visit dispatch readiness
+- dispatch eligibility
+- dispatch blockers
+- assignment readiness evidence
+- scheduling readiness evidence
+- audit correlation continuity
+- future route optimization evidence
+
+This layer must not optimize routes, create route assignments, execute dispatch, sync calendars, update technician mobile workflows, call integrations, or call AI.
 
 ---
 

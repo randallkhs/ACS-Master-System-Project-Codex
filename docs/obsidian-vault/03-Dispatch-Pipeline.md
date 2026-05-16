@@ -672,6 +672,66 @@ Unresolved assignment and scheduling questions:
 
 ---
 
+Phase 0 Module 12 Routing And Dispatch Preparation
+
+The dispatch pipeline now has a deterministic routing and dispatch preparation boundary.
+
+Current preparation flow:
+
+```text
+Prepared Visit
+    ↓
+Routing Readiness Preparation
+    ↓
+Technician Readiness Snapshot
+    ↓
+Dispatch Eligibility Preparation
+```
+
+Routing and dispatch preparation evidence preserves:
+
+* Visit, Work Order, Job, technician, and audit-correlation references
+* routing readiness
+* routing blockers
+* technician readiness snapshots
+* assignment readiness evidence
+* scheduling readiness evidence
+* Visit dispatch readiness
+* dispatch eligibility
+* dispatch blockers
+* deterministic lifecycle state
+
+Preparation safety rules:
+
+* blocked Visits cannot become dispatch-ready
+* review-required lifecycle blocks dispatch
+* Water Emergency Visits cannot use the standard routing/dispatch path
+* inactive technicians block dispatch readiness
+* unassigned Visits cannot become dispatch-ready
+* unscheduled Visits cannot become dispatch-ready
+* `routing_ready` and `dispatch_ready` are preparation states only
+
+Safety boundary:
+
+* routing preparation does not optimize routes
+* routing preparation does not create route assignments
+* dispatch preparation does not execute dispatch
+* dispatch preparation does not call integrations
+* dispatch preparation does not sync calendars
+* dispatch preparation does not update technician mobile workflows
+* dispatch preparation does not call AI
+
+Unresolved routing and dispatch preparation questions:
+
+* exact route grouping model for North/South regions and future route zones
+* whether dispatch readiness should require a persisted `RouteAssignment`
+* exact technician availability statuses that block dispatch
+* whether assigned-but-not-evaluated technicians should block dispatch in production
+* how route optimization evidence should later be stored without overwriting deterministic readiness
+* how Water Emergency routing/dispatch should diverge from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

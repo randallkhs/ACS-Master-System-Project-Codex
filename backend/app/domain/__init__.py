@@ -48,6 +48,17 @@ from app.domain.orchestration import (
     OrchestrationState,
     OrchestrationWarning,
 )
+from app.domain.routing_dispatch_preparation import (
+    RoutingDispatchBlockerCode,
+    RoutingDispatchEligibility,
+    RoutingDispatchEvidence,
+    RoutingDispatchLifecycleState,
+    RoutingDispatchPreparationResult,
+    RoutingDispatchTraceability,
+    RoutingReadiness,
+    TechnicianReadiness,
+    VisitDispatchReadiness,
+)
 
 __all__ = [
     "ConfidenceLevel",
@@ -85,10 +96,19 @@ __all__ = [
     "RawIntakePayload",
     "ReviewRecommendation",
     "ReviewStatus",
+    "RoutingDispatchBlockerCode",
+    "RoutingDispatchEligibility",
+    "RoutingDispatchEvidence",
+    "RoutingDispatchLifecycleState",
+    "RoutingDispatchPreparationResult",
+    "RoutingDispatchTraceability",
+    "RoutingReadiness",
     "SchedulingReadiness",
     "TechnicianCompatibility",
+    "TechnicianReadiness",
     "TimeWindow",
     "ValidationResult",
+    "VisitDispatchReadiness",
     "VisitGenerationResult",
     "WorkOrderGenerationResult",
 ]
