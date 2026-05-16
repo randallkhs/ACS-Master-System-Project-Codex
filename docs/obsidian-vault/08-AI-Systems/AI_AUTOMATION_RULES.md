@@ -223,6 +223,14 @@ AI is still not used in this module.
 
 AI must not prepare escalation as authorized, create incidents, execute incident workflows, escalate interventions, clear accountability blockers, create standard accountability for Water Emergency Visits, bypass governance approval, bypass Manual Review, mutate operational event history, call external APIs, run workflow engines, or alter accountability evidence. Future AI may only add advisory explanation after deterministic accountability evidence exists and must remain subordinate to Manual Review, governance authority, and authenticated operator decisions.
 
+## Phase 0 Module 23 Boundary
+
+Operational dashboard read models and dashboard API contracts are deterministic only.
+
+AI is still not used in this module.
+
+AI must not generate authoritative dashboard state, infer hidden lifecycle transitions, clear blockers, summarize uncertainty into operational approval, resolve Manual Review, execute dispatch, trigger integrations, or reinterpret immutable event history as workflow authority. Future AI may only provide advisory explanations of already persisted dashboard evidence, and those explanations must remain separate from the read models that drive operational UI state.
+
 ---
 
 ## Confidence And Review

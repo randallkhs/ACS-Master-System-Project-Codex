@@ -1454,3 +1454,39 @@ The future platform must eventually replace:
 * manual coordination
 * fragile calendar parsing
 ```
+
+---
+
+Phase 0 Module 23 Operational Dashboard Read Models
+
+The dispatch pipeline now has a read-only dashboard projection boundary for future admin/API consumption.
+
+Current dashboard read models summarize:
+
+* operational overview counts
+* dispatch lifecycle counts
+* Manual Review blocker and escalation indicators
+* Route Assignment state
+* external adapter/execution/confirmation state
+* reconciliation and recovery-preparation state
+* governance and accountability state
+* immutable operational event timeline entries
+* audit correlation references
+
+Safety boundary:
+
+* dashboard read models do not mutate ORM objects
+* dashboard read models do not execute dispatch
+* dashboard read models do not trigger integrations
+* dashboard read models do not run AI
+* dashboard read models do not resolve Manual Review
+* dashboard read models do not infer hidden lifecycle transitions
+* dashboard API routes are read-only and expose contracts for future UI work only
+
+Unresolved dashboard questions:
+
+* exact filtering and pagination requirements for office dashboard views
+* whether lifecycle counts should default to target date, route date, or all visible records
+* how Water Emergency dashboard views should differ from standard dispatch views
+* exact operator role visibility once authentication exists
+* whether dashboard snapshots need caching or materialized views in production

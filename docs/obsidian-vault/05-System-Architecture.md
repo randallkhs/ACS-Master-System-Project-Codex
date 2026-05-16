@@ -404,6 +404,27 @@ Manual Review, Water Emergency separation, governance authority, immutable event
 
 Future enterprise coordination should consume these snapshots through explicit authenticated operator workflows rather than automatic incident engines or hidden lifecycle transitions.
 
+## Phase 0 Module 23 Operational Dashboard Read Model Boundary
+
+The backend now includes the first read-only operational dashboard projection boundary:
+
+- dashboard domain read models for operational overview, lifecycle state, Manual Review, dispatch, external execution, reconciliation/recovery, governance/accountability, and operational timelines
+- `DashboardReadModelService` for deterministic aggregation over persisted ORM state and immutable event history
+- Pydantic API contracts for dashboard responses
+- read-only API routes under `/api/v1/dashboard`
+
+The boundary is intentionally projection-only. It summarizes persisted state, blocker evidence, escalation indicators, lifecycle counts, audit-correlation references, and timeline events, but it does not mutate ORM objects, execute dispatch, trigger integrations, run AI, create analytics jobs, resolve Manual Review, or infer hidden lifecycle transitions.
+
+The future admin dashboard should consume these API contracts and display backend state, warnings, review blockers, escalation indicators, and timeline evidence without embedding business workflow logic in frontend components.
+
+Unresolved:
+
+- exact dashboard filtering/pagination contract for production-size event timelines
+- which operational counts should be separated by branch, region, technician, or day
+- how future authentication should scope dashboard visibility by role
+- whether Water Emergency needs a separate dashboard contract once its dedicated workflow path exists
+- how to handle stale dashboard data and refresh cadence in the future frontend
+
 ---
 
 ## First Module Boundary

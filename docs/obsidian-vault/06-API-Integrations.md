@@ -267,3 +267,30 @@ Rules:
 - Water Emergency work cannot use the standard accountability path
 - blocked, review-required, unauthorized, duplicate-escalation, invalid-lifecycle, missing-operator, missing-governance, no-context, or mutable-history records cannot prepare standard accountability
 - future live enterprise coordination workflows must preserve database workflow authority and immutable event-history boundaries
+
+## Phase 0 Module 23 Dashboard API Contract Boundary
+
+The dashboard API foundation is read-only and backend-owned.
+
+Current route contracts:
+
+- `/api/v1/dashboard/overview`
+- `/api/v1/dashboard/lifecycle`
+- `/api/v1/dashboard/review`
+- `/api/v1/dashboard/dispatch`
+
+Rules:
+
+- dashboard APIs expose read models only
+- dashboard APIs do not mutate operational records
+- dashboard APIs do not execute dispatch, replay, rollback, reconciliation, escalation, or incident workflows
+- dashboard APIs do not call vendor integrations
+- dashboard APIs do not call AI
+- future frontend/admin dashboard code must consume these contracts instead of duplicating lifecycle or blocker logic
+
+Open API concerns:
+
+- filtering, sorting, and pagination have not been finalized
+- authentication and role-scoped visibility are not implemented yet
+- high-volume dashboard projections may later need explicit query optimization or materialized read models
+- Water Emergency may need dedicated dashboard endpoints once its separated workflow path is implemented

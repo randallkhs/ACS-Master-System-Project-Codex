@@ -745,3 +745,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Operational accountability service
   - Operational event history evidence boundary
   - Audit traceability and dispatch pipeline documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 23 Operational Dashboard Read Model And API Contract Foundation
+
+- Decision type: Implementation / read model / API contract
+- Status: Implemented
+- Decision:
+  - Add a read-only dashboard projection boundary for future admin dashboard consumption.
+  - Add dashboard domain read models for operational overview, lifecycle, Manual Review, route assignment, external execution, reconciliation/recovery, governance/accountability, and operational timelines.
+  - Add `DashboardReadModelService` to aggregate persisted ORM state and immutable event evidence without mutating objects or triggering workflow execution.
+  - Add Pydantic dashboard response schemas and read-only routes under `/api/v1/dashboard`.
+  - Keep dashboard routes contract-only; do not add mutation, execution, integration, frontend, analytics-engine, or AI behavior.
+- Rationale:
+  - Future office/admin dashboard work needs stable backend-owned contracts before frontend implementation begins.
+  - Lifecycle counts, blocker counts, Manual Review indicators, and timeline evidence should come from persisted backend state, not frontend inference.
+  - Manual Review, Water Emergency separation, audit correlation, and immutable event history must remain authoritative and visible.
+- Future implications:
+  - Frontend dashboard work should consume these contracts and avoid embedding workflow rules in UI components.
+  - Filtering, pagination, role-scoped visibility, stale-data handling, and Water Emergency-specific dashboard contracts remain unresolved.
+  - Large production datasets may require optimized queries or materialized projections later, but Module 23 intentionally avoids analytics-engine complexity.
+- Affected systems:
+  - Dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Dashboard API routes
+  - Operational event history read consumption
+  - Backend documentation
