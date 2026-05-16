@@ -50,6 +50,12 @@ class Visit(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     deterministic_evidence_snapshot: Mapped[dict | None] = mapped_column(JSON)
     lifecycle_metadata: Mapped[dict | None] = mapped_column(JSON)
     generated_from_work_order_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    assignment_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    technician_compatibility_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    scheduling_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    operational_readiness_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    assignment_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    scheduling_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     job: Mapped[Job] = relationship(back_populates="visits")
     work_order: Mapped[WorkOrder | None] = relationship(back_populates="visits")

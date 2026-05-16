@@ -186,3 +186,18 @@ def test_visits_store_work_order_linkage_and_generation_traceability() -> None:
     }
 
     assert expected_columns.issubset(set(columns.keys()))
+
+
+def test_visits_store_assignment_and_scheduling_preparation_snapshots() -> None:
+    columns = Base.metadata.tables["visits"].columns
+
+    expected_columns = {
+        "assignment_readiness_snapshot",
+        "technician_compatibility_snapshot",
+        "scheduling_readiness_snapshot",
+        "operational_readiness_snapshot",
+        "assignment_prepared_at",
+        "scheduling_prepared_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))

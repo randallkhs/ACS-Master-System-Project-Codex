@@ -607,6 +607,71 @@ Unresolved generation questions:
 
 ---
 
+Phase 0 Module 11 Technician Assignment And Scheduling Preparation
+
+The dispatch pipeline now has a deterministic technician assignment and scheduling readiness boundary.
+
+Current preparation flow:
+
+```text
+Generated Visit
+    ↓
+Assignment Preparation
+    ↓
+Technician Compatibility Check
+    ↓
+Scheduling Readiness Preparation
+```
+
+Assignment preparation evidence preserves:
+
+* visit ID
+* work order ID
+* job ID
+* candidate technician ID when provided
+* audit correlation ID
+* assignment eligibility
+* assignment-required state
+* technician active/inactive readiness
+* technician skills, service areas, vehicle label, and availability context
+* AM/PM scheduling preference
+* service-state markers
+* lifecycle blockers
+* operational readiness metadata
+
+Preparation safety rules:
+
+* blocked Visits cannot be prepared for assignment
+* review-required Visits cannot be prepared for assignment
+* Water Emergency Visits cannot use the standard assignment path
+* archived lifecycle cannot be scheduled
+* invalid lifecycle transitions are blocked
+* inactive technician candidates block compatibility
+* unassigned Visits without a candidate remain assignment-required
+* preparation does not set the technician ID or scheduled time
+
+Safety boundary:
+
+* assignment preparation does not execute dispatch
+* assignment preparation does not run routing
+* assignment preparation does not assign technicians
+* assignment preparation does not sync calendars
+* assignment preparation does not update technician mobile workflows
+* assignment preparation does not call integrations
+* assignment preparation does not run background workers
+* assignment preparation does not call AI
+
+Unresolved assignment and scheduling questions:
+
+* exact technician availability states and which values block assignment
+* exact skill-to-service compatibility rules
+* whether service areas should block assignment before routing exists
+* how multi-technician assignments should be represented in the assignment preparation result
+* how AM/PM windows should translate into exact schedule windows
+* when prepared scheduling should become a durable scheduled time
+
+---
+
 13. Routing Engine
 
 Current Routing

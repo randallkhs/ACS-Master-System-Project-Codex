@@ -207,6 +207,24 @@ Future dispatch/routing modules should consume generated Work Orders and Visits 
 
 ---
 
+## Phase 0 Module 11 Assignment And Scheduling Preparation Boundary
+
+The backend now includes the first technician-facing preparation layer before routing and dispatch:
+
+- `AssignmentPreparationLifecycleState` and blocker-code domain structures
+- assignment eligibility, assignment readiness, technician compatibility, scheduling readiness, and operational readiness structures
+- Visit readiness snapshot fields for assignment, technician compatibility, scheduling, and operational readiness
+- `AssignmentPreparationService` for deterministic Visit readiness preparation
+- audit-log preparation for assignment readiness
+
+The boundary is intentionally pre-assignment, pre-routing, and pre-dispatch. It can prepare readiness snapshots and lifecycle state for a generated Visit, but it does not assign technicians, schedule exact times, route work, dispatch work, sync calendars, call integrations, run background workers, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Blocked, review-required, archived, invalid-lifecycle, or Water Emergency Visits cannot use the standard assignment preparation path. Inactive technician candidates block compatibility without assigning the technician.
+
+Future routing and dispatch modules should consume readiness snapshots and explicit Visit lifecycle state instead of recomputing assignment blockers from freeform text.
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

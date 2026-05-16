@@ -409,3 +409,33 @@ Use this file for durable decisions that affect future development. Do not recor
   - Operational work generation service
   - Audit traceability foundation
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 11 Assignment And Scheduling Preparation Foundation
+
+- Decision type: Implementation / technician-facing preparation
+- Status: Implemented
+- Decision:
+  - Add a deterministic technician assignment and scheduling readiness boundary after Visit generation.
+  - Add domain structures for assignment eligibility, assignment readiness, technician compatibility, scheduling readiness, operational readiness, lifecycle state, and blocker codes.
+  - Expand Visits with assignment readiness, technician compatibility, scheduling readiness, and operational readiness snapshots plus preparation timestamps.
+  - Add `AssignmentPreparationService` to prepare standard generated Visits for future assignment and scheduling without assigning technicians or scheduling times.
+  - Preserve AM/PM time-window and service-state evidence from deterministic normalization snapshots.
+  - Block standard assignment preparation for blocked, review-required, archived, invalid-lifecycle, and Water Emergency Visits.
+  - Treat inactive technician candidates as incompatible without mutating `technician_id`.
+- Rationale:
+  - Future routing and dispatch need explicit readiness evidence before technician assignment and schedule execution exist.
+  - Visit lifecycle should remain deterministic and auditable; future modules should not infer assignment readiness from freeform strings.
+  - Manual Review and Water Emergency boundaries must remain authoritative before any technician-facing execution is introduced.
+- Future implications:
+  - Future routing should consume Visit readiness snapshots and lifecycle state.
+  - Technician assignment will need explicit operator/system authority and possibly multi-technician semantics.
+  - Exact technician availability states, skill matching, service-area matching, vehicle/routing compatibility, and schedule-window conversion remain unresolved.
+- Affected systems:
+  - Assignment preparation domain structures
+  - Visit model
+  - Alembic migrations
+  - Assignment preparation service
+  - Audit traceability foundation
+  - Dispatch pipeline documentation

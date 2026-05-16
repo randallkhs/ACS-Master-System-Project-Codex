@@ -127,6 +127,14 @@ AI is still not used in this module.
 
 Only approved standard jobs can generate standard Work Orders, and only generated standard Work Orders can generate Visits. AI must not create Work Orders or Visits, bypass duplicate prevention, approve review-required jobs, convert Water Emergency jobs into the standard path, assign technicians, schedule visits, route work, dispatch work, or alter generation evidence.
 
+## Phase 0 Module 11 Boundary
+
+Technician assignment and scheduling preparation is deterministic only.
+
+AI is still not used in this module.
+
+AI must not assign technicians, declare inactive technicians compatible, bypass blocked/review-required/Water Emergency lifecycle blockers, create schedule times, route work, dispatch work, sync calendars, or alter readiness evidence. Future AI may only add advisory context after deterministic readiness evidence exists and Manual Review remains authoritative.
+
 ---
 
 ## Confidence And Review

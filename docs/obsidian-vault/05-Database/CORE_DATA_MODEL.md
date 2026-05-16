@@ -105,6 +105,8 @@ Prepare for:
 
 Visits generated from Work Orders must preserve Work Order linkage and generation evidence. A generated Visit starts awaiting assignment; technician assignment, exact scheduling, routing, and dispatch remain future workflow steps.
 
+Visit assignment and scheduling preparation should persist readiness snapshots before future dispatch execution. These snapshots should record eligibility, assignment blockers, technician compatibility context, AM/PM scheduling preference, service-state markers, and operational readiness without assigning a technician or setting exact schedule times.
+
 ## Technicians
 
 Represents field workers and future technician app users.
@@ -237,6 +239,26 @@ Prepare for:
 - duplicate generation prevention
 
 The standard path is intentionally separated from Water Emergency. Water Emergency work will need its own generation rules because it may require multiple visits, equipment lifecycle actions, and long-lived workflow state.
+
+## Assignment And Scheduling Preparation
+
+Represents the deterministic readiness layer between generated Visits and future routing/dispatch.
+
+Prepare for:
+
+- assignment eligibility
+- assignment-required state
+- technician active/inactive validation
+- technician skills, service areas, vehicle, and availability context
+- scheduling readiness
+- AM/PM schedule-window preference
+- lifecycle blockers
+- review blockers
+- Water Emergency assignment separation
+- future multi-technician compatibility
+- future vehicle/routing compatibility
+
+This layer must not assign technicians, set scheduled times, route work, dispatch work, sync calendars, or call integrations.
 
 ---
 

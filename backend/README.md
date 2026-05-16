@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, and operational work generation services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, and assignment preparation services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -377,6 +377,44 @@ Generation rules:
 - generated Visits are awaiting assignment, not assigned or routed
 
 This layer does not execute dispatch, route technicians, assign technicians, schedule visits, call integrations, run background workers, or call AI.
+
+## Assignment And Scheduling Preparation
+
+Phase 0 Module 11 adds deterministic readiness preparation for technician assignment and scheduling.
+
+Current preparation flow:
+
+```text
+Generated Visit
+  -> AssignmentPreparationService
+  -> assignment readiness snapshot
+  -> technician compatibility snapshot
+  -> scheduling readiness snapshot
+  -> operational readiness snapshot
+```
+
+Visit readiness snapshots now preserve:
+
+- assignment eligibility
+- assignment-required state
+- technician active/inactive compatibility
+- technician skills, service areas, vehicle label, and availability context
+- AM/PM scheduling preference from deterministic normalization evidence
+- service state markers from deterministic normalization evidence
+- lifecycle blockers
+- operational readiness metadata
+
+Preparation rules:
+
+- blocked Visits cannot be prepared for assignment
+- review-required Visits cannot be prepared for assignment
+- Water Emergency Visits cannot use the standard assignment path
+- archived or invalid lifecycle Visits cannot be scheduled
+- inactive technician candidates block compatibility
+- unassigned Visits without a technician candidate remain `assignment_required`
+- compatible technician candidates can move the Visit to `scheduling_ready`
+
+This layer does not assign technicians, set scheduled times, route work, execute dispatch, sync calendars, call integrations, run background workers, or call AI.
 
 ## Safety Rules
 

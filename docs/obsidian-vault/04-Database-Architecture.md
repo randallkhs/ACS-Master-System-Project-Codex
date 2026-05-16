@@ -282,3 +282,32 @@ Unresolved:
 - which service types require multiple visits or multiple Work Orders
 - where future schedule-window persistence should live
 - how Water Emergency Work Orders and Visits should differ from the standard path
+
+## Assignment And Scheduling Preparation Snapshots
+
+Phase 0 Module 11 expands `visits` with deterministic assignment and scheduling readiness snapshots.
+
+Visits store:
+
+- assignment readiness snapshot
+- technician compatibility snapshot
+- scheduling readiness snapshot
+- operational readiness snapshot
+- assignment-prepared timestamp
+- scheduling-prepared timestamp
+
+Persistence philosophy:
+
+- Assignment preparation records readiness and blockers; it does not assign a technician.
+- Scheduling preparation records AM/PM and service-state evidence; it does not set scheduled times.
+- Technician compatibility currently validates active/inactive state and preserves future compatibility context.
+- Water Emergency Visits are blocked from the standard assignment path.
+- Readiness snapshots keep future routing/dispatch modules from recalculating hidden state from freeform strings.
+
+Unresolved:
+
+- exact technician availability statuses and which values should block assignment
+- exact technician skill/service matching rules
+- how service-area matching should interact with routing
+- how multi-technician readiness should be represented for standard jobs
+- when schedule-window readiness becomes an actual scheduled timestamp
