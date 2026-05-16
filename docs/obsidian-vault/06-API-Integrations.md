@@ -322,3 +322,22 @@ Open API/frontend concerns:
 - event timeline filtering, pagination, and sorting
 - Water Emergency-specific dashboard API needs
 - deployment path and reverse-proxy routing between the future Next.js frontend and FastAPI backend
+
+## Phase 0 Module 25 Frontend Dashboard Contract Polish
+
+The frontend polish pass preserved the Module 23 dashboard API boundary.
+
+Confirmed frontend API behavior:
+
+- dashboard client helpers remain read-only `GET` requests
+- no `POST`, `PUT`, `PATCH`, or `DELETE` helpers were added
+- fallback data remains typed local development data and is visibly marked in the UI
+- production data still depends on environment-configured backend origin through `ACS_DASHBOARD_API_BASE_URL`
+- visual polish does not add dispatch, review-resolution, reconciliation, integration, or AI execution calls
+
+Open API/frontend concerns:
+
+- role-scoped dashboard API access after authentication exists
+- stale-data and refresh signaling
+- timeline pagination and filtering
+- Water Emergency-specific dashboard endpoints

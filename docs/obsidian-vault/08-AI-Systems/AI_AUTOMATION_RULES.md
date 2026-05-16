@@ -239,6 +239,14 @@ AI is still not used in this module.
 
 AI must not generate dashboard authority, create hidden workflow state, override backend read models, clear Manual Review items, execute dispatch, call integrations, approve governance/accountability actions, or present advisory output as operational fact. Any future AI-facing dashboard feature must remain separate from backend read-model truth and must be labeled as advisory explanation only.
 
+## Phase 0 Module 25 Boundary
+
+The frontend visual QA and polish pass is display-only and deterministic.
+
+AI is still not used in this module.
+
+AI must not provide dashboard authority, generate hidden lifecycle state, create operational action controls, override backend read models, clear blockers, resolve Manual Review, execute dispatch, call integrations, or reinterpret visual dashboard summaries as approval. Future AI dashboard assistance must remain advisory and separate from persisted dashboard evidence.
+
 ---
 
 ## Confidence And Review

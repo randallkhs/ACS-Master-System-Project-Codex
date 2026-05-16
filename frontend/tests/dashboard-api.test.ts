@@ -2,7 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   DASHBOARD_ENDPOINTS,
   dashboardEndpointUrl,
-  getDashboardOverview
+  getDashboardDispatch,
+  getDashboardLifecycle,
+  getDashboardOverview,
+  getDashboardReview
 } from "@/lib/dashboard-api";
 import { mockDashboardOverview } from "@/lib/mock-dashboard";
 
@@ -54,5 +57,45 @@ describe("dashboard API client", () => {
         cache: "no-store"
       })
     );
+  });
+
+  it("keeps all dashboard client helpers read-only", async () => {
+    process.env.ACS_DASHBOARD_API_BASE_URL = "https://api.acs.example.com";
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(mockDashboardOverview), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await getDashboardOverview();
+    await getDashboardLifecycle();
+    await getDashboardReview();
+    await getDashboardDispatch();
+
+    const calls = fetchMock.mock.calls.map(([url, init]) => ({
+      url: String(url),
+      method: init?.method
+    }));
+
+    expect(calls).toEqual([
+      {
+        url: "https://api.acs.example.com/api/v1/dashboard/overview",
+        method: "GET"
+      },
+      {
+        url: "https://api.acs.example.com/api/v1/dashboard/lifecycle",
+        method: "GET"
+      },
+      {
+        url: "https://api.acs.example.com/api/v1/dashboard/review",
+        method: "GET"
+      },
+      {
+        url: "https://api.acs.example.com/api/v1/dashboard/dispatch",
+        method: "GET"
+      }
+    ]);
   });
 });

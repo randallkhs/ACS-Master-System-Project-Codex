@@ -3,14 +3,26 @@ import type {
   OperationalDashboardSummaryResponse
 } from "@/lib/dashboard-contracts";
 import { formatCount } from "@/lib/format";
-import { StatusBadge } from "@/components/dashboard/status-badge";
+import {
+  StatusBadge,
+  type StatusBadgeVariant
+} from "@/components/dashboard/status-badge";
 
 type OperationalHealthPanelProps = {
   summary: OperationalDashboardSummaryResponse;
   lifecycle: DispatchLifecycleSummaryResponse;
 };
 
-const healthItems = [
+type HealthItem = {
+  key: string;
+  label: string;
+  description: string;
+  value: (props: OperationalHealthPanelProps) => number;
+  tone: (props: OperationalHealthPanelProps) => StatusBadgeVariant;
+  status: (props: OperationalHealthPanelProps) => string;
+};
+
+const healthItems: HealthItem[] = [
   {
     key: "manual-review",
     label: "Manual Review open",
@@ -18,7 +30,9 @@ const healthItems = [
     value: (props: OperationalHealthPanelProps) =>
       props.summary.open_manual_reviews,
     tone: (props: OperationalHealthPanelProps) =>
-      props.summary.open_manual_reviews > 0 ? "warning" : "success"
+      props.summary.open_manual_reviews > 0 ? "warning" : "success",
+    status: (props: OperationalHealthPanelProps) =>
+      props.summary.open_manual_reviews > 0 ? "Review" : "Clear"
   },
   {
     key: "blocked",
@@ -27,7 +41,9 @@ const healthItems = [
     value: (props: OperationalHealthPanelProps) =>
       props.summary.blocked_operations,
     tone: (props: OperationalHealthPanelProps) =>
-      props.summary.blocked_operations > 0 ? "danger" : "success"
+      props.summary.blocked_operations > 0 ? "danger" : "success",
+    status: (props: OperationalHealthPanelProps) =>
+      props.summary.blocked_operations > 0 ? "Blocked" : "Clear"
   },
   {
     key: "ready",
@@ -35,7 +51,8 @@ const healthItems = [
     description: "Ready state reported by backend",
     value: (props: OperationalHealthPanelProps) =>
       props.lifecycle.dispatch_ready_visits,
-    tone: () => "info"
+    tone: () => "info",
+    status: () => "Ready"
   },
   {
     key: "water",
@@ -44,9 +61,11 @@ const healthItems = [
     value: (props: OperationalHealthPanelProps) =>
       props.summary.open_water_emergencies,
     tone: (props: OperationalHealthPanelProps) =>
-      props.summary.open_water_emergencies > 0 ? "info" : "neutral"
+      props.summary.open_water_emergencies > 0 ? "info" : "neutral",
+    status: (props: OperationalHealthPanelProps) =>
+      props.summary.open_water_emergencies > 0 ? "Separated" : "None"
   }
-] as const;
+];
 
 export function OperationalHealthPanel(props: OperationalHealthPanelProps) {
   const safetySignals =
@@ -94,7 +113,7 @@ export function OperationalHealthPanel(props: OperationalHealthPanelProps) {
                 <div className="text-sm font-semibold text-slate-700">
                   {item.label}
                 </div>
-                <StatusBadge label={tone} variant={tone} />
+                <StatusBadge label={item.status(props)} variant={tone} />
               </div>
               <div className="mt-4 text-3xl font-semibold leading-none text-[#162033]">
                 {formatCount(item.value(props))}

@@ -801,3 +801,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - Dashboard contract documentation
   - AI/dashboard safety boundary
   - Future deployment architecture
+
+---
+
+## 2026-05-16 — Phase 0 Module 25 Frontend Visual QA And Dashboard Polish Pass
+
+- Decision type: Implementation / frontend QA / visual polish boundary
+- Status: Implemented
+- Decision:
+  - Add the first visual QA and polish pass to the read-only admin dashboard foundation.
+  - Add an operational health summary before detailed dashboard sections so Manual Review, blockers, dispatch readiness, and Water Emergency separation are easier to scan.
+  - Keep the dashboard shell responsive across desktop, laptop, and mobile widths.
+  - Expand tests to confirm dashboard API helpers remain `GET`-only and rendered dashboard output does not include operational mutation controls.
+  - Preserve typed fallback behavior for local development and visible fallback labeling.
+- Rationale:
+  - The dashboard foundation needs to be visually usable for future office/admin workflows before production features are layered on top.
+  - Visual polish must not become workflow authority or create fake controls that imply dispatch, approval, reconciliation, integration, or AI execution exists.
+  - Backend dashboard read models remain the source of truth for lifecycle, blocker, Manual Review, Water Emergency, and audit evidence.
+- Future implications:
+  - Future frontend modules can add role-scoped pages only after authentication and permissions are defined.
+  - Refresh cadence, stale-data display, dashboard pagination, and Water Emergency-specific screens remain separate decisions.
+  - Additional design-system extraction may be useful after more dashboard screens exist.
+- Affected systems:
+  - Frontend dashboard UI foundation
+  - Dashboard API client tests
+  - Dashboard render tests
+  - Frontend documentation
+  - Dashboard architecture documentation

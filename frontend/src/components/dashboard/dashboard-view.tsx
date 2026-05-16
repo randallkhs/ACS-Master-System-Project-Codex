@@ -5,6 +5,7 @@ import type {
 import { AppShell } from "@/components/layout/app-shell";
 import { AlertStrip } from "@/components/dashboard/alert-strip";
 import { CountBucketPanel } from "@/components/dashboard/count-bucket-panel";
+import { OperationalHealthPanel } from "@/components/dashboard/operational-health-panel";
 import { SectionCard } from "@/components/dashboard/section-card";
 import { SectionHeading } from "@/components/dashboard/section-heading";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -24,18 +25,22 @@ export function DashboardView({ result }: DashboardViewProps) {
   return (
     <AppShell generatedAt={data.generated_at} source={source}>
       <div className="space-y-8">
-        <AlertStrip title="Read-only operational dashboard" tone="info">
-          This screen displays backend dashboard read models only. It does not
-          dispatch jobs, resolve Manual Review, trigger integrations, call AI, or
-          infer hidden lifecycle transitions.
-        </AlertStrip>
-
-        {source === "mock" ? (
-          <AlertStrip title="Fallback data is active" tone="warning">
-            {errorMessage ??
-              "The backend dashboard API was not available, so typed local fallback data is shown for layout validation."}
+        <div className="grid gap-4 xl:grid-cols-2">
+          <AlertStrip title="Read-only operational dashboard" tone="info">
+            This screen displays backend dashboard read models only. It does not
+            dispatch jobs, resolve Manual Review, trigger integrations, call AI,
+            or infer hidden lifecycle transitions.
           </AlertStrip>
-        ) : null}
+
+          {source === "mock" ? (
+            <AlertStrip title="Fallback data is active" tone="warning">
+              {errorMessage ??
+                "The backend dashboard API was not available, so typed local fallback data is shown for layout validation."}
+            </AlertStrip>
+          ) : null}
+        </div>
+
+        <OperationalHealthPanel summary={summary} lifecycle={lifecycle} />
 
         <section className="space-y-4">
           <SectionHeading

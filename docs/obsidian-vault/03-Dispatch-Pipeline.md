@@ -1526,3 +1526,34 @@ Unresolved frontend/pipeline questions:
 * role-scoped visibility once authentication exists
 * dedicated Water Emergency dashboard workflow design
 * production filters for route date, region, technician, and branch
+
+---
+
+Phase 0 Module 25 Frontend Dashboard Visual QA Pass
+
+The frontend dashboard consumer received its first visual QA and polish pass without changing dispatch workflow authority.
+
+Polish scope:
+
+* operational health summary added before detailed dashboard sections
+* read-only and fallback notices balanced for desktop and mobile layouts
+* safety, blocker, dispatch-ready, and Water Emergency signals made easier to scan
+* responsive navigation verified at desktop, laptop, and mobile widths
+* dashboard tests expanded to confirm no operational action controls are rendered
+* API client tests expanded to confirm dashboard helpers remain `GET`-only
+
+Safety boundary:
+
+* no dispatch actions
+* no Manual Review approve/reject actions
+* no integration execution controls
+* no AI action controls
+* no hidden lifecycle inference
+* no mutation API calls from the frontend
+
+Unresolved frontend/pipeline questions:
+
+* final office dashboard navigation model once more pages exist
+* whether the operational health summary should become role-specific after authentication
+* exact stale-data and refresh behavior for active office use
+* dedicated Water Emergency dashboard screen design

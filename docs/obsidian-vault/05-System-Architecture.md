@@ -450,6 +450,29 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 25 Frontend Visual QA Boundary
+
+The frontend dashboard foundation now includes its first visual QA and polish pass:
+
+- operational health summary panel above the detailed dashboard sections
+- stronger status/state communication for Manual Review, blockers, dispatch readiness, and Water Emergency separation
+- browser-checked desktop, laptop, and mobile dashboard layouts
+- tests confirming dashboard client helpers remain read-only `GET` calls
+- tests confirming the rendered dashboard does not expose operational action buttons
+
+This module does not change the workflow architecture. The frontend remains a read-only consumer of backend dashboard read models.
+
+The frontend still does not implement authentication, mutation endpoints, dispatch actions, Manual Review resolution, external vendor execution, AI authority, mobile technician UI, or hidden lifecycle inference.
+
+Unresolved:
+
+- final dashboard information architecture after authentication and role scopes exist
+- production refresh cadence and stale-data indicators
+- Water Emergency-specific dashboard screens and contracts
+- whether future visual QA should introduce a design-system component registry
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

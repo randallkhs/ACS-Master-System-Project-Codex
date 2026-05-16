@@ -17,8 +17,26 @@ describe("DashboardView", () => {
 
     expect(html).toContain("Operational Control View");
     expect(html).toContain("Read-only operational dashboard");
+    expect(html).toContain("Safety signals and readiness");
     expect(html).toContain("Manual Review");
     expect(html).toContain("Water Emergency");
     expect(html).toContain("Operational Event Timeline");
+  });
+
+  it("does not render operational action buttons or mutation controls", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+      />
+    );
+
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Resolve review");
+    expect(html).not.toContain("Dispatch now");
+    expect(html).not.toContain("Execute dispatch");
+    expect(html).not.toContain("Run integration");
   });
 });

@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 24 adds the first frontend foundation for the ACS Master System admin dashboard.
+Phase 0 Module 25 keeps the first frontend foundation read-only while adding the first visual QA and dashboard polish pass.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -38,6 +38,8 @@ npm run test
 npm run build
 ```
 
+Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Use the production server after `npm run build` for final screenshot checks so development-only framework badges do not cover mobile content.
+
 ## Architecture Rules
 
 - The frontend displays backend read models only.
@@ -49,6 +51,7 @@ npm run build
 
 ## Current Dashboard Views
 
+- Operational health and safety readiness summary
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -57,6 +60,14 @@ npm run build
 - Reconciliation and recovery summary
 - Governance and accountability summary
 - Operational event timeline preview
+
+## Module 25 Visual QA Notes
+
+- The first viewport now prioritizes read-only/fallback safety notices followed by an operational health summary.
+- Safety, blocker, dispatch-ready, and Water Emergency signals are grouped before detailed dashboard sections.
+- Responsive navigation remains link-only and wraps into a two-column mobile grid.
+- Dashboard tests assert the API client stays `GET`-only and the rendered dashboard does not expose operational action buttons.
+- Empty, fallback, and read-only states remain visible without creating fake workflow controls.
 
 ## Open Decisions
 
