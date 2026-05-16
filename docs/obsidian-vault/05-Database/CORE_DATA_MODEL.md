@@ -142,9 +142,13 @@ Prepare for:
 - route grouping key
 - dispatch authorization readiness
 - dispatch execution boundary
+- dispatch execution state
+- dispatch lifecycle snapshot
+- dispatch audit snapshot
+- dispatched timestamp
 - deterministic route assignment evidence
 
-Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. They do not mean route optimization has run, dispatch has executed, or external systems have been updated.
+Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally, but this still does not mean route optimization has run or external systems have been updated.
 
 ## Water Emergency Records
 
@@ -303,6 +307,22 @@ Prepare for:
 - future route optimization handoff
 
 This layer may create a prepared `RouteAssignment` in `awaiting_dispatch_execution`, but it must not execute dispatch, optimize routes, call integrations, sync calendars, update technician mobile workflows, or call AI.
+
+## Dispatch Execution
+
+Represents the deterministic internal lifecycle transition from dispatch-authorized route assignment to dispatched standard work.
+
+Prepare for:
+
+- dispatch execution state
+- execution blocker reasons
+- lifecycle transition evidence
+- Route Assignment, Visit, Work Order, Job, technician, and audit-correlation traceability
+- duplicate dispatch prevention
+- future confirmation and failure timestamps
+- future external adapter outcome linkage
+
+This layer may update internal ACS records to `dispatched` after deterministic blockers pass. It must not call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, run background workers, execute external APIs, optimize routes, or call AI.
 
 ---
 

@@ -2,7 +2,7 @@
 
 FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
-This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or dispatch execution workflows yet.
+This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or external dispatch integration workflows yet.
 
 ## Architecture
 
@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, and route-assignment/dispatch-authorization services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, and internal dispatch execution services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -489,6 +489,43 @@ Authorization rules:
 - authorization moves records to `awaiting_dispatch_execution`; dispatch execution has not run
 
 This layer does not optimize routes, execute dispatch, sync calendars, write Sheets/FastField, call integrations, update technician mobile workflows, run background workers, or call AI.
+
+## Dispatch Execution Foundation
+
+Phase 0 Module 14 adds the deterministic internal dispatch execution lifecycle boundary.
+
+Current execution flow:
+
+```text
+Authorized RouteAssignment
+  -> DispatchExecutionService
+  -> dispatch execution snapshot
+  -> dispatch lifecycle snapshot
+  -> dispatched
+```
+
+Route assignments now preserve:
+
+- dispatch execution state
+- dispatch execution snapshot
+- dispatch lifecycle snapshot
+- dispatch audit snapshot
+- dispatched timestamp
+- future dispatch-failed timestamp
+
+Execution rules:
+
+- only `awaiting_dispatch_execution` Route Assignments can dispatch
+- blocked Visits cannot dispatch
+- review-required lifecycle blocks dispatch execution
+- Water Emergency Visits cannot use the standard execution path
+- inactive technicians block dispatch execution
+- unscheduled Visits cannot dispatch
+- unassigned Visits cannot dispatch
+- unauthorized Route Assignments cannot dispatch
+- duplicate dispatch is blocked
+
+This layer updates internal ACS lifecycle state only. It does not call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, call external APIs, run background workers, optimize routes, or call AI.
 
 ## Safety Rules
 

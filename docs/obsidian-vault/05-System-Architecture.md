@@ -259,6 +259,22 @@ Manual Review and Water Emergency separation remain authoritative. Blocked, revi
 
 Future dispatch execution should consume authorized route assignments through a separate transactional service that records operator/system identity and integration outcomes.
 
+## Phase 0 Module 14 Dispatch Execution Boundary
+
+The backend now includes the deterministic internal dispatch execution lifecycle boundary:
+
+- `DispatchExecutionState` and dispatch execution blocker-code domain structures
+- dispatch execution result, traceability, lifecycle transition, failure reason, and evidence structures
+- Route Assignment fields for execution state, execution snapshot, lifecycle snapshot, audit snapshot, dispatched timestamp, and future failure timestamp
+- `DispatchExecutionService` for transitioning dispatch-authorized standard Route Assignments into internal `dispatched` state
+- audit-log preparation for dispatched Route Assignments
+
+The boundary is intentionally internal-only. It can move an authorized standard Route Assignment and linked Visit to `dispatched`, but it does not sync calendars, export to Sheets/FastField, update technician mobile workflows, call integrations, run background workers, optimize routes, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Blocked, review-required, archived, invalid-lifecycle, missing-linkage, Water Emergency, inactive-technician, unassigned, unscheduled, unauthorized, or duplicate-dispatch records cannot use the standard dispatch execution path.
+
+Future external dispatch integration should consume the internal dispatch execution snapshot through isolated adapters and preserve adapter outcomes without letting vendors become the source of truth.
+
 ---
 
 ## First Module Boundary

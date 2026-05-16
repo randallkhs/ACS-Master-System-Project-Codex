@@ -9,6 +9,15 @@ from app.domain.assignment_preparation import (
     SchedulingReadiness,
     TechnicianCompatibility,
 )
+from app.domain.dispatch_execution import (
+    DispatchExecutionBlockerCode,
+    DispatchExecutionEvidence,
+    DispatchExecutionFailureReason,
+    DispatchExecutionResult,
+    DispatchExecutionState,
+    DispatchExecutionTraceability,
+    DispatchLifecycleTransition,
+)
 from app.domain.intake import (
     ConfidenceLevel,
     ConfidenceScore,
@@ -82,9 +91,16 @@ __all__ = [
     "AssignmentPreparationTraceability",
     "AssignmentReadiness",
     "DispatchEligibility",
+    "DispatchExecutionBlockerCode",
+    "DispatchExecutionEvidence",
+    "DispatchExecutionFailureReason",
+    "DispatchExecutionResult",
+    "DispatchExecutionState",
+    "DispatchExecutionTraceability",
     "DispatchAuthorizationReadiness",
     "DispatchExecutionAuthorization",
     "DispatchExecutionAuthorizationState",
+    "DispatchLifecycleTransition",
     "IntakeProcessingState",
     "IntakeProcessingResult",
     "DetectionResult",

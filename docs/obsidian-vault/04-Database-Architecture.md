@@ -373,3 +373,32 @@ Unresolved:
 - exact production route grouping beyond state and AM/PM preparation
 - whether warning-heavy but valid jobs need a second authorization step
 - how the Water Emergency dispatch authorization record should differ from the standard route assignment path
+
+## Dispatch Execution Snapshots
+
+Phase 0 Module 14 expands `route_assignments` into the first durable internal dispatch execution boundary.
+
+Route assignments store:
+
+- dispatch execution state
+- dispatch execution snapshot
+- dispatch lifecycle snapshot
+- dispatch audit snapshot
+- dispatched timestamp
+- future dispatch-failed timestamp
+
+Persistence philosophy:
+
+- Dispatch execution consumes an already authorized Route Assignment; it does not infer authorization from freeform Visit text.
+- Internal dispatch execution moves standard records to `dispatched` only after deterministic blockers pass.
+- External integration outcomes remain explicitly not executed in the execution snapshot.
+- Duplicate dispatch attempts are blocked by lifecycle and timestamp evidence.
+- Blocked, review-required, Water Emergency, inactive-technician, unassigned, unscheduled, unauthorized, or invalid-lifecycle records cannot dispatch through the standard path.
+
+Unresolved:
+
+- exact operator/system identity and actor model once authentication exists
+- whether `awaiting_confirmation` should become a durable state before external adapter completion
+- how failed external adapter execution should attach to the internal dispatch record
+- whether dispatch retries create revisions or update the current Route Assignment
+- how Water Emergency dispatch execution persistence should differ from the standard path

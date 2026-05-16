@@ -496,3 +496,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Route assignment preparation service
   - Audit traceability foundation
   - Dispatch pipeline documentation
+
+---
+
+## 2026-05-15 — Phase 0 Module 14 Dispatch Execution Foundation
+
+- Decision type: Implementation / internal dispatch execution boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic internal dispatch execution boundary after route assignment authorization.
+  - Add domain structures for dispatch execution state, blocker codes, failure reasons, traceability, lifecycle transitions, evidence, and execution results.
+  - Expand Route Assignments with dispatch execution state, execution snapshot, lifecycle snapshot, audit snapshot, dispatched timestamp, and future failure timestamp.
+  - Add `DispatchExecutionService` to transition authorized standard Route Assignments and linked Visits into internal `dispatched` state.
+  - Preserve explicit `not_executed` evidence for FastField, Calendar, Sheets, mobile workflow, background worker, and other external integration paths.
+  - Block dispatch execution for blocked, review-required, Water Emergency, inactive-technician, unassigned, unscheduled, unauthorized, duplicate-dispatch, invalid-lifecycle, archived, and missing-linkage records.
+- Rationale:
+  - Dispatch execution needs one explicit internal lifecycle boundary before external adapters can safely consume work.
+  - Manual Review and Water Emergency separation must remain authoritative at the first true execution gate.
+  - Internal ACS state must remain the source of truth while external systems remain adapters.
+- Future implications:
+  - Future external dispatch adapters should consume the execution snapshot and write adapter outcomes without owning lifecycle truth.
+  - Operator/system identity, dispatch confirmation semantics, adapter failure/retry handling, route optimization revisioning, and Water Emergency dispatch execution remain separate decisions.
+- Affected systems:
+  - Dispatch execution domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - Dispatch execution service
+  - Audit traceability foundation
+  - Dispatch pipeline documentation

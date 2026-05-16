@@ -43,6 +43,12 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     deterministic_evidence_snapshot: Mapped[dict | None] = mapped_column(JSON)
     authorization_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     authorized_for_dispatch_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    dispatch_execution_state: Mapped[str | None] = mapped_column(String(60), index=True)
+    dispatch_execution_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_lifecycle_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_audit_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    dispatch_failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

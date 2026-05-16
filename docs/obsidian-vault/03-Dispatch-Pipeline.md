@@ -791,6 +791,63 @@ Unresolved route assignment and dispatch authorization questions:
 
 ---
 
+Phase 0 Module 14 Dispatch Execution Foundation
+
+The dispatch pipeline now has a deterministic internal dispatch execution boundary.
+
+Current execution flow:
+
+```text
+Awaiting Dispatch Execution Route Assignment
+    ↓
+Dispatch Execution Validation
+    ↓
+Dispatch Execution Evidence
+    ↓
+Dispatched
+```
+
+Execution evidence preserves:
+
+* Route Assignment, Visit, Work Order, Job, technician, and audit-correlation references
+* previous and new lifecycle state
+* dispatch timestamp
+* dispatch execution blockers when execution is blocked
+* explicit `not_executed` markers for external integrations
+* deterministic audit evidence
+
+Execution safety rules:
+
+* only dispatch-authorized Route Assignments may dispatch
+* blocked Visits cannot dispatch
+* review-required lifecycle blocks dispatch execution
+* Water Emergency Visits cannot use the standard dispatch execution path
+* inactive technicians block dispatch execution
+* unassigned Visits cannot dispatch
+* unscheduled Visits cannot dispatch
+* duplicate dispatch attempts are blocked
+* unauthorized Route Assignments cannot dispatch
+
+Safety boundary:
+
+* dispatch execution updates internal ACS lifecycle state only
+* dispatch execution does not call FastField
+* dispatch execution does not sync Google Calendar
+* dispatch execution does not write Sheets
+* dispatch execution does not update technician mobile workflows
+* dispatch execution does not run background workers
+* dispatch execution does not call AI
+
+Unresolved dispatch execution questions:
+
+* exact operator or system identity to record once auth exists
+* whether `awaiting_confirmation` should be used before external adapters are added
+* how external integration outcomes should attach to internal dispatch execution records
+* whether failed external execution should create a new dispatch execution revision
+* how Water Emergency dispatch execution should be modeled separately from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

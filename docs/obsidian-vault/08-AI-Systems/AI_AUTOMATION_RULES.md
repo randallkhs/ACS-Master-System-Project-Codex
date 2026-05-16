@@ -151,6 +151,14 @@ AI is still not used in this module.
 
 AI must not authorize dispatch, clear route or dispatch blockers, create standard route assignments for Water Emergency Visits, treat inactive technicians as dispatch-authorized, bypass Manual Review, execute dispatch, optimize routes, sync calendars, write Sheets/FastField, call integrations, or alter authorization evidence. Future AI may only add advisory context after deterministic authorization evidence exists and must remain subordinate to Manual Review and operator/system authorization.
 
+## Phase 0 Module 14 Boundary
+
+Dispatch execution is deterministic only.
+
+AI is still not used in this module.
+
+AI must not execute dispatch, clear execution blockers, create standard dispatch execution for Water Emergency Visits, treat inactive technicians as dispatch-ready, bypass Manual Review, retry duplicate dispatch, sync calendars, write Sheets/FastField, call external integrations, update technician mobile workflows, or alter execution evidence. Future AI may only add advisory context after deterministic execution evidence exists and must remain subordinate to Manual Review and operator/system authorization.
+
 ---
 
 ## Confidence And Review
