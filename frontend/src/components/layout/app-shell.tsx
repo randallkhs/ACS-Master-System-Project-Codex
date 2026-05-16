@@ -81,7 +81,7 @@ export function AppShell({ children, generatedAt, source }: AppShellProps) {
 
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge
-                  label={source === "api" ? "Live API" : "Mock fallback"}
+                  label={source === "api" ? "Live backend" : "Mock fallback"}
                   variant={source === "api" ? "success" : "warning"}
                 />
                 <StatusBadge label="Read-only" variant="info" />

@@ -92,6 +92,32 @@ These additions are schema foundation only. They do not implement dispatch workf
 - New migrations should be added as forward revisions after committed migrations; do not rewrite committed migrations unless explicitly instructed.
 - Local Phase 0 tests and health checks must not require connecting to a real PostgreSQL database.
 
+## Phase 0 Module 27 Local PostgreSQL Development Database
+
+Module 27 establishes the local development database workflow for live dashboard read-model verification.
+
+Default local development assumptions:
+
+- database: `acs_fsm_dev`
+- user: `acs_fsm_dev`
+- host: `127.0.0.1`
+- SQLAlchemy URL shape: `postgresql+psycopg://acs_fsm_dev:acs_fsm_dev@127.0.0.1:5432/acs_fsm_dev`
+
+Rules:
+
+- This is local-development-only and not production deployment.
+- Production credentials must remain outside source control and documentation.
+- Alembic migrations remain the schema setup mechanism.
+- Synthetic dashboard seed data is allowed only for local read-model verification.
+- Seed data must be clearly source-labeled, contain no customer-sensitive data, call no vendors, and imply no real production state.
+- Automated unit tests must continue to run without a live local database unless a future integration-test profile explicitly opts in.
+
+Unresolved:
+
+- whether future integration tests should use a dedicated `acs_fsm_test` PostgreSQL database
+- whether local database lifecycle should remain manual or gain optional non-production tooling
+- exact production database backup, restore, and migration rollout procedures
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:

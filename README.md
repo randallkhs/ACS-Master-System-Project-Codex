@@ -6,9 +6,9 @@ This repository is the long-term ACS FSM foundation. It is not a temporary scrip
 
 ## Current Status
 
-- Phase: Phase 0 Module 26
-- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, operational intake persistence, controlled operational job creation, Work Order/Visit generation, technician assignment/scheduling preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/failure recovery, immutable operational event history, dispatch reconciliation/operational consistency, operational replay/recovery preparation, operational governance/approval-control, operational accountability/escalation/incident-preparation, read-only operational dashboard/API contract foundations, and read-only Next.js admin dashboard frontend foundation with local full-stack integration verification guidance
-- Frontend: Next.js, TypeScript, and Tailwind admin dashboard shell consuming backend dashboard read-model contracts with typed fallback data, responsive layout polish, operational health summary, browser-verified read-only behavior, and documented backend API base URL configuration
+- Phase: Phase 0 Module 27
+- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, operational intake persistence, controlled operational job creation, Work Order/Visit generation, technician assignment/scheduling preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/failure recovery, immutable operational event history, dispatch reconciliation/operational consistency, operational replay/recovery preparation, operational governance/approval-control, operational accountability/escalation/incident-preparation, read-only operational dashboard/API contract foundations, read-only Next.js admin dashboard frontend foundation, and local PostgreSQL development database verification foundation
+- Frontend: Next.js, TypeScript, and Tailwind admin dashboard shell consuming backend dashboard read-model contracts with typed fallback data, responsive layout polish, operational health summary, browser-verified read-only behavior, documented backend API base URL configuration, and live-backend local verification workflow
 - Production target: Linux VPS, Apache reverse proxy, HTTPS, FastAPI backend, PostgreSQL database, future Next.js frontend
 
 ## Repository Structure
@@ -56,6 +56,7 @@ The backend scaffold includes:
 - deterministic read-only operational dashboard summaries, lifecycle counts, blocker indicators, escalation indicators, event timeline read models, and dashboard API contracts with no mutation or workflow execution endpoints
 - backend Makefile developer commands
 - pytest and Ruff configuration
+- local PostgreSQL development database check, synthetic dashboard seed, and read-only dashboard endpoint verification scripts
 
 See [backend/README.md](backend/README.md).
 
@@ -70,6 +71,7 @@ The frontend foundation includes:
 - typed mock/fallback data for local layout work when the backend is unavailable
 - smoke tests for dashboard API client behavior, dashboard rendering, and absence of operational mutation controls
 - local full-stack workflow notes for running backend and frontend together on separate ports
+- live-backend workflow notes for using seeded local PostgreSQL dashboard read models
 
 The frontend does not implement authentication, operational mutations, dispatch execution, Manual Review resolution, vendor integrations, AI authority, or mobile app behavior.
 

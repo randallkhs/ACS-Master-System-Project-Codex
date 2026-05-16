@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 26 keeps the frontend foundation read-only while documenting and testing the local full-stack dashboard integration path.
+Phase 0 Module 27 keeps the frontend foundation read-only while documenting the local PostgreSQL-backed live dashboard verification path.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -76,7 +76,29 @@ GET http://127.0.0.1:8000/api/v1/dashboard/review
 GET http://127.0.0.1:8000/api/v1/dashboard/dispatch
 ```
 
-The backend still requires a configured local PostgreSQL database for live dashboard reads. If the backend is stopped, unavailable, or returns an error, the frontend displays typed fallback data and marks the page as mock/fallback state.
+The backend requires a configured local PostgreSQL database for live dashboard reads. If the backend is stopped, unavailable, unmigrated, or returns an error, the frontend displays typed fallback data and marks the page as mock/fallback state.
+
+For live local data:
+
+```bash
+cd backend
+cp .env.example .env
+# confirm ACS_FSM_DATABASE_URL points to acs_fsm_dev on 127.0.0.1
+make migrate
+make seed-dashboard
+make dev
+```
+
+Then run the frontend with:
+
+```bash
+cd frontend
+cp .env.example .env.local
+# set ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000
+npm run dev
+```
+
+When the backend is reachable and migrated, the dashboard source indicator should show live backend/API data. When the backend cannot serve the read models, fallback remains visible and labeled.
 
 ## Verification
 
@@ -132,10 +154,17 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - The frontend API client only calls dashboard `GET` endpoints and uses `cache: "no-store"` for live read-model reads.
 - Fallback data is for local development/layout continuity only and must remain visibly labeled in the UI.
 
+## Module 27 Live Data Notes
+
+- Live dashboard verification expects backend migrations to be applied to the local `acs_fsm_dev` PostgreSQL database.
+- Optional backend seed data is synthetic, source-labeled, and intended only to exercise read-only dashboard states.
+- The frontend should show `Live backend` only when all dashboard read models are fetched successfully from the configured backend.
+- The frontend still has no mutation controls, dispatch actions, Manual Review actions, vendor execution controls, or AI controls.
+
 ## Troubleshooting
 
 - If the dashboard shows `Mock fallback`, confirm `frontend/.env.local` contains `ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000`.
-- If the backend endpoint returns an error, confirm the backend server is running and the local PostgreSQL database is configured and migrated.
+- If the backend endpoint returns an error, confirm the backend server is running and the local PostgreSQL database is configured, migrated, and optionally seeded.
 - If browser requests are added in the future, configure backend CORS explicitly; the current dashboard reads happen server-side from Next.js.
 - Do not add production credentials to `.env.example`, `.env.local`, or committed documentation.
 

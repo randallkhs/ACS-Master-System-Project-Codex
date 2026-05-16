@@ -255,6 +255,14 @@ AI is still not used in this module.
 
 AI must not influence frontend/backend dashboard integration, generate dashboard data, bypass fallback labeling, infer lifecycle transitions, clear backend blockers, resolve Manual Review, execute dispatch, call integrations, or change read-model authority. Future AI dashboard explanation features must remain advisory and separated from persisted backend dashboard read models.
 
+## Phase 0 Module 27 Boundary
+
+The local PostgreSQL live dashboard verification pass is deterministic and development-only.
+
+AI is still not used in this module.
+
+AI must not generate dashboard seed data, classify seed records as production evidence, bypass Manual Review, infer hidden lifecycle transitions from demo records, clear blockers, resolve Manual Review, execute dispatch, call integrations, authorize recovery/governance/escalation, or change backend read-model authority. Future AI explanation features must remain advisory and separate from persisted dashboard evidence.
+
 ---
 
 ## Confidence And Review

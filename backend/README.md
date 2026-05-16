@@ -38,9 +38,70 @@ If `make` is unavailable:
 ../.venv/bin/python -m pip install -e ".[dev]"
 ```
 
-Copy `backend/.env.example` to `backend/.env` for local development, then set a real PostgreSQL URL. The example file intentionally uses placeholder credentials and a non-local placeholder database host.
+Copy `backend/.env.example` to `backend/.env` for local development, then point it at a local PostgreSQL development database.
 
 Do not commit `.env` files or production secrets.
+
+## Local PostgreSQL Development Database
+
+Module 27 defines the default local development database as:
+
+```text
+database: acs_fsm_dev
+user: acs_fsm_dev
+host: 127.0.0.1
+port: 5432
+```
+
+Local `.env` example:
+
+```bash
+ACS_FSM_ENVIRONMENT=development
+ACS_FSM_DATABASE_URL=postgresql+psycopg://acs_fsm_dev:acs_fsm_dev@127.0.0.1:5432/acs_fsm_dev
+```
+
+The username/password above are local-only development assumptions. Do not reuse them in production or in shared hosted databases.
+
+Example setup with a local PostgreSQL installation:
+
+```bash
+createuser acs_fsm_dev
+createdb --owner=acs_fsm_dev acs_fsm_dev
+```
+
+If your local PostgreSQL setup requires passwords, create the user with your normal local admin workflow and keep the resulting password only in `backend/.env`.
+
+Run migrations from `backend/` after the database exists:
+
+```bash
+make migrate
+make db-check
+```
+
+Optional synthetic dashboard data for local read-model verification:
+
+```bash
+make seed-dashboard
+```
+
+The seed command inserts clearly labeled synthetic records with `source_system=module27_dev_seed`. It refuses production, refuses non-local hosts, refuses placeholder passwords, does not call vendors, and does not imply real ACS production state.
+
+Safe dev-only reset, if you intentionally want to recreate the local database:
+
+```bash
+dropdb acs_fsm_dev
+createdb --owner=acs_fsm_dev acs_fsm_dev
+make migrate
+make seed-dashboard
+```
+
+Only run reset commands against the local `acs_fsm_dev` database. Never use this reset flow for production or shared databases.
+
+Testing distinction:
+
+- `acs_fsm_dev` is for running the local API and dashboard against PostgreSQL.
+- Automated pytest tests do not require a live PostgreSQL database unless a future test explicitly opts into one.
+- A future `acs_fsm_test` database may be added for integration tests, but Module 27 does not require it.
 
 ## Environment Rules
 
@@ -102,6 +163,22 @@ These routes summarize persisted backend state through dashboard read models. Th
 
 Local full-stack dashboard testing expects the backend on `http://127.0.0.1:8000` and the frontend `ACS_DASHBOARD_API_BASE_URL` set to that origin. A real local PostgreSQL database and migrations are still required for live backend reads; the frontend falls back to typed local data when the backend is unavailable.
 
+Local endpoint verification after the backend is running:
+
+```bash
+make dashboard-check
+```
+
+The check calls only:
+
+```text
+GET /api/v1/health
+GET /api/v1/dashboard/overview
+GET /api/v1/dashboard/lifecycle
+GET /api/v1/dashboard/review
+GET /api/v1/dashboard/dispatch
+```
+
 ## Migrations
 
 From `backend/`:
@@ -138,6 +215,24 @@ Full local verification:
 ```bash
 make verify
 ```
+
+Local database/dashboard verification:
+
+```bash
+make db-check
+make migrate
+make seed-dashboard
+make dev
+# in another terminal
+make dashboard-check
+```
+
+Troubleshooting:
+
+- If `make db-check` cannot connect, confirm PostgreSQL is installed, running, and listening on `127.0.0.1:5432`.
+- If migrations fail, confirm `ACS_FSM_DATABASE_URL` points to the local development database and the local user owns it.
+- If dashboard endpoints return `500`, check that migrations have run and the backend process is using the same `backend/.env` database URL.
+- If `make seed-dashboard` refuses to run, confirm `ACS_FSM_ENVIRONMENT` is not `production`, the host is local, and the password is not a placeholder such as `change-me`.
 
 ## Logging
 

@@ -65,3 +65,34 @@ If a note exceeds its expiration window:
 - update verification date
 
 Avoid relying on stale framework knowledge.
+
+---
+
+## ACS Local PostgreSQL Dashboard Verification
+
+Category:
+Local development database
+Date Added:
+2026-05-16
+Last Verified:
+2026-05-16
+Expiration Window:
+60 days
+Framework/Library Version:
+Alembic 1.17 / SQLAlchemy 2 / psycopg 3
+Source Links:
+https://alembic.sqlalchemy.org/en/latest/tutorial.html
+https://docs.sqlalchemy.org/en/20/core/engines.html
+https://docs.sqlalchemy.org/en/20/dialects/postgresql.html
+
+### Discovery
+ACS-FSM local dashboard verification should use an environment-driven PostgreSQL URL, run Alembic migrations against the configured local database, and keep synthetic dashboard seed data clearly separated from production state. The local default is `acs_fsm_dev` on `127.0.0.1` with a local-only `postgresql+psycopg://...` URL.
+
+### Why It Matters
+The dashboard read models need live persisted state for meaningful local frontend verification, but the local workflow must not become production deployment infrastructure or introduce unsafe seed behavior.
+
+### Reusability
+Use this pattern for future ACS local database setup, read-model verification, and integration-test planning.
+
+### Verification Notes
+Context7 confirmed Alembic `upgrade head` behavior and SQLAlchemy PostgreSQL psycopg URL shape. On this workstation, PostgreSQL client/server binaries were not available in `PATH`, so live database verification requires installing/starting PostgreSQL outside the repository first.

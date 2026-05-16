@@ -1587,3 +1587,33 @@ Unresolved integration questions:
 * production reverse-proxy route shape between Apache, Next.js, and FastAPI
 * future CORS rules if dashboard reads move from server-side Next.js to browser/client components
 * dashboard stale-data and refresh behavior
+
+---
+
+Phase 0 Module 27 Local PostgreSQL Live Dashboard Verification
+
+The dashboard integration now has a local PostgreSQL-backed verification path.
+
+Verification scope:
+
+* local development database documented as `acs_fsm_dev`
+* Alembic migration workflow documented before live dashboard endpoint checks
+* optional synthetic dashboard seed data added for read-model demo state
+* backend endpoint checker added for health and dashboard `GET` endpoints
+* frontend live-backend label clarified for successful backend reads
+
+Safety boundary:
+
+* dashboard endpoints remain read-only
+* seed data is local-development-only and source-labeled
+* seed data does not execute dispatch or imply production state
+* no vendor adapters are executed
+* no replay, rollback, reconciliation, governance, or escalation action is executed
+* no AI controls or AI-generated authority are introduced
+
+Unresolved integration questions:
+
+* local PostgreSQL installation is still outside the repository
+* whether future integration tests should use a disposable PostgreSQL database
+* production database provisioning and migration rollout strategy
+* dashboard refresh and stale-data rules for office use

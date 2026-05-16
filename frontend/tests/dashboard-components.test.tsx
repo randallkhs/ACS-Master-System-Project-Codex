@@ -39,4 +39,19 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Execute dispatch");
     expect(html).not.toContain("Run integration");
   });
+
+  it("labels successful backend reads as live backend data", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "api",
+          requestedUrl: "http://127.0.0.1:8000/api/v1/dashboard/overview"
+        }}
+      />
+    );
+
+    expect(html).toContain("Live backend");
+    expect(html).not.toContain("Mock fallback");
+  });
 });

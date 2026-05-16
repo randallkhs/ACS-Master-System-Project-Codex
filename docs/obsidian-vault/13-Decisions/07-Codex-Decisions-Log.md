@@ -855,3 +855,33 @@ Use this file for durable decisions that affect future development. Do not recor
   - Backend/frontend setup documentation
   - Dashboard API integration documentation
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-16 — Phase 0 Module 27 Local PostgreSQL Development Database And Live Dashboard Verification Foundation
+
+- Decision type: Implementation / local database workflow / dashboard verification
+- Status: Implemented with local runtime blocker noted
+- Decision:
+  - Define the local development PostgreSQL workflow around `acs_fsm_dev` and environment-based `ACS_FSM_DATABASE_URL`.
+  - Add backend Make targets for local database checking, synthetic dashboard seed insertion, and read-only dashboard endpoint verification.
+  - Add a development-only dashboard seed script that refuses production, non-local hosts, and placeholder credentials.
+  - Keep seed records synthetic and source-labeled with `source_system=module27_dev_seed`.
+  - Update the frontend live source label to `Live backend` when the dashboard API client receives successful backend data.
+  - Preserve frontend fallback behavior when the backend or database is unavailable.
+- Rationale:
+  - Future dashboard work needs a repeatable way to verify backend read-model contracts against a real local PostgreSQL database.
+  - Synthetic local seed data can exercise Manual Review, blocker, dispatch, external evidence, reconciliation, governance/accountability, timeline, and Water Emergency dashboard sections without using production/customer/vendor data.
+  - Local verification must not introduce production deployment complexity or create operational authority in the UI.
+- Future implications:
+  - A local PostgreSQL runtime still has to exist outside the repository before live endpoint verification can pass on a workstation.
+  - Future integration tests may need a dedicated disposable PostgreSQL database or separate `acs_fsm_test` profile.
+  - Production deployment must define database provisioning, backup/restore, migration rollout, Apache routing, authentication, and stale-data behavior separately.
+- Affected systems:
+  - Backend local development scripts
+  - Backend Makefile
+  - Backend and root environment examples
+  - Backend/frontend setup documentation
+  - Frontend source indicator and render tests
+  - Dashboard API/local database architecture notes
+  - AI/dashboard safety boundary

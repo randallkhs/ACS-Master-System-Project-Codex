@@ -367,3 +367,26 @@ Open API/frontend concerns:
 - role-scoped dashboard API access after auth exists
 - dashboard refresh/stale-data behavior
 - future CORS configuration if browser-side dashboard fetches are introduced
+
+## Phase 0 Module 27 Local Live Dashboard API Verification
+
+The local PostgreSQL workflow verifies dashboard APIs against persisted backend state without changing integration authority.
+
+Local verification behavior:
+
+- `make db-check` confirms the configured local database is reachable and migrated
+- `make seed-dashboard` inserts synthetic local read-model data only after explicit developer confirmation
+- `make dashboard-check` calls only health and dashboard `GET` endpoints
+- frontend live mode remains driven by `ACS_DASHBOARD_API_BASE_URL`
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no dispatch execution, vendor execution, replay, rollback, reconciliation, governance, escalation, or AI calls are added
+- synthetic seed records must not be treated as provider/vendor execution evidence
+
+Open API/local concerns:
+
+- whether future live API verification should become a dedicated integration-test profile
+- production API base URL and reverse-proxy path strategy
+- production authentication and role-scoped dashboard visibility

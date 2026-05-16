@@ -494,6 +494,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 27 Local PostgreSQL Dashboard Verification Boundary
+
+The repository now includes a local PostgreSQL development database workflow for live read-model verification:
+
+- documented `acs_fsm_dev` local database assumptions
+- local-only `ACS_FSM_DATABASE_URL` examples
+- backend Make targets for local database checks, synthetic dashboard seed data, and read-only dashboard endpoint checks
+- a dev-only dashboard seed script that refuses production, non-local hosts, and placeholder credentials
+- frontend source labeling for successful backend reads as live backend data
+
+The boundary is still development-only and read-only from the API/UI perspective. The seed script mutates only the explicit local development database when run by a developer; no dashboard endpoint or frontend component can create, update, dispatch, approve, reconcile, execute integrations, or call AI.
+
+Unresolved:
+
+- local PostgreSQL runtime installation remains external to the repository
+- whether future integration testing should require a disposable PostgreSQL database
+- production database provisioning, migration, backup, and restore workflows
+- production dashboard stale-data, polling, and caching strategy
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.
