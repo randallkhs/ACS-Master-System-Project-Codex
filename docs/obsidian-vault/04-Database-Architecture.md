@@ -623,3 +623,35 @@ Unresolved:
 - whether high-risk actions require two-person approval
 - how approval expiration and revocation should work
 - how Water Emergency governance persistence should differ from the standard path
+
+## Operational Accountability, Escalation, And Incident Snapshots
+
+Phase 0 Module 22 expands `route_assignments` with deterministic accountability, escalation-preparation, intervention-escalation, and incident-preparation snapshots.
+
+Route assignments store:
+
+- accountability state
+- escalation preparation snapshot
+- incident preparation snapshot
+- accountability evidence snapshot
+- escalation blocker snapshot
+- intervention escalation snapshot
+- operational incident snapshot
+- accountability audit snapshot
+- escalation-required, incident-prepared, critical-intervention-required, and blocked timestamps
+
+Persistence philosophy:
+
+- Accountability records escalation and incident-preparation evidence; it does not execute escalation or incident workflows.
+- Replay/recovery escalation cannot bypass governance approval.
+- Critical divergence context is preserved as escalation evidence for future operator coordination.
+- Immutable event history is read-only input; accountability cannot mutate or replay it.
+- Blocked, review-required, Water Emergency, unauthorized, duplicate-escalation, invalid-lifecycle, missing-operator, missing-governance, no-context, or mutable-history records cannot enter the standard accountability path.
+
+Unresolved:
+
+- whether escalation and incident records need dedicated immutable tables
+- whether critical accountability actions require two-person approval
+- how escalation acknowledgement and closure should work once auth exists
+- how accountability should create or link Manual Review items in future modules
+- how Water Emergency accountability persistence should differ from the standard path

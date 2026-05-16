@@ -164,9 +164,12 @@ Prepare for:
 - governance state
 - governance approval, intervention authorization, replay authorization, rollback authorization, reconciliation approval, blocker, and audit snapshots
 - governance approved, rejected, intervention-required, and blocked timestamps
+- accountability state
+- escalation preparation, incident preparation, accountability evidence, escalation blocker, intervention escalation, operational incident, and accountability audit snapshots
+- escalation-required, incident-prepared, critical-intervention-required, and accountability-blocked timestamps
 - deterministic route assignment evidence
 
-Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 18 controlled external adapter execution can record provider execution evidence without calling live vendor APIs. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. Module 19 reconciliation preparation can verify consistency and classify divergence without executing reconciliation. Module 20 replay/recovery preparation can prepare replay, rollback, and recovery-coordination evidence without executing replay or rollback. Module 21 governance can record operator approval and intervention authorization evidence without executing the governed action. This still does not mean route optimization has run or production external systems have been updated.
+Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 18 controlled external adapter execution can record provider execution evidence without calling live vendor APIs. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. Module 19 reconciliation preparation can verify consistency and classify divergence without executing reconciliation. Module 20 replay/recovery preparation can prepare replay, rollback, and recovery-coordination evidence without executing replay or rollback. Module 21 governance can record operator approval and intervention authorization evidence without executing the governed action. Module 22 accountability can record escalation and incident-preparation evidence without executing escalation or incident workflows. This still does not mean route optimization has run or production external systems have been updated.
 
 ## Water Emergency Records
 
@@ -468,6 +471,23 @@ Prepare for:
 - duplicate approval prevention
 
 This layer may record operator approval or intervention authorization for later controlled execution. It must not execute replay, execute rollback, execute reconciliation, mutate operational event history, call external APIs, run workflow engines, update technician mobile workflows, run background workers, optimize routes, or call AI.
+
+## Operational Accountability, Escalation, And Incident Coordination
+
+Represents deterministic escalation preparation, incident preparation, intervention escalation, and accountability evidence for future enterprise coordination workflows.
+
+Prepare for:
+
+- escalation result evidence
+- incident preparation result evidence
+- accountability evidence
+- escalation blocker evidence
+- intervention escalation evidence
+- operational incident evidence
+- immutable accountability audit evidence
+- duplicate escalation prevention
+
+This layer may record accountability, escalation, or incident-preparation evidence for later operator-controlled coordination. It must not execute escalations, execute incident workflows, execute interventions, mutate operational event history, call external APIs, run workflow engines, update technician mobile workflows, run background workers, optimize routes, or call AI.
 
 ---
 

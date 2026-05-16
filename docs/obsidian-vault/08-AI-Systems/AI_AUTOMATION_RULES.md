@@ -215,6 +215,14 @@ AI is still not used in this module.
 
 AI must not approve operator actions, authorize replay, authorize rollback, approve reconciliation, clear governance blockers, execute manual interventions, create standard governance for Water Emergency Visits, bypass Manual Review, mutate operational event history, call external APIs, run workflow engines, or alter governance evidence. Future AI may only add advisory explanation after deterministic governance evidence exists and must remain subordinate to Manual Review and authenticated operator decisions.
 
+## Phase 0 Module 22 Boundary
+
+Operational accountability, escalation preparation, intervention escalation, and incident preparation are deterministic only.
+
+AI is still not used in this module.
+
+AI must not prepare escalation as authorized, create incidents, execute incident workflows, escalate interventions, clear accountability blockers, create standard accountability for Water Emergency Visits, bypass governance approval, bypass Manual Review, mutate operational event history, call external APIs, run workflow engines, or alter accountability evidence. Future AI may only add advisory explanation after deterministic accountability evidence exists and must remain subordinate to Manual Review, governance authority, and authenticated operator decisions.
+
 ---
 
 ## Confidence And Review

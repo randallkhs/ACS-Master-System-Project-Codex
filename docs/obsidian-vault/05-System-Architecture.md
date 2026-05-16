@@ -388,6 +388,22 @@ Manual Review, Water Emergency separation, immutable event history, and determin
 
 Future enterprise governance should consume these snapshots through explicit authenticated operator workflows rather than hidden lifecycle transitions.
 
+## Phase 0 Module 22 Operational Accountability And Escalation Boundary
+
+The backend now includes deterministic accountability, escalation-preparation, intervention-escalation, and incident-preparation evidence:
+
+- `AccountabilityLifecycleState`, `AccountabilityEscalationType`, and accountability failure-code domain structures
+- escalation result, incident preparation, intervention escalation, operational incident, blocker, audit, traceability, and result structures
+- Route Assignment fields for accountability state, escalation, incident, accountability evidence, blocker, intervention escalation, operational incident, audit snapshots, and related timestamps
+- `OperationalAccountabilityService` for validating escalation and incident preparation without executing the coordinated action
+- audit-log preparation for escalation-required, incident-prepared, critical-intervention-required, or accountability-blocked cases
+
+The boundary is intentionally preparation-only. It can record accountability evidence, but it does not execute escalation, execute incident workflows, execute interventions, call external APIs, run workflow engines, mutate operational event history, approve automatically, run background workers, or call AI.
+
+Manual Review, Water Emergency separation, governance authority, immutable event history, and deterministic lifecycle state remain authoritative. Blocked, review-required, Water Emergency, unauthorized, duplicate-escalation, invalid-lifecycle, missing-operator, missing-governance, no-context, or mutable-history records cannot use the standard accountability path.
+
+Future enterprise coordination should consume these snapshots through explicit authenticated operator workflows rather than automatic incident engines or hidden lifecycle transitions.
+
 ---
 
 ## First Module Boundary

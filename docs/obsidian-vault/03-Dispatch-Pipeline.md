@@ -1249,6 +1249,64 @@ Unresolved governance questions:
 
 ---
 
+Phase 0 Module 22 Operational Accountability, Escalation, And Incident Coordination
+
+The dispatch pipeline now has a deterministic accountability and escalation-preparation boundary after governance approval.
+
+Current accountability flow:
+
+```text
+Governed Replay / Rollback / Reconciliation / Divergence Context
+    ↓
+Operational Accountability Validation
+    ↓
+Escalation / Intervention Escalation / Incident Preparation Evidence
+    ↓
+Escalation Required / Incident Prepared / Critical Intervention Required / Accountability Blocked
+```
+
+Accountability evidence preserves:
+
+* governance approval evidence
+* replay/recovery source state
+* reconciliation and divergence context
+* escalation blocker reasons
+* intervention escalation evidence
+* operational incident evidence
+* immutable event-history evidence
+* audit correlation continuity
+* explicit `not_executed` markers for escalation execution, incident execution, intervention execution, external API calls, workflow engines, and AI
+
+Accountability safety rules:
+
+* replay and recovery escalation cannot bypass governance approval
+* critical divergence requires escalation preparation
+* Water Emergency Visits cannot use the standard accountability path
+* unauthorized intervention escalation is blocked
+* duplicate escalation or incident preparation is blocked
+* invalid lifecycle accountability preparation is blocked
+* immutable operational history cannot mutate
+
+Safety boundary:
+
+* accountability does not execute escalation
+* accountability does not execute incident workflows
+* accountability does not execute interventions
+* accountability does not run a workflow engine
+* accountability does not call external APIs
+* accountability does not mutate operational history
+* accountability does not call AI
+
+Unresolved accountability questions:
+
+* exact operator role and permission model once authentication exists
+* whether critical escalations require two-person approval or supervisor acknowledgement
+* whether escalation/incident records need dedicated immutable tables
+* how accountability records should surface in the future office UI
+* how Water Emergency accountability should diverge from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

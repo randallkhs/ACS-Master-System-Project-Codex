@@ -211,6 +211,27 @@ def test_route_assignments_store_operational_governance_traceability() -> None:
     assert expected_columns.issubset(set(columns.keys()))
 
 
+def test_route_assignments_store_operational_accountability_traceability() -> None:
+    columns = Base.metadata.tables["route_assignments"].columns
+
+    expected_columns = {
+        "accountability_state",
+        "escalation_preparation_snapshot",
+        "incident_preparation_snapshot",
+        "accountability_evidence_snapshot",
+        "escalation_blocker_snapshot",
+        "intervention_escalation_snapshot",
+        "operational_incident_snapshot",
+        "accountability_audit_snapshot",
+        "escalation_required_at",
+        "incident_prepared_at",
+        "critical_intervention_required_at",
+        "accountability_blocked_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
 def test_manual_review_items_can_target_non_job_entities() -> None:
     columns = Base.metadata.tables["review_items"].columns
 

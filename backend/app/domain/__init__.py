@@ -79,6 +79,20 @@ from app.domain.job_creation import (
     JobCreationTraceability,
 )
 from app.domain.manual_review import IntakeProcessingState, ReviewStatus
+from app.domain.operational_accountability import (
+    AccountabilityAuditEvidence,
+    AccountabilityBlocker,
+    AccountabilityEscalationType,
+    AccountabilityEvidence,
+    AccountabilityFailureCode,
+    AccountabilityLifecycleState,
+    AccountabilityResult,
+    AccountabilityTraceability,
+    EscalationResult,
+    IncidentPreparationResult,
+    InterventionEscalationEvidence,
+    OperationalIncidentEvidence,
+)
 from app.domain.operational_event_history import (
     EventTimelineEntry,
     ImmutableAuditEvidence,
@@ -161,6 +175,14 @@ from app.domain.routing_dispatch_preparation import (
 )
 
 __all__ = [
+    "AccountabilityAuditEvidence",
+    "AccountabilityBlocker",
+    "AccountabilityEscalationType",
+    "AccountabilityEvidence",
+    "AccountabilityFailureCode",
+    "AccountabilityLifecycleState",
+    "AccountabilityResult",
+    "AccountabilityTraceability",
     "ConfidenceLevel",
     "ConfidenceScore",
     "AssignmentEligibility",
@@ -203,6 +225,7 @@ __all__ = [
     "ExternalExecutionLifecycleTransition",
     "ExternalExecutionRequest",
     "ExternalExecutionResult",
+    "EscalationResult",
     "GovernanceApprovalResult",
     "GovernanceAuditEvidence",
     "GovernanceBlocker",
@@ -216,7 +239,9 @@ __all__ = [
     "IntakeProcessingResult",
     "DetectionResult",
     "IntakeIssue",
+    "IncidentPreparationResult",
     "InterventionAuthorizationResult",
+    "InterventionEscalationEvidence",
     "IssueSeverity",
     "JobCreationEvidence",
     "JobCreationFailureCode",
@@ -242,6 +267,7 @@ __all__ = [
     "OperationalEventResult",
     "OperationalEventState",
     "OperationalEventTraceability",
+    "OperationalIncidentEvidence",
     "OperationalLifecycleState",
     "OperationalReadinessSnapshot",
     "ProviderExecutionState",

@@ -718,3 +718,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - Operational governance service
   - Operational event history evidence boundary
   - Audit traceability and dispatch pipeline documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 22 Operational Accountability, Escalation, And Incident Coordination Foundation
+
+- Decision type: Implementation / accountability and escalation preparation boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic operational accountability and escalation-preparation boundary after governance approval.
+  - Add domain structures for accountability lifecycle state, escalation type, accountability blockers, escalation results, incident preparation, intervention escalation, operational incident evidence, audit evidence, and traceability.
+  - Expand Route Assignments with accountability state, escalation preparation, incident preparation, accountability evidence, escalation blocker, intervention escalation, operational incident, accountability audit snapshots, and accountability timestamps.
+  - Add `OperationalAccountabilityService` to validate escalation and incident preparation without executing escalations, incidents, interventions, external APIs, workflow engines, or AI.
+  - Block accountability preparation for review-required, Water Emergency, unauthorized, duplicate-escalation, invalid-lifecycle, missing-operator, missing-linkage, missing-audit-correlation, missing-governance, no-context, and mutable-history records.
+- Rationale:
+  - ACS needs explicit accountability evidence before future enterprise escalation, incident coordination, or critical intervention workflows can safely exist.
+  - Accountability must not become an automatic incident engine or workflow executor.
+  - Manual Review, governance authority, Water Emergency separation, deterministic lifecycle state, and immutable event history must remain authoritative.
+- Future implications:
+  - Future enterprise coordination should consume these snapshots through authenticated operator workflows.
+  - Operator roles, two-person escalation approval, escalation acknowledgement, incident closure, immutable accountability tables, and Water Emergency accountability paths remain separate decisions.
+- Affected systems:
+  - Operational accountability domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - Operational accountability service
+  - Operational event history evidence boundary
+  - Audit traceability and dispatch pipeline documentation

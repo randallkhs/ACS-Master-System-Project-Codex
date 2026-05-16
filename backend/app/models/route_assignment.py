@@ -140,6 +140,29 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         index=True,
     )
     governance_blocked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    accountability_state: Mapped[str | None] = mapped_column(String(80), index=True)
+    escalation_preparation_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    incident_preparation_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    accountability_evidence_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    escalation_blocker_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    intervention_escalation_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    operational_incident_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    accountability_audit_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    escalation_required_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    incident_prepared_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    critical_intervention_required_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    accountability_blocked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+    )
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement live Calendar, Sh
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, operational event history, dispatch reconciliation, operational replay/recovery, and operational governance services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, operational event history, dispatch reconciliation, operational replay/recovery, operational governance, and operational accountability services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -767,6 +767,42 @@ Governance rules:
 - immutable operational event history cannot mutate
 
 This layer authorizes future operator-controlled actions only. It does not execute replay, execute rollback, execute reconciliation, call external APIs, run workflow engines, mutate event history, approve automatically, or call AI.
+
+## Operational Accountability, Escalation, And Incident Preparation
+
+Phase 0 Module 22 adds deterministic accountability and escalation preparation after governance approval.
+
+Current accountability flow:
+
+```text
+Governed replay / rollback / reconciliation / divergence context
+  -> OperationalAccountabilityService
+  -> escalation, intervention-escalation, incident, and accountability audit snapshots
+  -> escalation required, incident prepared, critical intervention required, or accountability blocked
+```
+
+Route assignments now preserve:
+
+- accountability lifecycle state
+- escalation preparation snapshot
+- incident preparation snapshot
+- accountability evidence snapshot
+- escalation blocker snapshot
+- intervention escalation snapshot
+- operational incident snapshot
+- accountability audit snapshot
+- escalation-required, incident-prepared, critical-intervention-required, and blocked timestamps
+
+Accountability rules:
+
+- replay and recovery escalation cannot bypass governance approval
+- critical divergence requires escalation preparation
+- Water Emergency Visits cannot use the standard accountability path
+- unauthorized intervention escalation is blocked
+- duplicate escalation or incident preparation is blocked
+- immutable operational event history cannot mutate
+
+This layer prepares accountability evidence only. It does not execute escalation, execute incident workflows, execute intervention workflows, call external APIs, run workflow engines, mutate event history, approve automatically, or call AI.
 
 ## Safety Rules
 

@@ -244,3 +244,26 @@ Rules:
 - Water Emergency work cannot use the standard governance path
 - blocked, review-required, unauthorized-operator, duplicate-approval, invalid-lifecycle, missing-operator, or mutable-history records cannot prepare standard governance
 - future live enterprise workflows must preserve database workflow authority and immutable event-history boundaries
+
+## Phase 0 Module 22 Operational Accountability Boundary
+
+Operational accountability, escalation preparation, and incident preparation are deterministic and evidence-only.
+
+Current accountability foundations:
+
+- escalation preparation evidence
+- incident preparation evidence
+- intervention escalation evidence
+- operational incident evidence
+- accountability blocker evidence
+- accountability audit evidence
+
+Rules:
+
+- accountability preparation does not execute escalation, incident workflows, or interventions
+- external API calls remain `not_executed`
+- automatic escalation and incident workflows remain `not_executed`
+- replay/recovery escalation cannot bypass governance approval
+- Water Emergency work cannot use the standard accountability path
+- blocked, review-required, unauthorized, duplicate-escalation, invalid-lifecycle, missing-operator, missing-governance, no-context, or mutable-history records cannot prepare standard accountability
+- future live enterprise coordination workflows must preserve database workflow authority and immutable event-history boundaries
