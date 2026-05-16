@@ -1557,3 +1557,33 @@ Unresolved frontend/pipeline questions:
 * whether the operational health summary should become role-specific after authentication
 * exact stale-data and refresh behavior for active office use
 * dedicated Water Emergency dashboard screen design
+
+---
+
+Phase 0 Module 26 Full-Stack Dashboard Integration Verification
+
+The dashboard consumer now has a documented local full-stack integration path.
+
+Integration scope:
+
+* backend dashboard endpoints verified through read-only contract tests
+* frontend dashboard API base URL documented for local development
+* frontend fallback behavior tested for unavailable backend state
+* frontend verification script added for lint, typecheck, test, and build bundle
+* local workflow documented for running FastAPI and Next.js together
+
+Safety boundary:
+
+* frontend still performs only read-only dashboard `GET` calls
+* frontend still does not execute dispatch
+* frontend still does not resolve Manual Review
+* frontend still does not call integrations
+* frontend still does not call AI
+* fallback data remains visibly marked and cannot become operational authority
+
+Unresolved integration questions:
+
+* local PostgreSQL seed-data workflow for dashboard demos
+* production reverse-proxy route shape between Apache, Next.js, and FastAPI
+* future CORS rules if dashboard reads move from server-side Next.js to browser/client components
+* dashboard stale-data and refresh behavior

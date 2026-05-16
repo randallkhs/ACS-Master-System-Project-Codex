@@ -47,10 +47,12 @@ Store concise implementation-relevant knowledge only.
 - Source links:
   - https://nextjs.org/docs/app/guides/environment-variables
   - https://nextjs.org/docs/app/getting-started/fetching-data
+  - https://fastapi.tiangolo.com/tutorial/cors/
   - https://tailwindcss.com/docs/installation/using-postcss
 - Summary:
   - Next.js App Router Server Components can read server-only environment variables and use server-side `fetch` for backend data access.
   - Dashboard API base URLs should remain environment-driven instead of hardcoded, especially for future Apache reverse-proxy and VPS deployment.
+  - Server-side dashboard reads do not require exposing the backend URL through `NEXT_PUBLIC_`; browser-side API calls would need explicit backend CORS configuration later.
   - Tailwind CSS v4 uses the `tailwindcss` package with the `@tailwindcss/postcss` PostCSS plugin and `@import "tailwindcss"` in the global CSS entrypoint.
   - For ACS dashboard screens, the frontend should consume backend read models and avoid duplicating workflow, blocker, Manual Review, integration, or AI authority in components.
 - Applicable projects:

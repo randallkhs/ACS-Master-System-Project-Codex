@@ -473,6 +473,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 26 Full-Stack Dashboard Integration Boundary
+
+The dashboard foundation now includes local full-stack integration guidance:
+
+- backend dashboard routes remain read-only API contracts under `/api/v1/dashboard`
+- frontend dashboard reads use server-side `ACS_DASHBOARD_API_BASE_URL`
+- local development uses separate backend and frontend origins
+- fallback data is only a visible local-development continuity state when the backend is unavailable
+- frontend verification can run through a single `npm run verify` bundle
+
+This module does not add new workflow authority. The frontend remains a display-only consumer of backend dashboard read models and still does not implement auth, mutation endpoints, dispatch actions, Manual Review resolution, vendor execution, AI authority, mobile technician UI, or hidden lifecycle inference.
+
+Unresolved:
+
+- production Apache reverse-proxy path strategy for backend and frontend
+- local PostgreSQL seed-data/demo workflow
+- production stale-data, polling, and cache behavior
+- role-scoped dashboard visibility after authentication exists
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

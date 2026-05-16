@@ -341,3 +341,29 @@ Open API/frontend concerns:
 - stale-data and refresh signaling
 - timeline pagination and filtering
 - Water Emergency-specific dashboard endpoints
+
+## Phase 0 Module 26 Full-Stack Dashboard Integration Boundary
+
+The frontend-to-backend dashboard integration remains read-only and environment-driven.
+
+Local development behavior:
+
+- backend expected origin: `http://127.0.0.1:8000`
+- frontend expected origin: `http://127.0.0.1:3000`
+- frontend server-side dashboard reads use `ACS_DASHBOARD_API_BASE_URL`
+- frontend falls back to visibly labeled typed mock data when the backend is unavailable
+- production must set an environment-specific HTTPS backend origin
+
+Contract constraints:
+
+- only dashboard `GET` requests are used
+- no mutation methods are added
+- no dispatch, review-resolution, reconciliation, integration, or AI execution calls are added
+- backend dashboard routes remain the source of dashboard read-model truth
+
+Open API/frontend concerns:
+
+- production reverse-proxy routing and path prefixes
+- role-scoped dashboard API access after auth exists
+- dashboard refresh/stale-data behavior
+- future CORS configuration if browser-side dashboard fetches are introduced

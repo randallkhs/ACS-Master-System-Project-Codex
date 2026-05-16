@@ -30,10 +30,29 @@ describe("dashboard API client", () => {
   });
 
   it("builds read-only dashboard endpoint URLs from environment configuration", () => {
-    process.env.ACS_DASHBOARD_API_BASE_URL = "https://api.acs.example.com/";
+    process.env.ACS_DASHBOARD_API_BASE_URL = "http://127.0.0.1:8000/";
 
     expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.overview)).toBe(
-      "https://api.acs.example.com/api/v1/dashboard/overview"
+      "http://127.0.0.1:8000/api/v1/dashboard/overview"
+    );
+  });
+
+  it("falls back clearly when the configured backend is unavailable", async () => {
+    process.env.ACS_DASHBOARD_API_BASE_URL = "http://127.0.0.1:8000";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED"))
+    );
+
+    const result = await getDashboardOverview();
+
+    expect(result.source).toBe("mock");
+    expect(result.requestedUrl).toBe(
+      "http://127.0.0.1:8000/api/v1/dashboard/overview"
+    );
+    expect(result.errorMessage).toBe("connect ECONNREFUSED");
+    expect(result.data.operational_summary.total_jobs).toBe(
+      mockDashboardOverview.operational_summary.total_jobs
     );
   });
 

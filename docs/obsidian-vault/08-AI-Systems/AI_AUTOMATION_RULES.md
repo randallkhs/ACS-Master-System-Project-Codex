@@ -247,6 +247,14 @@ AI is still not used in this module.
 
 AI must not provide dashboard authority, generate hidden lifecycle state, create operational action controls, override backend read models, clear blockers, resolve Manual Review, execute dispatch, call integrations, or reinterpret visual dashboard summaries as approval. Future AI dashboard assistance must remain advisory and separate from persisted dashboard evidence.
 
+## Phase 0 Module 26 Boundary
+
+The full-stack dashboard integration pass is display-only and deterministic.
+
+AI is still not used in this module.
+
+AI must not influence frontend/backend dashboard integration, generate dashboard data, bypass fallback labeling, infer lifecycle transitions, clear backend blockers, resolve Manual Review, execute dispatch, call integrations, or change read-model authority. Future AI dashboard explanation features must remain advisory and separated from persisted backend dashboard read models.
+
 ---
 
 ## Confidence And Review

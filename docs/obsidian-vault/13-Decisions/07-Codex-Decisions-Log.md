@@ -828,3 +828,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - Dashboard render tests
   - Frontend documentation
   - Dashboard architecture documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 26 Full-Stack Dashboard Integration And Local Verification Foundation
+
+- Decision type: Implementation / local integration / verification boundary
+- Status: Implemented
+- Decision:
+  - Document and verify the local full-stack path for the read-only dashboard.
+  - Keep frontend dashboard reads server-side and environment-driven through `ACS_DASHBOARD_API_BASE_URL`.
+  - Document local backend/frontend ports, dashboard API endpoints, fallback behavior, troubleshooting, and production routing assumptions.
+  - Add a frontend `verify` script that runs lint, typecheck, tests, and build.
+  - Expand frontend API tests so a configured-but-unavailable backend falls back visibly to typed local data.
+- Rationale:
+  - Future office dashboard work needs a repeatable local development workflow that can exercise backend dashboard contracts without encouraging localhost production assumptions.
+  - Fallback behavior should be safe for layout/development continuity but never become operational authority.
+  - Frontend integration must remain read-only and must not duplicate lifecycle, blocker, Manual Review, Water Emergency, integration, or AI logic.
+- Future implications:
+  - A local PostgreSQL seed/demo workflow is still needed before live backend browser verification can show meaningful persisted data.
+  - Production deployment must define Apache reverse-proxy routing, backend origin configuration, stale-data behavior, and authentication before operator use.
+  - Browser-side dashboard data fetching would require a separate CORS and public-runtime configuration decision.
+- Affected systems:
+  - Frontend dashboard API client tests
+  - Frontend environment examples and scripts
+  - Backend/frontend setup documentation
+  - Dashboard API integration documentation
+  - AI/dashboard safety boundary

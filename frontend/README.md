@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 25 keeps the first frontend foundation read-only while adding the first visual QA and dashboard polish pass.
+Phase 0 Module 26 keeps the frontend foundation read-only while documenting and testing the local full-stack dashboard integration path.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -21,13 +21,62 @@ npm run dev
 
 Set `ACS_DASHBOARD_API_BASE_URL` to the backend origin when using live backend data.
 
-Example:
+Local full-stack example:
 
 ```bash
 ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000
 ```
 
 If the variable is unset, or the backend is unavailable, the dashboard uses typed local fallback data and clearly marks the screen as mock/fallback state.
+
+## Full-Stack Local Development
+
+Use two terminals.
+
+Backend:
+
+```bash
+cd backend
+make dev
+```
+
+Expected backend origin:
+
+```text
+http://127.0.0.1:8000
+```
+
+Frontend:
+
+```bash
+cd frontend
+cp .env.example .env.local
+# set ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000
+npm run dev
+```
+
+Expected frontend origin:
+
+```text
+http://127.0.0.1:3000
+```
+
+Dashboard route:
+
+```text
+http://127.0.0.1:3000/dashboard
+```
+
+Live backend dashboard endpoints:
+
+```text
+GET http://127.0.0.1:8000/api/v1/dashboard/overview
+GET http://127.0.0.1:8000/api/v1/dashboard/lifecycle
+GET http://127.0.0.1:8000/api/v1/dashboard/review
+GET http://127.0.0.1:8000/api/v1/dashboard/dispatch
+```
+
+The backend still requires a configured local PostgreSQL database for live dashboard reads. If the backend is stopped, unavailable, or returns an error, the frontend displays typed fallback data and marks the page as mock/fallback state.
 
 ## Verification
 
@@ -36,6 +85,12 @@ npm run lint
 npm run typecheck
 npm run test
 npm run build
+```
+
+Or run the frontend verification bundle:
+
+```bash
+npm run verify
 ```
 
 Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Use the production server after `npm run build` for final screenshot checks so development-only framework badges do not cover mobile content.
@@ -68,6 +123,21 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Responsive navigation remains link-only and wraps into a two-column mobile grid.
 - Dashboard tests assert the API client stays `GET`-only and the rendered dashboard does not expose operational action buttons.
 - Empty, fallback, and read-only states remain visible without creating fake workflow controls.
+
+## Module 26 Integration Notes
+
+- `ACS_DASHBOARD_API_BASE_URL` is server-side only and is not exposed through a `NEXT_PUBLIC_` variable.
+- Local full-stack development uses `http://127.0.0.1:8000` for the FastAPI backend and `http://127.0.0.1:3000` for the Next.js frontend.
+- Production deployments must set an environment-specific HTTPS backend origin rather than hardcoding localhost.
+- The frontend API client only calls dashboard `GET` endpoints and uses `cache: "no-store"` for live read-model reads.
+- Fallback data is for local development/layout continuity only and must remain visibly labeled in the UI.
+
+## Troubleshooting
+
+- If the dashboard shows `Mock fallback`, confirm `frontend/.env.local` contains `ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000`.
+- If the backend endpoint returns an error, confirm the backend server is running and the local PostgreSQL database is configured and migrated.
+- If browser requests are added in the future, configure backend CORS explicitly; the current dashboard reads happen server-side from Next.js.
+- Do not add production credentials to `.env.example`, `.env.local`, or committed documentation.
 
 ## Open Decisions
 

@@ -87,6 +87,21 @@ Set `ACS_FSM_API_DOCS_ENABLED=false` to disable API documentation/OpenAPI routes
 
 For Apache or another reverse proxy, configure the deployment process to pass proxy headers at the ASGI server layer and set `ACS_FSM_PROXY_ROOT_PATH` only if the backend is mounted under a path prefix.
 
+## Dashboard API
+
+Phase 0 dashboard endpoints are read-only and contract-focused:
+
+```text
+GET /api/v1/dashboard/overview
+GET /api/v1/dashboard/lifecycle
+GET /api/v1/dashboard/review
+GET /api/v1/dashboard/dispatch
+```
+
+These routes summarize persisted backend state through dashboard read models. They do not mutate records, execute dispatch, resolve Manual Review, call integrations, or call AI.
+
+Local full-stack dashboard testing expects the backend on `http://127.0.0.1:8000` and the frontend `ACS_DASHBOARD_API_BASE_URL` set to that origin. A real local PostgreSQL database and migrations are still required for live backend reads; the frontend falls back to typed local data when the backend is unavailable.
+
 ## Migrations
 
 From `backend/`:
