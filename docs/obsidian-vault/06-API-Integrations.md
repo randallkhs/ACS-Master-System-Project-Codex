@@ -177,3 +177,26 @@ Rules:
 - event history does not execute retries or reconciliation
 - event history does not become a workflow engine or analytics engine
 - future live adapters should append confirmation/failure events while preserving database workflow authority
+
+## Phase 0 Module 19 Dispatch Reconciliation Boundary
+
+Dispatch reconciliation preparation is deterministic and evidence-only.
+
+Current consistency foundations:
+
+- internal dispatch lifecycle comparison
+- external execution state comparison
+- external confirmation state comparison
+- retry/recovery mismatch classification
+- immutable event-history protection
+- reconciliation audit evidence
+
+Rules:
+
+- reconciliation preparation does not call external APIs
+- reconciliation preparation does not execute reconciliation
+- reconciliation preparation does not execute retries
+- reconciliation preparation does not mutate operational event history
+- Water Emergency work cannot use the standard reconciliation path
+- blocked, review-required, unauthorized, duplicate, invalid-lifecycle, or mutable-history records cannot prepare standard reconciliation
+- future live adapters and reconciliation workflows must preserve database workflow authority

@@ -528,3 +528,35 @@ Unresolved:
 - retention, archive, and legal hold policy for immutable operational events
 - whether analytics should query event history directly or consume derived reporting tables
 - how Water Emergency timelines should differ from the standard operational execution timeline
+
+## Dispatch Reconciliation And Consistency Snapshots
+
+Phase 0 Module 19 expands `route_assignments` with deterministic reconciliation and operational consistency snapshots.
+
+Route assignments store:
+
+- dispatch reconciliation state
+- dispatch consistency snapshot
+- dispatch divergence snapshot
+- dispatch mismatch snapshot
+- dispatch reconciliation blocker snapshot
+- dispatch reconciliation audit snapshot
+- reconciliation prepared timestamp
+- consistency verified timestamp
+- reconciliation blocked timestamp
+
+Persistence philosophy:
+
+- Reconciliation preparation reads internal lifecycle, external execution, external confirmation, and immutable event evidence.
+- Consistency verification records deterministic evidence but does not execute reconciliation.
+- Divergence detection classifies mismatches and prepares manual-resolution evidence.
+- Immutable event history is read-only input; reconciliation cannot mutate or replay it.
+- Blocked, review-required, Water Emergency, unauthorized, duplicate, invalid-lifecycle, or mutable-history records cannot enter the standard reconciliation path.
+
+Unresolved:
+
+- whether reconciliation attempts need a separate immutable attempt table
+- whether future reconciliation should create Manual Review items automatically
+- how provider-specific mismatch classifications should evolve once live APIs exist
+- how operator ownership and approvals should be modeled
+- how Water Emergency reconciliation persistence should differ from the standard path

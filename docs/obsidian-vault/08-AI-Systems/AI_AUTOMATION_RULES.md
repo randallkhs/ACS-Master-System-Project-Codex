@@ -191,6 +191,14 @@ AI is still not used in this module.
 
 AI must not create, mutate, delete, reorder, replay, summarize into authoritative state, or reinterpret immutable operational event records as workflow authority. Future AI may help explain event timelines for operators only after deterministic event records exist, and those explanations must remain advisory context separate from the source-of-truth event history.
 
+## Phase 0 Module 19 Boundary
+
+Dispatch reconciliation and operational consistency verification are deterministic only.
+
+AI is still not used in this module.
+
+AI must not execute reconciliation, clear reconciliation blockers, classify divergence as resolved, create standard reconciliation for Water Emergency Visits, bypass Manual Review, mutate operational event history, replay workflows, call external APIs, execute retries, run analytics as workflow authority, or alter reconciliation evidence. Future AI may only add advisory explanation after deterministic consistency and divergence evidence exists and must remain subordinate to Manual Review and operator decisions.
+
 ---
 
 ## Confidence And Review

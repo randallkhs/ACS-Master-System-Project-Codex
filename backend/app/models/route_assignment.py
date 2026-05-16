@@ -89,6 +89,23 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         index=True,
     )
     external_execution_failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    dispatch_reconciliation_state: Mapped[str | None] = mapped_column(String(80), index=True)
+    dispatch_consistency_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_divergence_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_mismatch_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_reconciliation_blocker_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_reconciliation_audit_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    dispatch_reconciliation_prepared_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    dispatch_consistency_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    dispatch_reconciliation_blocked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+    )
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

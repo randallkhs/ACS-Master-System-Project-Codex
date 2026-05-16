@@ -153,6 +153,24 @@ def test_route_assignments_store_external_execution_traceability() -> None:
     assert expected_columns.issubset(set(columns.keys()))
 
 
+def test_route_assignments_store_dispatch_reconciliation_traceability() -> None:
+    columns = Base.metadata.tables["route_assignments"].columns
+
+    expected_columns = {
+        "dispatch_reconciliation_state",
+        "dispatch_consistency_snapshot",
+        "dispatch_divergence_snapshot",
+        "dispatch_mismatch_snapshot",
+        "dispatch_reconciliation_blocker_snapshot",
+        "dispatch_reconciliation_audit_snapshot",
+        "dispatch_reconciliation_prepared_at",
+        "dispatch_consistency_verified_at",
+        "dispatch_reconciliation_blocked_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
 def test_manual_review_items_can_target_non_job_entities() -> None:
     columns = Base.metadata.tables["review_items"].columns
 

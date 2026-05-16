@@ -1075,6 +1075,61 @@ Unresolved event-history questions:
 
 ---
 
+Phase 0 Module 19 Dispatch Reconciliation And Operational Consistency Foundation
+
+The dispatch pipeline now has a deterministic operational consistency verification and reconciliation preparation boundary.
+
+Current reconciliation flow:
+
+```text
+Internal Dispatch / External Execution / Confirmation Evidence
+    ↓
+Consistency Verification
+    ↓
+Divergence And Mismatch Classification
+    ↓
+Consistency Verified or Reconciliation Required
+```
+
+Reconciliation evidence preserves:
+
+* Route Assignment, Visit, Work Order, Job, technician, and audit-correlation references
+* internal dispatch lifecycle state
+* external execution state
+* external confirmation state
+* mismatch classification evidence
+* divergence evidence and manual-resolution requirement
+* immutable operational event history count
+* explicit `not_executed` markers for external API calls, retry execution, reconciliation execution, replay, and AI
+
+Reconciliation safety rules:
+
+* immutable event history cannot mutate
+* reconciliation preparation cannot bypass Manual Review
+* Water Emergency Visits cannot use the standard reconciliation path
+* unauthorized Route Assignments cannot reconcile
+* duplicate reconciliation preparation is blocked
+* invalid lifecycle reconciliation is blocked
+
+Safety boundary:
+
+* reconciliation preparation does not execute reconciliation
+* reconciliation preparation does not call external APIs
+* reconciliation preparation does not run analytics
+* reconciliation preparation does not replay workflows
+* reconciliation preparation does not mutate operational history
+* reconciliation preparation does not call AI
+
+Unresolved reconciliation questions:
+
+* exact operator ownership for manual reconciliation cases
+* whether reconciliation attempts need a dedicated immutable attempt table
+* how provider-specific mismatch codes should evolve once live APIs exist
+* whether reconciliation should create Manual Review items automatically in a later module
+* how Water Emergency reconciliation should diverge from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

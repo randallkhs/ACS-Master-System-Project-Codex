@@ -340,6 +340,22 @@ Manual Review, Water Emergency separation, and deterministic workflow services r
 
 Future analytics, replay, operator-forensics, and external-attempt versioning should consume this event history through explicit reporting or investigation services rather than mutating operational records.
 
+## Phase 0 Module 19 Dispatch Reconciliation And Consistency Boundary
+
+The backend now includes deterministic reconciliation preparation and operational consistency verification:
+
+- `ReconciliationLifecycleState`, mismatch-code, and failure-code domain structures
+- consistency verification result, divergence evidence, mismatch evidence, blocker, reconciliation result, and audit evidence structures
+- Route Assignment fields for reconciliation state, consistency snapshot, divergence snapshot, mismatch snapshot, blocker snapshot, audit snapshot, and related timestamps
+- `DispatchReconciliationService` for comparing internal lifecycle, external execution, external confirmation, and immutable event evidence
+- audit-log preparation for consistency-verified, reconciliation-required, or blocked reconciliation cases
+
+The boundary is intentionally preparation-only. It can verify consistency or prepare reconciliation evidence, but it does not execute reconciliation, call external APIs, run analytics, replay workflows, mutate operational event history, execute retries, run background workers, or call AI.
+
+Manual Review, Water Emergency separation, immutable event history, and deterministic lifecycle state remain authoritative. Blocked, review-required, Water Emergency, unauthorized, duplicate, invalid-lifecycle, or mutable-history records cannot use the standard reconciliation path.
+
+Future reconciliation execution should consume these snapshots through explicit operator/review workflows rather than hidden state transitions or event replay.
+
 ---
 
 ## First Module Boundary

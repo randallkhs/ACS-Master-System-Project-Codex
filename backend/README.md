@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement live Calendar, Sh
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, and operational event history services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, operational event history, and dispatch reconciliation services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -661,6 +661,40 @@ Event-history rules:
 - event history records evidence; they do not execute workflows
 
 This layer does not run workflow engines, analytics engines, reconciliation engines, AI orchestration, external integrations, event replay, or mutable history updates.
+
+## Dispatch Reconciliation And Operational Consistency
+
+Phase 0 Module 19 adds deterministic consistency verification and reconciliation preparation.
+
+Current reconciliation flow:
+
+```text
+RouteAssignment lifecycle and external evidence
+  -> DispatchReconciliationService
+  -> consistency, divergence, mismatch, and audit snapshots
+  -> consistency verified or reconciliation required
+```
+
+Route assignments now preserve:
+
+- dispatch reconciliation lifecycle state
+- consistency verification snapshot
+- divergence evidence snapshot
+- mismatch classification snapshot
+- reconciliation blocker snapshot
+- reconciliation audit snapshot
+- reconciliation prepared, consistency verified, and blocked timestamps
+
+Reconciliation rules:
+
+- immutable operational event history cannot mutate
+- Manual Review remains authoritative and cannot be bypassed
+- Water Emergency Visits cannot use the standard reconciliation path
+- unauthorized Route Assignments cannot reconcile
+- duplicate reconciliation preparation is blocked
+- invalid lifecycle reconciliation is blocked
+
+This layer prepares consistency and reconciliation evidence only. It does not execute reconciliation, call external APIs, run analytics, replay workflows, mutate event history, execute retries, run background workers, or call AI.
 
 ## Safety Rules
 

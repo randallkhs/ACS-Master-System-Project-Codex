@@ -636,3 +636,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - External adapter execution service
   - Audit traceability foundation
   - Integration and dispatch pipeline documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 19 Dispatch Reconciliation And Operational Consistency Foundation
+
+- Decision type: Implementation / reconciliation preparation and consistency boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic dispatch reconciliation and operational consistency boundary after external execution, confirmation/recovery, and event-history evidence exist.
+  - Add domain structures for reconciliation lifecycle state, mismatch codes, failure codes, consistency verification result, divergence evidence, mismatch evidence, blockers, traceability, and reconciliation result.
+  - Expand Route Assignments with dispatch reconciliation state, consistency snapshot, divergence snapshot, mismatch snapshot, blocker snapshot, audit snapshot, and reconciliation/verification/block timestamps.
+  - Add `DispatchReconciliationService` to compare internal dispatch lifecycle, external execution state, external confirmation state, retry/recovery evidence, and immutable event history.
+  - Record consistency-verified or reconciliation-required evidence without executing reconciliation.
+  - Block reconciliation preparation for review-required, Water Emergency, unauthorized, duplicate, invalid-lifecycle, missing-linkage, missing-audit-correlation, and mutable-history records.
+- Rationale:
+  - ACS needs deterministic consistency checks before future reconciliation execution can safely exist.
+  - Divergence and mismatch evidence should be explicit, auditable, and operator-reviewable.
+  - Immutable operational history must remain read-only evidence and must not become a replay or mutation mechanism.
+- Future implications:
+  - Future reconciliation execution should consume these snapshots through explicit operator/review workflows.
+  - Manual Review item creation, provider-specific mismatch taxonomies, reconciliation attempt tables, operator approvals, and Water Emergency reconciliation paths remain separate decisions.
+- Affected systems:
+  - Dispatch reconciliation domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - Dispatch reconciliation service
+  - Operational event history evidence boundary
+  - Audit traceability and dispatch pipeline documentation
