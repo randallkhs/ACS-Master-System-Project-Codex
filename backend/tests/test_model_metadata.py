@@ -171,6 +171,25 @@ def test_route_assignments_store_dispatch_reconciliation_traceability() -> None:
     assert expected_columns.issubset(set(columns.keys()))
 
 
+def test_route_assignments_store_operational_replay_recovery_traceability() -> None:
+    columns = Base.metadata.tables["route_assignments"].columns
+
+    expected_columns = {
+        "replay_recovery_state",
+        "replay_preparation_snapshot",
+        "rollback_preparation_snapshot",
+        "replay_eligibility_snapshot",
+        "replay_blocker_snapshot",
+        "recovery_coordination_snapshot",
+        "replay_recovery_audit_snapshot",
+        "replay_prepared_at",
+        "rollback_prepared_at",
+        "replay_blocked_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
 def test_manual_review_items_can_target_non_job_entities() -> None:
     columns = Base.metadata.tables["review_items"].columns
 

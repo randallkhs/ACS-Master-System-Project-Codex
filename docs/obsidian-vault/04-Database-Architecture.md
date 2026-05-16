@@ -560,3 +560,34 @@ Unresolved:
 - how provider-specific mismatch classifications should evolve once live APIs exist
 - how operator ownership and approvals should be modeled
 - how Water Emergency reconciliation persistence should differ from the standard path
+
+## Operational Replay And Recovery Preparation Snapshots
+
+Phase 0 Module 20 expands `route_assignments` with deterministic replay, rollback-preparation, and recovery-coordination snapshots.
+
+Route assignments store:
+
+- replay/recovery state
+- replay preparation snapshot
+- rollback preparation snapshot
+- replay eligibility snapshot
+- replay blocker snapshot
+- recovery coordination snapshot
+- replay/recovery audit snapshot
+- replay prepared, rollback prepared, and replay blocked timestamps
+
+Persistence philosophy:
+
+- Replay preparation consumes reconciliation, retry, or failure context; it does not execute replay.
+- Rollback preparation records rollback evidence only; it does not mutate operational state or event history.
+- Recovery coordination preserves manual-recovery requirements and audit continuity for future operator workflows.
+- Immutable event history is read-only input; replay preparation cannot mutate or replay it.
+- Blocked, review-required, Water Emergency, unauthorized, duplicate, invalid-lifecycle, no-recovery-context, or mutable-history records cannot enter the standard replay/recovery path.
+
+Unresolved:
+
+- whether replay attempts need a separate immutable attempt table
+- exact operator approval semantics before any future replay or rollback execution
+- how rollback scope should be constrained for production data recovery
+- whether recovery coordination should create Manual Review items automatically
+- how Water Emergency replay/recovery persistence should differ from the standard path

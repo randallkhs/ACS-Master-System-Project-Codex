@@ -200,3 +200,25 @@ Rules:
 - Water Emergency work cannot use the standard reconciliation path
 - blocked, review-required, unauthorized, duplicate, invalid-lifecycle, or mutable-history records cannot prepare standard reconciliation
 - future live adapters and reconciliation workflows must preserve database workflow authority
+
+## Phase 0 Module 20 Operational Replay And Recovery Boundary
+
+Operational replay and recovery preparation is deterministic and evidence-only.
+
+Current recovery foundations:
+
+- replay eligibility evidence
+- rollback preparation evidence
+- recovery coordination evidence
+- replay blocker evidence
+- immutable replay audit evidence
+
+Rules:
+
+- replay preparation does not execute replay
+- rollback preparation does not execute rollback
+- external API calls remain `not_executed`
+- automatic retries remain `not_executed`
+- Water Emergency work cannot use the standard replay/recovery path
+- blocked, review-required, unauthorized, duplicate, invalid-lifecycle, no-recovery-context, or mutable-history records cannot prepare standard replay/recovery
+- future live recovery workflows must preserve database workflow authority and immutable event-history boundaries

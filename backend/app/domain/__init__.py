@@ -103,6 +103,17 @@ from app.domain.operational_generation import (
     WorkOrderGenerationResult,
 )
 from app.domain.operational_intake import OperationalLifecycleState
+from app.domain.operational_replay import (
+    RecoveryCoordinationResult,
+    ReplayEligibilityEvidence,
+    ReplayPreparationResult,
+    ReplayRecoveryBlocker,
+    ReplayRecoveryEvidence,
+    ReplayRecoveryFailureCode,
+    ReplayRecoveryLifecycleState,
+    ReplayRecoveryTraceability,
+    RollbackPreparationEvidence,
+)
 from app.domain.orchestration import (
     DispatchEligibility,
     IntakeProcessingResult,
@@ -212,6 +223,7 @@ __all__ = [
     "OperationalReadinessSnapshot",
     "ProviderExecutionState",
     "RawIntakePayload",
+    "RecoveryCoordinationResult",
     "ReconciliationBlocker",
     "ReconciliationEvidence",
     "ReconciliationFailureCode",
@@ -222,7 +234,15 @@ __all__ = [
     "ReconciliationTraceability",
     "ReviewRecommendation",
     "ReviewStatus",
+    "ReplayEligibilityEvidence",
+    "ReplayPreparationResult",
+    "ReplayRecoveryBlocker",
+    "ReplayRecoveryEvidence",
+    "ReplayRecoveryFailureCode",
+    "ReplayRecoveryLifecycleState",
+    "ReplayRecoveryTraceability",
     "RetryRecoveryEventEvidence",
+    "RollbackPreparationEvidence",
     "RouteAssignmentAuthorizationBlockerCode",
     "RouteAssignmentAuthorizationEvidence",
     "RouteAssignmentAuthorizationResult",

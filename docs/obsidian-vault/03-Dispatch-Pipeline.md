@@ -1130,6 +1130,64 @@ Unresolved reconciliation questions:
 
 ---
 
+Phase 0 Module 20 Operational Replay And Recovery Preparation
+
+The dispatch pipeline now has a deterministic replay-preparation and recovery-coordination boundary.
+
+Current recovery preparation flow:
+
+```text
+Reconciliation / retry / failure evidence
+    ↓
+Replay Eligibility Evaluation
+    ↓
+Rollback Preparation Evaluation
+    ↓
+Recovery Coordination Evidence
+    ↓
+Replay Prepared / Rollback Prepared / Replay Blocked
+```
+
+Replay/recovery evidence preserves:
+
+* replay eligibility
+* rollback preparation status
+* recovery coordination requirements
+* replay blocker reasons
+* immutable event-history evidence
+* audit correlation continuity
+* explicit `not_executed` markers for replay execution, rollback execution, retry execution, external API calls, and AI
+
+Replay/recovery safety rules:
+
+* immutable operational history cannot mutate
+* replay preparation cannot bypass Manual Review
+* Water Emergency Visits cannot use the standard replay/recovery path
+* unauthorized Route Assignments cannot prepare replay or rollback
+* duplicate replay preparation is blocked
+* invalid lifecycle replay preparation is blocked
+* replay requires reconciliation, retry, or failure context
+
+Safety boundary:
+
+* replay preparation does not execute replay
+* rollback preparation does not execute rollback
+* recovery coordination does not run a workflow engine
+* replay preparation does not call external APIs
+* replay preparation does not execute retries
+* replay preparation does not mutate operational history
+* replay preparation does not call AI
+
+Unresolved replay/recovery questions:
+
+* exact operator approval model before replay or rollback execution
+* whether replay attempts need a dedicated immutable attempt table
+* how rollback scope should be limited for production recovery
+* whether future recovery coordination should create Manual Review items automatically
+* how Water Emergency replay/recovery should diverge from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

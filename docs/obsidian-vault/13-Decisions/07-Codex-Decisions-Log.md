@@ -664,3 +664,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - Dispatch reconciliation service
   - Operational event history evidence boundary
   - Audit traceability and dispatch pipeline documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 20 Operational Replay And Recovery Preparation Foundation
+
+- Decision type: Implementation / replay preparation and recovery coordination boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic operational replay and recovery preparation boundary after reconciliation, retry, or failure context exists.
+  - Add domain structures for replay/recovery lifecycle state, replay blockers, replay eligibility, rollback preparation, recovery coordination, traceability, evidence, and replay preparation results.
+  - Expand Route Assignments with replay/recovery state, replay preparation, rollback preparation, replay eligibility, replay blocker, recovery coordination, audit snapshots, and replay/rollback/block timestamps.
+  - Add `OperationalReplayPreparationService` to prepare replay or rollback evidence without executing replay, rollback, retries, external APIs, workflow engines, or AI.
+  - Block replay preparation for review-required, Water Emergency, unauthorized, duplicate, invalid-lifecycle, missing-linkage, missing-audit-correlation, no-recovery-context, and mutable-history records.
+- Rationale:
+  - ACS needs recovery coordination evidence before any future replay or rollback execution can safely exist.
+  - Replay preparation must preserve immutable event history as read-only evidence and avoid turning history into a mutable workflow replay engine.
+  - Manual Review, Water Emergency separation, and deterministic lifecycle state must remain authoritative when recovery is required.
+- Future implications:
+  - Future replay/recovery execution should consume these snapshots through explicit operator/review workflows.
+  - Replay attempt tables, rollback scope, operator approval, Manual Review item creation, retry limits, and Water Emergency replay/recovery paths remain separate decisions.
+- Affected systems:
+  - Operational replay/recovery domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - Operational replay preparation service
+  - Operational event history evidence boundary
+  - Audit traceability and dispatch pipeline documentation

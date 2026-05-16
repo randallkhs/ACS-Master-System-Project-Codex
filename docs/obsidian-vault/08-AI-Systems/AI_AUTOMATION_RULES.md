@@ -199,6 +199,14 @@ AI is still not used in this module.
 
 AI must not execute reconciliation, clear reconciliation blockers, classify divergence as resolved, create standard reconciliation for Water Emergency Visits, bypass Manual Review, mutate operational event history, replay workflows, call external APIs, execute retries, run analytics as workflow authority, or alter reconciliation evidence. Future AI may only add advisory explanation after deterministic consistency and divergence evidence exists and must remain subordinate to Manual Review and operator decisions.
 
+## Phase 0 Module 20 Boundary
+
+Operational replay and recovery preparation is deterministic only.
+
+AI is still not used in this module.
+
+AI must not prepare replay as authorized, clear replay blockers, execute replay, execute rollback, execute retries, create standard replay/recovery for Water Emergency Visits, bypass Manual Review, mutate operational event history, call external APIs, run workflow engines, or alter replay/recovery evidence. Future AI may only add advisory explanation after deterministic replay eligibility and recovery evidence exists and must remain subordinate to Manual Review and operator decisions.
+
 ---
 
 ## Confidence And Review

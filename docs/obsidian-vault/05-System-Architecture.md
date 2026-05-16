@@ -356,6 +356,22 @@ Manual Review, Water Emergency separation, immutable event history, and determin
 
 Future reconciliation execution should consume these snapshots through explicit operator/review workflows rather than hidden state transitions or event replay.
 
+## Phase 0 Module 20 Operational Replay And Recovery Preparation Boundary
+
+The backend now includes deterministic replay-preparation, rollback-preparation, and recovery-coordination evidence:
+
+- `ReplayRecoveryLifecycleState` and replay/recovery failure-code domain structures
+- replay eligibility, rollback preparation, recovery coordination, blocker, traceability, evidence, and result structures
+- Route Assignment fields for replay/recovery state, replay preparation, rollback preparation, eligibility, blocker, recovery coordination, audit snapshots, and related timestamps
+- `OperationalReplayPreparationService` for preparing replay or rollback evidence from reconciliation, retry, or failure context
+- audit-log preparation for replay-prepared, rollback-prepared, or blocked recovery cases
+
+The boundary is intentionally preparation-only. It can prepare recovery evidence, but it does not execute replay, execute rollback, call external APIs, execute retries, run workflow engines, mutate operational event history, run background workers, or call AI.
+
+Manual Review, Water Emergency separation, immutable event history, and deterministic lifecycle state remain authoritative. Blocked, review-required, Water Emergency, unauthorized, duplicate, invalid-lifecycle, no-recovery-context, or mutable-history records cannot use the standard replay/recovery path.
+
+Future replay/recovery execution should consume these snapshots through explicit operator/review workflows rather than hidden workflow replay or mutable history changes.
+
 ---
 
 ## First Module Boundary

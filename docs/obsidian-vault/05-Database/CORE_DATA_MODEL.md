@@ -158,9 +158,12 @@ Prepare for:
 - dispatch reconciliation state
 - consistency, divergence, mismatch, blocker, and reconciliation audit snapshots
 - reconciliation prepared, consistency verified, and reconciliation blocked timestamps
+- replay/recovery state
+- replay preparation, rollback preparation, replay eligibility, replay blocker, recovery coordination, and replay audit snapshots
+- replay prepared, rollback prepared, and replay blocked timestamps
 - deterministic route assignment evidence
 
-Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 18 controlled external adapter execution can record provider execution evidence without calling live vendor APIs. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. Module 19 reconciliation preparation can verify consistency and classify divergence without executing reconciliation. This still does not mean route optimization has run or production external systems have been updated.
+Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 18 controlled external adapter execution can record provider execution evidence without calling live vendor APIs. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. Module 19 reconciliation preparation can verify consistency and classify divergence without executing reconciliation. Module 20 replay/recovery preparation can prepare replay, rollback, and recovery-coordination evidence without executing replay or rollback. This still does not mean route optimization has run or production external systems have been updated.
 
 ## Water Emergency Records
 
@@ -426,6 +429,24 @@ Prepare for:
 - immutable event history protection
 
 This layer may verify consistency and prepare reconciliation evidence. It must not execute reconciliation, mutate operational event history, replay workflows, call external APIs, execute retries, run analytics engines, update technician mobile workflows, run background workers, optimize routes, or call AI.
+
+## Operational Replay And Recovery Preparation
+
+Represents deterministic replay-preparation, rollback-preparation, and recovery-coordination evidence after reconciliation, retry, or failure context exists.
+
+Prepare for:
+
+- replay eligibility evidence
+- replay blocker evidence
+- rollback preparation snapshots
+- recovery coordination snapshots
+- reconciliation replay preparation
+- retry replay preparation
+- immutable replay evidence
+- replay/recovery audit evidence
+- duplicate replay preparation prevention
+
+This layer may prepare replay and rollback evidence for later operator-controlled recovery workflows. It must not execute replay, execute rollback, mutate operational event history, call external APIs, execute retries, run reconciliation engines, update technician mobile workflows, run background workers, optimize routes, or call AI.
 
 ---
 

@@ -106,6 +106,22 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     dispatch_reconciliation_blocked_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
     )
+    replay_recovery_state: Mapped[str | None] = mapped_column(String(80), index=True)
+    replay_preparation_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    rollback_preparation_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    replay_eligibility_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    replay_blocker_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    recovery_coordination_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    replay_recovery_audit_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    replay_prepared_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    rollback_prepared_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    replay_blocked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement live Calendar, Sh
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, operational event history, and dispatch reconciliation services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, operational event history, dispatch reconciliation, and operational replay/recovery services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -695,6 +695,41 @@ Reconciliation rules:
 - invalid lifecycle reconciliation is blocked
 
 This layer prepares consistency and reconciliation evidence only. It does not execute reconciliation, call external APIs, run analytics, replay workflows, mutate event history, execute retries, run background workers, or call AI.
+
+## Operational Replay And Recovery Preparation
+
+Phase 0 Module 20 adds deterministic replay, rollback-preparation, and recovery-coordination evidence after reconciliation has identified divergence or recovery context.
+
+Current replay/recovery flow:
+
+```text
+Reconciliation, retry, or failure evidence
+  -> OperationalReplayPreparationService
+  -> replay eligibility, rollback preparation, recovery coordination, and audit snapshots
+  -> replay prepared, rollback prepared, or replay blocked
+```
+
+Route assignments now preserve:
+
+- replay/recovery lifecycle state
+- replay preparation snapshot
+- rollback preparation snapshot
+- replay eligibility snapshot
+- replay blocker snapshot
+- recovery coordination snapshot
+- replay/recovery audit snapshot
+- replay-prepared, rollback-prepared, and blocked timestamps
+
+Replay/recovery rules:
+
+- immutable operational event history cannot mutate
+- Manual Review remains authoritative and cannot be bypassed
+- Water Emergency Visits cannot use the standard replay/recovery path
+- unauthorized Route Assignments cannot prepare replay or rollback
+- duplicate replay preparation is blocked
+- invalid lifecycle replay preparation is blocked
+
+This layer prepares recovery evidence only. It does not execute replay, execute rollback, call external APIs, run automatic retries, run workflow engines, mutate event history, or call AI.
 
 ## Safety Rules
 
