@@ -149,12 +149,15 @@ Prepare for:
 - external adapter state
 - external adapter payload and evidence snapshots
 - external adapter prepared timestamp
+- external execution state
+- external execution provider, evidence, failure, lifecycle, and audit snapshots
+- external execution started, completed, and failed timestamps
 - external confirmation state
 - external confirmation, failure, retry, and reconciliation snapshots
 - external confirmation and recovery timestamps
 - deterministic route assignment evidence
 
-Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. This still does not mean route optimization has run or external systems have been updated.
+Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 18 controlled external adapter execution can record provider execution evidence without calling live vendor APIs. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. This still does not mean route optimization has run or production external systems have been updated.
 
 ## Water Emergency Records
 
@@ -367,6 +370,25 @@ Prepare for:
 - future external execution failure and confirmation evidence
 
 This layer may prepare payload snapshots after internal dispatch execution completes. It must not call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, run background workers, execute external APIs, optimize routes, or call AI.
+
+## External Adapter Execution
+
+Represents the deterministic boundary between prepared external payloads and future live provider execution.
+
+Prepare for:
+
+- external execution request snapshots
+- provider execution result snapshots
+- FastField execution preparation
+- Google Sheets execution preparation
+- Google Calendar execution preparation
+- technician mobile sync preparation
+- provider correlation continuity
+- external execution failure evidence
+- external execution audit evidence
+- duplicate execution prevention
+
+This layer may process prepared payloads and store controlled provider execution evidence. It must not call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, run background workers, execute real vendor APIs, execute retries, optimize routes, or call AI.
 
 ## External Execution Confirmation And Recovery
 

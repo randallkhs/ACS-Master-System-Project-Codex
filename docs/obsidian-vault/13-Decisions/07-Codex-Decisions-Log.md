@@ -608,3 +608,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Repository layer
   - Operational event history service
   - Audit traceability and dispatch pipeline documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 18 Real External Adapter Execution Foundation
+
+- Decision type: Implementation / controlled external execution boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic controlled external adapter execution boundary between adapter preparation and confirmation readiness.
+  - Add domain structures for external execution lifecycle state, provider execution state, execution request, provider result, lifecycle transition, evidence, failure reasons, and execution result.
+  - Expand Route Assignments with external execution state, request snapshot, provider snapshot, evidence snapshot, failure snapshot, lifecycle snapshot, audit snapshot, and started/completed/failed timestamps.
+  - Add `ExternalAdapterExecutionService` to process prepared adapter payloads through simulated provider execution boundaries for FastField, Google Sheets, Google Calendar, and technician mobile sync without calling live APIs.
+  - Move successful controlled execution to `awaiting_external_confirmation`; record provider failures as explicit failure evidence without automatic retry.
+  - Block external execution for blocked, review-required, Water Emergency, unauthorized, duplicate-attempt, adapter-unready, invalid-lifecycle, missing-linkage, and missing-payload records.
+- Rationale:
+  - Future live provider execution needs a durable boundary that can be tested and audited before real credentials, background workers, or vendor APIs exist.
+  - Provider execution evidence should preserve correlation and failure context without letting external systems become workflow authority.
+  - Manual Review, Water Emergency separation, and no-automatic-retry behavior must remain authoritative when external execution is uncertain or failed.
+- Future implications:
+  - Future live adapters should replace simulated provider internals while preserving the same service boundary, lifecycle states, audit snapshots, and blocker rules.
+  - Provider-specific request/response schemas, immutable attempt tables, retry limits, operator approvals, credential scoping, and Water Emergency execution paths remain separate decisions.
+- Affected systems:
+  - External adapter execution domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - External adapter execution service
+  - Audit traceability foundation
+  - Integration and dispatch pipeline documentation

@@ -76,6 +76,19 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     retry_prepared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     reconciliation_required_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    external_execution_state: Mapped[str | None] = mapped_column(String(80), index=True)
+    external_execution_request_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_execution_provider_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_execution_evidence_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_execution_failure_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_execution_lifecycle_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_execution_audit_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    external_execution_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    external_execution_completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    external_execution_failed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

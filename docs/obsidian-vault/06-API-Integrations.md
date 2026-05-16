@@ -113,6 +113,27 @@ Rules:
 - blocked, review-required, unauthorized, undispatched, or duplicate-prepared records cannot reach adapter preparation
 - future live adapters must write execution outcomes back to the database without becoming workflow authority
 
+## Phase 0 Module 18 External Adapter Execution Boundary
+
+External adapter execution is deterministic and controlled-execution-only.
+
+Current provider foundations:
+
+- FastField execution evidence snapshot
+- Google Sheets execution evidence snapshot
+- Google Calendar execution evidence snapshot
+- technician mobile sync execution evidence snapshot
+- provider correlation IDs and audit continuity
+
+Rules:
+
+- execution consumes prepared payloads awaiting external execution
+- real provider API calls remain `not_executed`
+- provider failures record failure evidence without automatic retry
+- Water Emergency work cannot use the standard external execution path
+- blocked, review-required, unauthorized, duplicate-attempt, adapter-unready, invalid-lifecycle, or missing-payload records cannot execute externally
+- future live adapters must preserve these lifecycle and audit boundaries when replacing simulated provider execution internals
+
 ## Phase 0 Module 16 External Confirmation And Recovery Boundary
 
 External confirmation and recovery preparation is deterministic and simulation-only.

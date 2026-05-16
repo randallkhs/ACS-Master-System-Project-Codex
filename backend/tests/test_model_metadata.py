@@ -134,6 +134,25 @@ def test_route_assignments_store_external_confirmation_and_recovery_traceability
     assert expected_columns.issubset(set(columns.keys()))
 
 
+def test_route_assignments_store_external_execution_traceability() -> None:
+    columns = Base.metadata.tables["route_assignments"].columns
+
+    expected_columns = {
+        "external_execution_state",
+        "external_execution_request_snapshot",
+        "external_execution_provider_snapshot",
+        "external_execution_evidence_snapshot",
+        "external_execution_failure_snapshot",
+        "external_execution_lifecycle_snapshot",
+        "external_execution_audit_snapshot",
+        "external_execution_started_at",
+        "external_execution_completed_at",
+        "external_execution_failed_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
 def test_manual_review_items_can_target_non_job_entities() -> None:
     columns = Base.metadata.tables["review_items"].columns
 

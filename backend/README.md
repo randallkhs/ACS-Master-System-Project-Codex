@@ -2,7 +2,7 @@
 
 FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
-This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or external dispatch integration workflows yet.
+This module is Phase 0 scaffolding only. It does not implement live Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or production external dispatch integration workflows yet.
 
 ## Architecture
 
@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, external confirmation/recovery, and operational event history services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, and operational event history services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -562,9 +562,41 @@ Preparation rules:
 
 This layer prepares payload evidence only. It does not call FastField, sync Google Calendar, write Google Sheets, update technician mobile workflows, call external APIs, run background workers, optimize routes, or call AI.
 
+## External Adapter Execution
+
+Phase 0 Module 18 adds the deterministic controlled execution boundary between prepared adapter payloads and external confirmation readiness.
+
+Current execution flow:
+
+```text
+Awaiting external execution RouteAssignment
+  -> ExternalAdapterExecutionService
+  -> provider execution snapshots
+  -> awaiting external confirmation or external execution failed
+```
+
+Route assignments now preserve:
+
+- external execution lifecycle state
+- external execution request snapshot
+- provider execution evidence snapshots for FastField, Google Sheets, Google Calendar, and technician mobile sync
+- external execution lifecycle, evidence, failure, and audit snapshots
+- external execution started, completed, and failed timestamps
+
+Execution rules:
+
+- only prepared Route Assignments awaiting external execution can execute
+- duplicate external execution attempts are blocked
+- blocked or review-required Visits cannot execute externally
+- Water Emergency Visits cannot use the standard external execution path
+- unauthorized Route Assignments cannot execute externally
+- provider failure records failure evidence but does not run automatic retry
+
+This layer simulates controlled provider execution boundaries only. It does not call FastField, sync Google Calendar, write Google Sheets, update technician mobile workflows, execute retries, run background workers, optimize routes, or call AI.
+
 ## External Execution Confirmation And Recovery
 
-Phase 0 Module 16 adds the deterministic resilience boundary after external adapter preparation.
+Phase 0 Module 16 adds the deterministic resilience boundary after controlled external adapter execution reaches confirmation readiness.
 
 Current confirmation flow:
 

@@ -905,9 +905,65 @@ Unresolved external adapter questions:
 
 ---
 
+Phase 0 Module 18 Real External Adapter Execution Foundation
+
+The dispatch pipeline now has a deterministic controlled external execution boundary.
+
+Current external execution flow:
+
+```text
+Awaiting External Execution
+    ↓
+Controlled Provider Execution Boundary
+    ↓
+Provider Execution Evidence
+    ↓
+Awaiting External Confirmation or External Execution Failed
+```
+
+External execution evidence preserves:
+
+* Route Assignment, Visit, Work Order, Job, technician, and audit-correlation references
+* external execution request snapshot
+* provider execution snapshots for FastField, Google Sheets, Google Calendar, and technician mobile sync
+* provider correlation IDs
+* lifecycle transition evidence
+* deterministic blocker reasons
+* explicit `not_executed` markers for real vendor API calls, automatic retries, and background execution
+
+External execution safety rules:
+
+* only prepared Route Assignments awaiting external execution may execute
+* duplicate external execution attempts are blocked
+* invalid lifecycle transitions are blocked
+* blocked Visits cannot execute externally
+* review-required lifecycle blocks external execution
+* Water Emergency Visits cannot use the standard external execution path
+* unauthorized Route Assignments cannot execute externally
+* provider failure records failure evidence but does not run automatic retry
+
+Safety boundary:
+
+* external execution does not call FastField
+* external execution does not sync Google Calendar
+* external execution does not write Google Sheets
+* external execution does not update technician mobile workflows
+* external execution does not run background workers
+* external execution does not call AI
+
+Unresolved external execution questions:
+
+* exact live provider execution contracts and response schemas
+* whether external execution attempts need dedicated immutable attempt records
+* retry limits and operator approval before re-execution
+* credential scoping and provider-specific authorization once auth exists
+* how Water Emergency external execution should differ from the standard path
+
+---
+
 Phase 0 Module 16 External Confirmation And Failure Recovery Foundation
 
-The dispatch pipeline now has a deterministic external confirmation and recovery preparation boundary.
+The dispatch pipeline now has a deterministic external confirmation and recovery preparation boundary after controlled external execution reaches confirmation readiness.
 
 Current confirmation flow:
 

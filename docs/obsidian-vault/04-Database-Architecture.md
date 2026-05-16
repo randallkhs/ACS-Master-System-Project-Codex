@@ -434,6 +434,37 @@ Unresolved:
 - how operator approval and credential scoping should be recorded once auth exists
 - how Water Emergency external adapter persistence should differ from the standard path
 
+## External Adapter Execution Snapshots
+
+Phase 0 Module 18 expands `route_assignments` with the controlled external execution boundary.
+
+Route assignments store:
+
+- external execution state
+- external execution request snapshot
+- provider execution snapshot
+- external execution evidence snapshot
+- external execution failure snapshot
+- external execution lifecycle snapshot
+- external execution audit snapshot
+- external execution started, completed, and failed timestamps
+
+Persistence philosophy:
+
+- External execution consumes prepared adapter payloads in `awaiting_external_execution`; it does not prepare payloads itself.
+- Provider execution snapshots preserve FastField, Google Sheets, Google Calendar, and technician mobile evidence without calling live provider APIs.
+- Successful controlled execution moves records to `awaiting_external_confirmation` for the confirmation/recovery boundary.
+- Provider failure records failure evidence and blocks silent replay; retry execution remains a future explicit workflow.
+- Blocked, review-required, Water Emergency, unauthorized, invalid-lifecycle, duplicate-attempt, or missing-payload records cannot enter the standard external execution path.
+
+Unresolved:
+
+- exact provider execution request and response contracts
+- whether provider attempts need a dedicated immutable attempt table separate from Route Assignment snapshots
+- how retry attempt limits and operator approval should be represented
+- how credential scoping should attach to provider execution once auth exists
+- how Water Emergency external execution persistence should differ from the standard path
+
 ## External Confirmation And Recovery Snapshots
 
 Phase 0 Module 16 expands `route_assignments` with the first durable confirmation, failure recovery, retry-preparation, and reconciliation-preparation boundary.

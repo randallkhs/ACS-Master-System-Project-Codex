@@ -291,6 +291,22 @@ Manual Review and Water Emergency separation remain authoritative. Blocked, revi
 
 Future live integration execution should consume adapter payload snapshots through isolated vendor adapters and write execution outcomes without giving vendors authority over internal ACS workflow state.
 
+## Phase 0 Module 18 External Adapter Execution Boundary
+
+The backend now includes the deterministic controlled execution boundary between adapter preparation and confirmation readiness:
+
+- `ExternalExecutionLifecycleState` and provider execution-state domain structures
+- external execution request, provider result, evidence, lifecycle transition, failure reason, and audit evidence structures
+- Route Assignment fields for external execution state, request snapshot, provider snapshot, evidence snapshot, failure snapshot, lifecycle snapshot, audit snapshot, and related timestamps
+- `ExternalAdapterExecutionService` for processing prepared adapter payloads through simulated controlled provider execution boundaries
+- audit-log preparation for completed, failed, or reconciliation-required external execution attempts
+
+The boundary is intentionally controlled and simulation-only. It can move a standard prepared Route Assignment from `awaiting_external_execution` to `awaiting_external_confirmation`, or record failure/reconciliation evidence, but it does not call vendor APIs, execute retries, run background workers, update mobile workflows, optimize routes, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Blocked, review-required, Water Emergency, unauthorized, duplicate-attempt, invalid-lifecycle, adapter-unready, or missing-payload records cannot use the standard external execution path.
+
+Future live provider adapters should replace only the provider execution internals while preserving the same lifecycle, evidence, audit, and safety boundaries.
+
 ## Phase 0 Module 16 External Confirmation And Recovery Boundary
 
 The backend now includes the deterministic resilience boundary after external adapter preparation:
