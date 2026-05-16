@@ -167,6 +167,14 @@ AI is still not used in this module.
 
 AI must not prepare external adapter payloads, clear adapter blockers, create standard external payloads for Water Emergency Visits, bypass Manual Review, retry duplicate adapter preparation, call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, run background execution, call external APIs, or alter adapter evidence. Future AI may only add advisory context after deterministic adapter evidence exists and must remain subordinate to Manual Review and operator/system authorization.
 
+## Phase 0 Module 16 Boundary
+
+External confirmation and failure recovery preparation is deterministic only.
+
+AI is still not used in this module.
+
+AI must not confirm external execution, clear confirmation blockers, create standard confirmation records for Water Emergency Visits, bypass Manual Review, execute retries, run reconciliation, call external APIs, update technician mobile workflows, run background execution, or alter confirmation/recovery evidence. Future AI may only add advisory context after deterministic confirmation, failure, retry, or reconciliation evidence exists and must remain subordinate to Manual Review and operator/system authorization.
+
 ---
 
 ## Confidence And Review

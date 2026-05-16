@@ -905,6 +905,63 @@ Unresolved external adapter questions:
 
 ---
 
+Phase 0 Module 16 External Confirmation And Failure Recovery Foundation
+
+The dispatch pipeline now has a deterministic external confirmation and recovery preparation boundary.
+
+Current confirmation flow:
+
+```text
+Awaiting External Confirmation
+    ↓
+Simulated External Confirmation Processing
+    ↓
+Confirmation / Failure / Reconciliation Evidence
+    ↓
+Externally Confirmed, Awaiting Retry, or Reconciliation Required
+```
+
+Confirmation and recovery evidence preserves:
+
+* Route Assignment, Visit, Work Order, Job, technician, and audit-correlation references
+* simulated external confirmation state
+* confirmation success evidence
+* external failure evidence
+* retry preparation evidence
+* reconciliation-required evidence
+* deterministic blocker reasons
+* explicit `not_executed` markers for external API calls, automatic retries, and reconciliation engines
+
+Confirmation safety rules:
+
+* only adapter-prepared Route Assignments awaiting external confirmation may confirm
+* duplicate confirmations are blocked
+* invalid lifecycle transitions are blocked
+* blocked Visits cannot confirm
+* review-required lifecycle blocks confirmation
+* Water Emergency Visits cannot use the standard external confirmation path
+* unauthorized Route Assignments cannot confirm
+* retry preparation is allowed only after failed confirmation
+
+Safety boundary:
+
+* confirmation processing does not call external APIs
+* retry preparation does not execute retries
+* reconciliation preparation does not run a reconciliation engine
+* confirmation processing does not update technician mobile workflows
+* confirmation processing does not run background workers
+* confirmation processing does not call AI
+
+Unresolved confirmation and recovery questions:
+
+* exact vendor confirmation payload formats and statuses
+* whether external confirmation attempts need a dedicated immutable attempt table
+* how many retry attempts should be permitted once execution exists
+* how operator approval should be captured before retry or reconciliation
+* how Water Emergency confirmation and recovery should differ from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement Calendar, Sheets,
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, and external adapter preparation services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, and external confirmation/recovery services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -561,6 +561,41 @@ Preparation rules:
 - duplicate adapter preparation is blocked
 
 This layer prepares payload evidence only. It does not call FastField, sync Google Calendar, write Google Sheets, update technician mobile workflows, call external APIs, run background workers, optimize routes, or call AI.
+
+## External Execution Confirmation And Recovery
+
+Phase 0 Module 16 adds the deterministic resilience boundary after external adapter preparation.
+
+Current confirmation flow:
+
+```text
+Awaiting external confirmation RouteAssignment
+  -> ExternalExecutionConfirmationService
+  -> confirmation, failure, retry, or reconciliation snapshots
+  -> externally confirmed, awaiting retry, or reconciliation required
+```
+
+Route assignments now preserve:
+
+- external confirmation lifecycle state
+- external confirmation evidence snapshot
+- external confirmation lifecycle and audit snapshots
+- external failure snapshot
+- retry preparation snapshot
+- reconciliation-required snapshot
+- confirmation, failure, retry-prepared, and reconciliation-required timestamps
+
+Confirmation and recovery rules:
+
+- only adapter-prepared Route Assignments awaiting external confirmation can confirm
+- duplicate confirmations are blocked
+- blocked or review-required Visits cannot confirm
+- Water Emergency Visits cannot use the standard external confirmation path
+- unauthorized Route Assignments cannot confirm
+- retry preparation is allowed only from a failed confirmation state
+- reconciliation preparation records evidence but does not run a reconciliation engine
+
+This layer processes simulated external confirmation states and prepares evidence only. It does not call external APIs, execute retries, run reconciliation, update technician mobile workflows, run background workers, optimize routes, or call AI.
 
 ## Safety Rules
 

@@ -26,6 +26,15 @@ from app.domain.external_dispatch_adapter import (
     ExternalAdapterFailureCode,
     ExternalAdapterLifecycleState,
 )
+from app.domain.external_execution_confirmation import (
+    ExternalConfirmationEvidence,
+    ExternalConfirmationFailureCode,
+    ExternalConfirmationFailureReason,
+    ExternalConfirmationLifecycleState,
+    ExternalConfirmationResult,
+    ExternalConfirmationTraceability,
+    SimulatedExternalConfirmationState,
+)
 from app.domain.intake import (
     ConfidenceLevel,
     ConfidenceScore,
@@ -115,6 +124,12 @@ __all__ = [
     "DispatchLifecycleTransition",
     "ExternalAdapterFailureCode",
     "ExternalAdapterLifecycleState",
+    "ExternalConfirmationEvidence",
+    "ExternalConfirmationFailureCode",
+    "ExternalConfirmationFailureReason",
+    "ExternalConfirmationLifecycleState",
+    "ExternalConfirmationResult",
+    "ExternalConfirmationTraceability",
     "IntakeProcessingState",
     "IntakeProcessingResult",
     "DetectionResult",
@@ -155,6 +170,7 @@ __all__ = [
     "RoutingDispatchTraceability",
     "RoutingReadiness",
     "SchedulingReadiness",
+    "SimulatedExternalConfirmationState",
     "TechnicianCompatibility",
     "TechnicianRouteCompatibility",
     "TechnicianReadiness",

@@ -291,6 +291,22 @@ Manual Review and Water Emergency separation remain authoritative. Blocked, revi
 
 Future live integration execution should consume adapter payload snapshots through isolated vendor adapters and write execution outcomes without giving vendors authority over internal ACS workflow state.
 
+## Phase 0 Module 16 External Confirmation And Recovery Boundary
+
+The backend now includes the deterministic resilience boundary after external adapter preparation:
+
+- `ExternalConfirmationLifecycleState` and simulated confirmation-state domain structures
+- confirmation result, evidence, traceability, failure reason, retry, and reconciliation structures
+- Route Assignment fields for confirmation state, confirmation evidence snapshot, lifecycle snapshot, audit snapshot, external failure snapshot, retry preparation snapshot, reconciliation snapshot, and related timestamps
+- `ExternalExecutionConfirmationService` for processing simulated confirmation outcomes and preparing retry or reconciliation evidence
+- audit-log preparation for externally confirmed, failed, retry-prepared, or reconciliation-required Route Assignments
+
+The boundary is intentionally preparation-only. It can record deterministic confirmation, failure, retry-preparation, or reconciliation-preparation evidence for an adapter-prepared standard Route Assignment, but it does not call external APIs, execute retries, run reconciliation engines, update mobile workflows, run background workers, optimize routes, or call AI.
+
+Manual Review and Water Emergency separation remain authoritative. Blocked, review-required, Water Emergency, unauthorized, duplicate-confirmed, invalid-lifecycle, missing-linkage, or adapter-unready records cannot use the standard external confirmation path.
+
+Future live external execution should write vendor outcomes into this boundary through isolated adapters while preserving the ACS database as the workflow source of truth.
+
 ---
 
 ## First Module Boundary

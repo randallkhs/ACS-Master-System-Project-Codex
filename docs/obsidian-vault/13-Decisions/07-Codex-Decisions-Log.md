@@ -552,3 +552,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - External dispatch adapter preparation service
   - Audit traceability foundation
   - Integration and dispatch pipeline documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 16 External Confirmation And Failure Recovery Foundation
+
+- Decision type: Implementation / external confirmation and recovery boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic external confirmation and failure recovery preparation boundary after external adapter preparation.
+  - Add domain structures for confirmation lifecycle state, simulated confirmation state, failure codes, confirmation result, evidence, traceability, and failure reasons.
+  - Expand Route Assignments with external confirmation state, confirmation snapshot, lifecycle snapshot, audit snapshot, external failure snapshot, retry preparation snapshot, reconciliation snapshot, and related timestamps.
+  - Add `ExternalExecutionConfirmationService` to process simulated confirmation success, simulated failure, reconciliation-required outcomes, and retry-preparation requests without calling external APIs.
+  - Block confirmation for blocked, review-required, Water Emergency, unauthorized, duplicate-confirmed, adapter-unready, invalid-lifecycle, and missing-linkage records.
+- Rationale:
+  - Future live vendor execution needs a durable outcome boundary that can preserve confirmation, failure, retry, and reconciliation evidence without giving external systems workflow authority.
+  - Failure recovery should be explicit and auditable before automatic retry or reconciliation behavior exists.
+  - Manual Review and Water Emergency separation must remain authoritative when external outcomes are uncertain or failed.
+- Future implications:
+  - Future live adapters should write vendor outcomes into these snapshots and may later introduce immutable attempt records if retry/versioning requirements grow.
+  - Retry attempt limits, operator approval before retry, reconciliation task ownership, vendor status mapping, credential scoping, and Water Emergency confirmation paths remain separate decisions.
+- Affected systems:
+  - External confirmation domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - External execution confirmation service
+  - Audit traceability foundation
+  - Integration and dispatch pipeline documentation

@@ -112,3 +112,25 @@ Rules:
 - Water Emergency work cannot use the standard adapter path
 - blocked, review-required, unauthorized, undispatched, or duplicate-prepared records cannot reach adapter preparation
 - future live adapters must write execution outcomes back to the database without becoming workflow authority
+
+## Phase 0 Module 16 External Confirmation And Recovery Boundary
+
+External confirmation and recovery preparation is deterministic and simulation-only.
+
+Current outcome foundations:
+
+- external confirmation success evidence
+- external confirmation failure evidence
+- retry preparation evidence
+- reconciliation-required evidence
+- confirmation audit evidence
+
+Rules:
+
+- confirmation processing consumes adapter-prepared records awaiting external confirmation
+- external API calls remain `not_executed`
+- retries are prepared only, not executed automatically
+- reconciliation is prepared only, not executed automatically
+- Water Emergency work cannot use the standard external confirmation path
+- blocked, review-required, unauthorized, duplicate-confirmed, adapter-unready, or invalid-lifecycle records cannot reach confirmation
+- future live adapters must write confirmation outcomes back to the database without becoming workflow authority

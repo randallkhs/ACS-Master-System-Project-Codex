@@ -433,3 +433,34 @@ Unresolved:
 - how retries, partial failures, and confirmations should be versioned
 - how operator approval and credential scoping should be recorded once auth exists
 - how Water Emergency external adapter persistence should differ from the standard path
+
+## External Confirmation And Recovery Snapshots
+
+Phase 0 Module 16 expands `route_assignments` with the first durable confirmation, failure recovery, retry-preparation, and reconciliation-preparation boundary.
+
+Route assignments store:
+
+- external confirmation state
+- external confirmation evidence snapshot
+- external confirmation lifecycle snapshot
+- external confirmation audit snapshot
+- external failure snapshot
+- retry preparation snapshot
+- reconciliation-required snapshot
+- confirmation, failure, retry-prepared, and reconciliation-required timestamps
+
+Persistence philosophy:
+
+- Confirmation processing consumes adapter-prepared Route Assignments in `awaiting_external_confirmation`; it does not execute external APIs.
+- Confirmation, failure, retry, and reconciliation evidence remain deterministic snapshots attached to the internal Route Assignment record.
+- Retry preparation is not retry execution, and reconciliation preparation is not a reconciliation engine.
+- Duplicate confirmations are blocked by confirmation state and timestamp evidence.
+- Blocked, review-required, Water Emergency, unauthorized, invalid-lifecycle, or missing-linkage records cannot enter the standard external confirmation path.
+
+Unresolved:
+
+- exact vendor confirmation status mapping
+- whether external confirmation attempts need a dedicated immutable attempt table
+- how retry attempt limits and operator approval should be modeled once live execution exists
+- how reconciliation cases should become Manual Review or operator tasks
+- how Water Emergency confirmation persistence should differ from the standard path

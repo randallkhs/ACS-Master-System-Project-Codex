@@ -149,9 +149,12 @@ Prepare for:
 - external adapter state
 - external adapter payload and evidence snapshots
 - external adapter prepared timestamp
+- external confirmation state
+- external confirmation, failure, retry, and reconciliation snapshots
+- external confirmation and recovery timestamps
 - deterministic route assignment evidence
 
-Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence, but this still does not mean route optimization has run or external systems have been updated.
+Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. This still does not mean route optimization has run or external systems have been updated.
 
 ## Water Emergency Records
 
@@ -344,6 +347,23 @@ Prepare for:
 - future external execution failure and confirmation evidence
 
 This layer may prepare payload snapshots after internal dispatch execution completes. It must not call FastField, sync Google Calendar, write Sheets, update technician mobile workflows, run background workers, execute external APIs, optimize routes, or call AI.
+
+## External Execution Confirmation And Recovery
+
+Represents the deterministic boundary between prepared external adapter payloads and future external execution outcomes.
+
+Prepare for:
+
+- external confirmation lifecycle state
+- external confirmation evidence snapshots
+- external failure evidence snapshots
+- retry preparation snapshots
+- reconciliation-required snapshots
+- confirmation audit evidence
+- duplicate confirmation prevention
+- future vendor confirmation status mapping
+
+This layer may process simulated external confirmation states and store confirmation, failure, retry-preparation, or reconciliation-preparation evidence. It must not call external APIs, execute retries, run reconciliation engines, update technician mobile workflows, run background workers, optimize routes, or call AI.
 
 ---
 
