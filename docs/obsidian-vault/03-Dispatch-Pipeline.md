@@ -1490,3 +1490,39 @@ Unresolved dashboard questions:
 * how Water Emergency dashboard views should differ from standard dispatch views
 * exact operator role visibility once authentication exists
 * whether dashboard snapshots need caching or materialized views in production
+
+---
+
+Phase 0 Module 24 Frontend Dashboard Consumer
+
+The dispatch pipeline now has an initial read-only admin dashboard frontend consumer.
+
+Frontend display scope:
+
+* operational overview counts
+* lifecycle summary counts
+* Manual Review safety indicators
+* route assignment summary
+* external execution evidence
+* reconciliation and recovery-preparation indicators
+* governance and accountability indicators
+* operational event timeline preview
+* Water Emergency separation signals exposed by the backend read model
+
+Safety boundary:
+
+* frontend components do not own workflow logic
+* frontend components do not infer hidden lifecycle transitions
+* frontend components do not execute dispatch
+* frontend components do not resolve Manual Review
+* frontend components do not call integrations
+* frontend components do not call AI
+* frontend fallback data is only for local layout verification and is visibly marked as fallback state
+
+Unresolved frontend/pipeline questions:
+
+* whether office users need separate dispatch, review, recovery, and governance pages or one consolidated dashboard
+* exact refresh cadence for active dispatch operations
+* role-scoped visibility once authentication exists
+* dedicated Water Emergency dashboard workflow design
+* production filters for route date, region, technician, and branch

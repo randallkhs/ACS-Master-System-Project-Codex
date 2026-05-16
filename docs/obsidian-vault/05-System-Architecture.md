@@ -425,6 +425,29 @@ Unresolved:
 - whether Water Emergency needs a separate dashboard contract once its dedicated workflow path exists
 - how to handle stale dashboard data and refresh cadence in the future frontend
 
+## Phase 0 Module 24 Frontend Dashboard Foundation Boundary
+
+The repository now includes the first frontend foundation under `frontend/`:
+
+- Next.js App Router, TypeScript, and Tailwind CSS scaffold
+- read-only admin dashboard shell with sidebar, top header, responsive layout, and operational dashboard sections
+- TypeScript dashboard API contract types matching the backend Module 23 read-model responses
+- server-side dashboard API client using `ACS_DASHBOARD_API_BASE_URL`
+- typed local fallback data for layout verification when the backend API is unavailable
+- smoke tests for API client behavior and dashboard rendering
+
+The frontend boundary is intentionally display-only. It consumes backend dashboard read models and renders operational state, blocker indicators, Manual Review counts, Water Emergency separation signals, governance/accountability indicators, and timeline evidence without embedding workflow execution or business-rule authority in UI components.
+
+The frontend does not implement authentication, mutation endpoints, dispatch actions, Manual Review resolution, external vendor execution, AI authority, mobile technician UI, or hidden lifecycle inference.
+
+Unresolved:
+
+- authentication and role-scoped dashboard visibility
+- production refresh/stale-data behavior
+- final filtering, sorting, and pagination behavior for dashboard sections and event timelines
+- dedicated Water Emergency dashboard screens and API contracts once that workflow is implemented
+- whether future dashboard views should be split by branch, region, route date, technician, or operator role
+
 ---
 
 ## First Module Boundary

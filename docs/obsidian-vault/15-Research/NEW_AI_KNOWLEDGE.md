@@ -38,3 +38,24 @@ Store concise implementation-relevant knowledge only.
   - High
 - Notes:
   - Keep deployment-specific proxy/header handling out of application business logic; configure it through environment and server startup.
+
+## Topic: Next.js App Router And Tailwind Frontend Foundation Patterns
+
+- Date learned: 2026-05-16
+- Category: frontend
+- Recheck after: 2026-07-15
+- Source links:
+  - https://nextjs.org/docs/app/guides/environment-variables
+  - https://nextjs.org/docs/app/getting-started/fetching-data
+  - https://tailwindcss.com/docs/installation/using-postcss
+- Summary:
+  - Next.js App Router Server Components can read server-only environment variables and use server-side `fetch` for backend data access.
+  - Dashboard API base URLs should remain environment-driven instead of hardcoded, especially for future Apache reverse-proxy and VPS deployment.
+  - Tailwind CSS v4 uses the `tailwindcss` package with the `@tailwindcss/postcss` PostCSS plugin and `@import "tailwindcss"` in the global CSS entrypoint.
+  - For ACS dashboard screens, the frontend should consume backend read models and avoid duplicating workflow, blocker, Manual Review, integration, or AI authority in components.
+- Applicable projects:
+  - ACS-FSM
+- Confidence:
+  - High
+- Notes:
+  - Recheck before production deployment or major Next/Tailwind upgrades because framework setup details can shift between releases.

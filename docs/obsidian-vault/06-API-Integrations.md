@@ -294,3 +294,31 @@ Open API concerns:
 - authentication and role-scoped visibility are not implemented yet
 - high-volume dashboard projections may later need explicit query optimization or materialized read models
 - Water Emergency may need dedicated dashboard endpoints once its separated workflow path is implemented
+
+## Phase 0 Module 24 Frontend Dashboard API Consumption Boundary
+
+The frontend foundation consumes dashboard API contracts as read-only display data.
+
+Current frontend API behavior:
+
+- `ACS_DASHBOARD_API_BASE_URL` configures the backend origin for server-side dashboard reads
+- the API client only defines `GET` helpers for `/api/v1/dashboard/overview`, `/api/v1/dashboard/lifecycle`, `/api/v1/dashboard/review`, and `/api/v1/dashboard/dispatch`
+- local fallback data is typed against the backend dashboard contracts and clearly marked in the UI as mock/fallback state
+- frontend components render response fields without performing lifecycle transitions, blocker decisions, dispatch execution, reconciliation execution, vendor calls, or AI calls
+
+Frontend API constraints:
+
+- no mutation calls
+- no operational execution calls
+- no vendor integration calls
+- no Manual Review resolution calls
+- no hidden lifecycle inference in UI components
+- no frontend-owned workflow logic
+
+Open API/frontend concerns:
+
+- production authentication and role-scoped API visibility
+- dashboard refresh cadence and stale-data indicators
+- event timeline filtering, pagination, and sorting
+- Water Emergency-specific dashboard API needs
+- deployment path and reverse-proxy routing between the future Next.js frontend and FastAPI backend

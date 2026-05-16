@@ -773,3 +773,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Dashboard API routes
   - Operational event history read consumption
   - Backend documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 24 Frontend Admin Dashboard Foundation
+
+- Decision type: Implementation / frontend foundation / dashboard consumer
+- Status: Implemented
+- Decision:
+  - Add the first frontend foundation under `frontend/` using Next.js, TypeScript, and Tailwind CSS.
+  - Build a read-only admin dashboard shell that consumes backend Module 23 dashboard read-model contracts.
+  - Add TypeScript dashboard contract types, a server-side read-only dashboard API client, and typed fallback data for local development when the backend is unavailable.
+  - Build display-only sections for operational overview, lifecycle counts, Manual Review, dispatch, external execution, reconciliation/recovery, governance/accountability, and operational event timeline preview.
+  - Keep the frontend free of operational mutations, dispatch actions, Manual Review resolution, vendor execution, AI authority, authentication, and mobile app behavior.
+- Rationale:
+  - ACS office/admin dashboard work needs a maintainable visual foundation, but workflow authority must remain in backend services and persisted read models.
+  - The frontend should validate the Module 23 API contract shape without duplicating lifecycle, blocker, Manual Review, Water Emergency, or governance logic.
+  - Local development needs a safe fallback state so UI layout can be verified before a live backend is running.
+- Future implications:
+  - Future frontend modules can add authenticated role-scoped screens after backend auth and permissions are defined.
+  - Dashboard filtering, pagination, refresh cadence, stale-data indicators, and Water Emergency-specific screens remain separate decisions.
+  - Production deployment must define reverse-proxy routing between the future Next.js frontend and FastAPI backend without hardcoded localhost assumptions.
+- Affected systems:
+  - Frontend application scaffold
+  - Dashboard API client
+  - Dashboard UI component foundation
+  - Dashboard contract documentation
+  - AI/dashboard safety boundary
+  - Future deployment architecture

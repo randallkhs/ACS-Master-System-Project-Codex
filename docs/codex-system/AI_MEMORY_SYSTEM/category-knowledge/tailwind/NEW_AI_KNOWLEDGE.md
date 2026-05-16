@@ -65,3 +65,32 @@ If a note exceeds its expiration window:
 - update verification date
 
 Avoid relying on stale framework knowledge.
+
+---
+
+## Tailwind CSS v4 PostCSS Setup
+
+Category:
+Frontend styling
+Date Added:
+2026-05-16
+Last Verified:
+2026-05-16
+Expiration Window:
+60 days
+Framework/Library Version:
+Tailwind CSS 4.3.0
+Source Links:
+https://tailwindcss.com/docs/installation/using-postcss
+
+### Discovery
+Tailwind CSS v4 uses the `tailwindcss` package with the `@tailwindcss/postcss` plugin and imports Tailwind from the global stylesheet with `@import "tailwindcss"`.
+
+### Why It Matters
+The ACS frontend scaffold should use the current Tailwind setup instead of older `@tailwind base/components/utilities` patterns.
+
+### Reusability
+Use this setup for future ACS Next.js dashboard modules until the note expires or Tailwind changes its installation pattern.
+
+### Verification Notes
+Verified against current Tailwind documentation through Context7 and by running the Module 24 frontend build.

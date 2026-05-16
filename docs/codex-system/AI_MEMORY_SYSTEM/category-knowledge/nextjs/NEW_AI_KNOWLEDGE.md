@@ -65,3 +65,33 @@ If a note exceeds its expiration window:
 - update verification date
 
 Avoid relying on stale framework knowledge.
+
+---
+
+## Next.js App Router Server-Side Dashboard Fetching
+
+Category:
+Frontend architecture
+Date Added:
+2026-05-16
+Last Verified:
+2026-05-16
+Expiration Window:
+60 days
+Framework/Library Version:
+Next.js 16.2.6
+Source Links:
+https://nextjs.org/docs/app/guides/environment-variables
+https://nextjs.org/docs/app/getting-started/fetching-data
+
+### Discovery
+Next.js App Router Server Components can read server-only environment variables and fetch backend data server-side. For ACS dashboard screens, keep the backend origin in an environment variable such as `ACS_DASHBOARD_API_BASE_URL` and keep public browser-exposed variables separate unless a future client component truly requires them.
+
+### Why It Matters
+The ACS frontend must be deployable behind future production routing without localhost assumptions, and workflow state should remain backend-owned.
+
+### Reusability
+Use this pattern for future ACS admin dashboard pages that consume backend read-only contracts.
+
+### Verification Notes
+Verified against current Next.js documentation through Context7 and by running the Module 24 frontend build.
