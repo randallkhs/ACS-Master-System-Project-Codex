@@ -122,6 +122,24 @@ class RouteAssignment(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         index=True,
     )
     replay_blocked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    governance_state: Mapped[str | None] = mapped_column(String(80), index=True)
+    governance_approval_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    intervention_authorization_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    replay_authorization_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    rollback_authorization_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    reconciliation_approval_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    governance_blocker_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    governance_audit_snapshot: Mapped[dict | None] = mapped_column(JSON)
+    governance_approved_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    governance_rejected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    intervention_required_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        index=True,
+    )
+    governance_blocked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     technician: Mapped[Technician | None] = relationship(back_populates="route_assignments")
     job: Mapped[Job | None] = relationship(back_populates="route_assignments")

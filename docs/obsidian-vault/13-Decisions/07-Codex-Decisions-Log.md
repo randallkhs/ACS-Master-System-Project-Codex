@@ -691,3 +691,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - Operational replay preparation service
   - Operational event history evidence boundary
   - Audit traceability and dispatch pipeline documentation
+
+---
+
+## 2026-05-16 — Phase 0 Module 21 Operational Governance And Approval Control Foundation
+
+- Decision type: Implementation / governance and operator approval boundary
+- Status: Implemented
+- Decision:
+  - Add a deterministic operational governance and approval-control boundary after replay/recovery preparation.
+  - Add domain structures for governance lifecycle state, governance operation, governance blockers, approval results, intervention authorization, replay authorization, rollback authorization, reconciliation approval, audit evidence, and traceability.
+  - Expand Route Assignments with governance state, governance approval, intervention authorization, replay authorization, rollback authorization, reconciliation approval, governance blocker, governance audit snapshots, and governance timestamps.
+  - Add `OperationalGovernanceService` to validate operator approval and manual intervention authorization without executing replay, rollback, reconciliation, external APIs, workflow engines, or AI.
+  - Block governance for review-required, Water Emergency, unauthorized-operator, duplicate-approval, invalid-lifecycle, missing-operator, missing-linkage, missing-audit-correlation, operation-not-prepared, and mutable-history records.
+- Rationale:
+  - ACS needs explicit operator authority evidence before future replay, rollback, reconciliation, or manual intervention execution can safely exist.
+  - Governance must not become a workflow engine or automatic approval mechanism.
+  - Manual Review, Water Emergency separation, deterministic lifecycle state, and immutable event history must remain authoritative.
+- Future implications:
+  - Future enterprise governance should consume these snapshots through authenticated operator workflows.
+  - Operator roles, two-person approval, approval expiration/revocation, immutable approval tables, and Water Emergency governance paths remain separate decisions.
+- Affected systems:
+  - Operational governance domain structures
+  - RouteAssignment model
+  - Alembic migrations
+  - Operational governance service
+  - Operational event history evidence boundary
+  - Audit traceability and dispatch pipeline documentation

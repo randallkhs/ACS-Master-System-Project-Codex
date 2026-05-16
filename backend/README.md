@@ -17,7 +17,7 @@ This module is Phase 0 scaffolding only. It does not implement live Calendar, Sh
 - request-scoped DB dependency alias in `app/db/dependencies.py`
 - thin repository layer in `app/repositories/`
 - intake domain structures in `app/domain/intake.py`
-- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, operational event history, dispatch reconciliation, and operational replay/recovery services
+- deterministic normalization, validation, confidence, review-preparation, Manual Review Queue, dispatch orchestration, operational intake persistence, operational job creation, operational work generation, assignment preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/recovery, operational event history, dispatch reconciliation, operational replay/recovery, and operational governance services
 - Alembic migration environment in `app/db/migrations/`
 - External integrations isolated under `app/adapters/`
 - Business services under `app/services/`
@@ -730,6 +730,43 @@ Replay/recovery rules:
 - invalid lifecycle replay preparation is blocked
 
 This layer prepares recovery evidence only. It does not execute replay, execute rollback, call external APIs, run automatic retries, run workflow engines, mutate event history, or call AI.
+
+## Operational Governance And Approval Control
+
+Phase 0 Module 21 adds deterministic operator governance and approval-control evidence after replay/recovery preparation.
+
+Current governance flow:
+
+```text
+Replay / rollback / reconciliation preparation
+  -> OperationalGovernanceService
+  -> operator approval, intervention authorization, and governance audit snapshots
+  -> operator approved, intervention required, or governance blocked
+```
+
+Route assignments now preserve:
+
+- governance lifecycle state
+- governance approval snapshot
+- intervention authorization snapshot
+- replay authorization snapshot
+- rollback authorization snapshot
+- reconciliation approval snapshot
+- governance blocker snapshot
+- governance audit snapshot
+- governance approved, rejected, intervention-required, and blocked timestamps
+
+Governance rules:
+
+- replay cannot execute without governance approval
+- rollback cannot execute without governance approval
+- reconciliation cannot bypass Manual Review
+- Water Emergency Visits cannot use the standard governance path
+- unauthorized operator actions are blocked
+- duplicate governance approval is blocked
+- immutable operational event history cannot mutate
+
+This layer authorizes future operator-controlled actions only. It does not execute replay, execute rollback, execute reconciliation, call external APIs, run workflow engines, mutate event history, approve automatically, or call AI.
 
 ## Safety Rules
 

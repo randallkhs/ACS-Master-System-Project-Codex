@@ -372,6 +372,22 @@ Manual Review, Water Emergency separation, immutable event history, and determin
 
 Future replay/recovery execution should consume these snapshots through explicit operator/review workflows rather than hidden workflow replay or mutable history changes.
 
+## Phase 0 Module 21 Operational Governance And Approval Control Boundary
+
+The backend now includes deterministic operator governance, approval control, and manual-intervention authorization evidence:
+
+- `GovernanceLifecycleState`, `GovernanceOperation`, and governance failure-code domain structures
+- governance approval, intervention authorization, replay authorization, rollback authorization, reconciliation approval, blocker, audit, traceability, and result structures
+- Route Assignment fields for governance state, approval, intervention, replay, rollback, reconciliation, blocker, audit snapshots, and related timestamps
+- `OperationalGovernanceService` for validating operator approval and intervention authorization without executing the governed action
+- audit-log preparation for operator-approved, intervention-required, or governance-blocked cases
+
+The boundary is intentionally approval-only. It can record operator approval or intervention authorization evidence, but it does not execute replay, execute rollback, execute reconciliation, call external APIs, run workflow engines, mutate operational event history, approve automatically, run background workers, or call AI.
+
+Manual Review, Water Emergency separation, immutable event history, and deterministic lifecycle state remain authoritative. Blocked, review-required, Water Emergency, unauthorized-operator, duplicate-approval, invalid-lifecycle, missing-operator, or mutable-history records cannot use the standard governance path.
+
+Future enterprise governance should consume these snapshots through explicit authenticated operator workflows rather than hidden lifecycle transitions.
+
 ---
 
 ## First Module Boundary

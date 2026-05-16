@@ -1188,6 +1188,67 @@ Unresolved replay/recovery questions:
 
 ---
 
+Phase 0 Module 21 Operational Governance And Approval Control
+
+The dispatch pipeline now has a deterministic operational governance and manual-intervention authorization boundary.
+
+Current governance flow:
+
+```text
+Replay / rollback / reconciliation preparation
+    ↓
+Operator Governance Validation
+    ↓
+Manual Intervention Authorization
+    ↓
+Replay / Rollback / Reconciliation Approval Evidence
+    ↓
+Operator Approved / Intervention Required / Governance Blocked
+```
+
+Governance evidence preserves:
+
+* operator identity and role evidence
+* replay authorization evidence
+* rollback authorization evidence
+* reconciliation approval evidence
+* intervention authorization evidence
+* governance blocker reasons
+* immutable event-history evidence
+* audit correlation continuity
+* explicit `not_executed` markers for replay execution, rollback execution, reconciliation execution, external API calls, workflow engines, and AI
+
+Governance safety rules:
+
+* replay cannot execute without governance approval
+* rollback cannot execute without governance approval
+* reconciliation cannot bypass Manual Review
+* Water Emergency Visits cannot use the standard governance path
+* unauthorized operator actions are blocked
+* duplicate approval is blocked
+* invalid lifecycle governance is blocked
+* immutable operational history cannot mutate
+
+Safety boundary:
+
+* governance does not execute replay
+* governance does not execute rollback
+* governance does not execute reconciliation
+* governance does not run a workflow engine
+* governance does not call external APIs
+* governance does not mutate operational history
+* governance does not call AI
+
+Unresolved governance questions:
+
+* exact operator role and permission model once authentication exists
+* whether high-risk recovery actions require two-person approval
+* whether approvals expire or can be revoked
+* whether governance decisions need a dedicated immutable approval table
+* how Water Emergency governance should diverge from the standard path
+
+---
+
 13. Routing Engine
 
 Current Routing

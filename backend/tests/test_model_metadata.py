@@ -190,6 +190,27 @@ def test_route_assignments_store_operational_replay_recovery_traceability() -> N
     assert expected_columns.issubset(set(columns.keys()))
 
 
+def test_route_assignments_store_operational_governance_traceability() -> None:
+    columns = Base.metadata.tables["route_assignments"].columns
+
+    expected_columns = {
+        "governance_state",
+        "governance_approval_snapshot",
+        "intervention_authorization_snapshot",
+        "replay_authorization_snapshot",
+        "rollback_authorization_snapshot",
+        "reconciliation_approval_snapshot",
+        "governance_blocker_snapshot",
+        "governance_audit_snapshot",
+        "governance_approved_at",
+        "governance_rejected_at",
+        "intervention_required_at",
+        "governance_blocked_at",
+    }
+
+    assert expected_columns.issubset(set(columns.keys()))
+
+
 def test_manual_review_items_can_target_non_job_entities() -> None:
     columns = Base.metadata.tables["review_items"].columns
 

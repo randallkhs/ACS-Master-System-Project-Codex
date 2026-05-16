@@ -161,9 +161,12 @@ Prepare for:
 - replay/recovery state
 - replay preparation, rollback preparation, replay eligibility, replay blocker, recovery coordination, and replay audit snapshots
 - replay prepared, rollback prepared, and replay blocked timestamps
+- governance state
+- governance approval, intervention authorization, replay authorization, rollback authorization, reconciliation approval, blocker, and audit snapshots
+- governance approved, rejected, intervention-required, and blocked timestamps
 - deterministic route assignment evidence
 
-Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 18 controlled external adapter execution can record provider execution evidence without calling live vendor APIs. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. Module 19 reconciliation preparation can verify consistency and classify divergence without executing reconciliation. Module 20 replay/recovery preparation can prepare replay, rollback, and recovery-coordination evidence without executing replay or rollback. This still does not mean route optimization has run or production external systems have been updated.
+Route assignments created by the authorization foundation represent prepared, authorized operational boundaries only. Module 14 dispatch execution can move authorized standard route assignments to `dispatched` internally. Module 15 adapter preparation can create external payload evidence. Module 18 controlled external adapter execution can record provider execution evidence without calling live vendor APIs. Module 16 confirmation and recovery preparation can record simulated confirmation, failure, retry-preparation, and reconciliation evidence. Module 19 reconciliation preparation can verify consistency and classify divergence without executing reconciliation. Module 20 replay/recovery preparation can prepare replay, rollback, and recovery-coordination evidence without executing replay or rollback. Module 21 governance can record operator approval and intervention authorization evidence without executing the governed action. This still does not mean route optimization has run or production external systems have been updated.
 
 ## Water Emergency Records
 
@@ -447,6 +450,24 @@ Prepare for:
 - duplicate replay preparation prevention
 
 This layer may prepare replay and rollback evidence for later operator-controlled recovery workflows. It must not execute replay, execute rollback, mutate operational event history, call external APIs, execute retries, run reconciliation engines, update technician mobile workflows, run background workers, optimize routes, or call AI.
+
+## Operational Governance And Approval Control
+
+Represents deterministic operator approval, manual intervention authorization, and governance evidence for future enterprise workflows.
+
+Prepare for:
+
+- governance approval result evidence
+- intervention authorization evidence
+- replay authorization evidence
+- rollback authorization evidence
+- reconciliation approval evidence
+- governance blocker reasons
+- operator decision traceability
+- immutable governance audit evidence
+- duplicate approval prevention
+
+This layer may record operator approval or intervention authorization for later controlled execution. It must not execute replay, execute rollback, execute reconciliation, mutate operational event history, call external APIs, run workflow engines, update technician mobile workflows, run background workers, optimize routes, or call AI.
 
 ---
 

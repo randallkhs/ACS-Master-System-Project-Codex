@@ -6,8 +6,8 @@ This repository is the long-term ACS FSM foundation. It is not a temporary scrip
 
 ## Current Status
 
-- Phase: Phase 0 Module 20
-- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, operational intake persistence, controlled operational job creation, Work Order/Visit generation, technician assignment/scheduling preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/failure recovery, immutable operational event history, dispatch reconciliation/operational consistency, and operational replay/recovery preparation foundations
+- Phase: Phase 0 Module 21
+- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, operational intake persistence, controlled operational job creation, Work Order/Visit generation, technician assignment/scheduling preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/failure recovery, immutable operational event history, dispatch reconciliation/operational consistency, operational replay/recovery preparation, and operational governance/approval-control foundations
 - Frontend: deferred for a later Phase 0 module
 - Production target: Linux VPS, Apache reverse proxy, HTTPS, FastAPI backend, PostgreSQL database, future Next.js frontend
 
@@ -50,6 +50,7 @@ The backend scaffold includes:
 - append-only operational event history foundation for lifecycle, dispatch, adapter, confirmation, retry, and reconciliation timeline evidence
 - deterministic dispatch reconciliation and operational consistency verification foundation with divergence/mismatch evidence and no reconciliation execution
 - deterministic operational replay, rollback preparation, and recovery coordination foundation with immutable evidence and no automatic replay execution
+- deterministic operational governance, approval control, manual intervention, replay authorization, rollback authorization, and reconciliation approval foundation with no automatic execution
 - backend Makefile developer commands
 - pytest and Ruff configuration
 

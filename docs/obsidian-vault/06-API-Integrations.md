@@ -222,3 +222,25 @@ Rules:
 - Water Emergency work cannot use the standard replay/recovery path
 - blocked, review-required, unauthorized, duplicate, invalid-lifecycle, no-recovery-context, or mutable-history records cannot prepare standard replay/recovery
 - future live recovery workflows must preserve database workflow authority and immutable event-history boundaries
+
+## Phase 0 Module 21 Operational Governance Boundary
+
+Operational governance and approval control are deterministic and evidence-only.
+
+Current governance foundations:
+
+- operator approval evidence
+- manual intervention authorization evidence
+- replay authorization evidence
+- rollback authorization evidence
+- reconciliation approval evidence
+- governance audit evidence
+
+Rules:
+
+- governance approval does not execute replay, rollback, or reconciliation
+- external API calls remain `not_executed`
+- automatic approvals remain `not_executed`
+- Water Emergency work cannot use the standard governance path
+- blocked, review-required, unauthorized-operator, duplicate-approval, invalid-lifecycle, missing-operator, or mutable-history records cannot prepare standard governance
+- future live enterprise workflows must preserve database workflow authority and immutable event-history boundaries

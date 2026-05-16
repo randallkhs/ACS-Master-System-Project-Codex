@@ -207,6 +207,14 @@ AI is still not used in this module.
 
 AI must not prepare replay as authorized, clear replay blockers, execute replay, execute rollback, execute retries, create standard replay/recovery for Water Emergency Visits, bypass Manual Review, mutate operational event history, call external APIs, run workflow engines, or alter replay/recovery evidence. Future AI may only add advisory explanation after deterministic replay eligibility and recovery evidence exists and must remain subordinate to Manual Review and operator decisions.
 
+## Phase 0 Module 21 Boundary
+
+Operational governance and approval control are deterministic only.
+
+AI is still not used in this module.
+
+AI must not approve operator actions, authorize replay, authorize rollback, approve reconciliation, clear governance blockers, execute manual interventions, create standard governance for Water Emergency Visits, bypass Manual Review, mutate operational event history, call external APIs, run workflow engines, or alter governance evidence. Future AI may only add advisory explanation after deterministic governance evidence exists and must remain subordinate to Manual Review and authenticated operator decisions.
+
 ---
 
 ## Confidence And Review

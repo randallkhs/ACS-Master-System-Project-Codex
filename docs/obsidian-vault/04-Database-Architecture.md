@@ -591,3 +591,35 @@ Unresolved:
 - how rollback scope should be constrained for production data recovery
 - whether recovery coordination should create Manual Review items automatically
 - how Water Emergency replay/recovery persistence should differ from the standard path
+
+## Operational Governance And Approval Control Snapshots
+
+Phase 0 Module 21 expands `route_assignments` with deterministic governance, approval-control, and manual-intervention snapshots.
+
+Route assignments store:
+
+- governance state
+- governance approval snapshot
+- intervention authorization snapshot
+- replay authorization snapshot
+- rollback authorization snapshot
+- reconciliation approval snapshot
+- governance blocker snapshot
+- governance audit snapshot
+- governance approved, rejected, intervention-required, and blocked timestamps
+
+Persistence philosophy:
+
+- Governance records operator approval evidence; it does not execute the governed operation.
+- Replay, rollback, and reconciliation remain blocked from future execution unless a governance approval snapshot exists.
+- Manual intervention authorization is evidence for future operator workflows, not a workflow engine.
+- Immutable event history is read-only input; governance cannot mutate or replay it.
+- Blocked, review-required, Water Emergency, unauthorized-operator, duplicate-approval, invalid-lifecycle, missing-operator, or mutable-history records cannot enter the standard governance path.
+
+Unresolved:
+
+- exact operator identity and role model once authentication exists
+- whether governance approvals need a dedicated immutable approval table
+- whether high-risk actions require two-person approval
+- how approval expiration and revocation should work
+- how Water Emergency governance persistence should differ from the standard path
