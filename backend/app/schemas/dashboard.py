@@ -51,6 +51,24 @@ class ManualReviewSummaryResponse(DashboardSchema):
     audit_correlation_count: int
 
 
+class WaterEmergencyRecordSummaryResponse(DashboardSchema):
+    water_emergency_id: UUID
+    job_id: UUID
+    status: str
+    drying_stage: str | None
+    next_required_action: str | None
+    is_open: bool
+    equipment_onsite: bool
+    moisture_tracking_required: bool
+    opened_at: datetime | None
+    closed_at: datetime | None
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    open_review_count: int
+    timeline_event_count: int
+    audit_correlation_ids: tuple[str, ...]
+
+
 class RouteAssignmentSummaryResponse(DashboardSchema):
     total_assignments: int
     status_counts: tuple[CountBucketResponse, ...]
@@ -124,6 +142,27 @@ class OperationalEventTimelineSummaryResponse(DashboardSchema):
     mutable_event_count: int
     audit_correlation_ids: tuple[str, ...]
     entries: tuple[OperationalTimelineEntryResponse, ...]
+
+
+class WaterEmergencyDashboardResponse(DashboardSchema):
+    generated_at: datetime
+    total_records: int
+    open_count: int
+    closed_count: int
+    status_counts: tuple[CountBucketResponse, ...]
+    stage_counts: tuple[CountBucketResponse, ...]
+    multi_visit_count: int
+    equipment_onsite_count: int
+    moisture_tracking_required_count: int
+    related_job_count: int
+    related_work_order_count: int
+    related_visit_count: int
+    review_indicator_count: int
+    escalation_indicator_count: int
+    data_gap_counts: tuple[CountBucketResponse, ...]
+    audit_correlation_count: int
+    records: tuple[WaterEmergencyRecordSummaryResponse, ...]
+    timeline_summary: OperationalEventTimelineSummaryResponse
 
 
 class DashboardOverviewResponse(DashboardSchema):

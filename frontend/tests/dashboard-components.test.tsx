@@ -2,7 +2,15 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { ScenarioStoryboard } from "@/components/dashboard/scenario-storyboard";
-import { mockDashboardOverview } from "@/lib/mock-dashboard";
+import {
+  mockDashboardOverview,
+  mockWaterEmergencyDashboard
+} from "@/lib/mock-dashboard";
+
+const mockWaterEmergencyResult = {
+  data: mockWaterEmergencyDashboard,
+  source: "mock" as const
+};
 
 describe("DashboardView", () => {
   it("renders the read-only dashboard shell and key operational sections", () => {
@@ -13,6 +21,7 @@ describe("DashboardView", () => {
           source: "mock",
           errorMessage: "Fallback state for component smoke testing."
         }}
+        waterEmergencyResult={mockWaterEmergencyResult}
       />
     );
 
@@ -20,6 +29,7 @@ describe("DashboardView", () => {
     expect(html).toContain("Read-only operational dashboard");
     expect(html).toContain("Safety signals and readiness");
     expect(html).toContain("Scenario Storyboard");
+    expect(html).toContain("Water Emergency Command View");
     expect(html).toContain("Standard dispatch-ready work");
     expect(html).toContain("Manual Review");
     expect(html).toContain("Water Emergency");
@@ -33,6 +43,7 @@ describe("DashboardView", () => {
           data: mockDashboardOverview,
           source: "mock"
         }}
+        waterEmergencyResult={mockWaterEmergencyResult}
       />
     );
 
@@ -53,6 +64,12 @@ describe("DashboardView", () => {
           source: "api",
           requestedUrl: "http://127.0.0.1:8000/api/v1/dashboard/overview"
         }}
+        waterEmergencyResult={{
+          data: mockWaterEmergencyDashboard,
+          source: "api",
+          requestedUrl:
+            "http://127.0.0.1:8000/api/v1/dashboard/water-emergency"
+        }}
       />
     );
 
@@ -68,10 +85,13 @@ describe("DashboardView", () => {
           data: mockDashboardOverview,
           source: "mock"
         }}
+        waterEmergencyResult={mockWaterEmergencyResult}
       />
     );
 
     expect(html).toContain("Water Emergency separated path");
+    expect(html).toContain("Water Emergency Command View");
+    expect(html).toContain("Dedicated Water Emergency visibility");
     expect(html).toContain("first-class separated operational path");
     expect(html).toContain("Standard dispatch-ready work");
   });
@@ -83,11 +103,20 @@ describe("DashboardView", () => {
           data: mockDashboardOverview,
           source: "mock"
         }}
+        waterEmergencyResult={mockWaterEmergencyResult}
       />
     );
-    const firstEvent = html.indexOf("Operational Accountability Escalation Required");
-    const laterEvent = html.indexOf("Operational Intake Water Emergency Separated");
+    const timelineStart = html.indexOf("Operational Event Timeline");
+    const firstEvent = html.indexOf(
+      "Operational Accountability Escalation Required",
+      timelineStart
+    );
+    const laterEvent = html.indexOf(
+      "Operational Intake Water Emergency Separated",
+      timelineStart
+    );
 
+    expect(timelineStart).toBeGreaterThan(-1);
     expect(firstEvent).toBeGreaterThan(-1);
     expect(laterEvent).toBeGreaterThan(firstEvent);
   });
@@ -111,5 +140,23 @@ describe("DashboardView", () => {
 
     expect(html).toContain("Water Emergency separated path");
     expect(html).toMatch(/<dt[^>]*>Review<\/dt><dd[^>]*><span[^>]*>7<\/span>/);
+  });
+
+  it("does not render Water Emergency mutation or workflow controls", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+      />
+    );
+
+    expect(html).toContain("Read-only Water Emergency visibility");
+    expect(html).not.toContain("Close Water Emergency");
+    expect(html).not.toContain("Resolve Water Emergency");
+    expect(html).not.toContain("Dispatch Water Emergency");
+    expect(html).not.toContain("Approve Water Emergency");
   });
 });

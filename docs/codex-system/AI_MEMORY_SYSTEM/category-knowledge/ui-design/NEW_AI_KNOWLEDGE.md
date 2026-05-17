@@ -94,3 +94,32 @@ Use this pattern for future ACS dashboard modules that need to explain complex p
 
 ### Verification Notes
 Module 30 browser QA verified the storyboard against live local PostgreSQL-backed dashboard data at desktop, laptop, and mobile viewports with no console errors, no horizontal overflow, and no operational action controls.
+
+---
+
+## ACS Water Emergency Dashboard Separation
+
+Category:
+UI design / operational dashboard
+Date Added:
+2026-05-17
+Last Verified:
+2026-05-17
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 31 verification
+
+### Discovery
+Water Emergency dashboard visibility should use a dedicated backend read-model contract and a dedicated frontend section instead of relying only on standard dispatch summaries or storyboard grouping. The UI should show open/closed state, status/stage distribution, equipment and moisture indicators, multi-visit indicators, related references, review/escalation indicators, data gaps, and emergency timeline evidence while keeping all controls read-only.
+
+### Why It Matters
+Water Emergency is a first-class ACS workflow with different operational risk than standard dispatch. A separated dashboard view keeps operators aware of emergency state without implying standard dispatch execution or frontend-owned workflow authority.
+
+### Reusability
+Use this pattern for future ACS Water Emergency modules, technician/mobile emergency views, and other high-risk workflow dashboards where visibility must be distinct from execution.
+
+### Verification Notes
+Module 31 tests verify the dedicated Water Emergency section renders separately from standard dispatch, the frontend API client remains GET-only, and no emergency mutation controls are present. Full browser QA should continue to confirm live backend source labeling, responsive layout, no console errors, and no horizontal overflow.

@@ -13,6 +13,7 @@ DASHBOARD_ENDPOINTS = (
     "/api/v1/dashboard/lifecycle",
     "/api/v1/dashboard/review",
     "/api/v1/dashboard/dispatch",
+    "/api/v1/dashboard/water-emergency",
 )
 
 

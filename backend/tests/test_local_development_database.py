@@ -18,7 +18,7 @@ from scripts.seed_dashboard_dev_data import (
     build_dashboard_dev_seed_records,
     validate_seed_settings,
 )
-from scripts.verify_dashboard_endpoints import verify_endpoint
+from scripts.verify_dashboard_endpoints import DASHBOARD_ENDPOINTS, verify_endpoint
 
 
 def bucket_count(buckets: object, label: str) -> int:
@@ -233,3 +233,7 @@ def test_dashboard_endpoint_verifier_uses_get_only(monkeypatch) -> None:
     assert result.status_code == 200
     assert result.response_keys == ("status",)
     assert captured_methods == ["GET"]
+
+
+def test_dashboard_endpoint_verifier_includes_water_emergency_contract() -> None:
+    assert "/api/v1/dashboard/water-emergency" in DASHBOARD_ENDPOINTS

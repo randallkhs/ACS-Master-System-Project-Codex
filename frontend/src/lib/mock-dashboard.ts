@@ -1,4 +1,7 @@
-import type { DashboardOverviewResponse } from "@/lib/dashboard-contracts";
+import type {
+  DashboardOverviewResponse,
+  WaterEmergencyDashboardResponse
+} from "@/lib/dashboard-contracts";
 
 export const mockDashboardOverview: DashboardOverviewResponse = {
   generated_at: "2026-05-16T09:30:00Z",
@@ -247,6 +250,91 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
         new_state: "open",
         is_immutable: true
       },
+      {
+        occurred_at: "2026-05-16T07:55:00Z",
+        event_type: "operational_intake.water_emergency_separated",
+        event_state: "recorded",
+        entity_type: "water_emergency",
+        entity_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        route_assignment_id: null,
+        visit_id: null,
+        work_order_id: null,
+        job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
+        technician_id: null,
+        audit_correlation_id: "audit-dashboard-003",
+        previous_state: "intake_received",
+        new_state: "water_emergency_separated",
+        is_immutable: true
+      }
+    ]
+  }
+};
+
+export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
+  generated_at: "2026-05-16T09:30:00Z",
+  total_records: 2,
+  open_count: 1,
+  closed_count: 1,
+  status_counts: [
+    { label: "drying_in_progress", count: 1 },
+    { label: "closed", count: 1 }
+  ],
+  stage_counts: [
+    { label: "monitoring", count: 1 },
+    { label: "closed_after_monitoring", count: 1 }
+  ],
+  multi_visit_count: 1,
+  equipment_onsite_count: 1,
+  moisture_tracking_required_count: 1,
+  related_job_count: 2,
+  related_work_order_count: 0,
+  related_visit_count: 2,
+  review_indicator_count: 1,
+  escalation_indicator_count: 1,
+  data_gap_counts: [{ label: "no_timeline_evidence", count: 1 }],
+  audit_correlation_count: 2,
+  records: [
+    {
+      water_emergency_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+      job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
+      status: "drying_in_progress",
+      drying_stage: "monitoring",
+      next_required_action: "Synthetic drying progress review",
+      is_open: true,
+      equipment_onsite: true,
+      moisture_tracking_required: true,
+      opened_at: "2026-05-16T06:30:00Z",
+      closed_at: null,
+      related_work_order_ids: [],
+      related_visit_ids: ["bc393a4e-1b61-4daa-a9f9-bb615e944d9b"],
+      open_review_count: 1,
+      timeline_event_count: 1,
+      audit_correlation_ids: ["audit-dashboard-003"]
+    },
+    {
+      water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
+      job_id: "871ac83f-88bb-4f09-8ca3-c3718dce6a46",
+      status: "closed",
+      drying_stage: "closed_after_monitoring",
+      next_required_action: "No action. Synthetic closed Water Emergency example.",
+      is_open: false,
+      equipment_onsite: false,
+      moisture_tracking_required: false,
+      opened_at: "2026-05-14T08:30:00Z",
+      closed_at: "2026-05-15T08:30:00Z",
+      related_work_order_ids: [],
+      related_visit_ids: [],
+      open_review_count: 0,
+      timeline_event_count: 0,
+      audit_correlation_ids: []
+    }
+  ],
+  timeline_summary: {
+    total_events: 1,
+    returned_events: 1,
+    mutable_event_count: 0,
+    audit_correlation_ids: ["audit-dashboard-003"],
+    entries: [
       {
         occurred_at: "2026-05-16T07:55:00Z",
         event_type: "operational_intake.water_emergency_separated",

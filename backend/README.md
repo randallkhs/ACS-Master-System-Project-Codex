@@ -204,9 +204,12 @@ GET /api/v1/dashboard/overview
 GET /api/v1/dashboard/lifecycle
 GET /api/v1/dashboard/review
 GET /api/v1/dashboard/dispatch
+GET /api/v1/dashboard/water-emergency
 ```
 
 These routes summarize persisted backend state through dashboard read models. They do not mutate records, execute dispatch, resolve Manual Review, call integrations, or call AI.
+
+The Water Emergency dashboard contract is dedicated to emergency visibility. It summarizes existing `WaterEmergency` records, status/stage distributions, multi-visit and equipment indicators, related job/work-order/visit references, review/escalation indicators, data gaps, audit correlation references, and emergency timeline evidence. It does not create, close, dispatch, approve, or otherwise execute Water Emergency work.
 
 Local full-stack dashboard testing expects the backend on `http://127.0.0.1:8000` and the frontend `ACS_DASHBOARD_API_BASE_URL` set to that origin. A real local PostgreSQL database and migrations are still required for live backend reads; the frontend falls back to typed local data when the backend is unavailable.
 
@@ -224,6 +227,7 @@ GET /api/v1/dashboard/overview
 GET /api/v1/dashboard/lifecycle
 GET /api/v1/dashboard/review
 GET /api/v1/dashboard/dispatch
+GET /api/v1/dashboard/water-emergency
 ```
 
 ## Migrations

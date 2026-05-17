@@ -19,6 +19,8 @@ def bucket_count(buckets: object, label: str) -> int:
 def dashboard_source_records() -> dict[str, list[object]]:
     standard_job_id = uuid4()
     water_job_id = uuid4()
+    water_emergency_id = uuid4()
+    closed_water_emergency_id = uuid4()
     work_order_id = uuid4()
     visit_id = uuid4()
     water_visit_id = uuid4()
@@ -181,8 +183,18 @@ def dashboard_source_records() -> dict[str, list[object]]:
             ),
         ],
         "water_emergencies": [
-            WaterEmergency(job_id=water_job_id, status="DRYING_IN_PROGRESS"),
             WaterEmergency(
+                id=water_emergency_id,
+                job_id=water_job_id,
+                status="DRYING_IN_PROGRESS",
+                drying_stage="monitoring",
+                next_required_action="Schedule synthetic drying check.",
+                equipment_onsite=True,
+                moisture_tracking_required=True,
+                opened_at=datetime(2026, 5, 16, 7, 30, tzinfo=UTC),
+            ),
+            WaterEmergency(
+                id=closed_water_emergency_id,
                 job_id=uuid4(),
                 status="CLOSED",
                 closed_at=datetime(2026, 5, 16, 11, 0, tzinfo=UTC),
@@ -286,6 +298,138 @@ def test_dispatch_lifecycle_summary_counts_persisted_lifecycle_state() -> None:
     assert lifecycle.water_emergency_records == 2
     assert lifecycle.water_emergency_separated_intake == 1
     assert lifecycle.blocker_count >= 1
+
+
+def test_water_emergency_dashboard_summary_stays_separate_and_read_only() -> None:
+    records = dashboard_source_records()
+    water_emergency = records["water_emergencies"][0]
+    assert isinstance(water_emergency, WaterEmergency)
+    water_job_id = water_emergency.job_id
+    water_visit_id = next(
+        visit.id for visit in records["visits"] if getattr(visit, "job_id", None) == water_job_id
+    )
+    extra_water_visit_id = uuid4()
+    water_timeline_id = uuid4()
+
+    records["visits"].append(
+        Visit(
+            id=extra_water_visit_id,
+            job_id=water_job_id,
+            visit_type="water_emergency",
+            status="scheduled",
+            audit_correlation_id="audit-dashboard-water-extra",
+        ),
+    )
+    records["review_items"].append(
+        ReviewItem(
+            job_id=water_job_id,
+            entity_type="water_emergency",
+            entity_id=water_emergency.id,
+            reason_code="water_emergency_missing_pickup",
+            status="open",
+            severity="critical",
+            audit_correlation_id="audit-dashboard-water-extra",
+        ),
+    )
+    records["operational_events"].append(
+        OperationalEventRecord(
+            id=water_timeline_id,
+            occurred_at=datetime(2026, 5, 16, 8, 15, tzinfo=UTC),
+            recorded_at=datetime(2026, 5, 16, 8, 15, tzinfo=UTC),
+            event_type="water_emergency.monitoring_required",
+            event_state="review_required",
+            entity_type="water_emergency",
+            entity_id=water_emergency.id,
+            route_assignment_id=None,
+            visit_id=extra_water_visit_id,
+            work_order_id=None,
+            job_id=water_job_id,
+            technician_id=None,
+            audit_correlation_id="audit-dashboard-water-extra",
+            previous_state="dispatched",
+            new_state="monitoring_required",
+            event_fingerprint="dashboard-water-event-1",
+            is_immutable=True,
+        ),
+    )
+
+    summary = DashboardReadModelService().build_water_emergency(
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    assert summary.open_count == 1
+    assert summary.closed_count == 1
+    assert bucket_count(summary.status_counts, "drying_in_progress") == 1
+    assert bucket_count(summary.stage_counts, "monitoring") == 1
+    assert summary.multi_visit_count == 1
+    assert summary.equipment_onsite_count == 1
+    assert summary.moisture_tracking_required_count == 1
+    assert summary.related_job_count == 1
+    assert summary.related_visit_count == 2
+    assert summary.review_indicator_count == 2
+    assert summary.escalation_indicator_count == 2
+    assert summary.timeline_summary.total_events == 1
+    assert summary.timeline_summary.entries[0].entity_type == "water_emergency"
+    assert summary.records[0].job_id == water_job_id
+    assert set(summary.records[0].related_visit_ids) == {water_visit_id, extra_water_visit_id}
+
+
+def test_water_emergency_record_reviews_are_scoped_to_each_record() -> None:
+    records = dashboard_source_records()
+    first_record = records["water_emergencies"][0]
+    second_record = records["water_emergencies"][1]
+    assert isinstance(first_record, WaterEmergency)
+    assert isinstance(second_record, WaterEmergency)
+
+    records["review_items"].extend(
+        [
+            ReviewItem(
+                job_id=first_record.job_id,
+                entity_type="water_emergency",
+                entity_id=first_record.id,
+                reason_code="first_water_emergency_review",
+                status="open",
+                severity="high",
+                audit_correlation_id="audit-dashboard-water-first",
+            ),
+            ReviewItem(
+                job_id=second_record.job_id,
+                entity_type="water_emergency",
+                entity_id=second_record.id,
+                reason_code="second_water_emergency_review",
+                status="open",
+                severity="high",
+                audit_correlation_id="audit-dashboard-water-second",
+            ),
+            ReviewItem(
+                entity_type="water_emergency",
+                reason_code="generic_water_emergency_review",
+                status="open",
+                severity="high",
+                audit_correlation_id="audit-dashboard-water-generic",
+            ),
+        ],
+    )
+
+    summary = DashboardReadModelService().build_water_emergency(
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    record_summaries = {record.water_emergency_id: record for record in summary.records}
+
+    assert record_summaries[first_record.id].open_review_count == 1
+    assert record_summaries[second_record.id].open_review_count == 1
+    assert summary.review_indicator_count == 4
 
 
 def test_external_execution_summary_counts_adapter_and_confirmation_state() -> None:

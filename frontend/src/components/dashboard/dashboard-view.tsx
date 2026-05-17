@@ -1,6 +1,8 @@
 import type {
   DashboardFetchResult,
-  DashboardOverviewResponse
+  DashboardOverviewResponse,
+  DashboardSource,
+  WaterEmergencyDashboardResponse
 } from "@/lib/dashboard-contracts";
 import { AppShell } from "@/components/layout/app-shell";
 import { AlertStrip } from "@/components/dashboard/alert-strip";
@@ -11,20 +13,30 @@ import { SectionCard } from "@/components/dashboard/section-card";
 import { SectionHeading } from "@/components/dashboard/section-heading";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TimelineList } from "@/components/dashboard/timeline-list";
+import { WaterEmergencyDashboard } from "@/components/dashboard/water-emergency-dashboard";
 
 type DashboardViewProps = {
   result: DashboardFetchResult<DashboardOverviewResponse>;
+  waterEmergencyResult: DashboardFetchResult<WaterEmergencyDashboardResponse>;
 };
 
-export function DashboardView({ result }: DashboardViewProps) {
+export function DashboardView({
+  result,
+  waterEmergencyResult
+}: DashboardViewProps) {
   const { data, source, errorMessage } = result;
   const { operational_summary: summary } = data;
   const { lifecycle_summary: lifecycle } = data;
   const { manual_review_summary: review } = data;
   const { dispatch_summary: dispatch } = data;
+  const dashboardSource: DashboardSource =
+    source === "api" && waterEmergencyResult.source === "api" ? "api" : "mock";
+  const fallbackMessage =
+    [errorMessage, waterEmergencyResult.errorMessage].filter(Boolean).join(" ") ||
+    undefined;
 
   return (
-    <AppShell generatedAt={data.generated_at} source={source}>
+    <AppShell generatedAt={data.generated_at} source={dashboardSource}>
       <div className="space-y-8">
         <div className="grid gap-4 xl:grid-cols-2">
           <AlertStrip title="Read-only operational dashboard" tone="info">
@@ -33,9 +45,9 @@ export function DashboardView({ result }: DashboardViewProps) {
             or infer hidden lifecycle transitions.
           </AlertStrip>
 
-          {source === "mock" ? (
+          {dashboardSource === "mock" ? (
             <AlertStrip title="Fallback data is active" tone="warning">
-              {errorMessage ??
+              {fallbackMessage ??
                 "The backend dashboard API was not available, so typed local fallback data is shown for layout validation."}
             </AlertStrip>
           ) : null}
@@ -44,6 +56,8 @@ export function DashboardView({ result }: DashboardViewProps) {
         <OperationalHealthPanel summary={summary} lifecycle={lifecycle} />
 
         <ScenarioStoryboard data={data} source={source} />
+
+        <WaterEmergencyDashboard result={waterEmergencyResult} />
 
         <section className="space-y-4">
           <SectionHeading

@@ -116,6 +116,45 @@ export type OperationalEventTimelineSummaryResponse = {
   entries: OperationalTimelineEntryResponse[];
 };
 
+export type WaterEmergencyRecordSummaryResponse = {
+  water_emergency_id: string;
+  job_id: string;
+  status: string;
+  drying_stage: string | null;
+  next_required_action: string | null;
+  is_open: boolean;
+  equipment_onsite: boolean;
+  moisture_tracking_required: boolean;
+  opened_at: string | null;
+  closed_at: string | null;
+  related_work_order_ids: string[];
+  related_visit_ids: string[];
+  open_review_count: number;
+  timeline_event_count: number;
+  audit_correlation_ids: string[];
+};
+
+export type WaterEmergencyDashboardResponse = {
+  generated_at: string;
+  total_records: number;
+  open_count: number;
+  closed_count: number;
+  status_counts: CountBucket[];
+  stage_counts: CountBucket[];
+  multi_visit_count: number;
+  equipment_onsite_count: number;
+  moisture_tracking_required_count: number;
+  related_job_count: number;
+  related_work_order_count: number;
+  related_visit_count: number;
+  review_indicator_count: number;
+  escalation_indicator_count: number;
+  data_gap_counts: CountBucket[];
+  audit_correlation_count: number;
+  records: WaterEmergencyRecordSummaryResponse[];
+  timeline_summary: OperationalEventTimelineSummaryResponse;
+};
+
 export type DashboardOverviewResponse = {
   generated_at: string;
   operational_summary: OperationalDashboardSummaryResponse;

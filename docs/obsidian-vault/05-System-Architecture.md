@@ -585,6 +585,26 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 31 Water Emergency Dashboard Read Model Boundary
+
+Module 31 adds a dedicated read-only Water Emergency dashboard projection and frontend view:
+
+- `GET /api/v1/dashboard/water-emergency` exposes a separated Water Emergency dashboard contract
+- `DashboardReadModelService` summarizes existing Water Emergency records, status/stage distribution, equipment and moisture-tracking indicators, multi-visit evidence, review/escalation indicators, related references, data gaps, audit correlations, and timeline evidence
+- the frontend fetches the dedicated Water Emergency read model separately from the standard operational overview
+- the dashboard renders a dedicated Water Emergency section and navigation item so emergency work is not buried inside standard dispatch summaries
+
+The boundary remains projection-only. The endpoint and UI do not create, close, resolve, approve, dispatch, integrate, reconcile, or execute Water Emergency workflows. They also do not call AI or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- exact Water Emergency status and drying-stage taxonomy
+- emergency equipment inventory and moisture-reading data models
+- production filtering, pagination, and role-scoped Water Emergency visibility
+- future authenticated Water Emergency workflow execution modules
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

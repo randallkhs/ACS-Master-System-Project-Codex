@@ -182,6 +182,22 @@ Unresolved:
 - whether UI storyboards should map to seed scenario labels
 - whether local integration tests should run against a disposable database rather than persistent `acs_fsm_dev`
 
+## Phase 0 Module 31 Water Emergency Dashboard Read Model
+
+Module 31 adds a dedicated Water Emergency dashboard read model without changing the database schema.
+
+Read-model behavior:
+
+- consumes existing `WaterEmergency`, `Job`, `WorkOrder`, `Visit`, `ReviewItem`, and `OperationalEventRecord` rows
+- summarizes open/closed counts, status/stage distribution, multi-visit indicators, equipment flags, review/escalation indicators, related references, data gaps, and timeline evidence
+- remains read-only and does not mutate ORM objects or infer lifecycle transitions
+
+Unresolved:
+
+- future Water Emergency execution modules may require dedicated equipment, moisture reading, visit-stage, and immutable emergency-history tables
+- production filtering and pagination for Water Emergency dashboard records remain undecided
+- exact Water Emergency closure and pickup data requirements still need operations confirmation
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:

@@ -279,6 +279,14 @@ AI is still not used in this module.
 
 AI must not generate storyboard authority, infer hidden lifecycle transitions from grouped dashboard counts, treat synthetic seed examples as production evidence, clear Manual Review states, execute dispatch, call integrations, authorize recovery/governance/escalation, or transform read-only scenario visualization into workflow control. Future AI-assisted dashboard explanations must remain advisory and separate from persisted backend dashboard read models.
 
+## Phase 0 Module 31 Boundary
+
+The dedicated Water Emergency dashboard contract and frontend view are deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not generate Water Emergency dashboard authority, infer hidden emergency lifecycle transitions, auto-close emergency work, clear Manual Review states, execute dispatch, call vendor integrations, authorize equipment pickup, or transform read-only emergency visibility into workflow control. Future AI explanations for Water Emergency evidence must remain advisory and separate from persisted backend dashboard read models.
+
 ---
 
 ## Confidence And Review

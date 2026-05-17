@@ -5,9 +5,13 @@ import {
   getDashboardDispatch,
   getDashboardLifecycle,
   getDashboardOverview,
-  getDashboardReview
+  getDashboardReview,
+  getDashboardWaterEmergency
 } from "@/lib/dashboard-api";
-import { mockDashboardOverview } from "@/lib/mock-dashboard";
+import {
+  mockDashboardOverview,
+  mockWaterEmergencyDashboard
+} from "@/lib/mock-dashboard";
 
 const originalApiBaseUrl = process.env.ACS_DASHBOARD_API_BASE_URL;
 
@@ -34,6 +38,9 @@ describe("dashboard API client", () => {
 
     expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.overview)).toBe(
       "http://127.0.0.1:8000/api/v1/dashboard/overview"
+    );
+    expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.waterEmergency)).toBe(
+      "http://127.0.0.1:8000/api/v1/dashboard/water-emergency"
     );
   });
 
@@ -92,6 +99,7 @@ describe("dashboard API client", () => {
     await getDashboardLifecycle();
     await getDashboardReview();
     await getDashboardDispatch();
+    await getDashboardWaterEmergency();
 
     const calls = fetchMock.mock.calls.map(([url, init]) => ({
       url: String(url),
@@ -114,7 +122,21 @@ describe("dashboard API client", () => {
       {
         url: "https://api.acs.example.com/api/v1/dashboard/dispatch",
         method: "GET"
+      },
+      {
+        url: "https://api.acs.example.com/api/v1/dashboard/water-emergency",
+        method: "GET"
       }
     ]);
+  });
+
+  it("returns the typed Water Emergency fallback when the dedicated read model is unavailable", async () => {
+    delete process.env.ACS_DASHBOARD_API_BASE_URL;
+
+    const result = await getDashboardWaterEmergency();
+
+    expect(result.source).toBe("mock");
+    expect(result.data.open_count).toBe(mockWaterEmergencyDashboard.open_count);
+    expect(result.data.records[0].status).toBe("drying_in_progress");
   });
 });

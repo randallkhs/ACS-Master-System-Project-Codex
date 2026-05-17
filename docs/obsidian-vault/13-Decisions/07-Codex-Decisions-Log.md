@@ -969,3 +969,35 @@ Use this file for durable decisions that affect future development. Do not recor
   - System architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-17 — Phase 0 Module 31 Water Emergency Dashboard Read Model And Dedicated UI Foundation
+
+- Decision type: Implementation / Water Emergency dashboard / read-only API contract
+- Status: Implemented
+- Decision:
+  - Add a dedicated read-only Water Emergency dashboard read model and API contract.
+  - Expose `GET /api/v1/dashboard/water-emergency` separately from standard dispatch dashboard endpoints.
+  - Summarize existing Water Emergency records, open/closed counts, status/stage distribution, equipment and moisture-tracking flags, multi-visit evidence, related references, review/escalation indicators, data gaps, audit correlations, and timeline evidence.
+  - Add a dedicated frontend Water Emergency command view that is visually separated from standard dispatch summaries.
+  - Keep the frontend API client and dashboard endpoint verifier read-only and `GET`-only.
+- Rationale:
+  - Water Emergency is a first-class ACS workflow and should not be hidden inside standard dispatch or local storyboard grouping.
+  - Module 31 needed operator visibility into emergency state without adding execution, closure, approval, vendor calls, or AI authority.
+  - A dedicated backend contract prevents frontend components from inventing emergency lifecycle logic.
+- Future implications:
+  - Future Water Emergency workflow modules still need authenticated execution rules, closure policy, equipment inventory, moisture readings, and emergency-specific timeline/event taxonomy.
+  - Production filtering, pagination, sorting, role scoping, and refresh cadence remain future dashboard decisions.
+  - Manual Review and emergency data gaps remain authoritative safety indicators until operations confirms the exact workflow rules.
+- Affected systems:
+  - Backend dashboard read-model service
+  - Dashboard API schemas/routes
+  - Dashboard endpoint verifier
+  - Frontend dashboard API client/contracts
+  - Frontend dashboard Water Emergency section
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - System architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

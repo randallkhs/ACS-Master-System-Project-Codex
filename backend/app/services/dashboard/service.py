@@ -20,6 +20,8 @@ from app.domain.dashboard import (
     OperationalTimelineEntry,
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
+    WaterEmergencyDashboardReadModel,
+    WaterEmergencyRecordSummary,
 )
 from app.models.intake_processing_record import IntakeProcessingRecord
 from app.models.job import Job
@@ -185,6 +187,120 @@ class DashboardReadModelService:
                 ),
             ),
             audit_correlation_count=count_audit_correlation_ids(review_items),
+        )
+
+    def build_water_emergency(
+        self,
+        *,
+        jobs: Sequence[Job] = (),
+        work_orders: Sequence[WorkOrder] = (),
+        visits: Sequence[Visit] = (),
+        review_items: Sequence[ReviewItem] = (),
+        water_emergencies: Sequence[WaterEmergency] = (),
+        operational_events: Sequence[OperationalEventRecord] = (),
+        timeline_limit: int = 25,
+    ) -> WaterEmergencyDashboardReadModel:
+        water_job_ids = {record.job_id for record in water_emergencies}
+        water_record_ids = {record.id for record in water_emergencies if record.id is not None}
+        related_jobs = tuple(job for job in jobs if job.id in water_job_ids)
+        related_work_orders = tuple(
+            work_order for work_order in work_orders if work_order.job_id in water_job_ids
+        )
+        related_visits = tuple(visit for visit in visits if visit.job_id in water_job_ids)
+        water_visit_ids = {visit.id for visit in related_visits if visit.id is not None}
+        water_work_order_ids = {
+            work_order.id for work_order in related_work_orders if work_order.id is not None
+        }
+        related_reviews = tuple(
+            review
+            for review in review_items
+            if is_water_emergency_review_item(
+                review,
+                water_job_ids=water_job_ids,
+                water_visit_ids=water_visit_ids,
+                water_record_ids=water_record_ids,
+            )
+        )
+        related_events = tuple(
+            event
+            for event in operational_events
+            if is_water_emergency_event(
+                event,
+                water_job_ids=water_job_ids,
+                water_visit_ids=water_visit_ids,
+                water_work_order_ids=water_work_order_ids,
+                water_record_ids=water_record_ids,
+            )
+        )
+        open_records = tuple(
+            record for record in water_emergencies if is_open_water_emergency(record)
+        )
+
+        return WaterEmergencyDashboardReadModel(
+            generated_at=self.now(),
+            total_records=len(water_emergencies),
+            open_count=len(open_records),
+            closed_count=len(water_emergencies) - len(open_records),
+            status_counts=count_by_attr(water_emergencies, "status"),
+            stage_counts=count_by_attr(water_emergencies, "drying_stage"),
+            multi_visit_count=count_multi_visit_water_emergencies(
+                water_emergencies,
+                visits=related_visits,
+            ),
+            equipment_onsite_count=count_where(
+                water_emergencies,
+                lambda record: bool(record.equipment_onsite),
+            ),
+            moisture_tracking_required_count=count_where(
+                water_emergencies,
+                lambda record: bool(record.moisture_tracking_required),
+            ),
+            related_job_count=len(related_jobs),
+            related_work_order_count=len(water_work_order_ids),
+            related_visit_count=len(water_visit_ids),
+            review_indicator_count=count_where(
+                related_reviews,
+                lambda review: normalized(review.status) in UNRESOLVED_REVIEW_STATUSES,
+            ),
+            escalation_indicator_count=count_where(
+                related_reviews,
+                lambda review: (
+                    normalized(review.status) in UNRESOLVED_REVIEW_STATUSES
+                    and normalized(review.severity) in ESCALATION_SEVERITIES
+                ),
+            ),
+            data_gap_counts=water_emergency_data_gap_counts(
+                water_emergencies,
+                visits=related_visits,
+                events=related_events,
+            ),
+            audit_correlation_count=count_audit_correlation_ids(
+                related_work_orders,
+                related_visits,
+                related_reviews,
+                related_events,
+            ),
+            records=tuple(
+                water_emergency_record_summary(
+                    record,
+                    work_orders=related_work_orders,
+                    visits=related_visits,
+                    review_items=related_reviews,
+                    operational_events=related_events,
+                )
+                for record in sorted(
+                    water_emergencies,
+                    key=lambda record: (
+                        not is_open_water_emergency(record),
+                        normalized(record.status),
+                        str(record.job_id),
+                    ),
+                )
+            ),
+            timeline_summary=self.build_timeline(
+                operational_events=related_events,
+                limit=timeline_limit,
+            ),
         )
 
     def build_dispatch(
@@ -391,6 +507,20 @@ class DashboardReadModelService:
         source = load_dashboard_source(session)
         return self.build_dispatch(route_assignments=source["route_assignments"])
 
+    def build_water_emergency_from_session(
+        self,
+        session: Session,
+    ) -> WaterEmergencyDashboardReadModel:
+        source = load_dashboard_source(session)
+        return self.build_water_emergency(
+            jobs=source["jobs"],
+            work_orders=source["work_orders"],
+            visits=source["visits"],
+            review_items=source["review_items"],
+            water_emergencies=source["water_emergencies"],
+            operational_events=source["operational_events"],
+        )
+
 
 def load_dashboard_source(session: Session) -> dict[str, Sequence[object]]:
     return {
@@ -481,9 +611,175 @@ def sum_mismatch_counts(route_assignments: Sequence[RouteAssignment]) -> int:
 def count_open_water_emergencies(water_emergencies: Sequence[WaterEmergency]) -> int:
     return count_where(
         water_emergencies,
+        is_open_water_emergency,
+    )
+
+
+def is_open_water_emergency(record: WaterEmergency) -> bool:
+    return (
+        record.closed_at is None
+        and normalized(record.status) not in TERMINAL_WATER_EMERGENCY_STATUSES
+    )
+
+
+def count_multi_visit_water_emergencies(
+    water_emergencies: Sequence[WaterEmergency],
+    *,
+    visits: Sequence[Visit],
+) -> int:
+    return count_where(
+        water_emergencies,
         lambda record: (
-            record.closed_at is None
-            and normalized(record.status) not in TERMINAL_WATER_EMERGENCY_STATUSES
+            count_where(
+                visits,
+                lambda visit: visit.job_id == record.job_id,
+            )
+            > 1
+        ),
+    )
+
+
+def is_water_emergency_review_item(
+    review: ReviewItem,
+    *,
+    water_job_ids: set[object],
+    water_visit_ids: set[object],
+    water_record_ids: set[object],
+) -> bool:
+    reason_code = normalized(review.reason_code)
+    return (
+        normalized(review.entity_type) == "water_emergency"
+        or review.entity_id in water_record_ids
+        or review.job_id in water_job_ids
+        or review.visit_id in water_visit_ids
+        or "water_emergency" in reason_code
+    )
+
+
+def is_water_emergency_event(
+    event: OperationalEventRecord,
+    *,
+    water_job_ids: set[object],
+    water_visit_ids: set[object],
+    water_work_order_ids: set[object],
+    water_record_ids: set[object],
+) -> bool:
+    return (
+        normalized(event.entity_type) == "water_emergency"
+        or event.entity_id in water_record_ids
+        or event.job_id in water_job_ids
+        or event.visit_id in water_visit_ids
+        or event.work_order_id in water_work_order_ids
+    )
+
+
+def water_emergency_data_gap_counts(
+    water_emergencies: Sequence[WaterEmergency],
+    *,
+    visits: Sequence[Visit],
+    events: Sequence[OperationalEventRecord],
+) -> tuple[CountBucket, ...]:
+    gaps: list[str] = []
+    for record in water_emergencies:
+        if not is_open_water_emergency(record):
+            continue
+        if not normalized(record.drying_stage):
+            gaps.append("missing_drying_stage")
+        if not normalized(record.next_required_action):
+            gaps.append("missing_next_required_action")
+        if not any(visit.job_id == record.job_id for visit in visits):
+            gaps.append("no_visit_history")
+        if not any(
+            event.job_id == record.job_id
+            or event.entity_id == record.id
+            or (normalized(event.entity_type) == "water_emergency" and event.entity_id == record.id)
+            for event in events
+        ):
+            gaps.append("no_timeline_evidence")
+    return count_values(gaps)
+
+
+def water_emergency_record_summary(
+    record: WaterEmergency,
+    *,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    review_items: Sequence[ReviewItem],
+    operational_events: Sequence[OperationalEventRecord],
+) -> WaterEmergencyRecordSummary:
+    related_work_orders = tuple(
+        work_order for work_order in work_orders if work_order.job_id == record.job_id
+    )
+    related_visits = tuple(visit for visit in visits if visit.job_id == record.job_id)
+    related_visit_ids = {visit.id for visit in related_visits if visit.id is not None}
+    related_work_order_ids = {
+        work_order.id for work_order in related_work_orders if work_order.id is not None
+    }
+    related_reviews = tuple(
+        review
+        for review in review_items
+        if (
+            review.job_id == record.job_id
+            or review.entity_id == record.id
+            or review.visit_id in related_visit_ids
+            or (
+                normalized(review.entity_type) == "water_emergency"
+                and review.entity_id == record.id
+            )
+        )
+    )
+    related_events = tuple(
+        event
+        for event in operational_events
+        if (
+            event.job_id == record.job_id
+            or event.entity_id == record.id
+            or event.visit_id in related_visit_ids
+            or event.work_order_id in related_work_order_ids
+            or (normalized(event.entity_type) == "water_emergency" and event.entity_id == record.id)
+        )
+    )
+
+    return WaterEmergencyRecordSummary(
+        water_emergency_id=record.id,
+        job_id=record.job_id,
+        status=normalized(record.status),
+        drying_stage=normalized(record.drying_stage) or None,
+        next_required_action=record.next_required_action,
+        is_open=is_open_water_emergency(record),
+        equipment_onsite=record.equipment_onsite,
+        moisture_tracking_required=record.moisture_tracking_required,
+        opened_at=record.opened_at,
+        closed_at=record.closed_at,
+        related_work_order_ids=sorted_uuid_tuple(related_work_order_ids),
+        related_visit_ids=sorted_uuid_tuple(related_visit_ids),
+        open_review_count=count_where(
+            related_reviews,
+            lambda review: normalized(review.status) in UNRESOLVED_REVIEW_STATUSES,
+        ),
+        timeline_event_count=len(related_events),
+        audit_correlation_ids=unique_audit_correlation_ids(
+            related_work_orders,
+            related_visits,
+            related_reviews,
+            related_events,
+        ),
+    )
+
+
+def sorted_uuid_tuple(values: set[object]) -> tuple[object, ...]:
+    return tuple(sorted(values, key=str))
+
+
+def unique_audit_correlation_ids(*groups: Sequence[object]) -> tuple[str, ...]:
+    return tuple(
+        sorted(
+            {
+                value
+                for group in groups
+                for item in group
+                if (value := getattr(item, "audit_correlation_id", None))
+            },
         ),
     )
 

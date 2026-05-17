@@ -6,6 +6,7 @@ from app.schemas.dashboard import (
     DashboardOverviewResponse,
     DispatchLifecycleSummaryResponse,
     ManualReviewSummaryResponse,
+    WaterEmergencyDashboardResponse,
 )
 from app.services.dashboard import DashboardReadModelService
 
@@ -34,3 +35,9 @@ def read_dashboard_review(db_session: DBSession) -> ManualReviewSummaryResponse:
 def read_dashboard_dispatch(db_session: DBSession) -> DashboardDispatchSummaryResponse:
     read_model = DashboardReadModelService().build_dispatch_from_session(db_session)
     return DashboardDispatchSummaryResponse.model_validate(read_model)
+
+
+@router.get("/water-emergency", response_model=WaterEmergencyDashboardResponse)
+def read_dashboard_water_emergency(db_session: DBSession) -> WaterEmergencyDashboardResponse:
+    read_model = DashboardReadModelService().build_water_emergency_from_session(db_session)
+    return WaterEmergencyDashboardResponse.model_validate(read_model)

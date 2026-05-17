@@ -3,15 +3,20 @@ import type {
   DashboardFetchResult,
   DashboardOverviewResponse,
   DispatchLifecycleSummaryResponse,
-  ManualReviewSummaryResponse
+  ManualReviewSummaryResponse,
+  WaterEmergencyDashboardResponse
 } from "@/lib/dashboard-contracts";
-import { mockDashboardOverview } from "@/lib/mock-dashboard";
+import {
+  mockDashboardOverview,
+  mockWaterEmergencyDashboard
+} from "@/lib/mock-dashboard";
 
 export const DASHBOARD_ENDPOINTS = {
   overview: "/api/v1/dashboard/overview",
   lifecycle: "/api/v1/dashboard/lifecycle",
   review: "/api/v1/dashboard/review",
-  dispatch: "/api/v1/dashboard/dispatch"
+  dispatch: "/api/v1/dashboard/dispatch",
+  waterEmergency: "/api/v1/dashboard/water-emergency"
 } as const;
 
 export function dashboardApiBaseUrl(): string | null {
@@ -67,6 +72,15 @@ export async function getDashboardDispatch(): Promise<
   return fetchDashboardReadModel(
     DASHBOARD_ENDPOINTS.dispatch,
     mockDashboardOverview.dispatch_summary
+  );
+}
+
+export async function getDashboardWaterEmergency(): Promise<
+  DashboardFetchResult<WaterEmergencyDashboardResponse>
+> {
+  return fetchDashboardReadModel(
+    DASHBOARD_ENDPOINTS.waterEmergency,
+    mockWaterEmergencyDashboard
   );
 }
 

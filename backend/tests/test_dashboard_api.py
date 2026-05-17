@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from uuid import UUID
 
 from fastapi.testclient import TestClient
 
@@ -16,6 +17,8 @@ from app.domain.dashboard import (
     OperationalEventTimelineSummary,
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
+    WaterEmergencyDashboardReadModel,
+    WaterEmergencyRecordSummary,
 )
 from app.main import create_app
 from app.services.dashboard.service import DashboardReadModelService
@@ -114,6 +117,53 @@ def dashboard_overview_contract() -> DashboardOverviewReadModel:
     )
 
 
+def water_emergency_contract() -> WaterEmergencyDashboardReadModel:
+    return WaterEmergencyDashboardReadModel(
+        generated_at=datetime(2026, 5, 16, 12, 45, tzinfo=UTC),
+        total_records=1,
+        open_count=1,
+        closed_count=0,
+        status_counts=(CountBucket(label="drying_in_progress", count=1),),
+        stage_counts=(CountBucket(label="monitoring", count=1),),
+        multi_visit_count=1,
+        equipment_onsite_count=1,
+        moisture_tracking_required_count=1,
+        related_job_count=1,
+        related_work_order_count=0,
+        related_visit_count=2,
+        review_indicator_count=1,
+        escalation_indicator_count=1,
+        data_gap_counts=(),
+        audit_correlation_count=1,
+        records=(
+            WaterEmergencyRecordSummary(
+                water_emergency_id=UUID("00000000-0000-0000-0000-000000000031"),
+                job_id=UUID("00000000-0000-0000-0000-000000000032"),
+                status="drying_in_progress",
+                drying_stage="monitoring",
+                next_required_action="Schedule drying check.",
+                is_open=True,
+                equipment_onsite=True,
+                moisture_tracking_required=True,
+                opened_at=datetime(2026, 5, 16, 8, 0, tzinfo=UTC),
+                closed_at=None,
+                related_work_order_ids=(),
+                related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
+                open_review_count=1,
+                timeline_event_count=1,
+                audit_correlation_ids=("audit-water-001",),
+            ),
+        ),
+        timeline_summary=OperationalEventTimelineSummary(
+            total_events=0,
+            returned_events=0,
+            mutable_event_count=0,
+            audit_correlation_ids=(),
+            entries=(),
+        ),
+    )
+
+
 def test_dashboard_api_routes_return_read_only_contracts(
     monkeypatch,
 ) -> None:
@@ -123,6 +173,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     app = create_app(settings)
     overview = dashboard_overview_contract()
+    water_emergency = water_emergency_contract()
 
     def override_db_session():
         yield object()
@@ -147,6 +198,11 @@ def test_dashboard_api_routes_return_read_only_contracts(
         "build_dispatch_from_session",
         lambda self, session: overview.dispatch_summary,
     )
+    monkeypatch.setattr(
+        DashboardReadModelService,
+        "build_water_emergency_from_session",
+        lambda self, session: water_emergency,
+    )
     app.dependency_overrides[get_db_session] = override_db_session
 
     with TestClient(app) as client:
@@ -154,7 +210,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
         lifecycle_response = client.get("/api/v1/dashboard/lifecycle")
         review_response = client.get("/api/v1/dashboard/review")
         dispatch_response = client.get("/api/v1/dashboard/dispatch")
+        water_response = client.get("/api/v1/dashboard/water-emergency")
         mutation_response = client.post("/api/v1/dashboard/overview")
+        water_mutation_response = client.post("/api/v1/dashboard/water-emergency")
 
     assert overview_response.status_code == 200
     assert overview_response.json()["operational_summary"]["total_jobs"] == 1
@@ -167,4 +225,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert review_response.json()["open_items"] == 0
     assert dispatch_response.status_code == 200
     assert dispatch_response.json()["external_execution"]["execution_failed_count"] == 0
+    assert water_response.status_code == 200
+    assert water_response.json()["open_count"] == 1
+    assert water_response.json()["records"][0]["related_visit_ids"] == [
+        "00000000-0000-0000-0000-000000000033",
+    ]
     assert mutation_response.status_code == 405
+    assert water_mutation_response.status_code == 405

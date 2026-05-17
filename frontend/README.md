@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 30 keeps the frontend foundation read-only while improving how live backend dashboard seed scenarios are visually explained.
+Phase 0 Module 31 keeps the frontend foundation read-only while adding a dedicated Water Emergency dashboard view backed by the separated backend read-model contract.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -74,6 +74,7 @@ GET http://127.0.0.1:8000/api/v1/dashboard/overview
 GET http://127.0.0.1:8000/api/v1/dashboard/lifecycle
 GET http://127.0.0.1:8000/api/v1/dashboard/review
 GET http://127.0.0.1:8000/api/v1/dashboard/dispatch
+GET http://127.0.0.1:8000/api/v1/dashboard/water-emergency
 ```
 
 The backend requires a configured local PostgreSQL database for live dashboard reads. If the backend is stopped, unavailable, unmigrated, or returns an error, the frontend displays typed fallback data and marks the page as mock/fallback state.
@@ -130,6 +131,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 
 - Operational health and safety readiness summary
 - Live scenario storyboard for local seed verification context
+- Dedicated Water Emergency command view
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -175,6 +177,13 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - The storyboard does not introduce new API fields, lifecycle inference, mutation controls, dispatch actions, Manual Review actions, vendor calls, or AI controls.
 - Mobile and desktop anchor navigation use scroll margins so sticky dashboard headers do not cover storyboard and timeline sections.
 
+## Module 31 Water Emergency Notes
+
+- The dashboard now fetches `GET /api/v1/dashboard/water-emergency` alongside the overview read model.
+- The Water Emergency view is visually separated from standard dispatch and shows open/closed state, status/stage distribution, equipment and moisture-tracking indicators, multi-visit indicators, related references, review/escalation indicators, data gaps, and emergency timeline evidence.
+- The Water Emergency view is display-only. It does not create, close, resolve, dispatch, approve, or execute Water Emergency work.
+- The top source indicator shows live backend status only when both the overview and Water Emergency read models are fetched successfully; each Water Emergency section also labels live versus fallback state.
+
 ## Troubleshooting
 
 - If the dashboard shows `Mock fallback`, confirm `frontend/.env.local` contains `ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000`.
@@ -187,5 +196,5 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Authentication and role-scoped dashboard visibility are not implemented.
 - Production filtering, sorting, and pagination for event timelines are not finalized.
 - Refresh cadence and stale-data rules need an explicit operations decision.
-- Water Emergency may need dedicated dashboard screens and API contracts once its specialized workflow path is implemented.
+- Water Emergency execution workflow, closure rules, equipment inventory records, and role-scoped emergency operations remain future backend modules.
 - Storyboard grouping may need to become backend-provided scenario metadata if production operators need formal scenario filters instead of local QA context.

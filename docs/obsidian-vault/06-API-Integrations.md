@@ -414,3 +414,29 @@ Open API/frontend concerns:
 - formal production scenario filtering may need backend-owned metadata rather than frontend grouping
 - Water Emergency may need dedicated dashboard/storyboard contracts once its workflow path is implemented
 - role-scoped dashboard visibility and refresh behavior remain future authentication/deployment decisions
+
+## Phase 0 Module 31 Water Emergency Dashboard API Contract Boundary
+
+The dashboard API now includes a dedicated Water Emergency read model:
+
+- `/api/v1/dashboard/water-emergency`
+
+Contract behavior:
+
+- read-only `GET` endpoint only
+- summarizes existing Water Emergency records and related persisted evidence
+- exposes status/stage counts, open/closed counts, multi-visit indicators, equipment indicators, review/escalation indicators, related references, data gaps, audit correlations, and timeline entries
+- remains separate from `/api/v1/dashboard/dispatch` so Water Emergency visibility is not treated as standard dispatch workflow authority
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Water Emergency dashboard calls are added
+- no Water Emergency creation, closure, resolution, approval, dispatch, vendor, or AI execution calls are added
+- no FastField, Sheets, Calendar, Verizon Connect, or AI adapters are invoked
+- frontend display must consume this backend contract instead of duplicating emergency lifecycle logic
+
+Open API/frontend concerns:
+
+- production Water Emergency filters, pagination, sorting, and timeline volume controls
+- role-scoped visibility after authentication exists
+- final emergency status/stage taxonomy and equipment/moisture data contracts

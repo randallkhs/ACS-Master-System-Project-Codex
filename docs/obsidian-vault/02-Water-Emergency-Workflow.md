@@ -274,6 +274,39 @@ Future Water Emergency functionality may include:
 
 ---
 
+# Phase 0 Module 31 — Dedicated Dashboard Visibility
+
+Module 31 adds a dedicated read-only Water Emergency dashboard contract and frontend section.
+
+The dashboard read model may show:
+
+- open and closed Water Emergency counts
+- Water Emergency status and drying-stage distribution
+- multi-visit indicators based on related Visit records
+- equipment onsite and moisture-tracking indicators from existing fields
+- related job, work-order, visit, review, audit, and timeline references where persisted state supports them
+- data-gap indicators such as missing stage, missing next action, missing visit history, or missing timeline evidence
+
+Boundary:
+
+- this is visibility only
+- it does not create Water Emergency records
+- it does not close or resolve Water Emergency work
+- it does not dispatch Water Emergency work
+- it does not call FastField, Sheets, Calendar, Verizon Connect, or AI
+- it does not infer hidden lifecycle transitions
+- it does not bypass Manual Review
+
+Unresolved:
+
+- exact Water Emergency stage taxonomy
+- exact closure and pickup requirements
+- dedicated equipment inventory/entities
+- whether emergency timeline events need a separate event taxonomy
+- how future authenticated roles should scope Water Emergency visibility and authority
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

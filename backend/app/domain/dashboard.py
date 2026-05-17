@@ -53,6 +53,47 @@ class ManualReviewSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class WaterEmergencyRecordSummary:
+    water_emergency_id: UUID
+    job_id: UUID
+    status: str
+    drying_stage: str | None
+    next_required_action: str | None
+    is_open: bool
+    equipment_onsite: bool
+    moisture_tracking_required: bool
+    opened_at: datetime | None
+    closed_at: datetime | None
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    open_review_count: int
+    timeline_event_count: int
+    audit_correlation_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyDashboardReadModel:
+    generated_at: datetime
+    total_records: int
+    open_count: int
+    closed_count: int
+    status_counts: tuple[CountBucket, ...]
+    stage_counts: tuple[CountBucket, ...]
+    multi_visit_count: int
+    equipment_onsite_count: int
+    moisture_tracking_required_count: int
+    related_job_count: int
+    related_work_order_count: int
+    related_visit_count: int
+    review_indicator_count: int
+    escalation_indicator_count: int
+    data_gap_counts: tuple[CountBucket, ...]
+    audit_correlation_count: int
+    records: tuple[WaterEmergencyRecordSummary, ...]
+    timeline_summary: OperationalEventTimelineSummary
+
+
+@dataclass(frozen=True, slots=True)
 class RouteAssignmentSummary:
     total_assignments: int
     status_counts: tuple[CountBucket, ...]
