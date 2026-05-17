@@ -239,6 +239,14 @@ AI is still not used in this module.
 
 AI must not generate dashboard authority, create hidden workflow state, override backend read models, clear Manual Review items, execute dispatch, call integrations, approve governance/accountability actions, or present advisory output as operational fact. Any future AI-facing dashboard feature must remain separate from backend read-model truth and must be labeled as advisory explanation only.
 
+## Phase 0 Module 29 Boundary
+
+Local dashboard seed scenario expansion is deterministic and synthetic only.
+
+AI is still not used in this module.
+
+AI must not generate production-like seed records, infer hidden lifecycle transitions, treat synthetic examples as operational truth, clear Manual Review states, execute dispatch, call integrations, approve governance/accountability actions, or transform fake dashboard data into production workflow authority. Future AI-assisted demo generation, if ever introduced, must remain advisory and must preserve explicit synthetic-data labeling.
+
 ## Phase 0 Module 25 Boundary
 
 The frontend visual QA and polish pass is display-only and deterministic.

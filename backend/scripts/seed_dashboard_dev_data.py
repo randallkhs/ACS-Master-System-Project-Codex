@@ -8,6 +8,7 @@ from uuid import UUID
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.engine import make_url
+from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import Session
 
 from app.core.config import LOCAL_DATABASE_HOSTS, PLACEHOLDER_DATABASE_PASSWORDS, Settings
@@ -25,28 +26,69 @@ from app.models.work_order import WorkOrder
 
 SEED_SOURCE_SYSTEM = "module27_dev_seed"
 SEED_AUDIT_CORRELATION_ID = "module27-dashboard-demo-001"
+SEED_SCENARIO_VERSION = "module29_live_dashboard_seed"
+SEED_SCENARIO_LABELS = (
+    "standard_dispatch_ready",
+    "manual_review_blocked",
+    "external_confirmation_failed",
+    "external_confirmation_succeeded",
+    "reconciliation_recovery_required",
+    "governance_accountability_required",
+    "water_emergency_separated",
+    "water_emergency_closed",
+)
 
 CUSTOMER_ID = UUID("11111111-1111-4111-8111-111111111111")
+COMMERCIAL_CUSTOMER_ID = UUID("11111111-2222-4111-8111-111111111111")
 PROPERTY_ID = UUID("22222222-2222-4222-8222-222222222222")
+COMMERCIAL_PROPERTY_ID = UUID("22222222-3333-4222-8222-222222222222")
 TECHNICIAN_ID = UUID("33333333-3333-4333-8333-333333333333")
+SECONDARY_TECHNICIAN_ID = UUID("33333333-4444-4333-8333-333333333333")
 STANDARD_JOB_ID = UUID("44444444-4444-4444-8444-444444444444")
 WATER_JOB_ID = UUID("55555555-5555-4555-8555-555555555555")
+READY_JOB_ID = UUID("44444444-5555-4444-8444-444444444444")
+CONFIRMED_JOB_ID = UUID("44444444-6666-4444-8444-444444444444")
+RECOVERY_JOB_ID = UUID("44444444-7777-4444-8444-444444444444")
+CLOSED_WATER_JOB_ID = UUID("55555555-8888-4555-8555-555555555555")
 WORK_ORDER_ID = UUID("66666666-6666-4666-8666-666666666666")
+READY_WORK_ORDER_ID = UUID("66666666-7777-4666-8666-666666666666")
+CONFIRMED_WORK_ORDER_ID = UUID("66666666-8888-4666-8666-666666666666")
+RECOVERY_WORK_ORDER_ID = UUID("66666666-9999-4666-8666-666666666666")
 STANDARD_VISIT_ID = UUID("77777777-7777-4777-8777-777777777777")
 WATER_VISIT_ID = UUID("88888888-8888-4888-8888-888888888888")
+READY_VISIT_ID = UUID("77777777-8888-4777-8777-777777777777")
+CONFIRMED_VISIT_ID = UUID("77777777-9999-4777-8777-777777777777")
+RECOVERY_VISIT_ID = UUID("77777777-aaaa-4777-8777-777777777777")
 ROUTE_ASSIGNMENT_ID = UUID("99999999-9999-4999-8999-999999999999")
 BLOCKED_ROUTE_ASSIGNMENT_ID = UUID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+READY_ROUTE_ASSIGNMENT_ID = UUID("99999999-aaaa-4999-8999-999999999999")
+CONFIRMED_ROUTE_ASSIGNMENT_ID = UUID("99999999-bbbb-4999-8999-999999999999")
+RECOVERY_ROUTE_ASSIGNMENT_ID = UUID("99999999-cccc-4999-8999-999999999999")
 OPEN_REVIEW_ID = UUID("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb")
 WATER_REVIEW_ID = UUID("cccccccc-cccc-4ccc-8ccc-cccccccccccc")
+RESOLVED_REVIEW_ID = UUID("bbbbbbbb-cccc-4bbb-8bbb-bbbbbbbbbbbb")
+ARCHIVED_REVIEW_ID = UUID("bbbbbbbb-dddd-4bbb-8bbb-bbbbbbbbbbbb")
+RECOVERY_REVIEW_ID = UUID("bbbbbbbb-eeee-4bbb-8bbb-bbbbbbbbbbbb")
 WATER_EMERGENCY_ID = UUID("dddddddd-dddd-4ddd-8ddd-dddddddddddd")
+CLOSED_WATER_EMERGENCY_ID = UUID("dddddddd-eeee-4ddd-8ddd-dddddddddddd")
 DISPATCH_EVENT_ID = UUID("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee")
 ADAPTER_EVENT_ID = UUID("ffffffff-ffff-4fff-8fff-ffffffffffff")
+CONFIRMATION_EVENT_ID = UUID("eeeeeeee-1111-4eee-8eee-eeeeeeeeeeee")
+READY_EVENT_ID = UUID("eeeeeeee-2222-4eee-8eee-eeeeeeeeeeee")
+EXTERNAL_CONFIRMED_EVENT_ID = UUID("eeeeeeee-3333-4eee-8eee-eeeeeeeeeeee")
+RECOVERY_EVENT_ID = UUID("eeeeeeee-4444-4eee-8eee-eeeeeeeeeeee")
+GOVERNANCE_EVENT_ID = UUID("eeeeeeee-5555-4eee-8eee-eeeeeeeeeeee")
+INCIDENT_EVENT_ID = UUID("eeeeeeee-6666-4eee-8eee-eeeeeeeeeeee")
 
 
 @dataclass(frozen=True)
 class DashboardDevSeedResult:
     inserted: bool
     record_count: int
+    inserted_count: int
+    updated_count: int
+    scenario_count: int
+    scenario_labels: tuple[str, ...]
     source_system: str
     message: str
 
@@ -54,6 +96,7 @@ class DashboardDevSeedResult:
 @dataclass(frozen=True)
 class DashboardDevSeedRecords:
     records: tuple[object, ...]
+    scenario_labels: tuple[str, ...]
 
     @property
     def record_count(self) -> int:
@@ -85,35 +128,69 @@ def build_dashboard_dev_seed_records(
         hours=13,
     )
     scheduled_end = scheduled_start + timedelta(hours=2)
+    morning_start = scheduled_start - timedelta(hours=4)
+    morning_end = morning_start + timedelta(hours=2)
+    recovery_start = scheduled_start + timedelta(hours=3)
+    recovery_end = recovery_start + timedelta(hours=2)
 
     return DashboardDevSeedRecords(
+        scenario_labels=SEED_SCENARIO_LABELS,
         records=(
             Customer(
                 id=CUSTOMER_ID,
-                display_name="Module 27 Demo Customer",
+                display_name="Module 29 Demo Residential Account",
                 company_name="ACS Local Development Demo",
                 phone="555-0100",
                 email="demo.customer@example.invalid",
                 tags=["demo", "local-dev"],
                 notes="Synthetic dashboard seed data. Not production customer data.",
             ),
+            Customer(
+                id=COMMERCIAL_CUSTOMER_ID,
+                display_name="Module 29 Demo Property Manager",
+                company_name="Synthetic Facilities Group",
+                phone="555-0199",
+                email="demo.manager@example.invalid",
+                tags=["demo", "commercial", "local-dev"],
+                notes="Synthetic commercial account for local dashboard data quality checks.",
+            ),
             Property(
                 id=PROPERTY_ID,
                 customer_id=CUSTOMER_ID,
-                property_name="Module 27 Demo Property",
+                property_name="Module 29 Demo Residence",
                 street_address="100 Local Dev Way",
                 city="Wilmington",
                 state="DE",
                 postal_code="19801",
                 access_notes="Synthetic local dashboard seed location.",
             ),
+            Property(
+                id=COMMERCIAL_PROPERTY_ID,
+                customer_id=COMMERCIAL_CUSTOMER_ID,
+                property_name="Synthetic Office Park",
+                street_address="200 Synthetic Service Blvd",
+                city="Dover",
+                state="DE",
+                postal_code="00000",
+                access_notes="Clearly fake property for local dashboard verification only.",
+            ),
             Technician(
                 id=TECHNICIAN_ID,
-                full_name="Module 27 Demo Technician",
+                full_name="Module 29 Demo Technician A",
                 role="technician",
                 skills=["standard_cleaning"],
                 service_areas=["DE"],
                 vehicle_label="Demo Truck 1",
+                availability_status="available",
+                is_active=True,
+            ),
+            Technician(
+                id=SECONDARY_TECHNICIAN_ID,
+                full_name="Module 29 Demo Technician B",
+                role="technician",
+                skills=["standard_cleaning", "water_emergency_support"],
+                service_areas=["DE", "MD"],
+                vehicle_label="Demo Truck 2",
                 availability_status="available",
                 is_active=True,
             ),
@@ -131,6 +208,47 @@ def build_dashboard_dev_seed_records(
                 description="Synthetic standard job for local dashboard verification.",
             ),
             Job(
+                id=READY_JOB_ID,
+                customer_id=COMMERCIAL_CUSTOMER_ID,
+                property_id=COMMERCIAL_PROPERTY_ID,
+                job_type="standard",
+                status="awaiting_dispatch",
+                priority="normal",
+                requested_date=route_date,
+                scheduled_date=route_date,
+                source_system=SEED_SOURCE_SYSTEM,
+                source_event_id="module29-dispatch-ready-job",
+                description="Synthetic dispatch-ready job awaiting internal execution.",
+            ),
+            Job(
+                id=CONFIRMED_JOB_ID,
+                customer_id=COMMERCIAL_CUSTOMER_ID,
+                property_id=COMMERCIAL_PROPERTY_ID,
+                job_type="standard",
+                status="dispatched",
+                priority="normal",
+                requested_date=route_date,
+                scheduled_date=route_date,
+                source_system=SEED_SOURCE_SYSTEM,
+                source_event_id="module29-confirmed-job",
+                description="Synthetic job with confirmed external execution evidence.",
+            ),
+            Job(
+                id=RECOVERY_JOB_ID,
+                customer_id=COMMERCIAL_CUSTOMER_ID,
+                property_id=COMMERCIAL_PROPERTY_ID,
+                job_type="standard",
+                status="review_required",
+                priority="high",
+                requested_date=route_date,
+                scheduled_date=route_date,
+                source_system=SEED_SOURCE_SYSTEM,
+                source_event_id="module29-recovery-job",
+                description=(
+                    "Synthetic job requiring recovery, governance, and accountability review."
+                ),
+            ),
+            Job(
                 id=WATER_JOB_ID,
                 customer_id=CUSTOMER_ID,
                 property_id=PROPERTY_ID,
@@ -143,6 +261,21 @@ def build_dashboard_dev_seed_records(
                 source_event_id="module27-water-emergency-job",
                 description="Synthetic Water Emergency record for separation verification.",
             ),
+            Job(
+                id=CLOSED_WATER_JOB_ID,
+                customer_id=COMMERCIAL_CUSTOMER_ID,
+                property_id=COMMERCIAL_PROPERTY_ID,
+                job_type="water_emergency",
+                status="closed",
+                priority="urgent",
+                requested_date=route_date,
+                scheduled_date=route_date,
+                source_system=SEED_SOURCE_SYSTEM,
+                source_event_id="module29-closed-water-emergency-job",
+                description=(
+                    "Synthetic closed Water Emergency scenario for open/closed count checks."
+                ),
+            ),
             WorkOrder(
                 id=WORK_ORDER_ID,
                 job_id=STANDARD_JOB_ID,
@@ -153,6 +286,53 @@ def build_dashboard_dev_seed_records(
                 audit_correlation_id=SEED_AUDIT_CORRELATION_ID,
                 service_instructions="Synthetic local verification work order.",
                 generation_snapshot={"source": SEED_SOURCE_SYSTEM, "production_data": False},
+            ),
+            WorkOrder(
+                id=READY_WORK_ORDER_ID,
+                job_id=READY_JOB_ID,
+                assigned_technician_id=SECONDARY_TECHNICIAN_ID,
+                work_order_number="MOD29-DEMO-WO-READY",
+                status="generated",
+                dispatch_status="awaiting_dispatch_execution",
+                audit_correlation_id="module29-dashboard-demo-ready",
+                service_instructions="Synthetic work order ready for dispatch execution.",
+                generation_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "standard_dispatch_ready",
+                    "production_data": False,
+                },
+            ),
+            WorkOrder(
+                id=CONFIRMED_WORK_ORDER_ID,
+                job_id=CONFIRMED_JOB_ID,
+                assigned_technician_id=TECHNICIAN_ID,
+                work_order_number="MOD29-DEMO-WO-CONFIRMED",
+                status="dispatched",
+                dispatch_status="externally_confirmed",
+                audit_correlation_id="module29-dashboard-demo-confirmed",
+                service_instructions="Synthetic work order with confirmed external execution.",
+                generation_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "external_confirmation_succeeded",
+                    "production_data": False,
+                },
+            ),
+            WorkOrder(
+                id=RECOVERY_WORK_ORDER_ID,
+                job_id=RECOVERY_JOB_ID,
+                assigned_technician_id=SECONDARY_TECHNICIAN_ID,
+                work_order_number="MOD29-DEMO-WO-RECOVERY",
+                status="review_required",
+                dispatch_status="recovery_required",
+                audit_correlation_id="module29-dashboard-demo-recovery",
+                service_instructions=(
+                    "Synthetic recovery workflow evidence. No external action executed."
+                ),
+                generation_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "reconciliation_recovery_required",
+                    "production_data": False,
+                },
             ),
             Visit(
                 id=STANDARD_VISIT_ID,
@@ -168,6 +348,56 @@ def build_dashboard_dev_seed_records(
                 dispatch_readiness_snapshot={
                     "source": SEED_SOURCE_SYSTEM,
                     "dispatch_execution": "not_executed",
+                },
+            ),
+            Visit(
+                id=READY_VISIT_ID,
+                job_id=READY_JOB_ID,
+                work_order_id=READY_WORK_ORDER_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                visit_type="standard",
+                status="dispatch_ready",
+                audit_correlation_id="module29-dashboard-demo-ready",
+                scheduled_start_at=morning_start,
+                scheduled_end_at=morning_end,
+                notes="Synthetic visit ready for dispatch execution but not dispatched.",
+                dispatch_readiness_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "standard_dispatch_ready",
+                    "dispatch_execution": "not_executed",
+                },
+            ),
+            Visit(
+                id=CONFIRMED_VISIT_ID,
+                job_id=CONFIRMED_JOB_ID,
+                work_order_id=CONFIRMED_WORK_ORDER_ID,
+                technician_id=TECHNICIAN_ID,
+                visit_type="standard",
+                status="dispatched",
+                audit_correlation_id="module29-dashboard-demo-confirmed",
+                scheduled_start_at=morning_start + timedelta(hours=2),
+                scheduled_end_at=morning_end + timedelta(hours=2),
+                notes="Synthetic visit with external confirmation evidence.",
+                dispatch_readiness_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "external_confirmation_succeeded",
+                },
+            ),
+            Visit(
+                id=RECOVERY_VISIT_ID,
+                job_id=RECOVERY_JOB_ID,
+                work_order_id=RECOVERY_WORK_ORDER_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                visit_type="standard",
+                status="review_required",
+                audit_correlation_id="module29-dashboard-demo-recovery",
+                scheduled_start_at=recovery_start,
+                scheduled_end_at=recovery_end,
+                notes="Synthetic visit blocked for recovery and governance review.",
+                dispatch_readiness_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "reconciliation_recovery_required",
+                    "manual_review_required": True,
                 },
             ),
             Visit(
@@ -217,6 +447,123 @@ def build_dashboard_dev_seed_records(
                 escalation_required_at=scheduled_start - timedelta(minutes=25),
             ),
             RouteAssignment(
+                id=READY_ROUTE_ASSIGNMENT_ID,
+                route_date=route_date,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                job_id=READY_JOB_ID,
+                visit_id=READY_VISIT_ID,
+                route_order=1,
+                region="DE",
+                time_window="AM",
+                status="authorized",
+                route_group_key=f"DE-AM-{route_date.isoformat()}",
+                audit_correlation_id="module29-dashboard-demo-ready",
+                estimated_arrival_at=morning_start,
+                estimated_drive_time_minutes=18,
+                dispatch_authorization_snapshot={
+                    "authorized_for_dispatch": True,
+                    "scenario": "standard_dispatch_ready",
+                },
+                dispatch_execution_boundary_snapshot={"dispatch_execution": "not_executed"},
+                dispatch_execution_state="awaiting_dispatch_execution",
+                authorization_prepared_at=morning_start - timedelta(hours=1),
+                authorized_for_dispatch_at=morning_start - timedelta(minutes=45),
+                deterministic_evidence_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "production_data": False,
+                },
+            ),
+            RouteAssignment(
+                id=CONFIRMED_ROUTE_ASSIGNMENT_ID,
+                route_date=route_date,
+                technician_id=TECHNICIAN_ID,
+                job_id=CONFIRMED_JOB_ID,
+                visit_id=CONFIRMED_VISIT_ID,
+                route_order=2,
+                region="DE",
+                time_window="AM",
+                status="dispatched",
+                route_group_key=f"DE-AM-{route_date.isoformat()}",
+                audit_correlation_id="module29-dashboard-demo-confirmed",
+                estimated_arrival_at=morning_start + timedelta(hours=2),
+                estimated_drive_time_minutes=22,
+                dispatch_authorization_snapshot={
+                    "authorized_for_dispatch": True,
+                    "scenario": "external_confirmation_succeeded",
+                },
+                dispatch_execution_state="dispatched",
+                dispatched_at=morning_start + timedelta(hours=1, minutes=45),
+                external_adapter_state="awaiting_external_execution",
+                external_adapter_prepared_at=morning_start + timedelta(hours=1, minutes=50),
+                external_execution_state="awaiting_external_confirmation",
+                external_execution_completed_at=morning_start + timedelta(hours=1, minutes=55),
+                external_confirmation_state="confirmed",
+                external_confirmed_at=morning_start + timedelta(hours=2),
+                dispatch_reconciliation_state="consistency_verified",
+                dispatch_consistency_snapshot={"consistent": True},
+                dispatch_consistency_verified_at=morning_start + timedelta(hours=2, minutes=5),
+                replay_recovery_state="not_required",
+                governance_state="operator_approved",
+                governance_approved_at=morning_start + timedelta(hours=2, minutes=10),
+                accountability_state="not_required",
+                deterministic_evidence_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "provider_execution": "not_executed",
+                    "production_data": False,
+                },
+            ),
+            RouteAssignment(
+                id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                route_date=route_date,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                job_id=RECOVERY_JOB_ID,
+                visit_id=RECOVERY_VISIT_ID,
+                route_order=3,
+                region="MD",
+                time_window="PM",
+                status="blocked",
+                route_group_key=f"MD-PM-{route_date.isoformat()}",
+                audit_correlation_id="module29-dashboard-demo-recovery",
+                estimated_arrival_at=recovery_start,
+                estimated_drive_time_minutes=44,
+                dispatch_authorization_snapshot={
+                    "authorized_for_dispatch": False,
+                    "scenario": "reconciliation_recovery_required",
+                },
+                dispatch_execution_state="blocked",
+                external_adapter_state="awaiting_external_execution",
+                external_adapter_prepared_at=recovery_start - timedelta(minutes=50),
+                external_execution_state="failed",
+                external_execution_failure_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "provider_execution": "not_executed",
+                    "failure_mode": "synthetic_provider_timeout",
+                },
+                external_execution_failed_at=recovery_start - timedelta(minutes=45),
+                dispatch_reconciliation_state="reconciliation_required",
+                dispatch_divergence_snapshot={"synthetic_divergence": True},
+                dispatch_mismatch_snapshot={
+                    "mismatch_count": 2,
+                    "mismatches": [
+                        {"code": "external_execution_failed"},
+                        {"code": "operator_intervention_required"},
+                    ],
+                },
+                dispatch_reconciliation_prepared_at=recovery_start - timedelta(minutes=35),
+                replay_recovery_state="rollback_prepared",
+                rollback_preparation_snapshot={"rollback_execution": "not_executed"},
+                rollback_prepared_at=recovery_start - timedelta(minutes=30),
+                governance_state="manual_intervention_required",
+                intervention_required_at=recovery_start - timedelta(minutes=25),
+                accountability_state="incident_prepared",
+                incident_preparation_snapshot={"incident_execution": "not_executed"},
+                incident_prepared_at=recovery_start - timedelta(minutes=20),
+                deterministic_evidence_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "production_data": False,
+                },
+            ),
+            RouteAssignment(
                 id=BLOCKED_ROUTE_ASSIGNMENT_ID,
                 route_date=route_date,
                 job_id=STANDARD_JOB_ID,
@@ -262,6 +609,55 @@ def build_dashboard_dev_seed_records(
                 audit_correlation_id="module27-dashboard-demo-water",
                 recommended_action="Keep Water Emergency separated from standard dispatch.",
             ),
+            ReviewItem(
+                id=RECOVERY_REVIEW_ID,
+                job_id=RECOVERY_JOB_ID,
+                visit_id=RECOVERY_VISIT_ID,
+                route_assignment_id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                entity_type="route_assignment",
+                entity_id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                reason_code="module29_demo_recovery_review",
+                status="open",
+                severity="high",
+                source_system=SEED_SOURCE_SYSTEM,
+                source_id="module29-recovery-review",
+                confidence_score=58.0,
+                audit_correlation_id="module29-dashboard-demo-recovery",
+                recommended_action="Review synthetic recovery evidence before any operator action.",
+                review_metadata={
+                    "scenario": "reconciliation_recovery_required",
+                    "dispatch_blocked": True,
+                    "production_data": False,
+                },
+            ),
+            ReviewItem(
+                id=RESOLVED_REVIEW_ID,
+                entity_type="intake_processing_record",
+                reason_code="module29_demo_operator_resolved",
+                status="approved",
+                severity="low",
+                source_system=SEED_SOURCE_SYSTEM,
+                source_id="module29-resolved-review",
+                confidence_score=96.0,
+                audit_correlation_id="module29-dashboard-demo-resolved",
+                recommended_action="Synthetic resolved review for dashboard count coverage.",
+                operator_decision="approved for future workflow preparation only",
+                resolved_at=morning_start - timedelta(minutes=30),
+            ),
+            ReviewItem(
+                id=ARCHIVED_REVIEW_ID,
+                entity_type="intake_processing_record",
+                reason_code="module29_demo_archived_review",
+                status="archived",
+                severity="medium",
+                source_system=SEED_SOURCE_SYSTEM,
+                source_id="module29-archived-review",
+                confidence_score=88.0,
+                audit_correlation_id="module29-dashboard-demo-archived",
+                recommended_action="Synthetic archived review for dashboard count coverage.",
+                operator_decision="archived synthetic local example",
+                resolved_at=morning_start - timedelta(hours=1),
+            ),
             IntakeProcessingRecord(
                 source_system=SEED_SOURCE_SYSTEM,
                 source_id="module27-approved-intake",
@@ -269,7 +665,28 @@ def build_dashboard_dev_seed_records(
                 orchestration_state="eligible",
                 audit_correlation_id=SEED_AUDIT_CORRELATION_ID,
                 dispatch_eligible=True,
+                requires_review=False,
+                blocked=False,
+                unsafe=False,
+                water_emergency_separated=False,
                 deterministic_evidence_snapshot={"production_data": False},
+            ),
+            IntakeProcessingRecord(
+                source_system=SEED_SOURCE_SYSTEM,
+                source_id="module29-ready-intake",
+                lifecycle_state="approved_for_dispatch",
+                orchestration_state="dispatch_ready",
+                audit_correlation_id="module29-dashboard-demo-ready",
+                dispatch_eligible=True,
+                requires_review=False,
+                blocked=False,
+                unsafe=False,
+                water_emergency_separated=False,
+                approved_for_dispatch_at=morning_start - timedelta(hours=2),
+                deterministic_evidence_snapshot={
+                    "scenario": "standard_dispatch_ready",
+                    "production_data": False,
+                },
             ),
             IntakeProcessingRecord(
                 source_system=SEED_SOURCE_SYSTEM,
@@ -278,10 +695,46 @@ def build_dashboard_dev_seed_records(
                 orchestration_state="blocked",
                 review_item_id=OPEN_REVIEW_ID,
                 audit_correlation_id="module27-dashboard-demo-blocked",
+                dispatch_eligible=False,
                 requires_review=True,
                 blocked=True,
                 unsafe=True,
+                water_emergency_separated=False,
                 deterministic_evidence_snapshot={"reason": "synthetic_demo_blocker"},
+            ),
+            IntakeProcessingRecord(
+                source_system=SEED_SOURCE_SYSTEM,
+                source_id="module29-deferred-intake",
+                lifecycle_state="deferred",
+                orchestration_state="manual_review_deferred",
+                review_item_id=ARCHIVED_REVIEW_ID,
+                audit_correlation_id="module29-dashboard-demo-archived",
+                dispatch_eligible=False,
+                requires_review=True,
+                blocked=False,
+                unsafe=False,
+                water_emergency_separated=False,
+                deferred_at=morning_start - timedelta(hours=3),
+                deterministic_evidence_snapshot={
+                    "scenario": "manual_review_blocked",
+                    "production_data": False,
+                },
+            ),
+            IntakeProcessingRecord(
+                source_system=SEED_SOURCE_SYSTEM,
+                source_id="module29-job-created-intake",
+                lifecycle_state="job_created",
+                orchestration_state="job_creation_recorded",
+                audit_correlation_id="module29-dashboard-demo-confirmed",
+                dispatch_eligible=True,
+                requires_review=False,
+                blocked=False,
+                unsafe=False,
+                water_emergency_separated=False,
+                deterministic_evidence_snapshot={
+                    "scenario": "external_confirmation_succeeded",
+                    "production_data": False,
+                },
             ),
             IntakeProcessingRecord(
                 source_system=SEED_SOURCE_SYSTEM,
@@ -290,7 +743,10 @@ def build_dashboard_dev_seed_records(
                 orchestration_state="water_emergency_separated",
                 review_item_id=WATER_REVIEW_ID,
                 audit_correlation_id="module27-dashboard-demo-water",
+                dispatch_eligible=False,
                 requires_review=True,
+                blocked=False,
+                unsafe=False,
                 water_emergency_separated=True,
                 deterministic_evidence_snapshot={"water_emergency_separated": True},
             ),
@@ -304,6 +760,18 @@ def build_dashboard_dev_seed_records(
                 moisture_tracking_required=True,
                 opened_at=scheduled_start - timedelta(hours=4),
                 notes="Synthetic Water Emergency seed data. Not production data.",
+            ),
+            WaterEmergency(
+                id=CLOSED_WATER_EMERGENCY_ID,
+                job_id=CLOSED_WATER_JOB_ID,
+                status="closed",
+                drying_stage="closed_after_monitoring",
+                next_required_action="No action. Synthetic closed Water Emergency example.",
+                equipment_onsite=False,
+                moisture_tracking_required=False,
+                opened_at=morning_start - timedelta(days=2),
+                closed_at=morning_start - timedelta(days=1),
+                notes="Synthetic closed Water Emergency seed data. Not production data.",
             ),
             OperationalEventRecord(
                 id=DISPATCH_EVENT_ID,
@@ -348,32 +816,200 @@ def build_dashboard_dev_seed_records(
                     "external_execution": "not_executed",
                 },
             ),
+            OperationalEventRecord(
+                id=READY_EVENT_ID,
+                occurred_at=morning_start - timedelta(minutes=45),
+                recorded_at=morning_start - timedelta(minutes=45),
+                event_type="dispatch_authorization.ready",
+                event_state="awaiting_dispatch_execution",
+                entity_type="route_assignment",
+                entity_id=READY_ROUTE_ASSIGNMENT_ID,
+                route_assignment_id=READY_ROUTE_ASSIGNMENT_ID,
+                visit_id=READY_VISIT_ID,
+                work_order_id=READY_WORK_ORDER_ID,
+                job_id=READY_JOB_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                audit_correlation_id="module29-dashboard-demo-ready",
+                previous_state="dispatch_ready",
+                new_state="awaiting_dispatch_execution",
+                event_fingerprint="module29-dashboard-demo-ready",
+                is_immutable=True,
+                event_snapshot={"source": SEED_SOURCE_SYSTEM, "production_data": False},
+            ),
+            OperationalEventRecord(
+                id=EXTERNAL_CONFIRMED_EVENT_ID,
+                occurred_at=morning_start + timedelta(hours=2),
+                recorded_at=morning_start + timedelta(hours=2),
+                event_type="external_confirmation.confirmed",
+                event_state="confirmed",
+                entity_type="route_assignment",
+                entity_id=CONFIRMED_ROUTE_ASSIGNMENT_ID,
+                route_assignment_id=CONFIRMED_ROUTE_ASSIGNMENT_ID,
+                visit_id=CONFIRMED_VISIT_ID,
+                work_order_id=CONFIRMED_WORK_ORDER_ID,
+                job_id=CONFIRMED_JOB_ID,
+                technician_id=TECHNICIAN_ID,
+                audit_correlation_id="module29-dashboard-demo-confirmed",
+                previous_state="awaiting_external_confirmation",
+                new_state="confirmed",
+                event_fingerprint="module29-dashboard-demo-external-confirmed",
+                is_immutable=True,
+                event_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "external_execution": "not_executed",
+                    "production_data": False,
+                },
+            ),
+            OperationalEventRecord(
+                id=CONFIRMATION_EVENT_ID,
+                occurred_at=scheduled_start - timedelta(minutes=45),
+                recorded_at=scheduled_start - timedelta(minutes=45),
+                event_type="external_confirmation.failed",
+                event_state="failed",
+                entity_type="route_assignment",
+                entity_id=ROUTE_ASSIGNMENT_ID,
+                route_assignment_id=ROUTE_ASSIGNMENT_ID,
+                visit_id=STANDARD_VISIT_ID,
+                work_order_id=WORK_ORDER_ID,
+                job_id=STANDARD_JOB_ID,
+                technician_id=TECHNICIAN_ID,
+                audit_correlation_id=SEED_AUDIT_CORRELATION_ID,
+                previous_state="awaiting_external_confirmation",
+                new_state="failed",
+                event_fingerprint="module29-dashboard-demo-confirmation-failed",
+                is_immutable=True,
+                event_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "external_execution": "not_executed",
+                    "production_data": False,
+                },
+            ),
+            OperationalEventRecord(
+                id=RECOVERY_EVENT_ID,
+                occurred_at=recovery_start - timedelta(minutes=30),
+                recorded_at=recovery_start - timedelta(minutes=30),
+                event_type="operational_recovery.rollback_prepared",
+                event_state="rollback_prepared",
+                entity_type="route_assignment",
+                entity_id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                route_assignment_id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                visit_id=RECOVERY_VISIT_ID,
+                work_order_id=RECOVERY_WORK_ORDER_ID,
+                job_id=RECOVERY_JOB_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                audit_correlation_id="module29-dashboard-demo-recovery",
+                previous_state="reconciliation_required",
+                new_state="rollback_prepared",
+                event_fingerprint="module29-dashboard-demo-rollback-prepared",
+                is_immutable=True,
+                event_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "rollback_execution": "not_executed",
+                    "production_data": False,
+                },
+            ),
+            OperationalEventRecord(
+                id=GOVERNANCE_EVENT_ID,
+                occurred_at=recovery_start - timedelta(minutes=25),
+                recorded_at=recovery_start - timedelta(minutes=25),
+                event_type="operational_governance.intervention_required",
+                event_state="manual_intervention_required",
+                entity_type="route_assignment",
+                entity_id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                route_assignment_id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                visit_id=RECOVERY_VISIT_ID,
+                work_order_id=RECOVERY_WORK_ORDER_ID,
+                job_id=RECOVERY_JOB_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                audit_correlation_id="module29-dashboard-demo-recovery",
+                previous_state="rollback_prepared",
+                new_state="manual_intervention_required",
+                event_fingerprint="module29-dashboard-demo-governance-required",
+                is_immutable=True,
+                event_snapshot={"source": SEED_SOURCE_SYSTEM, "production_data": False},
+            ),
+            OperationalEventRecord(
+                id=INCIDENT_EVENT_ID,
+                occurred_at=recovery_start - timedelta(minutes=20),
+                recorded_at=recovery_start - timedelta(minutes=20),
+                event_type="operational_accountability.incident_prepared",
+                event_state="incident_prepared",
+                entity_type="route_assignment",
+                entity_id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                route_assignment_id=RECOVERY_ROUTE_ASSIGNMENT_ID,
+                visit_id=RECOVERY_VISIT_ID,
+                work_order_id=RECOVERY_WORK_ORDER_ID,
+                job_id=RECOVERY_JOB_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                audit_correlation_id="module29-dashboard-demo-recovery",
+                previous_state="manual_intervention_required",
+                new_state="incident_prepared",
+                event_fingerprint="module29-dashboard-demo-incident-prepared",
+                is_immutable=True,
+                event_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "incident_execution": "not_executed",
+                    "production_data": False,
+                },
+            ),
         ),
     )
 
 
 def seed_dashboard_dev_data(session: Session) -> DashboardDevSeedResult:
-    existing_seed = session.scalar(
-        select(IntakeProcessingRecord.id)
-        .where(IntakeProcessingRecord.source_system == SEED_SOURCE_SYSTEM)
-        .limit(1),
+    records = build_dashboard_dev_seed_records()
+    inserted_count = 0
+    updated_count = 0
+
+    for record in records.records:
+        with session.no_autoflush:
+            existing_record = find_existing_seed_record(session, record)
+        if existing_record is None:
+            session.add(record)
+            inserted_count += 1
+        else:
+            copy_seed_column_values(record, existing_record)
+            updated_count += 1
+
+    return DashboardDevSeedResult(
+        inserted=inserted_count > 0,
+        record_count=records.record_count,
+        inserted_count=inserted_count,
+        updated_count=updated_count,
+        scenario_count=len(records.scenario_labels),
+        scenario_labels=records.scenario_labels,
+        source_system=SEED_SOURCE_SYSTEM,
+        message="dashboard dev seed data upserted",
     )
-    if existing_seed is not None:
-        return DashboardDevSeedResult(
-            inserted=False,
-            record_count=0,
-            source_system=SEED_SOURCE_SYSTEM,
-            message="dashboard dev seed data already exists",
+
+
+def find_existing_seed_record(session: Session, record: object) -> object | None:
+    if isinstance(record, IntakeProcessingRecord):
+        return session.scalar(
+            select(IntakeProcessingRecord)
+            .where(IntakeProcessingRecord.source_system == record.source_system)
+            .where(IntakeProcessingRecord.source_id == record.source_id)
+            .limit(1),
+        )
+    if isinstance(record, OperationalEventRecord):
+        return session.scalar(
+            select(OperationalEventRecord)
+            .where(OperationalEventRecord.event_fingerprint == record.event_fingerprint)
+            .limit(1),
         )
 
-    records = build_dashboard_dev_seed_records()
-    session.add_all(records.records)
-    return DashboardDevSeedResult(
-        inserted=True,
-        record_count=records.record_count,
-        source_system=SEED_SOURCE_SYSTEM,
-        message="dashboard dev seed data inserted",
-    )
+    record_id = getattr(record, "id", None)
+    if record_id is None:
+        return None
+    return session.get(type(record), record_id)
+
+
+def copy_seed_column_values(source: object, target: object) -> None:
+    for column_attr in inspect(type(source)).mapper.column_attrs:
+        key = column_attr.key
+        if key in {"id", "created_at", "updated_at"}:
+            continue
+        setattr(target, key, getattr(source, key))
 
 
 def main() -> int:

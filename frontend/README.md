@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 27 keeps the frontend foundation read-only while documenting the local PostgreSQL-backed live dashboard verification path.
+Phase 0 Module 29 keeps the frontend foundation read-only while using expanded synthetic local PostgreSQL seed scenarios for live dashboard verification.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -160,6 +160,12 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Optional backend seed data is synthetic, source-labeled, and intended only to exercise read-only dashboard states.
 - The frontend should show `Live backend` only when all dashboard read models are fetched successfully from the configured backend.
 - The frontend still has no mutation controls, dispatch actions, Manual Review actions, vendor execution controls, or AI controls.
+
+## Module 29 Live Seed Notes
+
+- The backend seed now provides broader synthetic examples for dispatch-ready, blocked, external execution, confirmation/recovery, reconciliation, governance/accountability, timeline, and Water Emergency separation states.
+- These examples are for local dashboard data quality checks only and must not be treated as production/customer/vendor data.
+- Browser verification should confirm `Live backend` is visible, `Mock fallback` is absent, seeded categories appear in the dashboard text, and no form/button/action controls are rendered.
 
 ## Troubleshooting
 

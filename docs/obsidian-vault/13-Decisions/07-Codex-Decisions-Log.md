@@ -914,3 +914,30 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database architecture notes
   - System architecture notes
   - Dashboard live-backend verification workflow
+
+---
+
+## 2026-05-16 — Phase 0 Module 29 Local Live Dashboard Data Quality And Seed Scenario Expansion
+
+- Decision type: Implementation / local seed data / dashboard verification
+- Status: Implemented for local development
+- Decision:
+  - Expand the local dashboard seed from a narrow sample into multiple realistic synthetic scenario stories.
+  - Keep all seed records fake, source-labeled, dev/test-only, local-database-only, and free of production/customer/vendor data.
+  - Preserve the historical `module27_dev_seed` source label for compatibility while adding Module 29 scenario labels and output summary fields.
+  - Make seed execution rerunnable by upserting seed-owned records instead of skipping after the first seed.
+  - Add tests that validate seed scenario coverage, read-model counts, timeline ordering, GET-only endpoint checking, and safety guards.
+- Rationale:
+  - A useful dashboard foundation needs live read-model examples beyond a single dispatch/review path.
+  - Future frontend/admin modules need realistic local states for visual QA without introducing production data, mutation endpoints, or vendor behavior.
+  - Rerunnable seed behavior reduces local database drift without requiring destructive database resets.
+- Future implications:
+  - Future UI storyboards can map to named seed scenarios.
+  - Scenario packs may become useful once role-specific dashboards, Water Emergency screens, or timeline filters exist.
+  - Persistent local `acs_fsm_dev` remains convenient for development, but future integration tests may need disposable databases.
+- Affected systems:
+  - Backend local seed script
+  - Backend seed/read-model tests
+  - Backend/frontend setup documentation
+  - Database and system architecture notes
+  - Dashboard live-backend QA workflow

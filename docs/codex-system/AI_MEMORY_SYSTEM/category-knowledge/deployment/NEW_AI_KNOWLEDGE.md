@@ -96,3 +96,5 @@ Use this pattern for future ACS local database setup, read-model verification, a
 
 ### Verification Notes
 Context7 confirmed Alembic `upgrade head` behavior and SQLAlchemy PostgreSQL psycopg URL shape. Module 28 later found Homebrew PostgreSQL 18.4 available on this workstation but stopped, started the local `postgresql@18` development service, created the missing `acs_fsm_dev` role/database, ran migrations to `20260515_0018`, inserted synthetic dashboard seed data, and verified live backend dashboard reads plus frontend live-backend rendering. Repository scripts still must not install PostgreSQL or manage production services.
+
+Module 29 expanded the seed into named synthetic scenarios for dispatch-ready work, Manual Review, blocked operations, external confirmation, reconciliation/recovery, governance/accountability, timeline evidence, and Water Emergency separation. The seed is rerunnable through upsert behavior for seed-owned records and remains local-development-only.

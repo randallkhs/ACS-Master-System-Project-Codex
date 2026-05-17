@@ -104,7 +104,22 @@ Optional synthetic dashboard data for local read-model verification:
 make seed-dashboard
 ```
 
-The seed command inserts clearly labeled synthetic records with `source_system=module27_dev_seed`. It refuses production, refuses non-local hosts, refuses placeholder passwords, does not call vendors, and does not imply real ACS production state.
+The seed command upserts clearly labeled synthetic records with `source_system=module27_dev_seed`. It refuses production, refuses non-local hosts, refuses placeholder passwords, does not call vendors, and does not imply real ACS production state. The source name remains stable for compatibility with the original local seed set; Module 29 expands the scenario version reported by the seed output.
+
+Module 29 seed scenarios cover:
+
+- standard dispatch-ready work awaiting execution
+- Manual Review blockers and deferred/resolved/archived review states
+- blocked route assignment evidence
+- external confirmation failure and retry-preparation evidence
+- successful external confirmation evidence
+- reconciliation and rollback-preparation evidence
+- governance manual-intervention evidence
+- accountability incident-preparation evidence
+- ordered operational event timeline examples
+- open and closed Water Emergency examples kept separate from standard dispatch
+
+`make seed-dashboard` is safe to rerun. It updates seed-owned records by deterministic identifiers or natural seed keys, inserts missing seed records, and does not delete non-seed data. It does not reset the database.
 
 Module 28 live verification confirmed this sequence on a local Homebrew PostgreSQL runtime:
 

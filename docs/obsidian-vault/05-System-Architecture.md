@@ -541,6 +541,30 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 29 Local Live Dashboard Seed Quality Boundary
+
+Module 29 improves the local live-dashboard verification foundation by expanding safe synthetic seed scenarios and validating that dashboard read models represent realistic persisted operational states.
+
+The seed now exercises:
+
+- dispatch-ready standard work
+- Manual Review blockers and completed review states
+- blocked dispatch and route-assignment states
+- external adapter/execution/confirmation states without vendor calls
+- retry, reconciliation, rollback, governance, accountability, and incident-preparation evidence without execution
+- immutable operational event timelines
+- open and closed Water Emergency records that remain separated from standard dispatch
+
+The boundary remains read-model and local-development only. The frontend still displays backend state without business workflow logic, mutation controls, dispatch actions, Manual Review resolution, vendor execution, AI authority, or hidden lifecycle inference.
+
+Unresolved:
+
+- whether seed scenario labels should become formal UI storyboards
+- whether seed data should later split into small scenario packs for focused QA
+- whether production dashboard filters should mirror these local scenario categories
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

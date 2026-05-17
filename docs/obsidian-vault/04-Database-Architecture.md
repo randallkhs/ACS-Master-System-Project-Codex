@@ -150,6 +150,38 @@ Unresolved:
 - whether future integration tests should bootstrap a separate disposable `acs_fsm_test` database
 - production database provisioning, backup, restore, and migration rollout procedures
 
+## Phase 0 Module 29 Local Dashboard Seed Scenario Expansion
+
+Module 29 expands local development seed data so dashboard read models can be verified against more realistic synthetic operational states.
+
+Seed scenario coverage:
+
+- standard dispatch-ready work awaiting execution
+- Manual Review open, deferred, approved, and archived examples
+- blocked route and blocked intake examples
+- external confirmation failure with retry-preparation evidence
+- successful external confirmation evidence
+- reconciliation-required and consistency-verified examples
+- rollback-preparation and recovery evidence
+- governance manual-intervention and operator-approved examples
+- accountability escalation, incident-preparation, and blocked examples
+- ordered immutable operational event timeline entries
+- open and closed Water Emergency records, separated from standard dispatch
+
+Seed behavior:
+
+- seed execution remains dev/test-only and local-database-only
+- seed records are synthetic, fake, source-labeled, and contain no customer-sensitive data
+- the seed script upserts seed-owned records by deterministic IDs or natural seed keys
+- rerunning the seed updates/inserts seed-owned examples without resetting the database or deleting non-seed data
+- external/vendor execution fields remain evidence-only and explicitly not executed
+
+Unresolved:
+
+- whether future demo data should move into named scenario packs
+- whether UI storyboards should map to seed scenario labels
+- whether local integration tests should run against a disposable database rather than persistent `acs_fsm_dev`
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:
