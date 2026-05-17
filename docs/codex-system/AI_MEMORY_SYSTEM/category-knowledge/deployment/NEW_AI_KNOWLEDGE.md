@@ -95,4 +95,4 @@ The dashboard read models need live persisted state for meaningful local fronten
 Use this pattern for future ACS local database setup, read-model verification, and integration-test planning.
 
 ### Verification Notes
-Context7 confirmed Alembic `upgrade head` behavior and SQLAlchemy PostgreSQL psycopg URL shape. On this workstation, PostgreSQL client/server binaries were not available in `PATH`, so live database verification requires installing/starting PostgreSQL outside the repository first.
+Context7 confirmed Alembic `upgrade head` behavior and SQLAlchemy PostgreSQL psycopg URL shape. Module 28 later found Homebrew PostgreSQL 18.4 available on this workstation but stopped, started the local `postgresql@18` development service, created the missing `acs_fsm_dev` role/database, ran migrations to `20260515_0018`, inserted synthetic dashboard seed data, and verified live backend dashboard reads plus frontend live-backend rendering. Repository scripts still must not install PostgreSQL or manage production services.

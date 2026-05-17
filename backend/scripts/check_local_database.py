@@ -4,7 +4,7 @@ import json
 from dataclasses import asdict, dataclass
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import make_url
+from sqlalchemy.engine import Connection, make_url
 
 from app.core.config import LOCAL_DATABASE_HOSTS, PLACEHOLDER_DATABASE_PASSWORDS, Settings
 
@@ -28,9 +28,7 @@ def check_local_database(settings: Settings) -> LocalDatabaseCheckResult:
     )
     with engine.connect() as connection:
         connection.execute(text("select 1"))
-        alembic_revision = connection.execute(
-            text("select version_num from alembic_version limit 1"),
-        ).scalar_one_or_none()
+        alembic_revision = _read_alembic_revision(connection)
 
     return LocalDatabaseCheckResult(
         connected=True,
@@ -38,6 +36,17 @@ def check_local_database(settings: Settings) -> LocalDatabaseCheckResult:
         database_url=make_url(settings.database_url).render_as_string(hide_password=True),
         alembic_revision=alembic_revision,
     )
+
+
+def _read_alembic_revision(connection: Connection) -> str | None:
+    alembic_table = connection.execute(
+        text("select to_regclass('public.alembic_version')"),
+    ).scalar_one_or_none()
+    if alembic_table is None:
+        return None
+    return connection.execute(
+        text("select version_num from alembic_version limit 1"),
+    ).scalar_one_or_none()
 
 
 def validate_local_database_settings(settings: Settings) -> None:

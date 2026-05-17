@@ -118,6 +118,38 @@ Unresolved:
 - whether local database lifecycle should remain manual or gain optional non-production tooling
 - exact production database backup, restore, and migration rollout procedures
 
+## Phase 0 Module 28 Local PostgreSQL Bootstrap Verification
+
+Module 28 moves the local database workflow from documented readiness to an actual workstation bootstrap when PostgreSQL is safely available.
+
+Verified local bootstrap actions:
+
+- detected Homebrew PostgreSQL client tools: `psql`, `pg_isready`, and `createdb`
+- detected a stopped local `postgresql@18` Homebrew service
+- started only the local development PostgreSQL service with the normal Homebrew service command
+- created the missing local-only `acs_fsm_dev` role and `acs_fsm_dev` database
+- ran Alembic migrations to `20260515_0018`
+- inserted synthetic dashboard seed records labeled `module27_dev_seed`
+- verified read-only dashboard endpoints against the local PostgreSQL database
+
+Safety rules:
+
+- repository scripts must not install PostgreSQL or Homebrew packages automatically
+- database bootstrap remains local-development-only and must not target remote or production hosts
+- destructive reset commands require explicit developer intent and must remain scoped to `acs_fsm_dev`
+- seed data remains synthetic and must not imply real production state
+- dashboard endpoint checks remain GET-only and read-only
+
+Implementation note:
+
+- the local database checker now distinguishes a reachable but unmigrated database from a failed connection by reporting `connected=true` and `migrated=false` when the `alembic_version` table is not present yet
+
+Unresolved:
+
+- whether ACS wants local PostgreSQL managed through Homebrew, Postgres.app, Docker, or a separate standard for each developer workstation
+- whether future integration tests should bootstrap a separate disposable `acs_fsm_test` database
+- production database provisioning, backup, restore, and migration rollout procedures
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:

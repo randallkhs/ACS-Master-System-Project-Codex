@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from app.core.config import Settings
-from scripts.check_local_database import validate_local_database_settings
+from scripts.check_local_database import _read_alembic_revision, validate_local_database_settings
 from scripts.seed_dashboard_dev_data import (
     SEED_SOURCE_SYSTEM,
     build_dashboard_dev_seed_records,
@@ -66,6 +66,32 @@ def test_local_database_check_uses_same_local_safety_boundary() -> None:
 
     with pytest.raises(RuntimeError, match="local PostgreSQL host"):
         validate_local_database_settings(unsafe_settings)
+
+
+def test_local_database_check_reports_unmigrated_database_as_connected() -> None:
+    class FakeScalarResult:
+        def __init__(self, value: str | None) -> None:
+            self.value = value
+
+        def scalar_one_or_none(self) -> str | None:
+            return self.value
+
+    class FakeConnection:
+        def __init__(self) -> None:
+            self.queries: list[str] = []
+
+        def execute(self, statement):
+            query = str(statement)
+            self.queries.append(query)
+            if "to_regclass" in query:
+                return FakeScalarResult(None)
+            msg = "version table must not be queried before migrations exist"
+            raise AssertionError(msg)
+
+    connection = FakeConnection()
+
+    assert _read_alembic_revision(connection) is None
+    assert connection.queries == ["select to_regclass('public.alembic_version')"]
 
 
 def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:

@@ -515,6 +515,32 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 28 Local PostgreSQL Bootstrap And Live Dashboard Verification Boundary
+
+Module 28 verifies the local development loop against a real PostgreSQL-backed dashboard API when the workstation already has a safe local PostgreSQL runtime available:
+
+- local PostgreSQL service detection and readiness checks
+- non-destructive creation of the missing `acs_fsm_dev` local role and database
+- Alembic migration execution against the local development database
+- synthetic dashboard seed insertion for read-model verification only
+- read-only backend dashboard endpoint verification
+- frontend `/dashboard` smoke verification in live-backend mode
+
+The boundary remains development-only. The repository still does not install PostgreSQL, manage production services, create production secrets, deploy infrastructure, implement auth, expose mutation endpoints, execute dispatch, call vendors, or grant AI operational authority.
+
+Implementation note:
+
+- the local database check script now treats a missing `alembic_version` table as a reachable-but-unmigrated database instead of a connection failure
+
+Unresolved:
+
+- standard local PostgreSQL runtime choice for all future developer workstations
+- whether future integration checks should use a dedicated disposable database
+- production database provisioning and migration operations
+- production frontend/backend routing, stale-data, cache, and authentication strategy
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

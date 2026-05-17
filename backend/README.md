@@ -62,6 +62,26 @@ ACS_FSM_DATABASE_URL=postgresql+psycopg://acs_fsm_dev:acs_fsm_dev@127.0.0.1:5432
 
 The username/password above are local-only development assumptions. Do not reuse them in production or in shared hosted databases.
 
+Module 28 keeps PostgreSQL installation outside the repository. Do not install PostgreSQL automatically from project scripts. If PostgreSQL is missing on a Mac development workstation that uses Homebrew, install and start it manually:
+
+```bash
+brew install postgresql@18
+brew services start postgresql@18
+echo 'export PATH="/opt/homebrew/opt/postgresql@18/bin:$PATH"' >> ~/.zshrc
+```
+
+Safe local detection commands:
+
+```bash
+command -v psql
+command -v pg_isready
+command -v createdb
+pg_isready -h 127.0.0.1 -p 5432
+brew services list
+```
+
+If Homebrew PostgreSQL is installed but stopped, `brew services start postgresql@18` is the expected local development start command. Do not use this repository to modify production PostgreSQL services or production host configuration.
+
 Example setup with a local PostgreSQL installation:
 
 ```bash
@@ -85,6 +105,18 @@ make seed-dashboard
 ```
 
 The seed command inserts clearly labeled synthetic records with `source_system=module27_dev_seed`. It refuses production, refuses non-local hosts, refuses placeholder passwords, does not call vendors, and does not imply real ACS production state.
+
+Module 28 live verification confirmed this sequence on a local Homebrew PostgreSQL runtime:
+
+```bash
+make db-check
+make migrate
+make db-check
+make seed-dashboard
+make dashboard-check
+```
+
+The pre-migration database check may report `connected=true` and `migrated=false`; that means PostgreSQL is reachable and Alembic still needs to run.
 
 Safe dev-only reset, if you intentionally want to recreate the local database:
 

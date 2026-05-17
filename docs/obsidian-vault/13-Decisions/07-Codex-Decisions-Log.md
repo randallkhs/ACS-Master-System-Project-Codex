@@ -885,3 +885,32 @@ Use this file for durable decisions that affect future development. Do not recor
   - Frontend source indicator and render tests
   - Dashboard API/local database architecture notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-16 — Phase 0 Module 28 Local PostgreSQL Bootstrap And Live Dashboard Data Verification
+
+- Decision type: Implementation / local database bootstrap / full-stack verification
+- Status: Implemented for local development
+- Decision:
+  - Attempt local PostgreSQL bootstrap only after confirming PostgreSQL tooling and a local development service are available.
+  - Start only the local Homebrew `postgresql@18` development service when it is installed but stopped.
+  - Create only the missing local `acs_fsm_dev` role and database; do not reset or destroy existing data.
+  - Run Alembic migrations to the current head and seed only synthetic dashboard data.
+  - Verify read-only backend dashboard endpoints and frontend live-backend dashboard rendering against the local database.
+  - Fix the local database check script so a reachable pre-migration database reports `connected=true` and `migrated=false` instead of a connection failure.
+- Rationale:
+  - Module 27 documented the workflow, but future dashboard work needs proof that a real local PostgreSQL-backed read model can run end to end.
+  - The bootstrap must remain safe, local-only, non-production, and non-destructive.
+  - A missing `alembic_version` table is an expected pre-migration state, not evidence that PostgreSQL is unreachable.
+- Future implications:
+  - Future local development can use the verified sequence: check database, migrate, check database again, seed dashboard data, start backend, run dashboard endpoint check, then run the frontend in live-backend mode.
+  - ACS still needs a standard local PostgreSQL runtime decision for workstations and a separate production database provisioning/migration runbook.
+  - Future integration tests may need a dedicated disposable database instead of reusing `acs_fsm_dev`.
+- Affected systems:
+  - Backend local database check script
+  - Backend local development tests
+  - Backend/frontend setup documentation
+  - Database architecture notes
+  - System architecture notes
+  - Dashboard live-backend verification workflow
