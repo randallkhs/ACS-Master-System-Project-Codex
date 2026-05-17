@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { AlertStrip } from "@/components/dashboard/alert-strip";
 import { CountBucketPanel } from "@/components/dashboard/count-bucket-panel";
 import { OperationalHealthPanel } from "@/components/dashboard/operational-health-panel";
+import { ScenarioStoryboard } from "@/components/dashboard/scenario-storyboard";
 import { SectionCard } from "@/components/dashboard/section-card";
 import { SectionHeading } from "@/components/dashboard/section-heading";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -41,6 +42,8 @@ export function DashboardView({ result }: DashboardViewProps) {
         </div>
 
         <OperationalHealthPanel summary={summary} lifecycle={lifecycle} />
+
+        <ScenarioStoryboard data={data} source={source} />
 
         <section className="space-y-4">
           <SectionHeading

@@ -271,6 +271,14 @@ AI is still not used in this module.
 
 AI must not generate dashboard seed data, classify seed records as production evidence, bypass Manual Review, infer hidden lifecycle transitions from demo records, clear blockers, resolve Manual Review, execute dispatch, call integrations, authorize recovery/governance/escalation, or change backend read-model authority. Future AI explanation features must remain advisory and separate from persisted dashboard evidence.
 
+## Phase 0 Module 30 Boundary
+
+The live dashboard scenario storyboard is deterministic, display-only, and frontend-only.
+
+AI is still not used in this module.
+
+AI must not generate storyboard authority, infer hidden lifecycle transitions from grouped dashboard counts, treat synthetic seed examples as production evidence, clear Manual Review states, execute dispatch, call integrations, authorize recovery/governance/escalation, or transform read-only scenario visualization into workflow control. Future AI-assisted dashboard explanations must remain advisory and separate from persisted backend dashboard read models.
+
 ---
 
 ## Confidence And Review

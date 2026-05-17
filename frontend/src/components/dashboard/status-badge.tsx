@@ -32,13 +32,13 @@ export function StatusBadge({
 }: StatusBadgeProps) {
   return (
     <span
-      className={`inline-flex min-h-7 items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold ${variantClasses[variant]}`}
+      className={`inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-md border px-2.5 py-1 text-left text-xs font-semibold leading-5 ${variantClasses[variant]}`}
     >
       <span
         className={`h-2 w-2 shrink-0 rounded-full ${dotClasses[variant]}`}
         aria-hidden="true"
       />
-      {label}
+      <span className="min-w-0 break-words">{label}</span>
     </span>
   );
 }

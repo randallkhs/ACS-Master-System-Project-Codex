@@ -565,6 +565,26 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 30 Live Dashboard Scenario Storyboard Boundary
+
+Module 30 improves the read-only frontend dashboard visualization layer for Module 29 live seed scenarios:
+
+- adds a `Scenario Storyboard` section that groups existing backend dashboard read-model counts into local QA scenario families
+- improves scanability for dispatch-ready work, Manual Review, blockers, external execution, recovery/reconciliation, governance/accountability, Water Emergency separation, and immutable timeline evidence
+- improves timeline interpretation with event-state labels, related record chips, and wrapped audit-correlation text
+- improves anchor navigation on mobile and desktop so sticky headers do not cover section headings
+- preserves live backend/fallback source labeling and synthetic-data caution text
+
+The boundary remains frontend-only and read-only. The storyboard does not add backend schema fields, mutation routes, dispatch actions, Manual Review resolution, vendor execution, AI controls, or hidden lifecycle inference.
+
+Unresolved:
+
+- whether future production storyboards should be backend-provided formal scenario metadata instead of frontend grouping of existing counts
+- whether Water Emergency needs a dedicated storyboard/API contract after its specialized workflow path exists
+- how storyboards should interact with future authentication, role scoping, filters, pagination, and refresh cadence
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

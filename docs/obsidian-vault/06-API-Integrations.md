@@ -390,3 +390,27 @@ Open API/local concerns:
 - whether future live API verification should become a dedicated integration-test profile
 - production API base URL and reverse-proxy path strategy
 - production authentication and role-scoped dashboard visibility
+
+## Phase 0 Module 30 Dashboard Storyboard API Consumption Boundary
+
+The frontend scenario storyboard consumes the existing dashboard overview read model only.
+
+Confirmed behavior:
+
+- no backend dashboard API routes were added or changed
+- the storyboard derives display groups from existing `GET /api/v1/dashboard/overview` response fields
+- the API client remains read-only and environment-driven through `ACS_DASHBOARD_API_BASE_URL`
+- live backend and mock fallback source indicators remain visually distinct
+- synthetic local seed context is labeled as local verification context, not production data
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no dispatch, review-resolution, replay, rollback, reconciliation, governance, escalation, vendor, or AI execution calls are added
+- frontend grouping must not become lifecycle authority or infer hidden workflow transitions
+
+Open API/frontend concerns:
+
+- formal production scenario filtering may need backend-owned metadata rather than frontend grouping
+- Water Emergency may need dedicated dashboard/storyboard contracts once its workflow path is implemented
+- role-scoped dashboard visibility and refresh behavior remain future authentication/deployment decisions

@@ -941,3 +941,31 @@ Use this file for durable decisions that affect future development. Do not recor
   - Backend/frontend setup documentation
   - Database and system architecture notes
   - Dashboard live-backend QA workflow
+
+---
+
+## 2026-05-17 — Phase 0 Module 30 Live Dashboard Scenario Storyboard And Operational Visualization
+
+- Decision type: Implementation / frontend visualization / read-only dashboard storytelling
+- Status: Implemented
+- Decision:
+  - Add a read-only `Scenario Storyboard` section to the frontend dashboard.
+  - Group existing backend dashboard read-model counts into local seed scenario families for dispatch-ready work, Manual Review, blockers, external execution, recovery/reconciliation, governance/accountability, Water Emergency separation, and immutable timeline evidence.
+  - Improve timeline interpretation with event-state badges, related record chips, wrapped audit-correlation IDs, and stable visible ordering.
+  - Improve dashboard anchor behavior so sticky desktop and mobile headers do not cover storyboard or timeline section headings.
+  - Preserve `Live backend` and `Mock fallback` source labeling and keep synthetic seed context clearly marked as local verification context.
+- Rationale:
+  - Module 29 expanded local live seed states, but the dashboard needed a clearer operator scan path to understand those persisted states visually.
+  - Storyboard grouping helps frontend QA and future office-dashboard planning without adding backend schema, mutation endpoints, workflow execution, or frontend-owned lifecycle authority.
+  - Manual Review, Water Emergency separation, backend read models, and immutable timeline evidence must remain authoritative.
+- Future implications:
+  - Production scenario filtering may need backend-owned metadata or dedicated dashboard contracts instead of frontend grouping.
+  - Water Emergency may need a dedicated dashboard/storyboard screen once its specialized workflow is implemented.
+  - Authentication, role-scoped visibility, refresh cadence, and timeline pagination remain future decisions.
+- Affected systems:
+  - Frontend dashboard visualization components
+  - Dashboard render tests
+  - Frontend documentation
+  - System architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

@@ -10,6 +10,7 @@ type AppShellProps = {
 };
 
 const navItems = [
+  { label: "Storyboard", href: "#scenario-storyboard" },
   { label: "Overview", href: "#overview" },
   { label: "Lifecycle", href: "#lifecycle" },
   { label: "Manual Review", href: "#manual-review" },

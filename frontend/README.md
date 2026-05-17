@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 29 keeps the frontend foundation read-only while using expanded synthetic local PostgreSQL seed scenarios for live dashboard verification.
+Phase 0 Module 30 keeps the frontend foundation read-only while improving how live backend dashboard seed scenarios are visually explained.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -129,6 +129,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 ## Current Dashboard Views
 
 - Operational health and safety readiness summary
+- Live scenario storyboard for local seed verification context
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -167,6 +168,13 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - These examples are for local dashboard data quality checks only and must not be treated as production/customer/vendor data.
 - Browser verification should confirm `Live backend` is visible, `Mock fallback` is absent, seeded categories appear in the dashboard text, and no form/button/action controls are rendered.
 
+## Module 30 Storyboard Notes
+
+- The dashboard now includes a `Scenario Storyboard` section that groups existing backend read-model counts into local seed scenario families.
+- Storyboard cards are display-only context for dispatch-ready work, Manual Review, blockers, external execution, recovery/reconciliation, governance/accountability, Water Emergency separation, and immutable timeline evidence.
+- The storyboard does not introduce new API fields, lifecycle inference, mutation controls, dispatch actions, Manual Review actions, vendor calls, or AI controls.
+- Mobile and desktop anchor navigation use scroll margins so sticky dashboard headers do not cover storyboard and timeline sections.
+
 ## Troubleshooting
 
 - If the dashboard shows `Mock fallback`, confirm `frontend/.env.local` contains `ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000`.
@@ -180,3 +188,4 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Production filtering, sorting, and pagination for event timelines are not finalized.
 - Refresh cadence and stale-data rules need an explicit operations decision.
 - Water Emergency may need dedicated dashboard screens and API contracts once its specialized workflow path is implemented.
+- Storyboard grouping may need to become backend-provided scenario metadata if production operators need formal scenario filters instead of local QA context.
