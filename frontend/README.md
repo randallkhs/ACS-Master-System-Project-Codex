@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 32 keeps the frontend foundation read-only while adding Water Emergency detail and timeline visibility backed by separated backend read-model contracts.
+Phase 0 Module 33 keeps the frontend foundation read-only while adding Water Emergency equipment, visit-chain, and drying-stage visibility backed by separated backend read-model contracts.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -134,6 +134,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Live scenario storyboard for local seed verification context
 - Dedicated Water Emergency command view
 - Water Emergency detail and evidence timeline view
+- Water Emergency equipment, visit-chain, and drying-stage visibility panels
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -193,6 +194,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Detail fallback data remains typed local development data and is visibly labeled when the backend detail endpoint is unavailable.
 - The detail view is still display-only. It does not create, edit, close, resolve, dispatch, approve, execute vendor calls, or add AI authority.
 
+## Module 33 Water Emergency Visibility Notes
+
+- The Water Emergency summary now displays backend-provided equipment context, visit-chain summary, and drying-stage visibility panels.
+- The detail section now displays backend-provided equipment notes, inventory-modeling unknowns, visit-chain timing/status counts, and drying-stage context.
+- Equipment visibility is not inventory management. The frontend shows existing flags, work-order equipment notes, and explicit unknown indicators only.
+- Visit-chain visibility is not dispatch execution. Water Emergency visits remain separated from standard dispatch action counts and no action buttons are rendered.
+- Drying-stage visibility uses persisted status/stage fields only and does not infer final drying taxonomy, closure readiness, pickup approval, or field authority.
+
 ## Troubleshooting
 
 - If the dashboard shows `Mock fallback`, confirm `frontend/.env.local` contains `ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000`.
@@ -205,5 +214,5 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Authentication and role-scoped dashboard visibility are not implemented.
 - Production filtering, sorting, and pagination for event timelines are not finalized.
 - Refresh cadence and stale-data rules need an explicit operations decision.
-- Water Emergency execution workflow, closure rules, equipment inventory records, and role-scoped emergency operations remain future backend modules.
+- Water Emergency execution workflow, closure rules, final drying taxonomy, equipment inventory records, moisture reading records, and role-scoped emergency operations remain future backend modules.
 - Storyboard grouping may need to become backend-provided scenario metadata if production operators need formal scenario filters instead of local QA context.

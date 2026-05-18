@@ -182,6 +182,62 @@ export type WaterEmergencyReviewIndicatorResponse = {
   recommended_action: string | null;
 };
 
+export type WaterEmergencyEquipmentSummaryResponse = {
+  equipment_onsite_count: number;
+  moisture_tracking_required_count: number;
+  work_orders_with_equipment_notes_count: number;
+  records_missing_equipment_context_count: number;
+  inventory_entity_available: boolean;
+  unknown_counts: CountBucket[];
+};
+
+export type WaterEmergencyVisitChainSummaryResponse = {
+  total_visits: number;
+  multi_visit_record_count: number;
+  open_records_without_visits_count: number;
+  scheduled_visit_count: number;
+  completed_visit_count: number;
+  visit_status_counts: CountBucket[];
+};
+
+export type WaterEmergencyDryingStageSummaryResponse = {
+  stage_counts: CountBucket[];
+  active_stage_counts: CountBucket[];
+  missing_stage_count: number;
+  moisture_tracking_required_count: number;
+};
+
+export type WaterEmergencyEquipmentNoteResponse = {
+  work_order_id: string;
+  required_equipment_notes: string;
+};
+
+export type WaterEmergencyDetailEquipmentContextResponse = {
+  equipment_onsite: boolean;
+  moisture_tracking_required: boolean;
+  inventory_entity_available: boolean;
+  required_equipment_notes: WaterEmergencyEquipmentNoteResponse[];
+  unknown_indicators: string[];
+};
+
+export type WaterEmergencyVisitChainResponse = {
+  total_visits: number;
+  completed_visit_count: number;
+  open_visit_count: number;
+  first_visit_at: string | null;
+  latest_visit_at: string | null;
+  next_scheduled_visit_at: string | null;
+  visit_status_counts: CountBucket[];
+};
+
+export type WaterEmergencyDetailDryingStageContextResponse = {
+  status: string;
+  current_stage: string | null;
+  next_required_action: string | null;
+  moisture_tracking_required: boolean;
+  missing_indicators: string[];
+};
+
 export type WaterEmergencyDashboardResponse = {
   generated_at: string;
   total_records: number;
@@ -192,6 +248,9 @@ export type WaterEmergencyDashboardResponse = {
   multi_visit_count: number;
   equipment_onsite_count: number;
   moisture_tracking_required_count: number;
+  equipment_summary: WaterEmergencyEquipmentSummaryResponse;
+  visit_chain_summary: WaterEmergencyVisitChainSummaryResponse;
+  drying_stage_summary: WaterEmergencyDryingStageSummaryResponse;
   related_job_count: number;
   related_work_order_count: number;
   related_visit_count: number;
@@ -210,6 +269,9 @@ export type WaterEmergencyDetailResponse = {
   work_orders: WaterEmergencyWorkOrderReferenceResponse[];
   visits: WaterEmergencyVisitReferenceResponse[];
   review_indicators: WaterEmergencyReviewIndicatorResponse[];
+  equipment_context: WaterEmergencyDetailEquipmentContextResponse;
+  visit_chain: WaterEmergencyVisitChainResponse;
+  drying_stage_context: WaterEmergencyDetailDryingStageContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];
   timeline_summary: OperationalEventTimelineSummaryResponse;

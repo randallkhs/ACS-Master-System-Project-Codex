@@ -152,3 +152,32 @@ Use this pattern for future high-risk operational detail views where operators n
 
 ### Verification Notes
 Module 32 tests verify the detail section renders separately, the API client remains GET-only, scoped reviews remain per-record, and missing records return 404. Browser QA should continue to verify live backend source labeling, mobile layout, no console errors, no horizontal overflow, and no mutation controls.
+
+---
+
+## Water Emergency Equipment, Visit-Chain, And Drying-Stage Visibility
+
+Category:
+UI design / operational dashboard / Water Emergency
+Date Added:
+2026-05-18
+Last Verified:
+2026-05-18
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 33 verification
+
+### Discovery
+Water Emergency equipment, visit-chain, and drying-stage panels should display backend read-model fields only. Equipment context can show existing onsite/moisture flags and work-order equipment notes, but must also show explicit unknowns when dedicated equipment inventory entities are not modeled. Visit-chain context can show related visit counts, status buckets, and timestamps without becoming dispatch execution. Drying-stage context can show persisted status/stage/next-action values without inventing a final taxonomy.
+
+### Why It Matters
+Water Emergency work is long-lived and operationally sensitive. Operators need to see equipment and drying context, but premature UI authority around pickup, closure, or drying approval would create unsafe workflow assumptions.
+
+### Reusability
+Use this pattern for future high-risk dashboard sections where the UI needs to expose partial persisted context while making missing domain models explicit.
+
+### Verification Notes
+Module 33 tests verify summary/detail equipment context, visit-chain visibility, drying-stage visibility, Water Emergency separation from standard dispatch-ready counts, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, and no horizontal overflow.

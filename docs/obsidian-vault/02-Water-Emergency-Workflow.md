@@ -339,6 +339,38 @@ Unresolved:
 
 ---
 
+# Phase 0 Module 33 — Equipment, Visit Chain, And Drying-Stage Visibility
+
+Module 33 extends the dedicated read-only Water Emergency dashboard and detail views with equipment context, visit-chain context, and drying-stage context where existing persisted data supports it.
+
+The read models may show:
+
+- equipment onsite and moisture-tracking flags from `WaterEmergency`
+- required equipment notes from related `WorkOrder` records
+- explicit unknown indicators when dedicated equipment inventory entities are not modeled yet
+- related Water Emergency visit-chain counts and visit status buckets
+- first/latest/next scheduled visit timestamps when related `Visit` records provide them
+- current Water Emergency status, drying stage, next required action, and missing-stage indicators
+
+Boundary:
+
+- this is visibility only
+- equipment visibility is not inventory management
+- visit-chain visibility is not dispatch execution
+- drying-stage visibility is not field approval or closure authority
+- no final Water Emergency taxonomy is invented
+- no Water Emergency create, edit, close, dispatch, approval, vendor, or AI controls are added
+
+Unresolved:
+
+- final Luis-confirmed Water Emergency status/stage taxonomy
+- dedicated equipment inventory and equipment lifecycle records
+- dedicated moisture reading/history records
+- formal rules for equipment pickup, closure readiness, and revisit scheduling
+- role-scoped authority once authenticated Water Emergency workflows are designed
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

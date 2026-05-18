@@ -53,6 +53,34 @@ class ManualReviewSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class WaterEmergencyEquipmentSummary:
+    equipment_onsite_count: int
+    moisture_tracking_required_count: int
+    work_orders_with_equipment_notes_count: int
+    records_missing_equipment_context_count: int
+    inventory_entity_available: bool
+    unknown_counts: tuple[CountBucket, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyVisitChainSummary:
+    total_visits: int
+    multi_visit_record_count: int
+    open_records_without_visits_count: int
+    scheduled_visit_count: int
+    completed_visit_count: int
+    visit_status_counts: tuple[CountBucket, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyDryingStageSummary:
+    stage_counts: tuple[CountBucket, ...]
+    active_stage_counts: tuple[CountBucket, ...]
+    missing_stage_count: int
+    moisture_tracking_required_count: int
+
+
+@dataclass(frozen=True, slots=True)
 class WaterEmergencyRecordSummary:
     water_emergency_id: UUID
     job_id: UUID
@@ -124,6 +152,41 @@ class WaterEmergencyReviewIndicator:
 
 
 @dataclass(frozen=True, slots=True)
+class WaterEmergencyEquipmentNote:
+    work_order_id: UUID
+    required_equipment_notes: str
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyDetailEquipmentContext:
+    equipment_onsite: bool
+    moisture_tracking_required: bool
+    inventory_entity_available: bool
+    required_equipment_notes: tuple[WaterEmergencyEquipmentNote, ...]
+    unknown_indicators: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyVisitChain:
+    total_visits: int
+    completed_visit_count: int
+    open_visit_count: int
+    first_visit_at: datetime | None
+    latest_visit_at: datetime | None
+    next_scheduled_visit_at: datetime | None
+    visit_status_counts: tuple[CountBucket, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyDetailDryingStageContext:
+    status: str
+    current_stage: str | None
+    next_required_action: str | None
+    moisture_tracking_required: bool
+    missing_indicators: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class WaterEmergencyDetailReadModel:
     generated_at: datetime
     record: WaterEmergencyRecordSummary
@@ -131,6 +194,9 @@ class WaterEmergencyDetailReadModel:
     work_orders: tuple[WaterEmergencyWorkOrderReference, ...]
     visits: tuple[WaterEmergencyVisitReference, ...]
     review_indicators: tuple[WaterEmergencyReviewIndicator, ...]
+    equipment_context: WaterEmergencyDetailEquipmentContext
+    visit_chain: WaterEmergencyVisitChain
+    drying_stage_context: WaterEmergencyDetailDryingStageContext
     data_gap_counts: tuple[CountBucket, ...]
     audit_correlation_ids: tuple[str, ...]
     timeline_summary: OperationalEventTimelineSummary
@@ -147,6 +213,9 @@ class WaterEmergencyDashboardReadModel:
     multi_visit_count: int
     equipment_onsite_count: int
     moisture_tracking_required_count: int
+    equipment_summary: WaterEmergencyEquipmentSummary
+    visit_chain_summary: WaterEmergencyVisitChainSummary
+    drying_stage_summary: WaterEmergencyDryingStageSummary
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

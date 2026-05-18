@@ -468,3 +468,27 @@ Open API/frontend concerns:
 - timeline pagination and filtering
 - role-scoped evidence visibility
 - future equipment, moisture, photo, and technician-note data contracts
+
+## Phase 0 Module 33 Water Emergency Equipment And Visit Visibility Contract Boundary
+
+The existing Water Emergency dashboard API contracts now include read-only equipment, visit-chain, and drying-stage visibility fields.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/water-emergency` exposes summary-level equipment context, visit-chain summary, and drying-stage summary
+- `GET /api/v1/dashboard/water-emergency/{water_emergency_id}` exposes detail-level equipment notes/unknowns, visit-chain timing/status counts, and drying-stage context
+- fields are derived only from persisted Water Emergency, Work Order, Visit, Review, and event evidence
+- unknown indicators are explicit when equipment inventory or moisture-reading entities are not modeled
+- Water Emergency visit-chain data remains separate from standard dispatch API authority
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no Water Emergency equipment management, drying approval, closure, dispatch, vendor, or AI execution calls are added
+- frontend display must consume the backend contract instead of deriving hidden emergency lifecycle state
+
+Open API/frontend concerns:
+
+- final Water Emergency status/stage taxonomy
+- dedicated equipment inventory and moisture-reading API contracts
+- production filtering, pagination, refresh cadence, and role-scoped detail visibility

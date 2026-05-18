@@ -150,6 +150,28 @@ describe("DashboardView", () => {
     expect(html).toContain("Standard dispatch-ready work");
   });
 
+  it("renders Water Emergency equipment, visit-chain, and drying-stage visibility", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+      />
+    );
+
+    expect(html).toContain("Equipment Context");
+    expect(html).toContain("Visit Chain");
+    expect(html).toContain("Drying Stage Visibility");
+    expect(html).toContain("Detail Equipment Context");
+    expect(html).toContain("Detail Visit Chain");
+    expect(html).toContain("Detail Drying Stage");
+    expect(html).toContain("Equipment Inventory Not Modeled");
+    expect(html).not.toMatch(/<button|role="button"/);
+  });
+
   it("renders timeline events in stable read-model order", () => {
     const html = renderToStaticMarkup(
       <DashboardView

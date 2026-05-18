@@ -300,6 +300,34 @@ def test_dispatch_lifecycle_summary_counts_persisted_lifecycle_state() -> None:
     assert lifecycle.blocker_count >= 1
 
 
+def test_water_emergency_dispatch_ready_visits_stay_out_of_standard_dispatch_count() -> None:
+    records = dashboard_source_records()
+    water_emergency = records["water_emergencies"][0]
+    assert isinstance(water_emergency, WaterEmergency)
+
+    records["visits"].append(
+        Visit(
+            id=uuid4(),
+            job_id=water_emergency.job_id,
+            visit_type="water_emergency",
+            status="dispatch_ready",
+            audit_correlation_id="audit-dashboard-water-dispatch-ready",
+        ),
+    )
+
+    lifecycle = DashboardReadModelService().build_lifecycle(
+        intake_records=records["intake_records"],
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        route_assignments=records["route_assignments"],
+        water_emergencies=records["water_emergencies"],
+    )
+
+    assert bucket_count(lifecycle.visit_status_counts, "dispatch_ready") == 2
+    assert lifecycle.dispatch_ready_visits == 1
+
+
 def test_water_emergency_dashboard_summary_stays_separate_and_read_only() -> None:
     records = dashboard_source_records()
     water_emergency = records["water_emergencies"][0]
@@ -309,12 +337,27 @@ def test_water_emergency_dashboard_summary_stays_separate_and_read_only() -> Non
         visit.id for visit in records["visits"] if getattr(visit, "job_id", None) == water_job_id
     )
     extra_water_visit_id = uuid4()
+    water_work_order_id = uuid4()
     water_timeline_id = uuid4()
 
+    records["work_orders"].append(
+        WorkOrder(
+            id=water_work_order_id,
+            job_id=water_job_id,
+            work_order_number="WATER-VISIBILITY-001",
+            status="generated",
+            dispatch_status="not_dispatched",
+            required_equipment_notes=(
+                "Synthetic-only equipment context: air movers and dehumidifier placeholders."
+            ),
+            audit_correlation_id="audit-dashboard-water-extra",
+        ),
+    )
     records["visits"].append(
         Visit(
             id=extra_water_visit_id,
             job_id=water_job_id,
+            work_order_id=water_work_order_id,
             visit_type="water_emergency",
             status="scheduled",
             audit_correlation_id="audit-dashboard-water-extra",
@@ -370,9 +413,26 @@ def test_water_emergency_dashboard_summary_stays_separate_and_read_only() -> Non
     assert summary.equipment_onsite_count == 1
     assert summary.moisture_tracking_required_count == 1
     assert summary.related_job_count == 1
+    assert summary.related_work_order_count == 1
     assert summary.related_visit_count == 2
     assert summary.review_indicator_count == 2
     assert summary.escalation_indicator_count == 2
+    assert summary.visit_chain_summary.total_visits == 2
+    assert summary.visit_chain_summary.multi_visit_record_count == 1
+    assert summary.visit_chain_summary.open_records_without_visits_count == 0
+    assert bucket_count(summary.visit_chain_summary.visit_status_counts, "scheduled") == 1
+    assert bucket_count(summary.visit_chain_summary.visit_status_counts, "review_required") == 1
+    assert summary.equipment_summary.equipment_onsite_count == 1
+    assert summary.equipment_summary.moisture_tracking_required_count == 1
+    assert summary.equipment_summary.work_orders_with_equipment_notes_count == 1
+    assert summary.equipment_summary.inventory_entity_available is False
+    assert (
+        bucket_count(summary.equipment_summary.unknown_counts, "equipment_inventory_not_modeled")
+        == 1
+    )
+    assert summary.drying_stage_summary.missing_stage_count == 1
+    assert summary.drying_stage_summary.moisture_tracking_required_count == 1
+    assert bucket_count(summary.drying_stage_summary.active_stage_counts, "monitoring") == 1
     assert summary.timeline_summary.total_events == 1
     assert summary.timeline_summary.entries[0].entity_type == "water_emergency"
     assert summary.records[0].job_id == water_job_id
@@ -450,6 +510,9 @@ def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
             work_order_number="WATER-DETAIL-001",
             status="generated",
             dispatch_status="not_dispatched",
+            required_equipment_notes=(
+                "Synthetic-only detail equipment: air movers, dehumidifier, moisture meter."
+            ),
             audit_correlation_id="audit-dashboard-water-detail",
         ),
     )
@@ -553,6 +616,17 @@ def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
     assert detail.job is not None
     assert detail.job.job_id == water_job_id
     assert detail.work_orders[0].work_order_id == water_work_order_id
+    assert detail.equipment_context.equipment_onsite is True
+    assert detail.equipment_context.moisture_tracking_required is True
+    assert detail.equipment_context.inventory_entity_available is False
+    assert detail.equipment_context.required_equipment_notes[0].work_order_id == water_work_order_id
+    assert "equipment_inventory_not_modeled" in detail.equipment_context.unknown_indicators
+    assert detail.visit_chain.total_visits == 2
+    assert detail.visit_chain.open_visit_count == 2
+    assert bucket_count(detail.visit_chain.visit_status_counts, "scheduled") == 1
+    assert detail.drying_stage_context.status == "drying_in_progress"
+    assert detail.drying_stage_context.current_stage == "monitoring"
+    assert detail.drying_stage_context.missing_indicators == ()
     assert len(detail.visits) == 2
     assert [review.reason_code for review in detail.review_indicators] == [
         "water_detail_review",

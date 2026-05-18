@@ -287,6 +287,34 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
   multi_visit_count: 1,
   equipment_onsite_count: 1,
   moisture_tracking_required_count: 1,
+  equipment_summary: {
+    equipment_onsite_count: 1,
+    moisture_tracking_required_count: 1,
+    work_orders_with_equipment_notes_count: 1,
+    records_missing_equipment_context_count: 0,
+    inventory_entity_available: false,
+    unknown_counts: [{ label: "equipment_inventory_not_modeled", count: 1 }]
+  },
+  visit_chain_summary: {
+    total_visits: 2,
+    multi_visit_record_count: 1,
+    open_records_without_visits_count: 0,
+    scheduled_visit_count: 1,
+    completed_visit_count: 0,
+    visit_status_counts: [
+      { label: "review_required", count: 1 },
+      { label: "scheduled", count: 1 }
+    ]
+  },
+  drying_stage_summary: {
+    stage_counts: [
+      { label: "monitoring", count: 1 },
+      { label: "closed_after_monitoring", count: 1 }
+    ],
+    active_stage_counts: [{ label: "monitoring", count: 1 }],
+    missing_stage_count: 0,
+    moisture_tracking_required_count: 1
+  },
   related_job_count: 2,
   related_work_order_count: 1,
   related_visit_count: 2,
@@ -307,7 +335,10 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       opened_at: "2026-05-16T06:30:00Z",
       closed_at: null,
       related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
-      related_visit_ids: ["bc393a4e-1b61-4daa-a9f9-bb615e944d9b"],
+      related_visit_ids: [
+        "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
+        "94b62507-5b8d-4a9d-9578-5225492d81d1"
+      ],
       open_review_count: 1,
       timeline_event_count: 1,
       audit_correlation_ids: ["audit-dashboard-003"]
@@ -392,6 +423,18 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
       arrived_at: null,
       completed_at: null,
       audit_correlation_id: "audit-dashboard-003"
+    },
+    {
+      visit_id: "94b62507-5b8d-4a9d-9578-5225492d81d1",
+      work_order_id: "87f35d07-7bb6-4d7d-81fc-787cb05dc4a4",
+      technician_id: "844f52e6-94b7-46e4-9115-34ca2e908afb",
+      visit_type: "water_emergency",
+      status: "scheduled",
+      scheduled_start_at: "2026-05-17T13:00:00Z",
+      scheduled_end_at: "2026-05-17T14:00:00Z",
+      arrived_at: null,
+      completed_at: null,
+      audit_correlation_id: "audit-dashboard-003"
     }
   ],
   review_indicators: [
@@ -409,6 +452,38 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
       recommended_action: "Review synthetic Water Emergency detail evidence."
     }
   ],
+  equipment_context: {
+    equipment_onsite: true,
+    moisture_tracking_required: true,
+    inventory_entity_available: false,
+    required_equipment_notes: [
+      {
+        work_order_id: "87f35d07-7bb6-4d7d-81fc-787cb05dc4a4",
+        required_equipment_notes:
+          "Synthetic-only equipment context: air movers and dehumidifier placeholders."
+      }
+    ],
+    unknown_indicators: ["equipment_inventory_not_modeled"]
+  },
+  visit_chain: {
+    total_visits: 2,
+    completed_visit_count: 0,
+    open_visit_count: 2,
+    first_visit_at: "2026-05-16T13:00:00Z",
+    latest_visit_at: "2026-05-17T13:00:00Z",
+    next_scheduled_visit_at: "2026-05-16T13:00:00Z",
+    visit_status_counts: [
+      { label: "review_required", count: 1 },
+      { label: "scheduled", count: 1 }
+    ]
+  },
+  drying_stage_context: {
+    status: "drying_in_progress",
+    current_stage: "monitoring",
+    next_required_action: "Synthetic drying progress review",
+    moisture_tracking_required: true,
+    missing_indicators: []
+  },
   data_gap_counts: [],
   audit_correlation_ids: ["audit-dashboard-003"],
   timeline_summary: {

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type {
   DashboardFetchResult,
   WaterEmergencyDashboardResponse
@@ -97,6 +98,91 @@ export function WaterEmergencyDashboard({
           />
         </div>
 
+        <div className="grid gap-4 xl:grid-cols-3">
+          <VisibilityPanel title="Equipment Context">
+            <div className="grid grid-cols-2 gap-2">
+              <RecordMetric
+                label="Onsite"
+                value={data.equipment_summary.equipment_onsite_count}
+              />
+              <RecordMetric
+                label="Moisture"
+                value={data.equipment_summary.moisture_tracking_required_count}
+              />
+              <RecordMetric
+                label="WO Notes"
+                value={data.equipment_summary.work_orders_with_equipment_notes_count}
+              />
+              <RecordMetric
+                label="Unknown"
+                value={data.equipment_summary.records_missing_equipment_context_count}
+              />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusBadge
+                label={
+                  data.equipment_summary.inventory_entity_available
+                    ? "Equipment inventory modeled"
+                    : "Equipment inventory not modeled"
+                }
+                variant={
+                  data.equipment_summary.inventory_entity_available
+                    ? "success"
+                    : "warning"
+                }
+              />
+              {data.equipment_summary.unknown_counts.map((bucket) => (
+                <StatusBadge
+                  key={bucket.label}
+                  label={`${humanizeLabel(bucket.label)}: ${formatCount(bucket.count)}`}
+                  variant="warning"
+                />
+              ))}
+            </div>
+          </VisibilityPanel>
+
+          <VisibilityPanel title="Visit Chain">
+            <div className="grid grid-cols-2 gap-2">
+              <RecordMetric
+                label="Visits"
+                value={data.visit_chain_summary.total_visits}
+              />
+              <RecordMetric
+                label="Multi"
+                value={data.visit_chain_summary.multi_visit_record_count}
+              />
+              <RecordMetric
+                label="Scheduled"
+                value={data.visit_chain_summary.scheduled_visit_count}
+              />
+              <RecordMetric
+                label="Complete"
+                value={data.visit_chain_summary.completed_visit_count}
+              />
+            </div>
+            <BucketPills buckets={data.visit_chain_summary.visit_status_counts} />
+          </VisibilityPanel>
+
+          <VisibilityPanel title="Drying Stage Visibility">
+            <div className="grid grid-cols-2 gap-2">
+              <RecordMetric
+                label="Missing"
+                value={data.drying_stage_summary.missing_stage_count}
+              />
+              <RecordMetric
+                label="Moisture"
+                value={data.drying_stage_summary.moisture_tracking_required_count}
+              />
+            </div>
+            <div className="mt-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Active stages
+              </div>
+              <BucketPills buckets={data.drying_stage_summary.active_stage_counts} />
+            </div>
+          </VisibilityPanel>
+        </div>
+
         <div className="grid gap-4 lg:grid-cols-3">
           <CountBucketPanel title="Emergency Status" buckets={data.status_counts} />
           <CountBucketPanel title="Drying Stage" buckets={data.stage_counts} />
@@ -193,6 +279,44 @@ export function WaterEmergencyDashboard({
         </div>
       </div>
     </SectionCard>
+  );
+}
+
+function VisibilityPanel({
+  title,
+  children
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50/70 p-4">
+      <h3 className="text-sm font-semibold text-[#162033]">{title}</h3>
+      <div className="mt-3">{children}</div>
+    </div>
+  );
+}
+
+function BucketPills({ buckets }: { buckets: { label: string; count: number }[] }) {
+  if (buckets.length === 0) {
+    return (
+      <div className="mt-3 text-sm leading-6 text-slate-500">
+        No persisted bucket data returned.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {buckets.map((bucket) => (
+        <span
+          key={bucket.label}
+          className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-600"
+        >
+          {humanizeLabel(bucket.label)} {formatCount(bucket.count)}
+        </span>
+      ))}
+    </div>
   );
 }
 

@@ -21,10 +21,17 @@ from app.domain.dashboard import (
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
     WaterEmergencyDashboardReadModel,
+    WaterEmergencyDetailDryingStageContext,
+    WaterEmergencyDetailEquipmentContext,
     WaterEmergencyDetailReadModel,
+    WaterEmergencyDryingStageSummary,
+    WaterEmergencyEquipmentNote,
+    WaterEmergencyEquipmentSummary,
     WaterEmergencyJobReference,
     WaterEmergencyRecordSummary,
     WaterEmergencyReviewIndicator,
+    WaterEmergencyVisitChain,
+    WaterEmergencyVisitChainSummary,
     WaterEmergencyVisitReference,
     WaterEmergencyWorkOrderReference,
 )
@@ -125,6 +132,7 @@ class DashboardReadModelService:
         route_assignments: Sequence[RouteAssignment] = (),
         water_emergencies: Sequence[WaterEmergency] = (),
     ) -> DispatchLifecycleSummary:
+        water_job_ids = {record.job_id for record in water_emergencies}
         return DispatchLifecycleSummary(
             intake_lifecycle_counts=count_by_attr(intake_records, "lifecycle_state"),
             job_status_counts=count_by_attr(jobs, "status"),
@@ -136,7 +144,11 @@ class DashboardReadModelService:
                 "dispatch_execution_state",
             ),
             dispatch_ready_visits=count_where(
-                visits, lambda visit: visit.status == "dispatch_ready"
+                visits,
+                lambda visit: (
+                    visit.status == "dispatch_ready"
+                    and is_standard_dispatch_visit(visit, water_job_ids=water_job_ids)
+                ),
             ),
             dispatched_route_assignments=count_where(
                 route_assignments,
@@ -261,6 +273,15 @@ class DashboardReadModelService:
                 water_emergencies,
                 lambda record: bool(record.moisture_tracking_required),
             ),
+            equipment_summary=water_emergency_equipment_summary(
+                water_emergencies,
+                work_orders=related_work_orders,
+            ),
+            visit_chain_summary=water_emergency_visit_chain_summary(
+                water_emergencies,
+                visits=related_visits,
+            ),
+            drying_stage_summary=water_emergency_drying_stage_summary(water_emergencies),
             related_job_count=len(related_jobs),
             related_work_order_count=len(water_work_order_ids),
             related_visit_count=len(water_visit_ids),
@@ -391,6 +412,12 @@ class DashboardReadModelService:
                     ),
                 )
             ),
+            equipment_context=water_emergency_detail_equipment_context(
+                record,
+                work_orders=related_work_orders,
+            ),
+            visit_chain=water_emergency_detail_visit_chain(related_visits),
+            drying_stage_context=water_emergency_detail_drying_stage_context(record),
             data_gap_counts=water_emergency_detail_data_gap_counts(
                 record,
                 job=related_job,
@@ -749,6 +776,14 @@ def is_open_water_emergency(record: WaterEmergency) -> bool:
     )
 
 
+def is_standard_dispatch_visit(
+    visit: Visit,
+    *,
+    water_job_ids: set[object],
+) -> bool:
+    return visit.job_id not in water_job_ids and normalized(visit.visit_type) != "water_emergency"
+
+
 def count_multi_visit_water_emergencies(
     water_emergencies: Sequence[WaterEmergency],
     *,
@@ -764,6 +799,194 @@ def count_multi_visit_water_emergencies(
             > 1
         ),
     )
+
+
+def water_emergency_equipment_summary(
+    water_emergencies: Sequence[WaterEmergency],
+    *,
+    work_orders: Sequence[WorkOrder],
+) -> WaterEmergencyEquipmentSummary:
+    gaps: list[str] = []
+    if water_emergencies:
+        gaps.append("equipment_inventory_not_modeled")
+
+    return WaterEmergencyEquipmentSummary(
+        equipment_onsite_count=count_where(
+            water_emergencies,
+            lambda record: bool(record.equipment_onsite),
+        ),
+        moisture_tracking_required_count=count_where(
+            water_emergencies,
+            lambda record: bool(record.moisture_tracking_required),
+        ),
+        work_orders_with_equipment_notes_count=count_where(
+            work_orders,
+            lambda work_order: bool(normalized(work_order.required_equipment_notes)),
+        ),
+        records_missing_equipment_context_count=count_where(
+            water_emergencies,
+            lambda record: (
+                is_open_water_emergency(record)
+                and not record.equipment_onsite
+                and not record.moisture_tracking_required
+                and not water_emergency_work_orders_include_equipment_notes(
+                    record,
+                    work_orders=work_orders,
+                )
+            ),
+        ),
+        inventory_entity_available=False,
+        unknown_counts=count_values(gaps),
+    )
+
+
+def water_emergency_work_orders_include_equipment_notes(
+    record: WaterEmergency,
+    *,
+    work_orders: Sequence[WorkOrder],
+) -> bool:
+    return any(
+        work_order.job_id == record.job_id and bool(normalized(work_order.required_equipment_notes))
+        for work_order in work_orders
+    )
+
+
+def water_emergency_visit_chain_summary(
+    water_emergencies: Sequence[WaterEmergency],
+    *,
+    visits: Sequence[Visit],
+) -> WaterEmergencyVisitChainSummary:
+    return WaterEmergencyVisitChainSummary(
+        total_visits=len(visits),
+        multi_visit_record_count=count_multi_visit_water_emergencies(
+            water_emergencies,
+            visits=visits,
+        ),
+        open_records_without_visits_count=count_where(
+            water_emergencies,
+            lambda record: (
+                is_open_water_emergency(record)
+                and not any(visit.job_id == record.job_id for visit in visits)
+            ),
+        ),
+        scheduled_visit_count=count_where(visits, is_scheduled_visit),
+        completed_visit_count=count_where(visits, is_completed_visit),
+        visit_status_counts=count_by_attr(visits, "status"),
+    )
+
+
+def water_emergency_drying_stage_summary(
+    water_emergencies: Sequence[WaterEmergency],
+) -> WaterEmergencyDryingStageSummary:
+    open_records = tuple(record for record in water_emergencies if is_open_water_emergency(record))
+    return WaterEmergencyDryingStageSummary(
+        stage_counts=count_by_attr(water_emergencies, "drying_stage"),
+        active_stage_counts=count_by_attr(open_records, "drying_stage"),
+        missing_stage_count=count_where(
+            water_emergencies,
+            lambda record: not normalized(record.drying_stage),
+        ),
+        moisture_tracking_required_count=count_where(
+            water_emergencies,
+            lambda record: bool(record.moisture_tracking_required),
+        ),
+    )
+
+
+def water_emergency_detail_equipment_context(
+    record: WaterEmergency,
+    *,
+    work_orders: Sequence[WorkOrder],
+) -> WaterEmergencyDetailEquipmentContext:
+    notes = tuple(
+        WaterEmergencyEquipmentNote(
+            work_order_id=work_order.id,
+            required_equipment_notes=work_order.required_equipment_notes or "",
+        )
+        for work_order in sorted(
+            work_orders,
+            key=lambda work_order: (
+                normalized(work_order.work_order_number),
+                str(work_order.id),
+            ),
+        )
+        if normalized(work_order.required_equipment_notes)
+    )
+    unknowns = ["equipment_inventory_not_modeled"]
+    if record.equipment_onsite and not notes:
+        unknowns.append("equipment_onsite_without_equipment_notes")
+
+    return WaterEmergencyDetailEquipmentContext(
+        equipment_onsite=record.equipment_onsite,
+        moisture_tracking_required=record.moisture_tracking_required,
+        inventory_entity_available=False,
+        required_equipment_notes=notes,
+        unknown_indicators=tuple(unknowns),
+    )
+
+
+def water_emergency_detail_visit_chain(
+    visits: Sequence[Visit],
+) -> WaterEmergencyVisitChain:
+    visit_datetimes = tuple(
+        visit_time for visit in visits if (visit_time := visit_chain_datetime(visit)) is not None
+    )
+    next_scheduled_visit_at = min(
+        (
+            visit.scheduled_start_at
+            for visit in visits
+            if visit.scheduled_start_at is not None and not is_completed_visit(visit)
+        ),
+        default=None,
+    )
+
+    return WaterEmergencyVisitChain(
+        total_visits=len(visits),
+        completed_visit_count=count_where(visits, is_completed_visit),
+        open_visit_count=count_where(
+            visits,
+            lambda visit: not is_completed_visit(visit),
+        ),
+        first_visit_at=min(visit_datetimes, default=None),
+        latest_visit_at=max(visit_datetimes, default=None),
+        next_scheduled_visit_at=next_scheduled_visit_at,
+        visit_status_counts=count_by_attr(visits, "status"),
+    )
+
+
+def water_emergency_detail_drying_stage_context(
+    record: WaterEmergency,
+) -> WaterEmergencyDetailDryingStageContext:
+    missing_indicators: list[str] = []
+    if is_open_water_emergency(record):
+        if not normalized(record.drying_stage):
+            missing_indicators.append("missing_drying_stage")
+        if not normalized(record.next_required_action):
+            missing_indicators.append("missing_next_required_action")
+
+    return WaterEmergencyDetailDryingStageContext(
+        status=normalized(record.status),
+        current_stage=normalized(record.drying_stage) or None,
+        next_required_action=record.next_required_action,
+        moisture_tracking_required=record.moisture_tracking_required,
+        missing_indicators=tuple(missing_indicators),
+    )
+
+
+def is_scheduled_visit(visit: Visit) -> bool:
+    return visit.scheduled_start_at is not None or normalized(visit.status) == "scheduled"
+
+
+def is_completed_visit(visit: Visit) -> bool:
+    return visit.completed_at is not None or normalized(visit.status) in {
+        "complete",
+        "completed",
+        "closed",
+    }
+
+
+def visit_chain_datetime(visit: Visit) -> datetime | None:
+    return visit.scheduled_start_at or visit.arrived_at or visit.completed_at
 
 
 def is_water_emergency_review_item(

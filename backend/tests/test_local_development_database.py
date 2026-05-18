@@ -124,7 +124,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
         if "event_fingerprint" in record.__dict__
     }
 
-    assert seed_records.record_count == 48
+    assert seed_records.record_count == 51
     assert seed_records.scenario_labels == (
         "standard_dispatch_ready",
         "manual_review_blocked",
@@ -141,6 +141,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
     assert "module29-dashboard-demo-external-confirmed" in event_fingerprints
     assert "module29-dashboard-demo-incident-prepared" in event_fingerprints
     assert "module32-dashboard-demo-water-extraction-started" in event_fingerprints
+    assert "module33-dashboard-demo-water-drying-check-scheduled" in event_fingerprints
 
     route_assignment = next(
         record
@@ -153,6 +154,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
 
 def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> None:
     seed_records = build_dashboard_dev_seed_records()
+    service = DashboardReadModelService()
     overview = DashboardReadModelService().build_overview(
         intake_records=seed_records_of_type(seed_records, IntakeProcessingRecord),
         jobs=seed_records_of_type(seed_records, Job),
@@ -198,8 +200,22 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
     assert dispatch.governance_accountability.intervention_required_count == 1
     assert dispatch.governance_accountability.incident_prepared_count == 1
 
+    water_emergency = service.build_water_emergency(
+        jobs=seed_records_of_type(seed_records, Job),
+        work_orders=seed_records_of_type(seed_records, WorkOrder),
+        visits=seed_records_of_type(seed_records, Visit),
+        review_items=seed_records_of_type(seed_records, ReviewItem),
+        water_emergencies=seed_records_of_type(seed_records, WaterEmergency),
+        operational_events=seed_records_of_type(seed_records, OperationalEventRecord),
+    )
+    assert water_emergency.visit_chain_summary.total_visits == 2
+    assert water_emergency.visit_chain_summary.multi_visit_record_count == 1
+    assert water_emergency.equipment_summary.work_orders_with_equipment_notes_count == 1
+    assert water_emergency.equipment_summary.inventory_entity_available is False
+    assert water_emergency.drying_stage_summary.moisture_tracking_required_count == 1
+
     timeline = overview.timeline_summary
-    assert timeline.total_events == 9
+    assert timeline.total_events == 10
     assert timeline.mutable_event_count == 0
     assert [entry.occurred_at for entry in timeline.entries] == sorted(
         entry.occurred_at for entry in timeline.entries

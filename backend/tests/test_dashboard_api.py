@@ -19,10 +19,17 @@ from app.domain.dashboard import (
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
     WaterEmergencyDashboardReadModel,
+    WaterEmergencyDetailDryingStageContext,
+    WaterEmergencyDetailEquipmentContext,
     WaterEmergencyDetailReadModel,
+    WaterEmergencyDryingStageSummary,
+    WaterEmergencyEquipmentNote,
+    WaterEmergencyEquipmentSummary,
     WaterEmergencyJobReference,
     WaterEmergencyRecordSummary,
     WaterEmergencyReviewIndicator,
+    WaterEmergencyVisitChain,
+    WaterEmergencyVisitChainSummary,
     WaterEmergencyVisitReference,
     WaterEmergencyWorkOrderReference,
 )
@@ -134,6 +141,28 @@ def water_emergency_contract() -> WaterEmergencyDashboardReadModel:
         multi_visit_count=1,
         equipment_onsite_count=1,
         moisture_tracking_required_count=1,
+        equipment_summary=WaterEmergencyEquipmentSummary(
+            equipment_onsite_count=1,
+            moisture_tracking_required_count=1,
+            work_orders_with_equipment_notes_count=1,
+            records_missing_equipment_context_count=0,
+            inventory_entity_available=False,
+            unknown_counts=(CountBucket(label="equipment_inventory_not_modeled", count=1),),
+        ),
+        visit_chain_summary=WaterEmergencyVisitChainSummary(
+            total_visits=2,
+            multi_visit_record_count=1,
+            open_records_without_visits_count=0,
+            scheduled_visit_count=1,
+            completed_visit_count=0,
+            visit_status_counts=(CountBucket(label="scheduled", count=1),),
+        ),
+        drying_stage_summary=WaterEmergencyDryingStageSummary(
+            stage_counts=(CountBucket(label="monitoring", count=1),),
+            active_stage_counts=(CountBucket(label="monitoring", count=1),),
+            missing_stage_count=0,
+            moisture_tracking_required_count=1,
+        ),
         related_job_count=1,
         related_work_order_count=0,
         related_visit_count=2,
@@ -224,6 +253,36 @@ def water_emergency_detail_contract() -> WaterEmergencyDetailReadModel:
                 audit_correlation_id="audit-water-001",
                 recommended_action="Review synthetic detail evidence.",
             ),
+        ),
+        equipment_context=WaterEmergencyDetailEquipmentContext(
+            equipment_onsite=True,
+            moisture_tracking_required=True,
+            inventory_entity_available=False,
+            required_equipment_notes=(
+                WaterEmergencyEquipmentNote(
+                    work_order_id=UUID("00000000-0000-0000-0000-000000000034"),
+                    required_equipment_notes=(
+                        "Synthetic-only detail equipment notes for read-model testing."
+                    ),
+                ),
+            ),
+            unknown_indicators=("equipment_inventory_not_modeled",),
+        ),
+        visit_chain=WaterEmergencyVisitChain(
+            total_visits=1,
+            completed_visit_count=0,
+            open_visit_count=1,
+            first_visit_at=datetime(2026, 5, 16, 13, 0, tzinfo=UTC),
+            latest_visit_at=datetime(2026, 5, 16, 13, 0, tzinfo=UTC),
+            next_scheduled_visit_at=datetime(2026, 5, 16, 13, 0, tzinfo=UTC),
+            visit_status_counts=(CountBucket(label="scheduled", count=1),),
+        ),
+        drying_stage_context=WaterEmergencyDetailDryingStageContext(
+            status="drying_in_progress",
+            current_stage="monitoring",
+            next_required_action="Schedule drying check.",
+            moisture_tracking_required=True,
+            missing_indicators=(),
         ),
         data_gap_counts=(),
         audit_correlation_ids=("audit-water-001",),
@@ -338,6 +397,11 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert dispatch_response.json()["external_execution"]["execution_failed_count"] == 0
     assert water_response.status_code == 200
     assert water_response.json()["open_count"] == 1
+    assert water_response.json()["equipment_summary"]["inventory_entity_available"] is False
+    assert water_response.json()["visit_chain_summary"]["total_visits"] == 2
+    assert water_response.json()["drying_stage_summary"]["active_stage_counts"] == [
+        {"label": "monitoring", "count": 1},
+    ]
     assert water_response.json()["records"][0]["related_visit_ids"] == [
         "00000000-0000-0000-0000-000000000033",
     ]
@@ -348,6 +412,11 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert water_detail_response.json()["review_indicators"][0]["reason_code"] == (
         "water_detail_review"
     )
+    assert water_detail_response.json()["equipment_context"]["unknown_indicators"] == [
+        "equipment_inventory_not_modeled",
+    ]
+    assert water_detail_response.json()["visit_chain"]["total_visits"] == 1
+    assert water_detail_response.json()["drying_stage_context"]["current_stage"] == "monitoring"
     assert water_detail_response.json()["timeline_summary"]["entries"][0]["event_type"] == (
         "water_emergency.extraction_started"
     )

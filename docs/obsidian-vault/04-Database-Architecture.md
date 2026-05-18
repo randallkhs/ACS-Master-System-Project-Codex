@@ -218,6 +218,24 @@ Unresolved:
 - whether Water Emergency equipment, moisture readings, and visit-stage history should become dedicated tables
 - production timeline filtering, pagination, retention, and role-scoped visibility
 
+## Phase 0 Module 33 Water Emergency Visibility Read Models
+
+Module 33 extends the Water Emergency dashboard/detail projections without changing the database schema.
+
+Read-model behavior:
+
+- derives equipment context from existing `WaterEmergency.equipment_onsite`, `WaterEmergency.moisture_tracking_required`, and related `WorkOrder.required_equipment_notes`
+- derives visit-chain context from related `Visit` rows and existing visit timestamps/statuses
+- derives drying-stage visibility from existing `WaterEmergency.status`, `drying_stage`, and `next_required_action`
+- exposes explicit unknown indicators, including `equipment_inventory_not_modeled`, where dedicated inventory or moisture-reading tables do not yet exist
+- excludes Water Emergency visits from standard dispatch-ready action counts while still preserving persisted visit status buckets
+
+Unresolved:
+
+- future schema may require dedicated equipment inventory, deployment/pickup, moisture readings, photo evidence, and emergency history tables
+- final Water Emergency stage taxonomy remains an operations decision
+- production read-model query optimization remains future work
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:

@@ -1004,6 +1004,39 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-18 — Phase 0 Module 33 Water Emergency Equipment, Visit Chain, And Drying-Stage Visibility
+
+- Decision type: Implementation / Water Emergency visibility / read-only API contract
+- Status: Implemented
+- Decision:
+  - Extend Water Emergency dashboard/detail read models with equipment context, visit-chain summary, and drying-stage context derived from existing persisted data.
+  - Expose equipment onsite/moisture flags, related work-order equipment notes, and explicit unknown indicators because dedicated equipment inventory entities are not modeled yet.
+  - Expose Water Emergency visit-chain counts, status buckets, and detail timestamps from related `Visit` records without executing dispatch.
+  - Keep Water Emergency visits out of standard dispatch-ready action counts while preserving persisted visit status buckets for visibility.
+  - Expand local synthetic seed data with Water Emergency equipment notes, a multi-visit chain, and a drying-check event for live dashboard verification.
+  - Add frontend summary/detail panels for equipment, visit-chain, and drying-stage visibility without adding action controls.
+- Rationale:
+  - Operators need clearer emergency context before workflow execution modules exist.
+  - Equipment and drying-stage visibility must not imply inventory management, closure authority, or final taxonomy decisions.
+  - Water Emergency remains first-class and separated from standard dispatch.
+- Future implications:
+  - Future modules still need final Water Emergency status/stage taxonomy, equipment inventory/deployment/pickup records, moisture readings, photos, field approval rules, closure policy, and authenticated role scopes.
+  - Production read models may need optimized queries, pagination, and refresh/staleness rules once real operational volume exists.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Local synthetic dashboard seed data
+  - Frontend dashboard API contracts/mock data
+  - Frontend Water Emergency summary/detail sections
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary
+
+---
+
 ## 2026-05-17 — Phase 0 Module 32 Water Emergency Detail Read Model And Timeline Visualization
 
 - Decision type: Implementation / Water Emergency detail / read-only API contract

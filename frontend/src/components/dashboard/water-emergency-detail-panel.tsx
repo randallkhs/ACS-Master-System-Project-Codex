@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import type {
+  CountBucket,
   DashboardFetchResult,
   WaterEmergencyDetailResponse,
+  WaterEmergencyEquipmentNoteResponse,
   WaterEmergencyReviewIndicatorResponse,
   WaterEmergencyVisitReferenceResponse,
   WaterEmergencyWorkOrderReferenceResponse
@@ -151,6 +153,97 @@ function WaterEmergencyDetailContent({
         </div>
       </div>
 
+      <div className="grid gap-4 xl:grid-cols-3">
+        <ReferencePanel title="Detail Equipment Context">
+          <div className="flex flex-wrap gap-2">
+            <StatusBadge
+              label={data.equipment_context.equipment_onsite ? "Equipment onsite" : "No onsite flag"}
+              variant={data.equipment_context.equipment_onsite ? "warning" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                data.equipment_context.moisture_tracking_required
+                  ? "Moisture tracking required"
+                  : "Moisture tracking not required"
+              }
+              variant={data.equipment_context.moisture_tracking_required ? "info" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                data.equipment_context.inventory_entity_available
+                  ? "Equipment inventory modeled"
+                  : "Equipment inventory not modeled"
+              }
+              variant={
+                data.equipment_context.inventory_entity_available
+                  ? "success"
+                  : "warning"
+              }
+            />
+          </div>
+          <div className="mt-3 space-y-2">
+            {data.equipment_context.required_equipment_notes.length > 0 ? (
+              data.equipment_context.required_equipment_notes.map((note) => (
+                <EquipmentNote key={note.work_order_id} note={note} />
+              ))
+            ) : (
+              <EmptyDetailText label="No required equipment notes returned." />
+            )}
+          </div>
+          <InlineTags values={data.equipment_context.unknown_indicators} />
+        </ReferencePanel>
+
+        <ReferencePanel title="Detail Visit Chain">
+          <div className="grid grid-cols-2 gap-2">
+            <DetailMetric label="Visits" value={data.visit_chain.total_visits} />
+            <DetailMetric label="Open" value={data.visit_chain.open_visit_count} />
+            <DetailMetric
+              label="Complete"
+              value={data.visit_chain.completed_visit_count}
+            />
+            <DetailMetric
+              label="Next"
+              value={data.visit_chain.next_scheduled_visit_at ? 1 : 0}
+            />
+          </div>
+          <div className="mt-3 text-sm leading-6 text-slate-600">
+            First{" "}
+            {data.visit_chain.first_visit_at
+              ? formatDateTime(data.visit_chain.first_visit_at)
+              : "not recorded"}
+            <br />
+            Latest{" "}
+            {data.visit_chain.latest_visit_at
+              ? formatDateTime(data.visit_chain.latest_visit_at)
+              : "not recorded"}
+          </div>
+          <BucketSummary buckets={data.visit_chain.visit_status_counts} />
+        </ReferencePanel>
+
+        <ReferencePanel title="Detail Drying Stage">
+          <div className="space-y-2 text-sm leading-6 text-slate-600">
+            <ReferenceLine label="Status" value={humanizeLabel(data.drying_stage_context.status)} />
+            <ReferenceLine
+              label="Stage"
+              value={humanizeLabel(data.drying_stage_context.current_stage)}
+            />
+            <ReferenceLine
+              label="Next"
+              value={data.drying_stage_context.next_required_action ?? "Not recorded"}
+            />
+            <ReferenceLine
+              label="Moisture"
+              value={
+                data.drying_stage_context.moisture_tracking_required
+                  ? "Required"
+                  : "Not required"
+              }
+            />
+          </div>
+          <InlineTags values={data.drying_stage_context.missing_indicators} />
+        </ReferencePanel>
+      </div>
+
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <ReferencePanel title="Related Job">
           {data.job ? (
@@ -223,6 +316,74 @@ function WaterEmergencyDetailContent({
           <TimelineList entries={data.timeline_summary.entries} />
         </div>
       </div>
+    </div>
+  );
+}
+
+function EquipmentNote({ note }: { note: WaterEmergencyEquipmentNoteResponse }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-3">
+      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+        Work order {compactId(note.work_order_id)}
+      </div>
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        {note.required_equipment_notes}
+      </p>
+    </div>
+  );
+}
+
+function DetailMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white px-2 py-2 text-center">
+      <div className="text-base font-semibold leading-none text-[#162033]">
+        {formatCount(value)}
+      </div>
+      <div className="mt-1 text-xs font-semibold leading-4 text-slate-500">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function BucketSummary({ buckets }: { buckets: CountBucket[] }) {
+  if (buckets.length === 0) {
+    return <EmptyDetailText label="No visit-chain status buckets returned." />;
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {buckets.map((bucket) => (
+        <span
+          key={bucket.label}
+          className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-600"
+        >
+          {humanizeLabel(bucket.label)} {formatCount(bucket.count)}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function InlineTags({ values }: { values: string[] }) {
+  if (values.length === 0) {
+    return (
+      <div className="mt-3 text-sm leading-6 text-slate-500">
+        No missing context returned.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2">
+      {values.map((value) => (
+        <span
+          key={value}
+          className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-900"
+        >
+          {humanizeLabel(value)}
+        </span>
+      ))}
     </div>
   );
 }

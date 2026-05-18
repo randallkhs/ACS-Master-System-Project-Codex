@@ -295,6 +295,14 @@ AI is still not used in this module.
 
 AI must not generate Water Emergency detail authority, infer hidden lifecycle transitions from timeline events, edit or close emergency work, clear scoped Manual Review indicators, execute dispatch, call vendor integrations, authorize equipment pickup, or transform detail evidence into workflow control. Future AI explanations for Water Emergency detail evidence must remain advisory and separate from persisted backend read models.
 
+## Phase 0 Module 33 Boundary
+
+Water Emergency equipment, visit-chain, and drying-stage visibility are deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer final Water Emergency drying taxonomy, create equipment inventory, authorize equipment pickup, schedule visits, close emergency work, clear Manual Review indicators, execute dispatch, call vendor integrations, or transform read-only equipment/visit/drying context into workflow control. Future AI explanations for these views must remain advisory and separate from persisted backend read models.
+
 ---
 
 ## Confidence And Review

@@ -51,6 +51,31 @@ class ManualReviewSummaryResponse(DashboardSchema):
     audit_correlation_count: int
 
 
+class WaterEmergencyEquipmentSummaryResponse(DashboardSchema):
+    equipment_onsite_count: int
+    moisture_tracking_required_count: int
+    work_orders_with_equipment_notes_count: int
+    records_missing_equipment_context_count: int
+    inventory_entity_available: bool
+    unknown_counts: tuple[CountBucketResponse, ...]
+
+
+class WaterEmergencyVisitChainSummaryResponse(DashboardSchema):
+    total_visits: int
+    multi_visit_record_count: int
+    open_records_without_visits_count: int
+    scheduled_visit_count: int
+    completed_visit_count: int
+    visit_status_counts: tuple[CountBucketResponse, ...]
+
+
+class WaterEmergencyDryingStageSummaryResponse(DashboardSchema):
+    stage_counts: tuple[CountBucketResponse, ...]
+    active_stage_counts: tuple[CountBucketResponse, ...]
+    missing_stage_count: int
+    moisture_tracking_required_count: int
+
+
 class WaterEmergencyRecordSummaryResponse(DashboardSchema):
     water_emergency_id: UUID
     job_id: UUID
@@ -115,6 +140,37 @@ class WaterEmergencyReviewIndicatorResponse(DashboardSchema):
     visit_id: UUID | None
     audit_correlation_id: str | None
     recommended_action: str | None
+
+
+class WaterEmergencyEquipmentNoteResponse(DashboardSchema):
+    work_order_id: UUID
+    required_equipment_notes: str
+
+
+class WaterEmergencyDetailEquipmentContextResponse(DashboardSchema):
+    equipment_onsite: bool
+    moisture_tracking_required: bool
+    inventory_entity_available: bool
+    required_equipment_notes: tuple[WaterEmergencyEquipmentNoteResponse, ...]
+    unknown_indicators: tuple[str, ...]
+
+
+class WaterEmergencyVisitChainResponse(DashboardSchema):
+    total_visits: int
+    completed_visit_count: int
+    open_visit_count: int
+    first_visit_at: datetime | None
+    latest_visit_at: datetime | None
+    next_scheduled_visit_at: datetime | None
+    visit_status_counts: tuple[CountBucketResponse, ...]
+
+
+class WaterEmergencyDetailDryingStageContextResponse(DashboardSchema):
+    status: str
+    current_stage: str | None
+    next_required_action: str | None
+    moisture_tracking_required: bool
+    missing_indicators: tuple[str, ...]
 
 
 class RouteAssignmentSummaryResponse(DashboardSchema):
@@ -202,6 +258,9 @@ class WaterEmergencyDashboardResponse(DashboardSchema):
     multi_visit_count: int
     equipment_onsite_count: int
     moisture_tracking_required_count: int
+    equipment_summary: WaterEmergencyEquipmentSummaryResponse
+    visit_chain_summary: WaterEmergencyVisitChainSummaryResponse
+    drying_stage_summary: WaterEmergencyDryingStageSummaryResponse
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int
@@ -220,6 +279,9 @@ class WaterEmergencyDetailResponse(DashboardSchema):
     work_orders: tuple[WaterEmergencyWorkOrderReferenceResponse, ...]
     visits: tuple[WaterEmergencyVisitReferenceResponse, ...]
     review_indicators: tuple[WaterEmergencyReviewIndicatorResponse, ...]
+    equipment_context: WaterEmergencyDetailEquipmentContextResponse
+    visit_chain: WaterEmergencyVisitChainResponse
+    drying_stage_context: WaterEmergencyDetailDryingStageContextResponse
     data_gap_counts: tuple[CountBucketResponse, ...]
     audit_correlation_ids: tuple[str, ...]
     timeline_summary: OperationalEventTimelineSummaryResponse

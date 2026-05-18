@@ -626,6 +626,26 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 33 Water Emergency Equipment And Visit Visibility Boundary
+
+Module 33 extends Water Emergency summary/detail visibility with read-only equipment, visit-chain, and drying-stage context:
+
+- backend read models expose equipment flags, required equipment notes, inventory-modeling unknowns, visit-chain counts/timestamps, and drying-stage context from persisted state
+- frontend panels display those backend fields without creating workflow logic
+- local synthetic seed data now includes a Water Emergency work-order equipment note, multi-visit chain, and drying-check event for live dashboard verification
+- standard dispatch-ready counts exclude Water Emergency visits so emergency visit visibility does not become standard dispatch authority
+
+The boundary remains projection-only. The endpoint and UI do not create, edit, close, resolve, approve, dispatch, integrate, replay, reconcile, manage equipment inventory, authorize pickup, or execute Water Emergency workflows. They also do not call AI or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- final Water Emergency drying-stage/status taxonomy
+- dedicated equipment inventory, deployment, pickup, and moisture-reading models
+- field approval, closure readiness, and revisit scheduling rules
+- role-scoped emergency workflow authority after authentication exists
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.
