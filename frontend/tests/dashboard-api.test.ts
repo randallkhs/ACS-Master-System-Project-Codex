@@ -6,10 +6,12 @@ import {
   getDashboardLifecycle,
   getDashboardOverview,
   getDashboardReview,
+  getDashboardWaterEmergencyDetail,
   getDashboardWaterEmergency
 } from "@/lib/dashboard-api";
 import {
   mockDashboardOverview,
+  mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
 } from "@/lib/mock-dashboard";
 
@@ -41,6 +43,15 @@ describe("dashboard API client", () => {
     );
     expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.waterEmergency)).toBe(
       "http://127.0.0.1:8000/api/v1/dashboard/water-emergency"
+    );
+    expect(
+      dashboardEndpointUrl(
+        DASHBOARD_ENDPOINTS.waterEmergencyDetail(
+          "e9acb112-409f-4d4f-b98f-4b61a437c4c7"
+        )
+      )
+    ).toBe(
+      "http://127.0.0.1:8000/api/v1/dashboard/water-emergency/e9acb112-409f-4d4f-b98f-4b61a437c4c7"
     );
   });
 
@@ -100,6 +111,9 @@ describe("dashboard API client", () => {
     await getDashboardReview();
     await getDashboardDispatch();
     await getDashboardWaterEmergency();
+    await getDashboardWaterEmergencyDetail(
+      "e9acb112-409f-4d4f-b98f-4b61a437c4c7"
+    );
 
     const calls = fetchMock.mock.calls.map(([url, init]) => ({
       url: String(url),
@@ -126,6 +140,10 @@ describe("dashboard API client", () => {
       {
         url: "https://api.acs.example.com/api/v1/dashboard/water-emergency",
         method: "GET"
+      },
+      {
+        url: "https://api.acs.example.com/api/v1/dashboard/water-emergency/e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        method: "GET"
       }
     ]);
   });
@@ -138,5 +156,62 @@ describe("dashboard API client", () => {
     expect(result.source).toBe("mock");
     expect(result.data.open_count).toBe(mockWaterEmergencyDashboard.open_count);
     expect(result.data.records[0].status).toBe("drying_in_progress");
+  });
+
+  it("returns typed Water Emergency detail fallback when the detail read model is unavailable", async () => {
+    delete process.env.ACS_DASHBOARD_API_BASE_URL;
+
+    const result = await getDashboardWaterEmergencyDetail(
+      "e9acb112-409f-4d4f-b98f-4b61a437c4c7"
+    );
+
+    expect(result.source).toBe("mock");
+    expect(result.data?.record.water_emergency_id).toBe(
+      mockWaterEmergencyDetail.record.water_emergency_id
+    );
+    expect(result.data?.timeline_summary.entries[0].event_type).toBe(
+      "water_emergency.extraction_started"
+    );
+  });
+
+  it("keeps no-selected Water Emergency detail as live null data when an API base URL is configured", async () => {
+    process.env.ACS_DASHBOARD_API_BASE_URL = "https://api.acs.example.com";
+
+    const result = await getDashboardWaterEmergencyDetail(null);
+
+    expect(result.source).toBe("api");
+    expect(result.data).toBeNull();
+    expect(result.errorMessage).toBe(
+      "No Water Emergency detail record is selected."
+    );
+  });
+
+  it("returns a live null result when the Water Emergency detail record is not found", async () => {
+    process.env.ACS_DASHBOARD_API_BASE_URL = "https://api.acs.example.com";
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ detail: "Water Emergency record not found" }), {
+        status: 404,
+        headers: { "content-type": "application/json" }
+      })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getDashboardWaterEmergencyDetail(
+      "missing-water-emergency"
+    );
+
+    expect(result.source).toBe("api");
+    expect(result.data).toBeNull();
+    expect(result.data).not.toBe(mockWaterEmergencyDetail);
+    expect(result.errorMessage).toBe(
+      "Water Emergency detail record was not found."
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.acs.example.com/api/v1/dashboard/water-emergency/missing-water-emergency",
+      expect.objectContaining({
+        method: "GET",
+        cache: "no-store"
+      })
+    );
   });
 });

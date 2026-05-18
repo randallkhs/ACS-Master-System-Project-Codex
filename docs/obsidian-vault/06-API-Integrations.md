@@ -440,3 +440,31 @@ Open API/frontend concerns:
 - production Water Emergency filters, pagination, sorting, and timeline volume controls
 - role-scoped visibility after authentication exists
 - final emergency status/stage taxonomy and equipment/moisture data contracts
+
+## Phase 0 Module 32 Water Emergency Detail API Contract Boundary
+
+The dashboard API now includes a read-only Water Emergency detail read model:
+
+- `/api/v1/dashboard/water-emergency/{water_emergency_id}`
+
+Contract behavior:
+
+- read-only `GET` endpoint only
+- returns 404 when the selected Water Emergency record does not exist
+- returns one selected record with related job, work-order, visit, Manual Review, audit, data-gap, and timeline evidence
+- scopes Manual Review indicators to the selected record through persisted job, entity, or visit references
+- keeps timeline entries as evidence, not executable workflow state
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` detail calls are added
+- no Water Emergency edit, closure, resolution, approval, dispatch, vendor, or AI execution calls are added
+- no hidden lifecycle transition is inferred from event evidence
+- frontend detail display must consume the backend contract instead of creating emergency business logic
+
+Open API/frontend concerns:
+
+- production detail selection/navigation
+- timeline pagination and filtering
+- role-scoped evidence visibility
+- future equipment, moisture, photo, and technician-note data contracts

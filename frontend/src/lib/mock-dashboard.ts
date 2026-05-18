@@ -1,6 +1,7 @@
 import type {
   DashboardOverviewResponse,
-  WaterEmergencyDashboardResponse
+  WaterEmergencyDashboardResponse,
+  WaterEmergencyDetailResponse
 } from "@/lib/dashboard-contracts";
 
 export const mockDashboardOverview: DashboardOverviewResponse = {
@@ -287,7 +288,7 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
   equipment_onsite_count: 1,
   moisture_tracking_required_count: 1,
   related_job_count: 2,
-  related_work_order_count: 0,
+  related_work_order_count: 1,
   related_visit_count: 2,
   review_indicator_count: 1,
   escalation_indicator_count: 1,
@@ -305,7 +306,7 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       moisture_tracking_required: true,
       opened_at: "2026-05-16T06:30:00Z",
       closed_at: null,
-      related_work_order_ids: [],
+      related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
       related_visit_ids: ["bc393a4e-1b61-4daa-a9f9-bb615e944d9b"],
       open_review_count: 1,
       timeline_event_count: 1,
@@ -349,6 +350,87 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         audit_correlation_id: "audit-dashboard-003",
         previous_state: "intake_received",
         new_state: "water_emergency_separated",
+        is_immutable: true
+      }
+    ]
+  }
+};
+
+export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
+  generated_at: "2026-05-16T09:35:00Z",
+  record: mockWaterEmergencyDashboard.records[0],
+  job: {
+    job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
+    job_type: "water_emergency",
+    status: "active",
+    review_status: null,
+    priority: "urgent",
+    requested_date: "2026-05-16",
+    scheduled_date: "2026-05-16",
+    source_system: "module32_mock",
+    source_event_id: "module32-water-emergency-detail"
+  },
+  work_orders: [
+    {
+      work_order_id: "87f35d07-7bb6-4d7d-81fc-787cb05dc4a4",
+      work_order_number: "WATER-DETAIL-001",
+      status: "generated",
+      dispatch_status: "not_dispatched",
+      assigned_technician_id: null,
+      audit_correlation_id: "audit-dashboard-003"
+    }
+  ],
+  visits: [
+    {
+      visit_id: "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
+      work_order_id: "87f35d07-7bb6-4d7d-81fc-787cb05dc4a4",
+      technician_id: "844f52e6-94b7-46e4-9115-34ca2e908afb",
+      visit_type: "water_emergency",
+      status: "review_required",
+      scheduled_start_at: "2026-05-16T13:00:00Z",
+      scheduled_end_at: "2026-05-16T15:00:00Z",
+      arrived_at: null,
+      completed_at: null,
+      audit_correlation_id: "audit-dashboard-003"
+    }
+  ],
+  review_indicators: [
+    {
+      review_item_id: "74c29ad0-a8f0-4b9a-b596-285b35556717",
+      status: "open",
+      severity: "high",
+      reason_code: "water_detail_review",
+      confidence_score: 70,
+      entity_type: "water_emergency",
+      entity_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+      job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
+      visit_id: "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
+      audit_correlation_id: "audit-dashboard-003",
+      recommended_action: "Review synthetic Water Emergency detail evidence."
+    }
+  ],
+  data_gap_counts: [],
+  audit_correlation_ids: ["audit-dashboard-003"],
+  timeline_summary: {
+    total_events: 1,
+    returned_events: 1,
+    mutable_event_count: 0,
+    audit_correlation_ids: ["audit-dashboard-003"],
+    entries: [
+      {
+        occurred_at: "2026-05-16T07:45:00Z",
+        event_type: "water_emergency.extraction_started",
+        event_state: "recorded",
+        entity_type: "water_emergency",
+        entity_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        route_assignment_id: null,
+        visit_id: "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
+        work_order_id: "87f35d07-7bb6-4d7d-81fc-787cb05dc4a4",
+        job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
+        technician_id: "844f52e6-94b7-46e4-9115-34ca2e908afb",
+        audit_correlation_id: "audit-dashboard-003",
+        previous_state: "new",
+        new_state: "extraction_started",
         is_immutable: true
       }
     ]

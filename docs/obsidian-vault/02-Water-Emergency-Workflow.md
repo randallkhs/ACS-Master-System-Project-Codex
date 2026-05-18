@@ -307,6 +307,38 @@ Unresolved:
 
 ---
 
+# Phase 0 Module 32 — Detail And Timeline Visibility
+
+Module 32 extends the dedicated Water Emergency dashboard with a read-only per-record detail contract and frontend detail section.
+
+The detail read model may show:
+
+- one selected Water Emergency record
+- related Job, Work Order, and Visit references where available
+- Manual Review indicators only when specifically tied to that Water Emergency record through job, entity, or visit linkage
+- chronological operational event timeline evidence
+- audit correlation references
+- explicit data gaps such as missing job reference, no work order reference, no visit history, no timeline evidence, missing drying stage, or missing next action
+
+Boundary:
+
+- this is detail visibility only
+- it does not create or edit Water Emergency records
+- it does not close or resolve Water Emergency work
+- it does not dispatch Water Emergency work
+- it does not approve or reject Manual Review items
+- it does not call FastField, Sheets, Calendar, Verizon Connect, or AI
+- it does not infer hidden lifecycle transitions from timeline events
+
+Unresolved:
+
+- exact operator selection/navigation model for multiple Water Emergency records
+- whether future detail screens should use dedicated equipment and moisture-reading entities
+- production timeline pagination and filtering
+- role-scoped access to emergency detail evidence once authentication exists
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

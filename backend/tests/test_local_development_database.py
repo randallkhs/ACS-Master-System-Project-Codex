@@ -124,7 +124,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
         if "event_fingerprint" in record.__dict__
     }
 
-    assert seed_records.record_count == 47
+    assert seed_records.record_count == 48
     assert seed_records.scenario_labels == (
         "standard_dispatch_ready",
         "manual_review_blocked",
@@ -140,6 +140,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
     assert "module27-dashboard-demo-adapter-prepared" in event_fingerprints
     assert "module29-dashboard-demo-external-confirmed" in event_fingerprints
     assert "module29-dashboard-demo-incident-prepared" in event_fingerprints
+    assert "module32-dashboard-demo-water-extraction-started" in event_fingerprints
 
     route_assignment = next(
         record
@@ -198,7 +199,7 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
     assert dispatch.governance_accountability.incident_prepared_count == 1
 
     timeline = overview.timeline_summary
-    assert timeline.total_events == 8
+    assert timeline.total_events == 9
     assert timeline.mutable_event_count == 0
     assert [entry.occurred_at for entry in timeline.entries] == sorted(
         entry.occurred_at for entry in timeline.entries

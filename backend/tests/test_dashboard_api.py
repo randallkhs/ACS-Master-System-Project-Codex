@@ -15,10 +15,16 @@ from app.domain.dashboard import (
     ManualReviewSummary,
     OperationalDashboardSummary,
     OperationalEventTimelineSummary,
+    OperationalTimelineEntry,
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
     WaterEmergencyDashboardReadModel,
+    WaterEmergencyDetailReadModel,
+    WaterEmergencyJobReference,
     WaterEmergencyRecordSummary,
+    WaterEmergencyReviewIndicator,
+    WaterEmergencyVisitReference,
+    WaterEmergencyWorkOrderReference,
 )
 from app.main import create_app
 from app.services.dashboard.service import DashboardReadModelService
@@ -164,6 +170,90 @@ def water_emergency_contract() -> WaterEmergencyDashboardReadModel:
     )
 
 
+def water_emergency_detail_contract() -> WaterEmergencyDetailReadModel:
+    record = water_emergency_contract().records[0]
+    return WaterEmergencyDetailReadModel(
+        generated_at=datetime(2026, 5, 16, 12, 50, tzinfo=UTC),
+        record=record,
+        job=WaterEmergencyJobReference(
+            job_id=record.job_id,
+            job_type="water_emergency",
+            status="active",
+            review_status=None,
+            priority="urgent",
+            requested_date=None,
+            scheduled_date=None,
+            source_system="module32_test",
+            source_event_id="module32-water-detail",
+        ),
+        work_orders=(
+            WaterEmergencyWorkOrderReference(
+                work_order_id=UUID("00000000-0000-0000-0000-000000000034"),
+                work_order_number="WATER-DETAIL-001",
+                status="generated",
+                dispatch_status="not_dispatched",
+                assigned_technician_id=None,
+                audit_correlation_id="audit-water-001",
+            ),
+        ),
+        visits=(
+            WaterEmergencyVisitReference(
+                visit_id=UUID("00000000-0000-0000-0000-000000000033"),
+                work_order_id=UUID("00000000-0000-0000-0000-000000000034"),
+                technician_id=None,
+                visit_type="water_emergency",
+                status="scheduled",
+                scheduled_start_at=datetime(2026, 5, 16, 13, 0, tzinfo=UTC),
+                scheduled_end_at=None,
+                arrived_at=None,
+                completed_at=None,
+                audit_correlation_id="audit-water-001",
+            ),
+        ),
+        review_indicators=(
+            WaterEmergencyReviewIndicator(
+                review_item_id=UUID("00000000-0000-0000-0000-000000000035"),
+                status="open",
+                severity="high",
+                reason_code="water_detail_review",
+                confidence_score=70.0,
+                entity_type="water_emergency",
+                entity_id=record.water_emergency_id,
+                job_id=record.job_id,
+                visit_id=UUID("00000000-0000-0000-0000-000000000033"),
+                audit_correlation_id="audit-water-001",
+                recommended_action="Review synthetic detail evidence.",
+            ),
+        ),
+        data_gap_counts=(),
+        audit_correlation_ids=("audit-water-001",),
+        timeline_summary=OperationalEventTimelineSummary(
+            total_events=1,
+            returned_events=1,
+            mutable_event_count=0,
+            audit_correlation_ids=("audit-water-001",),
+            entries=(
+                OperationalTimelineEntry(
+                    occurred_at=datetime(2026, 5, 16, 9, 45, tzinfo=UTC),
+                    event_type="water_emergency.extraction_started",
+                    event_state="recorded",
+                    entity_type="water_emergency",
+                    entity_id=record.water_emergency_id,
+                    route_assignment_id=None,
+                    visit_id=UUID("00000000-0000-0000-0000-000000000033"),
+                    work_order_id=UUID("00000000-0000-0000-0000-000000000034"),
+                    job_id=record.job_id,
+                    technician_id=None,
+                    audit_correlation_id="audit-water-001",
+                    previous_state="new",
+                    new_state="extraction_started",
+                    is_immutable=True,
+                ),
+            ),
+        ),
+    )
+
+
 def test_dashboard_api_routes_return_read_only_contracts(
     monkeypatch,
 ) -> None:
@@ -174,6 +264,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
     app = create_app(settings)
     overview = dashboard_overview_contract()
     water_emergency = water_emergency_contract()
+    water_emergency_detail = water_emergency_detail_contract()
 
     def override_db_session():
         yield object()
@@ -203,6 +294,17 @@ def test_dashboard_api_routes_return_read_only_contracts(
         "build_water_emergency_from_session",
         lambda self, session: water_emergency,
     )
+
+    def build_water_emergency_detail_from_session(self, session, water_emergency_id):
+        if water_emergency_id == water_emergency_detail.record.water_emergency_id:
+            return water_emergency_detail
+        return None
+
+    monkeypatch.setattr(
+        DashboardReadModelService,
+        "build_water_emergency_detail_from_session",
+        build_water_emergency_detail_from_session,
+    )
     app.dependency_overrides[get_db_session] = override_db_session
 
     with TestClient(app) as client:
@@ -211,8 +313,17 @@ def test_dashboard_api_routes_return_read_only_contracts(
         review_response = client.get("/api/v1/dashboard/review")
         dispatch_response = client.get("/api/v1/dashboard/dispatch")
         water_response = client.get("/api/v1/dashboard/water-emergency")
+        water_detail_response = client.get(
+            "/api/v1/dashboard/water-emergency/00000000-0000-0000-0000-000000000031",
+        )
+        water_detail_missing_response = client.get(
+            "/api/v1/dashboard/water-emergency/00000000-0000-0000-0000-000000009999",
+        )
         mutation_response = client.post("/api/v1/dashboard/overview")
         water_mutation_response = client.post("/api/v1/dashboard/water-emergency")
+        water_detail_mutation_response = client.post(
+            "/api/v1/dashboard/water-emergency/00000000-0000-0000-0000-000000000031",
+        )
 
     assert overview_response.status_code == 200
     assert overview_response.json()["operational_summary"]["total_jobs"] == 1
@@ -230,5 +341,17 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert water_response.json()["records"][0]["related_visit_ids"] == [
         "00000000-0000-0000-0000-000000000033",
     ]
+    assert water_detail_response.status_code == 200
+    assert water_detail_response.json()["record"]["water_emergency_id"] == (
+        "00000000-0000-0000-0000-000000000031"
+    )
+    assert water_detail_response.json()["review_indicators"][0]["reason_code"] == (
+        "water_detail_review"
+    )
+    assert water_detail_response.json()["timeline_summary"]["entries"][0]["event_type"] == (
+        "water_emergency.extraction_started"
+    )
+    assert water_detail_missing_response.status_code == 404
     assert mutation_response.status_code == 405
     assert water_mutation_response.status_code == 405
+    assert water_detail_mutation_response.status_code == 405

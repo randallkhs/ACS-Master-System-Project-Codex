@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from uuid import UUID
+
+from fastapi import APIRouter, HTTPException
 
 from app.db.dependencies import DBSession
 from app.schemas.dashboard import (
@@ -7,6 +9,7 @@ from app.schemas.dashboard import (
     DispatchLifecycleSummaryResponse,
     ManualReviewSummaryResponse,
     WaterEmergencyDashboardResponse,
+    WaterEmergencyDetailResponse,
 )
 from app.services.dashboard import DashboardReadModelService
 
@@ -41,3 +44,17 @@ def read_dashboard_dispatch(db_session: DBSession) -> DashboardDispatchSummaryRe
 def read_dashboard_water_emergency(db_session: DBSession) -> WaterEmergencyDashboardResponse:
     read_model = DashboardReadModelService().build_water_emergency_from_session(db_session)
     return WaterEmergencyDashboardResponse.model_validate(read_model)
+
+
+@router.get("/water-emergency/{water_emergency_id}", response_model=WaterEmergencyDetailResponse)
+def read_dashboard_water_emergency_detail(
+    water_emergency_id: UUID,
+    db_session: DBSession,
+) -> WaterEmergencyDetailResponse:
+    read_model = DashboardReadModelService().build_water_emergency_detail_from_session(
+        db_session,
+        water_emergency_id,
+    )
+    if read_model is None:
+        raise HTTPException(status_code=404, detail="Water Emergency record not found")
+    return WaterEmergencyDetailResponse.model_validate(read_model)

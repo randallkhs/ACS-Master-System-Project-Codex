@@ -205,11 +205,12 @@ GET /api/v1/dashboard/lifecycle
 GET /api/v1/dashboard/review
 GET /api/v1/dashboard/dispatch
 GET /api/v1/dashboard/water-emergency
+GET /api/v1/dashboard/water-emergency/{water_emergency_id}
 ```
 
 These routes summarize persisted backend state through dashboard read models. They do not mutate records, execute dispatch, resolve Manual Review, call integrations, or call AI.
 
-The Water Emergency dashboard contract is dedicated to emergency visibility. It summarizes existing `WaterEmergency` records, status/stage distributions, multi-visit and equipment indicators, related job/work-order/visit references, review/escalation indicators, data gaps, audit correlation references, and emergency timeline evidence. It does not create, close, dispatch, approve, or otherwise execute Water Emergency work.
+The Water Emergency dashboard contract is dedicated to emergency visibility. It summarizes existing `WaterEmergency` records, status/stage distributions, multi-visit and equipment indicators, related job/work-order/visit references, review/escalation indicators, data gaps, audit correlation references, and emergency timeline evidence. The detail contract returns one Water Emergency record, related job/work-order/visit references, specifically scoped Manual Review indicators, detail data gaps, audit correlations, and chronological timeline evidence. These endpoints do not create, close, dispatch, approve, edit, or otherwise execute Water Emergency work.
 
 Local full-stack dashboard testing expects the backend on `http://127.0.0.1:8000` and the frontend `ACS_DASHBOARD_API_BASE_URL` set to that origin. A real local PostgreSQL database and migrations are still required for live backend reads; the frontend falls back to typed local data when the backend is unavailable.
 
@@ -229,6 +230,14 @@ GET /api/v1/dashboard/review
 GET /api/v1/dashboard/dispatch
 GET /api/v1/dashboard/water-emergency
 ```
+
+Module 32 also exposes Water Emergency detail reads by ID:
+
+```text
+GET /api/v1/dashboard/water-emergency/{water_emergency_id}
+```
+
+Use a real persisted Water Emergency UUID from the summary endpoint. Missing records return 404.
 
 ## Migrations
 

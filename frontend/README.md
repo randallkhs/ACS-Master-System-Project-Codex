@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 31 keeps the frontend foundation read-only while adding a dedicated Water Emergency dashboard view backed by the separated backend read-model contract.
+Phase 0 Module 32 keeps the frontend foundation read-only while adding Water Emergency detail and timeline visibility backed by separated backend read-model contracts.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -75,6 +75,7 @@ GET http://127.0.0.1:8000/api/v1/dashboard/lifecycle
 GET http://127.0.0.1:8000/api/v1/dashboard/review
 GET http://127.0.0.1:8000/api/v1/dashboard/dispatch
 GET http://127.0.0.1:8000/api/v1/dashboard/water-emergency
+GET http://127.0.0.1:8000/api/v1/dashboard/water-emergency/{water_emergency_id}
 ```
 
 The backend requires a configured local PostgreSQL database for live dashboard reads. If the backend is stopped, unavailable, unmigrated, or returns an error, the frontend displays typed fallback data and marks the page as mock/fallback state.
@@ -132,6 +133,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Operational health and safety readiness summary
 - Live scenario storyboard for local seed verification context
 - Dedicated Water Emergency command view
+- Water Emergency detail and evidence timeline view
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -183,6 +185,13 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - The Water Emergency view is visually separated from standard dispatch and shows open/closed state, status/stage distribution, equipment and moisture-tracking indicators, multi-visit indicators, related references, review/escalation indicators, data gaps, and emergency timeline evidence.
 - The Water Emergency view is display-only. It does not create, close, resolve, dispatch, approve, or execute Water Emergency work.
 - The top source indicator shows live backend status only when both the overview and Water Emergency read models are fetched successfully; each Water Emergency section also labels live versus fallback state.
+
+## Module 32 Water Emergency Detail Notes
+
+- The dashboard now selects the first open Water Emergency record from the summary contract and fetches `GET /api/v1/dashboard/water-emergency/{water_emergency_id}` for read-only detail visibility.
+- The detail section shows the focused record status/stage, related job/work-order/visit references, scoped Manual Review indicators, detail data gaps, audit references, and chronological evidence timeline entries.
+- Detail fallback data remains typed local development data and is visibly labeled when the backend detail endpoint is unavailable.
+- The detail view is still display-only. It does not create, edit, close, resolve, dispatch, approve, execute vendor calls, or add AI authority.
 
 ## Troubleshooting
 

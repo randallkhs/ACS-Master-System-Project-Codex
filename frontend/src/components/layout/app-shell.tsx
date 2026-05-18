@@ -12,6 +12,7 @@ type AppShellProps = {
 const navItems = [
   { label: "Storyboard", href: "#scenario-storyboard" },
   { label: "Water Emergency", href: "#water-emergency" },
+  { label: "WE Detail", href: "#water-emergency-detail" },
   { label: "Overview", href: "#overview" },
   { label: "Lifecycle", href: "#lifecycle" },
   { label: "Manual Review", href: "#manual-review" },

@@ -134,6 +134,54 @@ export type WaterEmergencyRecordSummaryResponse = {
   audit_correlation_ids: string[];
 };
 
+export type WaterEmergencyJobReferenceResponse = {
+  job_id: string;
+  job_type: string | null;
+  status: string;
+  review_status: string | null;
+  priority: string | null;
+  requested_date: string | null;
+  scheduled_date: string | null;
+  source_system: string | null;
+  source_event_id: string | null;
+};
+
+export type WaterEmergencyWorkOrderReferenceResponse = {
+  work_order_id: string;
+  work_order_number: string | null;
+  status: string;
+  dispatch_status: string | null;
+  assigned_technician_id: string | null;
+  audit_correlation_id: string | null;
+};
+
+export type WaterEmergencyVisitReferenceResponse = {
+  visit_id: string;
+  work_order_id: string | null;
+  technician_id: string | null;
+  visit_type: string | null;
+  status: string;
+  scheduled_start_at: string | null;
+  scheduled_end_at: string | null;
+  arrived_at: string | null;
+  completed_at: string | null;
+  audit_correlation_id: string | null;
+};
+
+export type WaterEmergencyReviewIndicatorResponse = {
+  review_item_id: string;
+  status: string;
+  severity: string | null;
+  reason_code: string;
+  confidence_score: number | null;
+  entity_type: string | null;
+  entity_id: string | null;
+  job_id: string | null;
+  visit_id: string | null;
+  audit_correlation_id: string | null;
+  recommended_action: string | null;
+};
+
 export type WaterEmergencyDashboardResponse = {
   generated_at: string;
   total_records: number;
@@ -152,6 +200,18 @@ export type WaterEmergencyDashboardResponse = {
   data_gap_counts: CountBucket[];
   audit_correlation_count: number;
   records: WaterEmergencyRecordSummaryResponse[];
+  timeline_summary: OperationalEventTimelineSummaryResponse;
+};
+
+export type WaterEmergencyDetailResponse = {
+  generated_at: string;
+  record: WaterEmergencyRecordSummaryResponse;
+  job: WaterEmergencyJobReferenceResponse | null;
+  work_orders: WaterEmergencyWorkOrderReferenceResponse[];
+  visits: WaterEmergencyVisitReferenceResponse[];
+  review_indicators: WaterEmergencyReviewIndicatorResponse[];
+  data_gap_counts: CountBucket[];
+  audit_correlation_ids: string[];
   timeline_summary: OperationalEventTimelineSummaryResponse;
 };
 

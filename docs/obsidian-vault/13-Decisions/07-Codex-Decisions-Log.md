@@ -1001,3 +1001,37 @@ Use this file for durable decisions that affect future development. Do not recor
   - System architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-17 — Phase 0 Module 32 Water Emergency Detail Read Model And Timeline Visualization
+
+- Decision type: Implementation / Water Emergency detail / read-only API contract
+- Status: Implemented
+- Decision:
+  - Add a read-only Water Emergency detail read model for one selected emergency record.
+  - Expose `GET /api/v1/dashboard/water-emergency/{water_emergency_id}` with 404 behavior for missing records.
+  - Include related Job, Work Order, Visit, scoped Manual Review, audit, data-gap, and chronological timeline evidence where persisted data supports it.
+  - Scope per-record Manual Review indicators to concrete job/entity/visit links so generic Water Emergency review labels do not attach to every detail view.
+  - Add a dedicated frontend Water Emergency detail/evidence section that remains visually separated from standard dispatch.
+  - Add one synthetic local seed event for Water Emergency detail/timeline verification.
+- Rationale:
+  - Operators need per-record Water Emergency visibility before future workflow execution modules exist.
+  - Detail views must remain backend-owned read models so frontend components do not infer lifecycle transitions or workflow authority.
+  - Timeline evidence should support operational review and audit context without becoming editable or executable.
+- Future implications:
+  - Future Water Emergency workflow modules still need authenticated execution rules, closure policy, equipment inventory, moisture readings, photos, and emergency-specific history.
+  - Production detail navigation, role-scoped visibility, timeline pagination/filtering, refresh cadence, and stale-data indicators remain future decisions.
+  - Detail read models may need optimized queries or materialized projections once production data volume grows.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas/routes
+  - Local synthetic dashboard seed data
+  - Frontend dashboard API client/contracts
+  - Frontend Water Emergency detail section
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - System architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

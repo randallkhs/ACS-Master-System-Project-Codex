@@ -21,7 +21,12 @@ from app.domain.dashboard import (
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
     WaterEmergencyDashboardReadModel,
+    WaterEmergencyDetailReadModel,
+    WaterEmergencyJobReference,
     WaterEmergencyRecordSummary,
+    WaterEmergencyReviewIndicator,
+    WaterEmergencyVisitReference,
+    WaterEmergencyWorkOrderReference,
 )
 from app.models.intake_processing_record import IntakeProcessingRecord
 from app.models.job import Job
@@ -45,6 +50,7 @@ TERMINAL_WATER_EMERGENCY_STATUSES = {"closed", "completed", "cancelled", "cancel
 BLOCKED_ROUTE_STATES = {"blocked", "reconciliation_blocked", "replay_blocked"}
 BLOCKED_GOVERNANCE_STATES = {"governance_blocked"}
 BLOCKED_ACCOUNTABILITY_STATES = {"accountability_blocked"}
+MAX_SORTABLE_DATETIME = datetime.max.replace(tzinfo=UTC)
 
 
 class DashboardReadModelService:
@@ -303,6 +309,107 @@ class DashboardReadModelService:
             ),
         )
 
+    def build_water_emergency_detail(
+        self,
+        water_emergency_id: object,
+        *,
+        jobs: Sequence[Job] = (),
+        work_orders: Sequence[WorkOrder] = (),
+        visits: Sequence[Visit] = (),
+        review_items: Sequence[ReviewItem] = (),
+        water_emergencies: Sequence[WaterEmergency] = (),
+        operational_events: Sequence[OperationalEventRecord] = (),
+        timeline_limit: int = 25,
+    ) -> WaterEmergencyDetailReadModel | None:
+        record = next(
+            (
+                water_emergency
+                for water_emergency in water_emergencies
+                if water_emergency.id == water_emergency_id
+            ),
+            None,
+        )
+        if record is None:
+            return None
+
+        related_job = next((job for job in jobs if job.id == record.job_id), None)
+        related_work_orders = water_emergency_related_work_orders(
+            record,
+            work_orders=work_orders,
+        )
+        related_visits = water_emergency_related_visits(record, visits=visits)
+        related_reviews = water_emergency_related_reviews(
+            record,
+            visits=related_visits,
+            review_items=review_items,
+        )
+        related_events = water_emergency_related_events(
+            record,
+            work_orders=related_work_orders,
+            visits=related_visits,
+            operational_events=operational_events,
+        )
+
+        return WaterEmergencyDetailReadModel(
+            generated_at=self.now(),
+            record=water_emergency_record_summary(
+                record,
+                work_orders=related_work_orders,
+                visits=related_visits,
+                review_items=related_reviews,
+                operational_events=related_events,
+            ),
+            job=water_emergency_job_reference(related_job) if related_job else None,
+            work_orders=tuple(
+                water_emergency_work_order_reference(work_order)
+                for work_order in sorted(
+                    related_work_orders,
+                    key=lambda work_order: (
+                        normalized(work_order.work_order_number),
+                        str(work_order.id),
+                    ),
+                )
+            ),
+            visits=tuple(
+                water_emergency_visit_reference(visit)
+                for visit in sorted(
+                    related_visits,
+                    key=lambda visit: (
+                        sortable_datetime(visit.scheduled_start_at),
+                        str(visit.id),
+                    ),
+                )
+            ),
+            review_indicators=tuple(
+                water_emergency_review_indicator(review)
+                for review in sorted(
+                    related_reviews,
+                    key=lambda review: (
+                        normalized(review.status),
+                        normalized(review.reason_code),
+                        str(review.id),
+                    ),
+                )
+            ),
+            data_gap_counts=water_emergency_detail_data_gap_counts(
+                record,
+                job=related_job,
+                work_orders=related_work_orders,
+                visits=related_visits,
+                events=related_events,
+            ),
+            audit_correlation_ids=unique_audit_correlation_ids(
+                related_work_orders,
+                related_visits,
+                related_reviews,
+                related_events,
+            ),
+            timeline_summary=self.build_timeline(
+                operational_events=related_events,
+                limit=timeline_limit,
+            ),
+        )
+
     def build_dispatch(
         self,
         *,
@@ -521,6 +628,22 @@ class DashboardReadModelService:
             operational_events=source["operational_events"],
         )
 
+    def build_water_emergency_detail_from_session(
+        self,
+        session: Session,
+        water_emergency_id: object,
+    ) -> WaterEmergencyDetailReadModel | None:
+        source = load_dashboard_source(session)
+        return self.build_water_emergency_detail(
+            water_emergency_id,
+            jobs=source["jobs"],
+            work_orders=source["work_orders"],
+            visits=source["visits"],
+            review_items=source["review_items"],
+            water_emergencies=source["water_emergencies"],
+            operational_events=source["operational_events"],
+        )
+
 
 def load_dashboard_source(session: Session) -> dict[str, Sequence[object]]:
     return {
@@ -554,6 +677,10 @@ def count_values(values: Sequence[object] | object) -> tuple[CountBucket, ...]:
 
 def normalized(value: object) -> str:
     return str(value).strip().lower() if value is not None else ""
+
+
+def sortable_datetime(value: datetime | None) -> datetime:
+    return value if value is not None else MAX_SORTABLE_DATETIME
 
 
 def count_where(items: Sequence[object], predicate: Callable[[object], bool]) -> int:
@@ -673,6 +800,78 @@ def is_water_emergency_event(
     )
 
 
+def water_emergency_related_work_orders(
+    record: WaterEmergency,
+    *,
+    work_orders: Sequence[WorkOrder],
+) -> tuple[WorkOrder, ...]:
+    return tuple(work_order for work_order in work_orders if work_order.job_id == record.job_id)
+
+
+def water_emergency_related_visits(
+    record: WaterEmergency,
+    *,
+    visits: Sequence[Visit],
+) -> tuple[Visit, ...]:
+    return tuple(visit for visit in visits if visit.job_id == record.job_id)
+
+
+def water_emergency_related_reviews(
+    record: WaterEmergency,
+    *,
+    visits: Sequence[Visit],
+    review_items: Sequence[ReviewItem],
+) -> tuple[ReviewItem, ...]:
+    related_visit_ids = {visit.id for visit in visits if visit.id is not None}
+    return tuple(
+        review
+        for review in review_items
+        if is_review_related_to_water_emergency_record(
+            review,
+            record=record,
+            related_visit_ids=related_visit_ids,
+        )
+    )
+
+
+def is_review_related_to_water_emergency_record(
+    review: ReviewItem,
+    *,
+    record: WaterEmergency,
+    related_visit_ids: set[object],
+) -> bool:
+    return (
+        review.job_id == record.job_id
+        or review.entity_id == record.id
+        or review.visit_id in related_visit_ids
+        or (normalized(review.entity_type) == "water_emergency" and review.entity_id == record.id)
+    )
+
+
+def water_emergency_related_events(
+    record: WaterEmergency,
+    *,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    operational_events: Sequence[OperationalEventRecord],
+) -> tuple[OperationalEventRecord, ...]:
+    related_visit_ids = {visit.id for visit in visits if visit.id is not None}
+    related_work_order_ids = {
+        work_order.id for work_order in work_orders if work_order.id is not None
+    }
+    return tuple(
+        event
+        for event in operational_events
+        if (
+            event.job_id == record.job_id
+            or event.entity_id == record.id
+            or event.visit_id in related_visit_ids
+            or event.work_order_id in related_work_order_ids
+            or (normalized(event.entity_type) == "water_emergency" and event.entity_id == record.id)
+        )
+    )
+
+
 def water_emergency_data_gap_counts(
     water_emergencies: Sequence[WaterEmergency],
     *,
@@ -699,6 +898,89 @@ def water_emergency_data_gap_counts(
     return count_values(gaps)
 
 
+def water_emergency_detail_data_gap_counts(
+    record: WaterEmergency,
+    *,
+    job: Job | None,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    events: Sequence[OperationalEventRecord],
+) -> tuple[CountBucket, ...]:
+    gaps: list[str] = []
+    if job is None:
+        gaps.append("missing_job_reference")
+    if not work_orders:
+        gaps.append("no_work_order_reference")
+    if not visits:
+        gaps.append("no_visit_history")
+    if not events:
+        gaps.append("no_timeline_evidence")
+    if is_open_water_emergency(record):
+        if not normalized(record.drying_stage):
+            gaps.append("missing_drying_stage")
+        if not normalized(record.next_required_action):
+            gaps.append("missing_next_required_action")
+    return count_values(gaps)
+
+
+def water_emergency_job_reference(job: Job) -> WaterEmergencyJobReference:
+    return WaterEmergencyJobReference(
+        job_id=job.id,
+        job_type=job.job_type,
+        status=normalized(job.status),
+        review_status=normalized(job.review_status) or None,
+        priority=job.priority,
+        requested_date=job.requested_date,
+        scheduled_date=job.scheduled_date,
+        source_system=job.source_system,
+        source_event_id=job.source_event_id,
+    )
+
+
+def water_emergency_work_order_reference(
+    work_order: WorkOrder,
+) -> WaterEmergencyWorkOrderReference:
+    return WaterEmergencyWorkOrderReference(
+        work_order_id=work_order.id,
+        work_order_number=work_order.work_order_number,
+        status=normalized(work_order.status),
+        dispatch_status=normalized(work_order.dispatch_status) or None,
+        assigned_technician_id=work_order.assigned_technician_id,
+        audit_correlation_id=work_order.audit_correlation_id,
+    )
+
+
+def water_emergency_visit_reference(visit: Visit) -> WaterEmergencyVisitReference:
+    return WaterEmergencyVisitReference(
+        visit_id=visit.id,
+        work_order_id=visit.work_order_id,
+        technician_id=visit.technician_id,
+        visit_type=visit.visit_type,
+        status=normalized(visit.status),
+        scheduled_start_at=visit.scheduled_start_at,
+        scheduled_end_at=visit.scheduled_end_at,
+        arrived_at=visit.arrived_at,
+        completed_at=visit.completed_at,
+        audit_correlation_id=visit.audit_correlation_id,
+    )
+
+
+def water_emergency_review_indicator(review: ReviewItem) -> WaterEmergencyReviewIndicator:
+    return WaterEmergencyReviewIndicator(
+        review_item_id=review.id,
+        status=normalized(review.status),
+        severity=normalized(review.severity) or None,
+        reason_code=normalized(review.reason_code),
+        confidence_score=review.confidence_score,
+        entity_type=normalized(review.entity_type) or None,
+        entity_id=review.entity_id,
+        job_id=review.job_id,
+        visit_id=review.visit_id,
+        audit_correlation_id=review.audit_correlation_id,
+        recommended_action=review.recommended_action,
+    )
+
+
 def water_emergency_record_summary(
     record: WaterEmergency,
     *,
@@ -707,37 +989,25 @@ def water_emergency_record_summary(
     review_items: Sequence[ReviewItem],
     operational_events: Sequence[OperationalEventRecord],
 ) -> WaterEmergencyRecordSummary:
-    related_work_orders = tuple(
-        work_order for work_order in work_orders if work_order.job_id == record.job_id
+    related_work_orders = water_emergency_related_work_orders(
+        record,
+        work_orders=work_orders,
     )
-    related_visits = tuple(visit for visit in visits if visit.job_id == record.job_id)
+    related_visits = water_emergency_related_visits(record, visits=visits)
     related_visit_ids = {visit.id for visit in related_visits if visit.id is not None}
     related_work_order_ids = {
         work_order.id for work_order in related_work_orders if work_order.id is not None
     }
-    related_reviews = tuple(
-        review
-        for review in review_items
-        if (
-            review.job_id == record.job_id
-            or review.entity_id == record.id
-            or review.visit_id in related_visit_ids
-            or (
-                normalized(review.entity_type) == "water_emergency"
-                and review.entity_id == record.id
-            )
-        )
+    related_reviews = water_emergency_related_reviews(
+        record,
+        visits=related_visits,
+        review_items=review_items,
     )
-    related_events = tuple(
-        event
-        for event in operational_events
-        if (
-            event.job_id == record.job_id
-            or event.entity_id == record.id
-            or event.visit_id in related_visit_ids
-            or event.work_order_id in related_work_order_ids
-            or (normalized(event.entity_type) == "water_emergency" and event.entity_id == record.id)
-        )
+    related_events = water_emergency_related_events(
+        record,
+        work_orders=related_work_orders,
+        visits=related_visits,
+        operational_events=operational_events,
     )
 
     return WaterEmergencyRecordSummary(

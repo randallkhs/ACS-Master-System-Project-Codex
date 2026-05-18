@@ -198,6 +198,26 @@ Unresolved:
 - production filtering and pagination for Water Emergency dashboard records remain undecided
 - exact Water Emergency closure and pickup data requirements still need operations confirmation
 
+## Phase 0 Module 32 Water Emergency Detail Read Model
+
+Module 32 adds a read-only Water Emergency detail projection without changing the database schema.
+
+Read-model behavior:
+
+- consumes existing `WaterEmergency`, `Job`, `WorkOrder`, `Visit`, `ReviewItem`, and `OperationalEventRecord` rows
+- returns one Water Emergency record by UUID
+- includes related job/work-order/visit references when available
+- includes Manual Review indicators only when specifically linked to the selected record through job, entity, or visit linkage
+- includes chronological operational event timeline evidence scoped to the selected record
+- returns data-gap buckets for missing detail evidence instead of inventing lifecycle state
+- returns 404 for missing records through the API detail route
+
+Unresolved:
+
+- whether future detail read models need separate query optimization or materialized projections
+- whether Water Emergency equipment, moisture readings, and visit-stage history should become dedicated tables
+- production timeline filtering, pagination, retention, and role-scoped visibility
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:

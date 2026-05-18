@@ -6,9 +6,9 @@ This repository is the long-term ACS FSM foundation. It is not a temporary scrip
 
 ## Current Status
 
-- Phase: Phase 0 Module 31
-- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, operational intake persistence, controlled operational job creation, Work Order/Visit generation, technician assignment/scheduling preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/failure recovery, immutable operational event history, dispatch reconciliation/operational consistency, operational replay/recovery preparation, operational governance/approval-control, operational accountability/escalation/incident-preparation, read-only operational dashboard/API contract foundations, read-only dedicated Water Emergency dashboard contract, read-only Next.js admin dashboard frontend foundation, local PostgreSQL development database verification foundation, local PostgreSQL bootstrap/live-dashboard verification, expanded synthetic live-dashboard seed scenarios, live dashboard scenario storyboard visualization, and dedicated Water Emergency dashboard visualization
-- Frontend: Next.js, TypeScript, and Tailwind admin dashboard shell consuming backend dashboard read-model contracts with typed fallback data, responsive layout polish, operational health summary, live scenario storyboard cards, dedicated Water Emergency command view, improved timeline labels, browser-verified read-only behavior, documented backend API base URL configuration, and verified live-backend local dashboard workflow
+- Phase: Phase 0 Module 32
+- Current implementation: hardened FastAPI backend foundation with deterministic intake, Manual Review Queue, dispatch orchestration, operational intake persistence, controlled operational job creation, Work Order/Visit generation, technician assignment/scheduling preparation, routing/dispatch preparation, route-assignment/dispatch-authorization, internal dispatch execution, external adapter preparation, controlled external adapter execution, external confirmation/failure recovery, immutable operational event history, dispatch reconciliation/operational consistency, operational replay/recovery preparation, operational governance/approval-control, operational accountability/escalation/incident-preparation, read-only operational dashboard/API contract foundations, read-only dedicated Water Emergency dashboard/detail contracts, read-only Next.js admin dashboard frontend foundation, local PostgreSQL development database verification foundation, local PostgreSQL bootstrap/live-dashboard verification, expanded synthetic live-dashboard seed scenarios, live dashboard scenario storyboard visualization, dedicated Water Emergency dashboard visualization, and Water Emergency detail/timeline visibility foundation
+- Frontend: Next.js, TypeScript, and Tailwind admin dashboard shell consuming backend dashboard read-model contracts with typed fallback data, responsive layout polish, operational health summary, live scenario storyboard cards, dedicated Water Emergency command view, Water Emergency detail/evidence timeline panel, improved timeline labels, browser-verified read-only behavior, documented backend API base URL configuration, and verified live-backend local dashboard workflow
 - Production target: Linux VPS, Apache reverse proxy, HTTPS, FastAPI backend, PostgreSQL database, future Next.js frontend
 
 ## Repository Structure
@@ -54,7 +54,7 @@ The backend scaffold includes:
 - deterministic operational governance, approval control, manual intervention, replay authorization, rollback authorization, and reconciliation approval foundation with no automatic execution
 - deterministic operational accountability, escalation, intervention-escalation, and incident-preparation foundation with no automatic incident execution
 - deterministic read-only operational dashboard summaries, lifecycle counts, blocker indicators, escalation indicators, event timeline read models, and dashboard API contracts with no mutation or workflow execution endpoints
-- deterministic read-only Water Emergency dashboard summaries, status/stage distributions, equipment and multi-visit indicators, review/escalation indicators, data-gap counts, related references, and emergency timeline evidence without Water Emergency execution
+- deterministic read-only Water Emergency dashboard summaries, per-record detail read models, status/stage distributions, equipment and multi-visit indicators, scoped Manual Review indicators, data-gap counts, related references, and emergency timeline evidence without Water Emergency execution
 - backend Makefile developer commands
 - pytest and Ruff configuration
 - local PostgreSQL development database check, expanded synthetic dashboard seed scenarios, read-only dashboard endpoint verification scripts, and local bootstrap verification notes
@@ -69,7 +69,7 @@ The frontend foundation includes:
 - TypeScript dashboard API contract types matching the backend Module 23 read models
 - Tailwind CSS admin dashboard shell with sidebar, header, responsive layout, status badges, stat cards, lifecycle panels, operational health signals, warning indicators, and timeline preview
 - read-only scenario storyboard section that groups existing backend read-model counts into local seed scenario families without adding workflow logic
-- dedicated read-only Water Emergency dashboard section that consumes the separated Water Emergency API contract without adding create/close/dispatch/approval controls
+- dedicated read-only Water Emergency dashboard and detail/timeline sections that consume the separated Water Emergency API contracts without adding create/close/dispatch/approval controls
 - server-side read-only dashboard API client using `ACS_DASHBOARD_API_BASE_URL`
 - typed mock/fallback data for local layout work when the backend is unavailable
 - smoke tests for dashboard API client behavior, dashboard rendering, and absence of operational mutation controls

@@ -605,6 +605,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 32 Water Emergency Detail Read Model Boundary
+
+Module 32 adds read-only Water Emergency detail visibility on top of the Module 31 summary contract:
+
+- `GET /api/v1/dashboard/water-emergency/{water_emergency_id}` exposes one selected Water Emergency record detail
+- the backend detail read model returns scoped job, work-order, visit, Manual Review, audit, and timeline evidence
+- related Manual Review indicators must be tied to the selected record through job, entity, or visit linkage
+- timeline entries are chronological evidence only and do not drive lifecycle transitions
+- the frontend renders a dedicated detail/evidence section separated from standard dispatch summaries
+
+The boundary remains projection-only. The endpoint and UI do not create, edit, close, resolve, approve, dispatch, integrate, replay, reconcile, or execute Water Emergency workflows. They also do not call AI or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- user selection model for multiple Water Emergency records
+- role-scoped access to emergency detail evidence
+- production timeline filtering, pagination, and refresh behavior
+- future equipment, moisture-reading, photo, and emergency-specific history models
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

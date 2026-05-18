@@ -2,7 +2,8 @@ import type {
   DashboardFetchResult,
   DashboardOverviewResponse,
   DashboardSource,
-  WaterEmergencyDashboardResponse
+  WaterEmergencyDashboardResponse,
+  WaterEmergencyDetailResponse
 } from "@/lib/dashboard-contracts";
 import { AppShell } from "@/components/layout/app-shell";
 import { AlertStrip } from "@/components/dashboard/alert-strip";
@@ -14,15 +15,18 @@ import { SectionHeading } from "@/components/dashboard/section-heading";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TimelineList } from "@/components/dashboard/timeline-list";
 import { WaterEmergencyDashboard } from "@/components/dashboard/water-emergency-dashboard";
+import { WaterEmergencyDetailPanel } from "@/components/dashboard/water-emergency-detail-panel";
 
 type DashboardViewProps = {
   result: DashboardFetchResult<DashboardOverviewResponse>;
   waterEmergencyResult: DashboardFetchResult<WaterEmergencyDashboardResponse>;
+  waterEmergencyDetailResult: DashboardFetchResult<WaterEmergencyDetailResponse | null>;
 };
 
 export function DashboardView({
   result,
-  waterEmergencyResult
+  waterEmergencyResult,
+  waterEmergencyDetailResult
 }: DashboardViewProps) {
   const { data, source, errorMessage } = result;
   const { operational_summary: summary } = data;
@@ -30,10 +34,19 @@ export function DashboardView({
   const { manual_review_summary: review } = data;
   const { dispatch_summary: dispatch } = data;
   const dashboardSource: DashboardSource =
-    source === "api" && waterEmergencyResult.source === "api" ? "api" : "mock";
+    source === "api" &&
+    waterEmergencyResult.source === "api" &&
+    waterEmergencyDetailResult.source === "api"
+      ? "api"
+      : "mock";
   const fallbackMessage =
-    [errorMessage, waterEmergencyResult.errorMessage].filter(Boolean).join(" ") ||
-    undefined;
+    [
+      errorMessage,
+      waterEmergencyResult.errorMessage,
+      waterEmergencyDetailResult.errorMessage
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   return (
     <AppShell generatedAt={data.generated_at} source={dashboardSource}>
@@ -58,6 +71,8 @@ export function DashboardView({
         <ScenarioStoryboard data={data} source={source} />
 
         <WaterEmergencyDashboard result={waterEmergencyResult} />
+
+        <WaterEmergencyDetailPanel result={waterEmergencyDetailResult} />
 
         <section className="space-y-4">
           <SectionHeading

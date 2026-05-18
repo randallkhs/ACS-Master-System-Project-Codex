@@ -123,3 +123,32 @@ Use this pattern for future ACS Water Emergency modules, technician/mobile emerg
 
 ### Verification Notes
 Module 31 tests verify the dedicated Water Emergency section renders separately from standard dispatch, the frontend API client remains GET-only, and no emergency mutation controls are present. Full browser QA should continue to confirm live backend source labeling, responsive layout, no console errors, and no horizontal overflow.
+
+---
+
+## ACS Water Emergency Detail Timeline
+
+Category:
+UI design / operational dashboard
+Date Added:
+2026-05-17
+Last Verified:
+2026-05-17
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 32 verification
+
+### Discovery
+Water Emergency detail screens should be read-only drilldowns backed by backend detail read models. The UI should show one focused emergency record, related job/work-order/visit references, scoped Manual Review indicators, data gaps, audit references, and chronological timeline evidence without offering close, resolve, dispatch, approval, vendor, or AI controls.
+
+### Why It Matters
+Water Emergency work is long-lived and evidence-heavy. A dedicated detail/timeline panel improves operator context while preserving backend ownership of lifecycle state and Manual Review authority.
+
+### Reusability
+Use this pattern for future high-risk operational detail views where operators need evidence and audit context before mutation workflows are designed.
+
+### Verification Notes
+Module 32 tests verify the detail section renders separately, the API client remains GET-only, scoped reviews remain per-record, and missing records return 404. Browser QA should continue to verify live backend source labeling, mobile layout, no console errors, no horizontal overflow, and no mutation controls.

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from uuid import UUID
 
 
@@ -69,6 +69,71 @@ class WaterEmergencyRecordSummary:
     open_review_count: int
     timeline_event_count: int
     audit_correlation_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyJobReference:
+    job_id: UUID
+    job_type: str | None
+    status: str
+    review_status: str | None
+    priority: str | None
+    requested_date: date | None
+    scheduled_date: date | None
+    source_system: str | None
+    source_event_id: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyWorkOrderReference:
+    work_order_id: UUID
+    work_order_number: str | None
+    status: str
+    dispatch_status: str | None
+    assigned_technician_id: UUID | None
+    audit_correlation_id: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyVisitReference:
+    visit_id: UUID
+    work_order_id: UUID | None
+    technician_id: UUID | None
+    visit_type: str | None
+    status: str
+    scheduled_start_at: datetime | None
+    scheduled_end_at: datetime | None
+    arrived_at: datetime | None
+    completed_at: datetime | None
+    audit_correlation_id: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyReviewIndicator:
+    review_item_id: UUID
+    status: str
+    severity: str | None
+    reason_code: str
+    confidence_score: float | None
+    entity_type: str | None
+    entity_id: UUID | None
+    job_id: UUID | None
+    visit_id: UUID | None
+    audit_correlation_id: str | None
+    recommended_action: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyDetailReadModel:
+    generated_at: datetime
+    record: WaterEmergencyRecordSummary
+    job: WaterEmergencyJobReference | None
+    work_orders: tuple[WaterEmergencyWorkOrderReference, ...]
+    visits: tuple[WaterEmergencyVisitReference, ...]
+    review_indicators: tuple[WaterEmergencyReviewIndicator, ...]
+    data_gap_counts: tuple[CountBucket, ...]
+    audit_correlation_ids: tuple[str, ...]
+    timeline_summary: OperationalEventTimelineSummary
 
 
 @dataclass(frozen=True, slots=True)

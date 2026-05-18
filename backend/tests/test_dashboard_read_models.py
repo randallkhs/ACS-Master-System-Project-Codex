@@ -432,6 +432,155 @@ def test_water_emergency_record_reviews_are_scoped_to_each_record() -> None:
     assert summary.review_indicator_count == 4
 
 
+def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
+    records = dashboard_source_records()
+    water_emergency = records["water_emergencies"][0]
+    closed_water_emergency = records["water_emergencies"][1]
+    assert isinstance(water_emergency, WaterEmergency)
+    assert isinstance(closed_water_emergency, WaterEmergency)
+    water_job_id = water_emergency.job_id
+    water_work_order_id = uuid4()
+    first_timeline_id = uuid4()
+    second_timeline_id = uuid4()
+
+    records["work_orders"].append(
+        WorkOrder(
+            id=water_work_order_id,
+            job_id=water_job_id,
+            work_order_number="WATER-DETAIL-001",
+            status="generated",
+            dispatch_status="not_dispatched",
+            audit_correlation_id="audit-dashboard-water-detail",
+        ),
+    )
+    records["visits"].append(
+        Visit(
+            id=uuid4(),
+            job_id=water_job_id,
+            work_order_id=water_work_order_id,
+            visit_type="water_emergency",
+            status="scheduled",
+            scheduled_start_at=datetime(2026, 5, 16, 13, 0, tzinfo=UTC),
+            audit_correlation_id="audit-dashboard-water-detail",
+        ),
+    )
+    records["review_items"].extend(
+        [
+            ReviewItem(
+                job_id=water_job_id,
+                entity_type="water_emergency",
+                entity_id=water_emergency.id,
+                reason_code="water_detail_review",
+                status="open",
+                severity="high",
+                confidence_score=71.0,
+                audit_correlation_id="audit-dashboard-water-detail",
+                recommended_action="Review synthetic Water Emergency detail evidence.",
+            ),
+            ReviewItem(
+                job_id=closed_water_emergency.job_id,
+                entity_type="water_emergency",
+                entity_id=closed_water_emergency.id,
+                reason_code="closed_water_detail_review",
+                status="open",
+                severity="high",
+                audit_correlation_id="audit-dashboard-water-closed",
+            ),
+            ReviewItem(
+                entity_type="water_emergency",
+                reason_code="generic_water_detail_review",
+                status="open",
+                severity="high",
+                audit_correlation_id="audit-dashboard-water-generic",
+            ),
+        ],
+    )
+    records["operational_events"].extend(
+        [
+            OperationalEventRecord(
+                id=second_timeline_id,
+                occurred_at=datetime(2026, 5, 16, 10, 30, tzinfo=UTC),
+                recorded_at=datetime(2026, 5, 16, 10, 30, tzinfo=UTC),
+                event_type="water_emergency.monitoring_required",
+                event_state="review_required",
+                entity_type="water_emergency",
+                entity_id=water_emergency.id,
+                route_assignment_id=None,
+                visit_id=None,
+                work_order_id=water_work_order_id,
+                job_id=water_job_id,
+                technician_id=None,
+                audit_correlation_id="audit-dashboard-water-detail",
+                previous_state="dispatched",
+                new_state="monitoring_required",
+                event_fingerprint="dashboard-water-detail-event-2",
+                is_immutable=True,
+            ),
+            OperationalEventRecord(
+                id=first_timeline_id,
+                occurred_at=datetime(2026, 5, 16, 9, 45, tzinfo=UTC),
+                recorded_at=datetime(2026, 5, 16, 9, 45, tzinfo=UTC),
+                event_type="water_emergency.extraction_started",
+                event_state="recorded",
+                entity_type="water_emergency",
+                entity_id=water_emergency.id,
+                route_assignment_id=None,
+                visit_id=None,
+                work_order_id=water_work_order_id,
+                job_id=water_job_id,
+                technician_id=None,
+                audit_correlation_id="audit-dashboard-water-detail",
+                previous_state="new",
+                new_state="extraction_started",
+                event_fingerprint="dashboard-water-detail-event-1",
+                is_immutable=True,
+            ),
+        ],
+    )
+
+    detail = DashboardReadModelService().build_water_emergency_detail(
+        water_emergency.id,
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    assert detail is not None
+    assert detail.record.water_emergency_id == water_emergency.id
+    assert detail.job is not None
+    assert detail.job.job_id == water_job_id
+    assert detail.work_orders[0].work_order_id == water_work_order_id
+    assert len(detail.visits) == 2
+    assert [review.reason_code for review in detail.review_indicators] == [
+        "water_detail_review",
+    ]
+    assert detail.record.open_review_count == 1
+    assert [entry.event_type for entry in detail.timeline_summary.entries] == [
+        "water_emergency.extraction_started",
+        "water_emergency.monitoring_required",
+    ]
+    assert detail.data_gap_counts == ()
+
+
+def test_water_emergency_detail_read_model_returns_none_for_missing_record() -> None:
+    records = dashboard_source_records()
+
+    detail = DashboardReadModelService().build_water_emergency_detail(
+        uuid4(),
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    assert detail is None
+
+
 def test_external_execution_summary_counts_adapter_and_confirmation_state() -> None:
     external = build_overview().dispatch_summary.external_execution
 

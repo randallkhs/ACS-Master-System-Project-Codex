@@ -79,6 +79,7 @@ EXTERNAL_CONFIRMED_EVENT_ID = UUID("eeeeeeee-3333-4eee-8eee-eeeeeeeeeeee")
 RECOVERY_EVENT_ID = UUID("eeeeeeee-4444-4eee-8eee-eeeeeeeeeeee")
 GOVERNANCE_EVENT_ID = UUID("eeeeeeee-5555-4eee-8eee-eeeeeeeeeeee")
 INCIDENT_EVENT_ID = UUID("eeeeeeee-6666-4eee-8eee-eeeeeeeeeeee")
+WATER_EMERGENCY_EVENT_ID = UUID("eeeeeeee-7777-4eee-8eee-eeeeeeeeeeee")
 
 
 @dataclass(frozen=True)
@@ -772,6 +773,30 @@ def build_dashboard_dev_seed_records(
                 opened_at=morning_start - timedelta(days=2),
                 closed_at=morning_start - timedelta(days=1),
                 notes="Synthetic closed Water Emergency seed data. Not production data.",
+            ),
+            OperationalEventRecord(
+                id=WATER_EMERGENCY_EVENT_ID,
+                occurred_at=scheduled_start - timedelta(hours=3, minutes=30),
+                recorded_at=scheduled_start - timedelta(hours=3, minutes=30),
+                event_type="water_emergency.extraction_started",
+                event_state="recorded",
+                entity_type="water_emergency",
+                entity_id=WATER_EMERGENCY_ID,
+                route_assignment_id=None,
+                visit_id=WATER_VISIT_ID,
+                work_order_id=None,
+                job_id=WATER_JOB_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                audit_correlation_id="module27-dashboard-demo-water",
+                previous_state="new",
+                new_state="extraction_started",
+                event_fingerprint="module32-dashboard-demo-water-extraction-started",
+                is_immutable=True,
+                event_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "water_emergency_separated",
+                    "production_data": False,
+                },
             ),
             OperationalEventRecord(
                 id=DISPATCH_EVENT_ID,
