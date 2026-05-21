@@ -181,3 +181,32 @@ Use this pattern for future high-risk dashboard sections where the UI needs to e
 
 ### Verification Notes
 Module 33 tests verify summary/detail equipment context, visit-chain visibility, drying-stage visibility, Water Emergency separation from standard dispatch-ready counts, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, and no horizontal overflow.
+
+---
+
+## Water Emergency Review, Exception, And Critical-Alert Visibility
+
+Category:
+UI design / operational dashboard / Water Emergency
+Date Added:
+2026-05-18
+Last Verified:
+2026-05-18
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 34 verification
+
+### Discovery
+Water Emergency review and alert panels should display backend-provided `ReviewItem` evidence only: status counts, reason buckets, blocker reason buckets, critical unresolved counts, escalation indicators, review IDs, audit references, and explicit unknowns. Summary visibility may include all persisted Water Emergency review evidence, but detail visibility must only show reviews scoped to the selected Water Emergency through job, entity, or visit linkage.
+
+### Why It Matters
+Water Emergency review visibility helps operators see safety blockers and exception context before action workflows exist. It must not imply approval/rejection authority, alert clearing, escalation execution, dispatch, closure, vendor calls, or AI authority.
+
+### Reusability
+Use this pattern for future high-risk review/alert dashboards where the UI needs strong warning visibility without introducing mutation controls or frontend-owned workflow decisions.
+
+### Verification Notes
+Module 34 tests verify backend review/exception summaries, per-record review scoping, blocker/unknown indicators, frontend rendering of review/critical/blocker panels, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, and no horizontal overflow.

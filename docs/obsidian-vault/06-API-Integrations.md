@@ -492,3 +492,27 @@ Open API/frontend concerns:
 - final Water Emergency status/stage taxonomy
 - dedicated equipment inventory and moisture-reading API contracts
 - production filtering, pagination, refresh cadence, and role-scoped detail visibility
+
+## Phase 0 Module 34 Water Emergency Review And Alert Visibility Contract Boundary
+
+The existing Water Emergency dashboard API contracts now include read-only review, exception, blocker, and critical-alert visibility fields.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/water-emergency` exposes summary-level review/exception counts, review reason buckets, blocker reason buckets, critical unresolved counts, escalation indicators, review IDs, and audit references
+- `GET /api/v1/dashboard/water-emergency/{water_emergency_id}` exposes detail-level review/exception context scoped to the selected Water Emergency record
+- fields are derived only from persisted Water Emergency, Visit, Review, and event evidence
+- generic Water Emergency review labels may inform dashboard-level counts, but detail-level context depends on concrete job, entity, or visit linkage
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no Manual Review approve/reject/resolve/archive calls are added
+- no Water Emergency closure, dispatch, escalation execution, vendor, or AI execution calls are added
+- frontend display must consume the backend contract instead of deriving hidden emergency review authority
+
+Open API/frontend concerns:
+
+- final Water Emergency review and escalation taxonomy
+- typed exception/alert API contracts after operations confirms categories
+- production filtering, pagination, refresh cadence, notification routing, and role-scoped review visibility

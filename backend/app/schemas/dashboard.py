@@ -173,6 +173,36 @@ class WaterEmergencyDetailDryingStageContextResponse(DashboardSchema):
     missing_indicators: tuple[str, ...]
 
 
+class WaterEmergencyReviewExceptionSummaryResponse(DashboardSchema):
+    total_review_count: int
+    open_review_count: int
+    deferred_review_count: int
+    resolved_review_count: int
+    archived_review_count: int
+    critical_unresolved_count: int
+    escalation_indicator_count: int
+    review_reason_counts: tuple[CountBucketResponse, ...]
+    blocker_reason_counts: tuple[CountBucketResponse, ...]
+    unknown_counts: tuple[CountBucketResponse, ...]
+    review_item_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+
+
+class WaterEmergencyReviewExceptionContextResponse(DashboardSchema):
+    total_review_count: int
+    open_review_count: int
+    deferred_review_count: int
+    resolved_review_count: int
+    archived_review_count: int
+    critical_unresolved_count: int
+    escalation_indicator_count: int
+    review_reason_counts: tuple[CountBucketResponse, ...]
+    blocker_reason_counts: tuple[CountBucketResponse, ...]
+    unknown_indicators: tuple[str, ...]
+    review_item_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+
+
 class RouteAssignmentSummaryResponse(DashboardSchema):
     total_assignments: int
     status_counts: tuple[CountBucketResponse, ...]
@@ -261,6 +291,7 @@ class WaterEmergencyDashboardResponse(DashboardSchema):
     equipment_summary: WaterEmergencyEquipmentSummaryResponse
     visit_chain_summary: WaterEmergencyVisitChainSummaryResponse
     drying_stage_summary: WaterEmergencyDryingStageSummaryResponse
+    review_exception_summary: WaterEmergencyReviewExceptionSummaryResponse
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int
@@ -282,6 +313,7 @@ class WaterEmergencyDetailResponse(DashboardSchema):
     equipment_context: WaterEmergencyDetailEquipmentContextResponse
     visit_chain: WaterEmergencyVisitChainResponse
     drying_stage_context: WaterEmergencyDetailDryingStageContextResponse
+    review_exception_context: WaterEmergencyReviewExceptionContextResponse
     data_gap_counts: tuple[CountBucketResponse, ...]
     audit_correlation_ids: tuple[str, ...]
     timeline_summary: OperationalEventTimelineSummaryResponse

@@ -1068,3 +1068,34 @@ Use this file for durable decisions that affect future development. Do not recor
   - System architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-18 — Phase 0 Module 34 Water Emergency Manual Review, Exception, And Critical Alert Visibility
+
+- Decision type: Implementation / Water Emergency visibility / read-only review contract
+- Status: Implemented
+- Decision:
+  - Extend Water Emergency dashboard/detail read models with review/exception counts, reason buckets, blocker reason buckets, critical unresolved counts, escalation indicators, review IDs, and audit-correlation references.
+  - Keep dashboard-level Water Emergency review visibility broad enough to include all persisted Water Emergency review evidence while keeping detail-level review context scoped to the selected record through job, entity, or visit linkage.
+  - Add read-only frontend panels for Water Emergency review exceptions, critical alerts, and blocker/unknown context without adding action controls.
+  - Expand local synthetic seed data with Water Emergency open critical, deferred, and archived review examples plus immutable review-exception timeline evidence.
+- Rationale:
+  - Operators need clearer emergency-specific Manual Review and blocker visibility before action workflows exist.
+  - Critical and blocker indicators should be visible without creating workflow authority, approval/rejection controls, escalation execution, or frontend-owned business logic.
+  - Generic Water Emergency review labels must not attach to every per-record detail view.
+- Future implications:
+  - Future modules still need a Luis-confirmed Water Emergency review/escalation taxonomy, typed exception categories, authenticated Manual Review actions, alert routing, and notification/escalation execution.
+  - Production read models may need query optimization, pagination, role-scoped visibility, and refresh/stale-data rules.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Local synthetic dashboard seed data
+  - Frontend dashboard API contracts/mock data
+  - Frontend Water Emergency summary/detail sections
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

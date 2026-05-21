@@ -187,6 +187,38 @@ class WaterEmergencyDetailDryingStageContext:
 
 
 @dataclass(frozen=True, slots=True)
+class WaterEmergencyReviewExceptionSummary:
+    total_review_count: int
+    open_review_count: int
+    deferred_review_count: int
+    resolved_review_count: int
+    archived_review_count: int
+    critical_unresolved_count: int
+    escalation_indicator_count: int
+    review_reason_counts: tuple[CountBucket, ...]
+    blocker_reason_counts: tuple[CountBucket, ...]
+    unknown_counts: tuple[CountBucket, ...]
+    review_item_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyReviewExceptionContext:
+    total_review_count: int
+    open_review_count: int
+    deferred_review_count: int
+    resolved_review_count: int
+    archived_review_count: int
+    critical_unresolved_count: int
+    escalation_indicator_count: int
+    review_reason_counts: tuple[CountBucket, ...]
+    blocker_reason_counts: tuple[CountBucket, ...]
+    unknown_indicators: tuple[str, ...]
+    review_item_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class WaterEmergencyDetailReadModel:
     generated_at: datetime
     record: WaterEmergencyRecordSummary
@@ -197,6 +229,7 @@ class WaterEmergencyDetailReadModel:
     equipment_context: WaterEmergencyDetailEquipmentContext
     visit_chain: WaterEmergencyVisitChain
     drying_stage_context: WaterEmergencyDetailDryingStageContext
+    review_exception_context: WaterEmergencyReviewExceptionContext
     data_gap_counts: tuple[CountBucket, ...]
     audit_correlation_ids: tuple[str, ...]
     timeline_summary: OperationalEventTimelineSummary
@@ -216,6 +249,7 @@ class WaterEmergencyDashboardReadModel:
     equipment_summary: WaterEmergencyEquipmentSummary
     visit_chain_summary: WaterEmergencyVisitChainSummary
     drying_stage_summary: WaterEmergencyDryingStageSummary
+    review_exception_summary: WaterEmergencyReviewExceptionSummary
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

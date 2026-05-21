@@ -236,6 +236,25 @@ Unresolved:
 - final Water Emergency stage taxonomy remains an operations decision
 - production read-model query optimization remains future work
 
+## Phase 0 Module 34 Water Emergency Review And Exception Read Models
+
+Module 34 extends the Water Emergency dashboard/detail projections without changing the database schema.
+
+Read-model behavior:
+
+- derives review/exception counts from existing `ReviewItem` status, severity, reason-code, ID, and audit-correlation fields
+- derives blocker reason buckets from persisted reason-code evidence without defining a final operations taxonomy
+- exposes critical unresolved and escalation indicators as read-only alert visibility
+- scopes detail-level review context to concrete Water Emergency job, entity, or visit links
+- exposes unknown indicators when a selected Water Emergency record has no specifically scoped review evidence
+- adds synthetic local seed examples for open critical, deferred, and archived Water Emergency review states
+
+Unresolved:
+
+- future schema may require typed Water Emergency exception categories, dedicated alert history, and review-state transition history
+- final review/escalation taxonomy remains an operations decision
+- production read-model query optimization, pagination, and role-scoped review visibility remain future work
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:

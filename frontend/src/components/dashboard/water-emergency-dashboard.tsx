@@ -19,6 +19,7 @@ export function WaterEmergencyDashboard({
   result
 }: WaterEmergencyDashboardProps) {
   const { data, source, errorMessage } = result;
+  const reviewException = data.review_exception_summary;
 
   return (
     <SectionCard
@@ -96,6 +97,67 @@ export function WaterEmergencyDashboard({
             value={data.escalation_indicator_count}
             tone={data.escalation_indicator_count > 0 ? "danger" : "good"}
           />
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-3">
+          <VisibilityPanel title="Review Exception Visibility">
+            <div className="grid grid-cols-2 gap-2">
+              <RecordMetric label="Open" value={reviewException.open_review_count} />
+              <RecordMetric
+                label="Deferred"
+                value={reviewException.deferred_review_count}
+              />
+              <RecordMetric
+                label="Resolved"
+                value={reviewException.resolved_review_count}
+              />
+              <RecordMetric
+                label="Archived"
+                value={reviewException.archived_review_count}
+              />
+            </div>
+            <BucketPills buckets={reviewException.review_reason_counts} />
+          </VisibilityPanel>
+
+          <VisibilityPanel title="Critical Alerts">
+            <div className="grid grid-cols-2 gap-2">
+              <RecordMetric
+                label="Critical"
+                value={reviewException.critical_unresolved_count}
+              />
+              <RecordMetric
+                label="Escalation"
+                value={reviewException.escalation_indicator_count}
+              />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusBadge
+                label="Read-only alert visibility"
+                variant={
+                  reviewException.critical_unresolved_count > 0 ? "danger" : "success"
+                }
+              />
+              {reviewException.review_item_ids.slice(0, 3).map((reviewId) => (
+                <span
+                  key={reviewId}
+                  className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-600"
+                >
+                  Review {compactId(reviewId)}
+                </span>
+              ))}
+            </div>
+          </VisibilityPanel>
+
+          <VisibilityPanel title="Blocker Unknowns">
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Blocker reasons
+            </div>
+            <BucketPills buckets={reviewException.blocker_reason_counts} />
+            <div className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Unknown signals
+            </div>
+            <BucketPills buckets={reviewException.unknown_counts} />
+          </VisibilityPanel>
         </div>
 
         <div className="grid gap-4 xl:grid-cols-3">

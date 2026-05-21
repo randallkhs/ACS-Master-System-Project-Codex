@@ -124,7 +124,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
         if "event_fingerprint" in record.__dict__
     }
 
-    assert seed_records.record_count == 51
+    assert seed_records.record_count == 54
     assert seed_records.scenario_labels == (
         "standard_dispatch_ready",
         "manual_review_blocked",
@@ -142,6 +142,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
     assert "module29-dashboard-demo-incident-prepared" in event_fingerprints
     assert "module32-dashboard-demo-water-extraction-started" in event_fingerprints
     assert "module33-dashboard-demo-water-drying-check-scheduled" in event_fingerprints
+    assert "module34-dashboard-demo-water-review-exception-flagged" in event_fingerprints
 
     route_assignment = next(
         record
@@ -168,7 +169,7 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
 
     assert overview.operational_summary.total_jobs == 6
     assert overview.operational_summary.total_route_assignments == 5
-    assert overview.operational_summary.open_manual_reviews == 3
+    assert overview.operational_summary.open_manual_reviews == 4
     assert overview.operational_summary.open_water_emergencies == 1
 
     lifecycle = overview.lifecycle_summary
@@ -181,11 +182,11 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
     assert lifecycle.water_emergency_separated_intake == 1
 
     review = overview.manual_review_summary
-    assert review.open_items == 2
+    assert review.open_items == 3
     assert review.deferred_items == 1
     assert review.resolved_items == 1
-    assert review.archived_items == 1
-    assert review.escalation_indicators == 3
+    assert review.archived_items == 2
+    assert review.escalation_indicators == 4
 
     dispatch = overview.dispatch_summary
     assert dispatch.route_assignments.awaiting_dispatch_execution_count == 1
@@ -213,9 +214,21 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
     assert water_emergency.equipment_summary.work_orders_with_equipment_notes_count == 1
     assert water_emergency.equipment_summary.inventory_entity_available is False
     assert water_emergency.drying_stage_summary.moisture_tracking_required_count == 1
+    assert water_emergency.review_exception_summary.total_review_count == 3
+    assert water_emergency.review_exception_summary.open_review_count == 1
+    assert water_emergency.review_exception_summary.deferred_review_count == 1
+    assert water_emergency.review_exception_summary.archived_review_count == 1
+    assert water_emergency.review_exception_summary.critical_unresolved_count == 1
+    assert (
+        bucket_count(
+            water_emergency.review_exception_summary.blocker_reason_counts,
+            "module34_demo_water_equipment_unknown_blocker",
+        )
+        == 1
+    )
 
     timeline = overview.timeline_summary
-    assert timeline.total_events == 10
+    assert timeline.total_events == 11
     assert timeline.mutable_event_count == 0
     assert [entry.occurred_at for entry in timeline.entries] == sorted(
         entry.occurred_at for entry in timeline.entries

@@ -315,6 +315,31 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
     missing_stage_count: 0,
     moisture_tracking_required_count: 1
   },
+  review_exception_summary: {
+    total_review_count: 3,
+    open_review_count: 1,
+    deferred_review_count: 1,
+    resolved_review_count: 0,
+    archived_review_count: 1,
+    critical_unresolved_count: 1,
+    escalation_indicator_count: 2,
+    review_reason_counts: [
+      { label: "water_detail_unknown_blocker", count: 1 },
+      { label: "water_emergency_deferred_review", count: 1 },
+      { label: "water_emergency_archived_exception", count: 1 }
+    ],
+    blocker_reason_counts: [
+      { label: "water_detail_unknown_blocker", count: 1 },
+      { label: "water_emergency_archived_exception", count: 1 }
+    ],
+    unknown_counts: [{ label: "open_record_without_scoped_review", count: 1 }],
+    review_item_ids: [
+      "74c29ad0-a8f0-4b9a-b596-285b35556717",
+      "4b7cb8c9-b1d4-4e71-bbe5-5387f255e392",
+      "48791671-859c-4e6c-a9ad-2dbd6324c11d"
+    ],
+    audit_correlation_ids: ["audit-dashboard-003", "audit-dashboard-review"]
+  },
   related_job_count: 2,
   related_work_order_count: 1,
   related_visit_count: 2,
@@ -441,8 +466,8 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
     {
       review_item_id: "74c29ad0-a8f0-4b9a-b596-285b35556717",
       status: "open",
-      severity: "high",
-      reason_code: "water_detail_review",
+      severity: "critical",
+      reason_code: "water_detail_unknown_blocker",
       confidence_score: 70,
       entity_type: "water_emergency",
       entity_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
@@ -483,6 +508,20 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
     next_required_action: "Synthetic drying progress review",
     moisture_tracking_required: true,
     missing_indicators: []
+  },
+  review_exception_context: {
+    total_review_count: 1,
+    open_review_count: 1,
+    deferred_review_count: 0,
+    resolved_review_count: 0,
+    archived_review_count: 0,
+    critical_unresolved_count: 1,
+    escalation_indicator_count: 1,
+    review_reason_counts: [{ label: "water_detail_unknown_blocker", count: 1 }],
+    blocker_reason_counts: [{ label: "water_detail_unknown_blocker", count: 1 }],
+    unknown_indicators: [],
+    review_item_ids: ["74c29ad0-a8f0-4b9a-b596-285b35556717"],
+    audit_correlation_ids: ["audit-dashboard-003"]
   },
   data_gap_counts: [],
   audit_correlation_ids: ["audit-dashboard-003"],

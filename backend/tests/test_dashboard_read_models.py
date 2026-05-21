@@ -374,6 +374,17 @@ def test_water_emergency_dashboard_summary_stays_separate_and_read_only() -> Non
             audit_correlation_id="audit-dashboard-water-extra",
         ),
     )
+    records["review_items"].append(
+        ReviewItem(
+            job_id=water_job_id,
+            entity_type="water_emergency",
+            entity_id=water_emergency.id,
+            reason_code="water_emergency_archived_exception",
+            status="archived",
+            severity="low",
+            audit_correlation_id="audit-dashboard-water-archived",
+        ),
+    )
     records["operational_events"].append(
         OperationalEventRecord(
             id=water_timeline_id,
@@ -417,6 +428,27 @@ def test_water_emergency_dashboard_summary_stays_separate_and_read_only() -> Non
     assert summary.related_visit_count == 2
     assert summary.review_indicator_count == 2
     assert summary.escalation_indicator_count == 2
+    assert summary.review_exception_summary.total_review_count == 3
+    assert summary.review_exception_summary.open_review_count == 1
+    assert summary.review_exception_summary.deferred_review_count == 1
+    assert summary.review_exception_summary.resolved_review_count == 0
+    assert summary.review_exception_summary.archived_review_count == 1
+    assert summary.review_exception_summary.critical_unresolved_count == 1
+    assert summary.review_exception_summary.escalation_indicator_count == 2
+    assert (
+        bucket_count(
+            summary.review_exception_summary.review_reason_counts,
+            "water_emergency_missing_pickup",
+        )
+        == 1
+    )
+    assert (
+        bucket_count(
+            summary.review_exception_summary.blocker_reason_counts,
+            "water_emergency_missing_pickup",
+        )
+        == 1
+    )
     assert summary.visit_chain_summary.total_visits == 2
     assert summary.visit_chain_summary.multi_visit_record_count == 1
     assert summary.visit_chain_summary.open_records_without_visits_count == 0
@@ -490,6 +522,8 @@ def test_water_emergency_record_reviews_are_scoped_to_each_record() -> None:
     assert record_summaries[first_record.id].open_review_count == 1
     assert record_summaries[second_record.id].open_review_count == 1
     assert summary.review_indicator_count == 4
+    assert summary.review_exception_summary.open_review_count == 3
+    assert summary.review_exception_summary.deferred_review_count == 1
 
 
 def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
@@ -533,9 +567,9 @@ def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
                 job_id=water_job_id,
                 entity_type="water_emergency",
                 entity_id=water_emergency.id,
-                reason_code="water_detail_review",
+                reason_code="water_detail_unknown_blocker",
                 status="open",
-                severity="high",
+                severity="critical",
                 confidence_score=71.0,
                 audit_correlation_id="audit-dashboard-water-detail",
                 recommended_action="Review synthetic Water Emergency detail evidence.",
@@ -629,14 +663,45 @@ def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
     assert detail.drying_stage_context.missing_indicators == ()
     assert len(detail.visits) == 2
     assert [review.reason_code for review in detail.review_indicators] == [
-        "water_detail_review",
+        "water_detail_unknown_blocker",
     ]
     assert detail.record.open_review_count == 1
+    assert detail.review_exception_context.total_review_count == 1
+    assert detail.review_exception_context.open_review_count == 1
+    assert detail.review_exception_context.critical_unresolved_count == 1
+    assert (
+        bucket_count(
+            detail.review_exception_context.blocker_reason_counts,
+            "water_detail_unknown_blocker",
+        )
+        == 1
+    )
+    assert "audit-dashboard-water-detail" in detail.review_exception_context.audit_correlation_ids
     assert [entry.event_type for entry in detail.timeline_summary.entries] == [
         "water_emergency.extraction_started",
         "water_emergency.monitoring_required",
     ]
     assert detail.data_gap_counts == ()
+
+
+def test_water_emergency_detail_review_exception_context_reports_missing_scoped_review() -> None:
+    records = dashboard_source_records()
+    water_emergency = records["water_emergencies"][0]
+    assert isinstance(water_emergency, WaterEmergency)
+
+    detail = DashboardReadModelService().build_water_emergency_detail(
+        water_emergency.id,
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    assert detail is not None
+    assert detail.review_exception_context.total_review_count == 0
+    assert "no_scoped_review_items" in detail.review_exception_context.unknown_indicators
 
 
 def test_water_emergency_detail_read_model_returns_none_for_missing_record() -> None:

@@ -646,6 +646,26 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 34 Water Emergency Review And Alert Visibility Boundary
+
+Module 34 extends Water Emergency summary/detail visibility with read-only Manual Review, exception, blocker, and critical-alert context:
+
+- backend read models expose review/exception counts, reason buckets, blocker reason buckets, critical unresolved counts, escalation indicators, review IDs, and audit-correlation references from existing `ReviewItem` evidence
+- detail read models expose the same context only for reviews scoped to the selected Water Emergency through job, entity, or visit linkage
+- frontend panels display review/exception, critical-alert, and blocker/unknown context without creating Manual Review or Water Emergency action controls
+- local synthetic seed data now includes Water Emergency open critical, deferred, and archived review examples plus an immutable review-exception evidence event
+
+The boundary remains projection-only. The endpoint and UI do not create, edit, close, resolve, approve, reject, archive, dispatch, integrate, escalate, reconcile, or execute Water Emergency workflows. They also do not call AI or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- final Water Emergency review/escalation taxonomy
+- whether future exception and alert visibility should use typed fields instead of reason-code buckets
+- production role-scoped Manual Review and Water Emergency authority after authentication exists
+- future alert routing, notification, and escalation execution modules
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

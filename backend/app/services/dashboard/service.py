@@ -29,6 +29,8 @@ from app.domain.dashboard import (
     WaterEmergencyEquipmentSummary,
     WaterEmergencyJobReference,
     WaterEmergencyRecordSummary,
+    WaterEmergencyReviewExceptionContext,
+    WaterEmergencyReviewExceptionSummary,
     WaterEmergencyReviewIndicator,
     WaterEmergencyVisitChain,
     WaterEmergencyVisitChainSummary,
@@ -57,6 +59,17 @@ TERMINAL_WATER_EMERGENCY_STATUSES = {"closed", "completed", "cancelled", "cancel
 BLOCKED_ROUTE_STATES = {"blocked", "reconciliation_blocked", "replay_blocked"}
 BLOCKED_GOVERNANCE_STATES = {"governance_blocked"}
 BLOCKED_ACCOUNTABILITY_STATES = {"accountability_blocked"}
+WATER_EMERGENCY_BLOCKER_REASON_KEYWORDS = {
+    "block",
+    "blocked",
+    "conflict",
+    "critical",
+    "exception",
+    "missing",
+    "pickup",
+    "unsafe",
+    "unknown",
+}
 MAX_SORTABLE_DATETIME = datetime.max.replace(tzinfo=UTC)
 
 
@@ -282,6 +295,11 @@ class DashboardReadModelService:
                 visits=related_visits,
             ),
             drying_stage_summary=water_emergency_drying_stage_summary(water_emergencies),
+            review_exception_summary=water_emergency_review_exception_summary(
+                water_emergencies,
+                visits=related_visits,
+                review_items=related_reviews,
+            ),
             related_job_count=len(related_jobs),
             related_work_order_count=len(water_work_order_ids),
             related_visit_count=len(water_visit_ids),
@@ -418,6 +436,9 @@ class DashboardReadModelService:
             ),
             visit_chain=water_emergency_detail_visit_chain(related_visits),
             drying_stage_context=water_emergency_detail_drying_stage_context(record),
+            review_exception_context=water_emergency_review_exception_context(
+                related_reviews,
+            ),
             data_gap_counts=water_emergency_detail_data_gap_counts(
                 record,
                 job=related_job,
@@ -971,6 +992,119 @@ def water_emergency_detail_drying_stage_context(
         moisture_tracking_required=record.moisture_tracking_required,
         missing_indicators=tuple(missing_indicators),
     )
+
+
+def water_emergency_review_exception_summary(
+    water_emergencies: Sequence[WaterEmergency],
+    *,
+    visits: Sequence[Visit],
+    review_items: Sequence[ReviewItem],
+) -> WaterEmergencyReviewExceptionSummary:
+    unknowns: list[str] = []
+    if water_emergencies and not review_items:
+        unknowns.append("no_water_emergency_review_items")
+
+    for record in water_emergencies:
+        if not is_open_water_emergency(record):
+            continue
+        scoped_reviews = water_emergency_related_reviews(
+            record,
+            visits=water_emergency_related_visits(record, visits=visits),
+            review_items=review_items,
+        )
+        if not scoped_reviews:
+            unknowns.append("open_record_without_scoped_review")
+
+    return WaterEmergencyReviewExceptionSummary(
+        total_review_count=len(review_items),
+        open_review_count=count_where(
+            review_items,
+            lambda review: normalized(review.status) == "open",
+        ),
+        deferred_review_count=count_where(
+            review_items,
+            lambda review: normalized(review.status) == "deferred",
+        ),
+        resolved_review_count=count_where(
+            review_items,
+            lambda review: normalized(review.status) in RESOLVED_REVIEW_STATUSES,
+        ),
+        archived_review_count=count_where(
+            review_items,
+            lambda review: normalized(review.status) == "archived",
+        ),
+        critical_unresolved_count=count_where(review_items, is_critical_unresolved_review),
+        escalation_indicator_count=count_where(review_items, is_escalation_review),
+        review_reason_counts=count_by_attr(review_items, "reason_code"),
+        blocker_reason_counts=count_by_attr(
+            tuple(review for review in review_items if is_blocker_review_reason(review)),
+            "reason_code",
+        ),
+        unknown_counts=count_values(unknowns),
+        review_item_ids=sorted_uuid_tuple(
+            {review.id for review in review_items if review.id is not None},
+        ),
+        audit_correlation_ids=unique_audit_correlation_ids(review_items),
+    )
+
+
+def water_emergency_review_exception_context(
+    review_items: Sequence[ReviewItem],
+) -> WaterEmergencyReviewExceptionContext:
+    unknowns: list[str] = []
+    if not review_items:
+        unknowns.append("no_scoped_review_items")
+
+    return WaterEmergencyReviewExceptionContext(
+        total_review_count=len(review_items),
+        open_review_count=count_where(
+            review_items,
+            lambda review: normalized(review.status) == "open",
+        ),
+        deferred_review_count=count_where(
+            review_items,
+            lambda review: normalized(review.status) == "deferred",
+        ),
+        resolved_review_count=count_where(
+            review_items,
+            lambda review: normalized(review.status) in RESOLVED_REVIEW_STATUSES,
+        ),
+        archived_review_count=count_where(
+            review_items,
+            lambda review: normalized(review.status) == "archived",
+        ),
+        critical_unresolved_count=count_where(review_items, is_critical_unresolved_review),
+        escalation_indicator_count=count_where(review_items, is_escalation_review),
+        review_reason_counts=count_by_attr(review_items, "reason_code"),
+        blocker_reason_counts=count_by_attr(
+            tuple(review for review in review_items if is_blocker_review_reason(review)),
+            "reason_code",
+        ),
+        unknown_indicators=tuple(unknowns),
+        review_item_ids=sorted_uuid_tuple(
+            {review.id for review in review_items if review.id is not None},
+        ),
+        audit_correlation_ids=unique_audit_correlation_ids(review_items),
+    )
+
+
+def is_critical_unresolved_review(review: ReviewItem) -> bool:
+    return (
+        normalized(review.status) in UNRESOLVED_REVIEW_STATUSES
+        and normalized(review.severity) == "critical"
+    )
+
+
+def is_escalation_review(review: ReviewItem) -> bool:
+    return (
+        normalized(review.status) in UNRESOLVED_REVIEW_STATUSES
+        and normalized(review.severity) in ESCALATION_SEVERITIES
+    )
+
+
+def is_blocker_review_reason(review: ReviewItem) -> bool:
+    reason_code = normalized(review.reason_code)
+    return any(keyword in reason_code for keyword in WATER_EMERGENCY_BLOCKER_REASON_KEYWORDS)
 
 
 def is_scheduled_visit(visit: Visit) -> bool:

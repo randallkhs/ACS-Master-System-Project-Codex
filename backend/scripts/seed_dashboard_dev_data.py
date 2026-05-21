@@ -26,7 +26,7 @@ from app.models.work_order import WorkOrder
 
 SEED_SOURCE_SYSTEM = "module27_dev_seed"
 SEED_AUDIT_CORRELATION_ID = "module27-dashboard-demo-001"
-SEED_SCENARIO_VERSION = "module33_live_dashboard_seed"
+SEED_SCENARIO_VERSION = "module34_live_dashboard_seed"
 SEED_SCENARIO_LABELS = (
     "standard_dispatch_ready",
     "manual_review_blocked",
@@ -68,6 +68,8 @@ CONFIRMED_ROUTE_ASSIGNMENT_ID = UUID("99999999-bbbb-4999-8999-999999999999")
 RECOVERY_ROUTE_ASSIGNMENT_ID = UUID("99999999-cccc-4999-8999-999999999999")
 OPEN_REVIEW_ID = UUID("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb")
 WATER_REVIEW_ID = UUID("cccccccc-cccc-4ccc-8ccc-cccccccccccc")
+WATER_OPEN_REVIEW_ID = UUID("cccccccc-dddd-4ccc-8ccc-cccccccccccc")
+WATER_ARCHIVED_REVIEW_ID = UUID("cccccccc-eeee-4ccc-8ccc-cccccccccccc")
 RESOLVED_REVIEW_ID = UUID("bbbbbbbb-cccc-4bbb-8bbb-bbbbbbbbbbbb")
 ARCHIVED_REVIEW_ID = UUID("bbbbbbbb-dddd-4bbb-8bbb-bbbbbbbbbbbb")
 RECOVERY_REVIEW_ID = UUID("bbbbbbbb-eeee-4bbb-8bbb-bbbbbbbbbbbb")
@@ -83,6 +85,7 @@ GOVERNANCE_EVENT_ID = UUID("eeeeeeee-5555-4eee-8eee-eeeeeeeeeeee")
 INCIDENT_EVENT_ID = UUID("eeeeeeee-6666-4eee-8eee-eeeeeeeeeeee")
 WATER_EMERGENCY_EVENT_ID = UUID("eeeeeeee-7777-4eee-8eee-eeeeeeeeeeee")
 WATER_DRYING_CHECK_EVENT_ID = UUID("eeeeeeee-8888-4eee-8eee-eeeeeeeeeeee")
+WATER_EXCEPTION_EVENT_ID = UUID("eeeeeeee-9999-4eee-8eee-eeeeeeeeeeee")
 
 
 @dataclass(frozen=True)
@@ -656,6 +659,53 @@ def build_dashboard_dev_seed_records(
                 recommended_action="Keep Water Emergency separated from standard dispatch.",
             ),
             ReviewItem(
+                id=WATER_OPEN_REVIEW_ID,
+                job_id=WATER_JOB_ID,
+                visit_id=WATER_FOLLOWUP_VISIT_ID,
+                entity_type="water_emergency",
+                entity_id=WATER_EMERGENCY_ID,
+                reason_code="module34_demo_water_equipment_unknown_blocker",
+                status="open",
+                severity="critical",
+                source_system=SEED_SOURCE_SYSTEM,
+                source_id="module34-water-open-review",
+                confidence_score=54.0,
+                audit_correlation_id="module34-dashboard-demo-water-critical",
+                recommended_action=(
+                    "Review synthetic Water Emergency equipment and drying evidence; "
+                    "no action is executed by the dashboard."
+                ),
+                review_metadata={
+                    "scenario": "water_emergency_separated",
+                    "production_data": False,
+                    "water_emergency_execution": "not_executed",
+                    "visibility_only": True,
+                },
+            ),
+            ReviewItem(
+                id=WATER_ARCHIVED_REVIEW_ID,
+                job_id=CLOSED_WATER_JOB_ID,
+                entity_type="water_emergency",
+                entity_id=CLOSED_WATER_EMERGENCY_ID,
+                reason_code="module34_demo_water_review_archived_exception",
+                status="archived",
+                severity="low",
+                source_system=SEED_SOURCE_SYSTEM,
+                source_id="module34-water-archived-review",
+                confidence_score=91.0,
+                audit_correlation_id="module34-dashboard-demo-water-archived",
+                recommended_action=(
+                    "Synthetic archived Water Emergency review for read-only count coverage."
+                ),
+                operator_decision="archived synthetic local Water Emergency review example",
+                resolved_at=morning_start - timedelta(hours=2),
+                review_metadata={
+                    "scenario": "water_emergency_closed",
+                    "production_data": False,
+                    "visibility_only": True,
+                },
+            ),
+            ReviewItem(
                 id=RECOVERY_REVIEW_ID,
                 job_id=RECOVERY_JOB_ID,
                 visit_id=RECOVERY_VISIT_ID,
@@ -818,6 +868,32 @@ def build_dashboard_dev_seed_records(
                 opened_at=morning_start - timedelta(days=2),
                 closed_at=morning_start - timedelta(days=1),
                 notes="Synthetic closed Water Emergency seed data. Not production data.",
+            ),
+            OperationalEventRecord(
+                id=WATER_EXCEPTION_EVENT_ID,
+                occurred_at=scheduled_start - timedelta(hours=2, minutes=30),
+                recorded_at=scheduled_start - timedelta(hours=2, minutes=30),
+                event_type="water_emergency.review_exception_flagged",
+                event_state="review_required",
+                entity_type="review_item",
+                entity_id=WATER_OPEN_REVIEW_ID,
+                route_assignment_id=None,
+                visit_id=WATER_FOLLOWUP_VISIT_ID,
+                work_order_id=WATER_WORK_ORDER_ID,
+                job_id=WATER_JOB_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                audit_correlation_id="module34-dashboard-demo-water-critical",
+                previous_state=None,
+                new_state="manual_review_required",
+                event_fingerprint="module34-dashboard-demo-water-review-exception-flagged",
+                is_immutable=True,
+                event_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "water_emergency_review_exception_visibility",
+                    "production_data": False,
+                    "water_emergency_execution": "not_executed",
+                    "alert_visibility_only": True,
+                },
             ),
             OperationalEventRecord(
                 id=WATER_EMERGENCY_EVENT_ID,

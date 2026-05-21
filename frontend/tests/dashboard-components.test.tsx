@@ -172,6 +172,28 @@ describe("DashboardView", () => {
     expect(html).not.toMatch(/<button|role="button"/);
   });
 
+  it("renders Water Emergency review exceptions, critical alerts, and blocker labels", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+      />
+    );
+
+    expect(html).toContain("Review Exception Visibility");
+    expect(html).toContain("Critical Alerts");
+    expect(html).toContain("Blocker Unknowns");
+    expect(html).toContain("Detail Review Exceptions");
+    expect(html).toContain("Water Detail Unknown Blocker");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve Water Emergency");
+    expect(html).not.toContain("Resolve review");
+  });
+
   it("renders timeline events in stable read-model order", () => {
     const html = renderToStaticMarkup(
       <DashboardView

@@ -81,6 +81,7 @@ function WaterEmergencyDetailContent({
   data: WaterEmergencyDetailResponse;
 }) {
   const { record } = data;
+  const reviewException = data.review_exception_context;
 
   return (
     <div className="space-y-5">
@@ -106,6 +107,44 @@ function WaterEmergencyDetailContent({
           tone={data.timeline_summary.returned_events > 0 ? "info" : "warning"}
         />
       </div>
+
+      <ReferencePanel title="Detail Review Exceptions">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <DetailMetric label="Open" value={reviewException.open_review_count} />
+          <DetailMetric label="Deferred" value={reviewException.deferred_review_count} />
+          <DetailMetric label="Resolved" value={reviewException.resolved_review_count} />
+          <DetailMetric label="Archived" value={reviewException.archived_review_count} />
+          <DetailMetric
+            label="Critical"
+            value={reviewException.critical_unresolved_count}
+          />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <StatusBadge
+            label="Read-only scoped review visibility"
+            variant={reviewException.total_review_count > 0 ? "warning" : "neutral"}
+          />
+          <StatusBadge
+            label={
+              reviewException.critical_unresolved_count > 0
+                ? "Critical Alerts"
+                : "No critical alerts"
+            }
+            variant={
+              reviewException.critical_unresolved_count > 0 ? "danger" : "success"
+            }
+          />
+        </div>
+        <div className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Review reasons
+        </div>
+        <BucketSummary buckets={reviewException.review_reason_counts} />
+        <div className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Blocker reasons
+        </div>
+        <BucketSummary buckets={reviewException.blocker_reason_counts} />
+        <InlineTags values={reviewException.unknown_indicators} />
+      </ReferencePanel>
 
       <div className="rounded-md border border-blue-100 bg-blue-50/70 p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">

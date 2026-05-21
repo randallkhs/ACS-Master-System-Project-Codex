@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 33 keeps the frontend foundation read-only while adding Water Emergency equipment, visit-chain, and drying-stage visibility backed by separated backend read-model contracts.
+Phase 0 Module 34 keeps the frontend foundation read-only while adding Water Emergency review, exception, blocker, and critical-alert visibility backed by separated backend read-model contracts.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -135,6 +135,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Dedicated Water Emergency command view
 - Water Emergency detail and evidence timeline view
 - Water Emergency equipment, visit-chain, and drying-stage visibility panels
+- Water Emergency review/exception, blocker, and critical-alert visibility panels
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -201,6 +202,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Equipment visibility is not inventory management. The frontend shows existing flags, work-order equipment notes, and explicit unknown indicators only.
 - Visit-chain visibility is not dispatch execution. Water Emergency visits remain separated from standard dispatch action counts and no action buttons are rendered.
 - Drying-stage visibility uses persisted status/stage fields only and does not infer final drying taxonomy, closure readiness, pickup approval, or field authority.
+
+## Module 34 Water Emergency Review Notes
+
+- The Water Emergency summary now displays backend-provided review/exception counts, blocker reason buckets, critical-alert indicators, review IDs, and unknown review signals.
+- The detail section now displays backend-provided scoped review/exception context for the selected Water Emergency record.
+- Review visibility is not Manual Review action authority. The frontend does not approve, reject, resolve, close, dispatch, or clear Water Emergency records.
+- Blocker and critical labels are derived from persisted review status/severity/reason evidence only and do not define the final Water Emergency escalation taxonomy.
+- Generic Water Emergency review labels remain dashboard-level context only; detail visibility depends on specific job/entity/visit linkage from the backend contract.
 
 ## Troubleshooting
 

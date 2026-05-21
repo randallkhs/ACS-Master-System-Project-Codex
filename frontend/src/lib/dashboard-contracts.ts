@@ -238,6 +238,36 @@ export type WaterEmergencyDetailDryingStageContextResponse = {
   missing_indicators: string[];
 };
 
+export type WaterEmergencyReviewExceptionSummaryResponse = {
+  total_review_count: number;
+  open_review_count: number;
+  deferred_review_count: number;
+  resolved_review_count: number;
+  archived_review_count: number;
+  critical_unresolved_count: number;
+  escalation_indicator_count: number;
+  review_reason_counts: CountBucket[];
+  blocker_reason_counts: CountBucket[];
+  unknown_counts: CountBucket[];
+  review_item_ids: string[];
+  audit_correlation_ids: string[];
+};
+
+export type WaterEmergencyReviewExceptionContextResponse = {
+  total_review_count: number;
+  open_review_count: number;
+  deferred_review_count: number;
+  resolved_review_count: number;
+  archived_review_count: number;
+  critical_unresolved_count: number;
+  escalation_indicator_count: number;
+  review_reason_counts: CountBucket[];
+  blocker_reason_counts: CountBucket[];
+  unknown_indicators: string[];
+  review_item_ids: string[];
+  audit_correlation_ids: string[];
+};
+
 export type WaterEmergencyDashboardResponse = {
   generated_at: string;
   total_records: number;
@@ -251,6 +281,7 @@ export type WaterEmergencyDashboardResponse = {
   equipment_summary: WaterEmergencyEquipmentSummaryResponse;
   visit_chain_summary: WaterEmergencyVisitChainSummaryResponse;
   drying_stage_summary: WaterEmergencyDryingStageSummaryResponse;
+  review_exception_summary: WaterEmergencyReviewExceptionSummaryResponse;
   related_job_count: number;
   related_work_order_count: number;
   related_visit_count: number;
@@ -272,6 +303,7 @@ export type WaterEmergencyDetailResponse = {
   equipment_context: WaterEmergencyDetailEquipmentContextResponse;
   visit_chain: WaterEmergencyVisitChainResponse;
   drying_stage_context: WaterEmergencyDetailDryingStageContextResponse;
+  review_exception_context: WaterEmergencyReviewExceptionContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];
   timeline_summary: OperationalEventTimelineSummaryResponse;

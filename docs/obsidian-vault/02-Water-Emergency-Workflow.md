@@ -371,6 +371,37 @@ Unresolved:
 
 ---
 
+# Phase 0 Module 34 — Review, Exception, And Critical-Alert Visibility
+
+Module 34 extends the dedicated read-only Water Emergency dashboard and detail views with Manual Review, exception, blocker, and critical-alert visibility.
+
+The read models may show:
+
+- open, deferred, resolved, and archived Water Emergency review counts
+- review reason and blocker reason distributions from existing `ReviewItem` evidence
+- critical unresolved and escalation indicator counts from existing review status/severity fields
+- review item IDs and audit-correlation references
+- per-record scoped review context only when a review is tied to the selected Water Emergency through job, entity, or visit linkage
+- explicit unknown indicators such as missing scoped review evidence
+
+Boundary:
+
+- this is visibility only
+- review visibility is not Manual Review approval, rejection, resolution, or archival authority
+- alert visibility is not escalation execution
+- blocker visibility is not workflow execution
+- no final Water Emergency review or escalation taxonomy is invented
+- no Water Emergency create, edit, close, dispatch, approval, vendor, or AI controls are added
+
+Unresolved:
+
+- final Luis-confirmed Water Emergency review/escalation taxonomy
+- whether review blockers need dedicated typed fields instead of reason-code buckets
+- whether critical alerts need an emergency-specific event taxonomy
+- role-scoped authority once authenticated Manual Review and Water Emergency workflows are designed
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

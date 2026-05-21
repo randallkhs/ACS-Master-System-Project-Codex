@@ -1,0 +1,2076 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ACS Master System Development Online Report</title>
+    <meta
+      name="description"
+      content="Plain-English development progress report for the Apple Cleaning Systems Master System."
+    />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --acs-red: #a92e22;
+        --acs-red-dark: #7f2018;
+        --acs-green: #4f9d38;
+        --acs-ink: #161616;
+        --acs-ink-muted: #5b5d63;
+        --acs-line: #e6e0d6;
+        --acs-sand: #d9c9a8;
+        --acs-soft: #fffdf9;
+        --acs-panel: #ffffff;
+        --acs-charcoal: #1e2320;
+        --acs-focus: #2f7ae5;
+        --acs-gold: #c9912b;
+        --shadow-soft: 0 22px 60px rgba(56, 42, 28, 0.08);
+        --shadow-card: 0 18px 42px rgba(30, 35, 32, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 10% 0%, rgba(217, 201, 168, 0.18), transparent 28rem),
+          linear-gradient(180deg, #fffdf9 0%, #ffffff 34%, #f8f5ef 100%);
+        color: var(--acs-ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        max-width: 100%;
+        display: block;
+      }
+
+      .container-shell {
+        width: min(100% - 2rem, 1180px);
+        margin-inline: auto;
+      }
+
+      .focus-ring:focus-visible {
+        outline: 2px solid var(--acs-focus);
+        outline-offset: 4px;
+      }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        border-bottom: 1px solid rgba(30, 35, 32, 0.08);
+        background: rgba(255, 253, 249, 0.94);
+        backdrop-filter: blur(18px);
+      }
+
+      .header-inner {
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .brand-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-radius: 999px;
+      }
+
+      .brand-logo {
+        width: clamp(92px, 10vw, 118px);
+        height: auto;
+      }
+
+      .primary-nav {
+        display: none;
+        align-items: center;
+        gap: 1.75rem;
+      }
+
+      .primary-nav a,
+      .utility-phone {
+        color: var(--acs-ink-muted);
+        font-size: 0.9rem;
+        font-weight: 800;
+        transition: color 180ms ease;
+      }
+
+      .primary-nav a:hover,
+      .utility-phone:hover {
+        color: var(--acs-red);
+      }
+
+      .header-actions {
+        display: none;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .button-primary,
+      .button-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 44px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        transition:
+          transform 180ms ease,
+          background-color 180ms ease,
+          color 180ms ease,
+          border-color 180ms ease;
+      }
+
+      .button-primary {
+        background: var(--acs-ink);
+        color: #fff;
+        padding: 0.78rem 1.2rem;
+      }
+
+      .button-secondary {
+        border: 1px solid rgba(30, 35, 32, 0.18);
+        color: var(--acs-ink);
+        padding: 0.75rem 1rem;
+      }
+
+      .button-primary:hover,
+      .button-secondary:hover {
+        transform: translateY(-1px);
+      }
+
+      .button-primary:hover {
+        background: var(--acs-red);
+      }
+
+      .mobile-toggle {
+        display: inline-flex;
+        width: 44px;
+        height: 44px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(30, 35, 32, 0.14);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--acs-ink);
+        cursor: pointer;
+      }
+
+      .mobile-toggle span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: currentColor;
+        box-shadow: 0 6px 0 currentColor, 0 -6px 0 currentColor;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      .mobile-toggle.is-open span {
+        transform: rotate(45deg);
+        box-shadow: none;
+      }
+
+      .mobile-toggle.is-open span::after {
+        content: "";
+        display: block;
+        width: 18px;
+        height: 2px;
+        background: currentColor;
+        transform: rotate(90deg);
+      }
+
+      .mobile-nav {
+        display: none;
+        border-top: 1px solid rgba(30, 35, 32, 0.08);
+        background: var(--acs-soft);
+      }
+
+      .mobile-nav.open {
+        display: block;
+      }
+
+      .mobile-nav-grid {
+        display: grid;
+        gap: 0.25rem;
+        padding-block: 1rem;
+      }
+
+      .mobile-nav a {
+        border-radius: 0.85rem;
+        padding: 0.85rem 0.5rem;
+        font-weight: 800;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: clamp(3.8rem, 8vw, 7rem) 0 clamp(3.2rem, 7vw, 6rem);
+      }
+
+      .hero-grid {
+        display: grid;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .metadata-text {
+        color: var(--acs-red);
+        font-size: 0.76rem;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: Arial, Inter, ui-sans-serif, system-ui, sans-serif;
+        font-style: normal;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        max-width: 960px;
+        margin: 0.9rem 0 1rem;
+        font-size: clamp(2.35rem, 5.1vw, 4.35rem);
+        line-height: 1.04;
+        font-weight: 800;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(1.9rem, 3.8vw, 3.25rem);
+        line-height: 1.08;
+        font-weight: 800;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: clamp(1.35rem, 2.3vw, 1.75rem);
+        line-height: 1.16;
+        font-weight: 800;
+      }
+
+      p {
+        color: var(--acs-ink-muted);
+        line-height: 1.75;
+      }
+
+      .hero-copy {
+        max-width: 740px;
+        font-size: clamp(1.05rem, 2vw, 1.28rem);
+      }
+
+      .update-card {
+        border: 1px solid rgba(169, 46, 34, 0.16);
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: var(--shadow-soft);
+        padding: 1rem;
+      }
+
+      .update-status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 999px;
+        background: rgba(169, 46, 34, 0.08);
+        color: var(--acs-red-dark);
+        padding: 0.55rem 0.85rem;
+        font-size: 0.76rem;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .status-dot {
+        position: relative;
+        display: inline-block;
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 999px;
+        background: radial-gradient(circle at 36% 32%, #fff0ea 0 12%, #ef6652 34%, var(--acs-red) 66%, #6f1b14 100%);
+        box-shadow:
+          0 0 0 4px rgba(169, 46, 34, 0.1),
+          0 0 10px rgba(169, 46, 34, 0.36);
+        animation: ledPulse 2.15s ease-in-out infinite;
+      }
+
+      .status-dot::after {
+        content: "";
+        position: absolute;
+        inset: -0.36rem;
+        border: 1px solid rgba(169, 46, 34, 0.22);
+        border-radius: inherit;
+        opacity: 0.42;
+        animation: ledSignal 2.15s ease-in-out infinite;
+      }
+
+      @keyframes ledPulse {
+        0%,
+        100% {
+          filter: brightness(0.78) saturate(0.88);
+          opacity: 0.72;
+          box-shadow:
+            0 0 0 3px rgba(169, 46, 34, 0.08),
+            0 0 5px rgba(169, 46, 34, 0.2);
+        }
+
+        42%,
+        58% {
+          filter: brightness(1.35) saturate(1.18);
+          opacity: 1;
+          box-shadow:
+            0 0 0 5px rgba(169, 46, 34, 0.14),
+            0 0 16px rgba(169, 46, 34, 0.72),
+            0 0 28px rgba(169, 46, 34, 0.32);
+        }
+      }
+
+      @keyframes ledSignal {
+        0%,
+        100% {
+          transform: scale(0.86);
+          opacity: 0.16;
+        }
+
+        50% {
+          transform: scale(1.18);
+          opacity: 0.58;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .status-dot,
+        .status-dot::after {
+          animation: none;
+        }
+      }
+
+      .hero-visual {
+        position: relative;
+        min-height: 360px;
+        border: 1px solid rgba(30, 35, 32, 0.1);
+        background:
+          linear-gradient(180deg, rgba(30, 35, 32, 0.08), rgba(30, 35, 32, 0.02)),
+          #fff;
+        box-shadow: var(--shadow-soft);
+        overflow: hidden;
+      }
+
+      .hero-visual img {
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+        object-fit: cover;
+      }
+
+      .visual-overlay {
+        position: absolute;
+        inset: auto 1rem 1rem 1rem;
+        display: grid;
+        gap: 0.7rem;
+      }
+
+      .visual-panel {
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(30, 35, 32, 0.82);
+        color: #fff;
+        padding: 1rem;
+        backdrop-filter: blur(14px);
+      }
+
+      .visual-panel strong {
+        display: block;
+        font-size: 1.35rem;
+        line-height: 1.1;
+      }
+
+      .visual-panel span {
+        display: block;
+        margin-top: 0.35rem;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.86rem;
+        line-height: 1.5;
+      }
+
+      .section {
+        padding-block: clamp(3.8rem, 8vw, 7rem);
+      }
+
+      .section-tight {
+        padding-block: clamp(2.8rem, 6vw, 5rem);
+      }
+
+      .section-intro {
+        max-width: 760px;
+        margin-top: 1rem;
+        font-size: 1.05rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+        margin-top: 2rem;
+      }
+
+      .stat-card {
+        border: 1px solid rgba(30, 35, 32, 0.1);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--shadow-card);
+        padding: clamp(1rem, 3vw, 1.35rem);
+      }
+
+      .stat-card strong {
+        display: block;
+        color: var(--acs-ink);
+        font-size: clamp(1.8rem, 5vw, 3rem);
+        line-height: 1;
+        font-weight: 900;
+      }
+
+      .stat-card span {
+        display: block;
+        margin-top: 0.55rem;
+        color: var(--acs-ink-muted);
+        font-size: 0.9rem;
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      .overview-grid,
+      .flow-grid {
+        display: grid;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .overview-card,
+      .flow-card {
+        border: 1px solid rgba(30, 35, 32, 0.1);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--shadow-card);
+        padding: clamp(1.1rem, 3vw, 1.55rem);
+      }
+
+      .overview-card h3,
+      .flow-card h3 {
+        font-size: 1.72rem;
+      }
+
+      .flow-card {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .flow-card::before {
+        content: "";
+        display: block;
+        width: 52px;
+        height: 3px;
+        margin-bottom: 1rem;
+        background: var(--acs-red);
+      }
+
+      .module-toolbar {
+        position: sticky;
+        top: 80px;
+        z-index: 20;
+        border-block: 1px solid rgba(30, 35, 32, 0.08);
+        background: rgba(255, 253, 249, 0.94);
+        backdrop-filter: blur(14px);
+      }
+
+      .toolbar-inner {
+        display: grid;
+        gap: 1rem;
+        padding-block: 1rem;
+      }
+
+      .filter-group {
+        display: flex;
+        gap: 0.55rem;
+        overflow-x: auto;
+        padding-bottom: 0.1rem;
+      }
+
+      .filter-button {
+        border: 1px solid rgba(30, 35, 32, 0.16);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--acs-ink);
+        cursor: pointer;
+        flex: 0 0 auto;
+        padding: 0.7rem 0.95rem;
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .filter-button.active {
+        border-color: var(--acs-red);
+        background: var(--acs-red);
+        color: #fff;
+      }
+
+      .search-wrap {
+        display: flex;
+        gap: 0.6rem;
+      }
+
+      .search-wrap input {
+        width: 100%;
+        border: 1px solid rgba(30, 35, 32, 0.14);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--acs-ink);
+        padding: 0.85rem 1rem;
+        font: inherit;
+      }
+
+      .modules-grid {
+        display: grid;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .module-card {
+        border: 1px solid rgba(30, 35, 32, 0.1);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--shadow-card);
+        padding: clamp(1.1rem, 3vw, 1.45rem);
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      .module-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(169, 46, 34, 0.24);
+        box-shadow: 0 24px 60px rgba(56, 42, 28, 0.1);
+      }
+
+      .module-top {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .module-number {
+        display: inline-flex;
+        min-width: 3rem;
+        height: 3rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: var(--acs-ink);
+        color: #fff;
+        font-size: 0.92rem;
+        font-weight: 900;
+      }
+
+      .module-card h3 {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        font-style: normal;
+        margin-top: 0.2rem;
+        font-size: clamp(1.1rem, 2vw, 1.32rem);
+        line-height: 1.3;
+        font-weight: 900;
+      }
+
+      .module-group {
+        display: inline-flex;
+        margin-top: 0.7rem;
+        border-radius: 999px;
+        background: rgba(217, 201, 168, 0.3);
+        color: var(--acs-red-dark);
+        padding: 0.35rem 0.65rem;
+        font-size: 0.7rem;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .module-card p {
+        margin-bottom: 0;
+      }
+
+      .example-box {
+        margin-top: 1rem;
+        border-left: 3px solid var(--acs-red);
+        background: rgba(248, 245, 239, 0.78);
+        padding: 0.85rem 1rem;
+      }
+
+      .example-box strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--acs-ink);
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .completion-grid {
+        display: grid;
+        gap: 0.85rem;
+        margin-top: 1.8rem;
+      }
+
+      .check-item {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        border: 1px solid rgba(30, 35, 32, 0.09);
+        background: rgba(255, 255, 255, 0.86);
+        padding: 0.95rem;
+      }
+
+      .check {
+        display: inline-flex;
+        width: 1.45rem;
+        height: 1.45rem;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: rgba(79, 157, 56, 0.14);
+        color: #287318;
+        font-weight: 900;
+      }
+
+      .safety-band {
+        background: var(--acs-charcoal);
+        color: #fff;
+      }
+
+      .safety-band h2,
+      .safety-band h3 {
+        color: #fff;
+      }
+
+      .safety-band p {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .safety-list {
+        display: grid;
+        gap: 0.7rem;
+        margin-top: 1.6rem;
+      }
+
+      .safety-list div {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        color: rgba(255, 255, 255, 0.86);
+      }
+
+      .developer-section {
+        background:
+          radial-gradient(circle at 8% 12%, rgba(169, 46, 34, 0.1), transparent 28%),
+          linear-gradient(135deg, #ffffff 0%, #f8f5ef 54%, #f1eadf 100%);
+        border-top: 1px solid rgba(30, 35, 32, 0.08);
+        border-bottom: 1px solid rgba(30, 35, 32, 0.08);
+      }
+
+      .developer-layout {
+        display: grid;
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+
+      .developer-panel {
+        border: 1px solid rgba(30, 35, 32, 0.1);
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: var(--shadow-card);
+        padding: clamp(1.15rem, 3vw, 1.65rem);
+      }
+
+      .developer-panel.featured {
+        background: var(--acs-charcoal);
+        color: #fff;
+      }
+
+      .developer-panel.featured h3,
+      .developer-panel.featured p {
+        color: #fff;
+      }
+
+      .developer-panel.featured p {
+        color: rgba(255, 255, 255, 0.76);
+      }
+
+      .developer-panel h3 {
+        margin-bottom: 0.75rem;
+      }
+
+      .developer-panel p {
+        margin: 0;
+      }
+
+      .capability-list {
+        display: grid;
+        gap: 0.7rem;
+        margin: 1rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .capability-list li {
+        display: flex;
+        gap: 0.65rem;
+        align-items: flex-start;
+        color: var(--acs-ink-muted);
+        line-height: 1.6;
+      }
+
+      .developer-panel.featured .capability-list li {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .capability-marker {
+        display: inline-flex;
+        width: 0.55rem;
+        height: 0.55rem;
+        margin-top: 0.48rem;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: var(--acs-red);
+        box-shadow: 0 0 0 4px rgba(169, 46, 34, 0.12);
+      }
+
+      .service-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        margin-top: 1.2rem;
+      }
+
+      .service-chip {
+        border: 1px solid rgba(169, 46, 34, 0.18);
+        border-radius: 999px;
+        background: rgba(169, 46, 34, 0.07);
+        color: var(--acs-red-dark);
+        padding: 0.55rem 0.75rem;
+        font-size: 0.76rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .footer {
+        background: var(--acs-charcoal);
+        color: #fff;
+      }
+
+      .footer-main {
+        display: grid;
+        gap: 2.5rem;
+        padding-block: 3.5rem;
+      }
+
+      .footer h2,
+      .footer h3,
+      .footer p {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        font-style: normal;
+      }
+
+      .footer-brand {
+        margin: 0;
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: 900;
+      }
+
+      .footer p,
+      .footer a,
+      .footer li {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.92rem;
+      }
+
+      .footer-title {
+        color: #fff;
+        font-size: 0.84rem;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .footer ul {
+        display: grid;
+        gap: 0.75rem;
+        margin: 1.15rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-block: 1.25rem;
+      }
+
+      .footer-bottom-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        color: rgba(255, 255, 255, 0.48);
+        font-size: 0.78rem;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (min-width: 720px) {
+        .stats-grid,
+        .overview-grid,
+        .flow-grid,
+        .completion-grid,
+        .safety-list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .toolbar-inner {
+          grid-template-columns: 1fr minmax(260px, 360px);
+          align-items: center;
+        }
+
+        .modules-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .primary-nav,
+        .header-actions {
+          display: flex;
+        }
+
+        .mobile-toggle {
+          display: none;
+        }
+
+        .hero-grid {
+          grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.75fr);
+        }
+
+        .overview-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .flow-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .completion-grid,
+        .safety-list,
+        .developer-layout {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .developer-panel.featured {
+          grid-column: span 2;
+        }
+
+        .footer-main {
+          grid-template-columns: 1.25fr 0.75fr 0.75fr;
+        }
+
+        .footer-bottom-inner {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .container-shell {
+          width: min(100% - 1.25rem, 1180px);
+        }
+
+        .module-top {
+          flex-direction: column;
+        }
+
+        .module-number {
+          min-width: 2.55rem;
+          height: 2.55rem;
+        }
+
+        .hero-visual,
+        .hero-visual img {
+          min-height: 300px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container-shell header-inner">
+        <a class="brand-link focus-ring" href="/" aria-label="Apple Cleaning Systems homepage">
+          <img
+            class="brand-logo"
+            src="assets/apple-cleaning-systems-logo.png"
+            alt="Apple Cleaning Systems"
+          />
+        </a>
+
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <a href="/">Home</a>
+          <a href="/#services">Services</a>
+          <a href="/#why-acs">Why ACS</a>
+          <a href="/#service-area">Service Area</a>
+          <a href="/#faq">FAQ</a>
+          <a href="/#contact">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+          <a class="utility-phone focus-ring" href="tel:+18004304027">1-800-430-4027</a>
+          <a class="button-primary focus-ring" href="/#contact">Request an estimate</a>
+        </div>
+
+        <button class="mobile-toggle focus-ring" type="button" aria-label="Open navigation" aria-expanded="false">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="mobile-nav" id="mobileNav">
+        <nav class="container-shell mobile-nav-grid" aria-label="Mobile navigation">
+          <a href="/">Home</a>
+          <a href="/#services">Services</a>
+          <a href="/#why-acs">Why ACS</a>
+          <a href="/#service-area">Service Area</a>
+          <a href="/#faq">FAQ</a>
+          <a href="/#contact">Contact</a>
+          <a class="button-secondary" href="tel:+18004304027">1-800-430-4027</a>
+          <a class="button-primary" href="/#contact">Request an estimate</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="hero">
+        <div class="container-shell hero-grid">
+          <div>
+            <div class="metadata-text">ACS Master System Development Online Report</div>
+            <h1>Phase 0 progress for the ACS Master System.</h1>
+            <p class="hero-copy">
+              A clear, plain-English report for Alfonso Cazorla and Luis Cazorla showing what has
+              been built so far, what each module means operationally, and why the system is being
+              developed in a safe step-by-step order.
+            </p>
+
+            <div class="update-card" aria-label="Report update status">
+              <div class="update-status">
+                <span class="status-pill"><span class="status-dot"></span>Under Development</span>
+                <strong>Last updated: May 21, 2026 at 1:10 PM EDT</strong>
+              </div>
+              <p>
+                Phase 0 is still foundation work. The dashboard and development report are updated
+                as new modules or important project updates are completed.
+              </p>
+            </div>
+
+            <div class="stats-grid" aria-label="Project progress summary">
+              <div class="stat-card">
+                <strong>34</strong>
+                <span>Phase 0 modules documented through the current progress report</span>
+              </div>
+              <div class="stat-card">
+                <strong>33</strong>
+                <span>Modules committed before the current Module 34 review-ready work</span>
+              </div>
+              <div class="stat-card">
+                <strong>1</strong>
+                <span>Dedicated Water Emergency reporting area now visible and separated</span>
+              </div>
+              <div class="stat-card">
+                <strong>0</strong>
+                <span>Production dispatch actions or vendor calls added from this report page</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-visual" aria-label="Apple Cleaning Systems field service image">
+            <img src="assets/acs-development.jpg" alt="Apple Cleaning Systems service van at a property" />
+            <div class="visual-overlay">
+              <div class="visual-panel">
+                <strong>Built for office clarity and operational control.</strong>
+                <span>
+                  The system foundation is being designed around dispatch safety, Manual Review,
+                  Water Emergency separation, and future production use.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-tight">
+        <div class="container-shell">
+          <div class="metadata-text">Executive overview</div>
+          <h2>What has been built so far.</h2>
+          <p class="section-intro">
+            The ACS Master System is being built as a long-term Field Service Management platform.
+            The work completed so far is the foundation that future office tools, dispatch screens,
+            Water Emergency workflows, vendor integrations, and reporting will rely on.
+          </p>
+
+          <div class="overview-grid">
+            <article class="overview-card">
+              <h3>Safer intake</h3>
+              <p>
+                The system is being prepared to receive job information, check it, and stop unclear
+                or risky records before they can move toward dispatch.
+              </p>
+            </article>
+            <article class="overview-card">
+              <h3>Manual Review</h3>
+              <p>
+                Uncertain jobs can be held for human review. This protects ACS from silent mistakes,
+                bad addresses, unclear cancellations, and incomplete job details.
+              </p>
+            </article>
+            <article class="overview-card">
+              <h3>Water Emergency</h3>
+              <p>
+                Emergency water work is treated as its own operational path, separate from standard
+                jobs, because it can include several visits, equipment, drying checks, and follow-up.
+              </p>
+            </article>
+            <article class="overview-card">
+              <h3>Read-only dashboard</h3>
+              <p>
+                The dashboard shows operational state without giving the screen permission to
+                dispatch, approve, close, or send vendor updates.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-tight">
+        <div class="container-shell">
+          <div class="metadata-text">How the pieces connect</div>
+          <h2>The system is being built in a safe order.</h2>
+          <p class="section-intro">
+            Each module adds one layer. The goal is to make the software reliable before adding
+            real operational buttons or live vendor connections.
+          </p>
+
+          <div class="flow-grid">
+            <article class="flow-card">
+              <h3>Standard Dispatch Flow</h3>
+              <p>
+                Intake comes in, the system checks it, uncertain work goes to Manual Review, and
+                approved work can move toward job creation, work orders, visits, routing, dispatch
+                preparation, and later vendor evidence.
+              </p>
+            </article>
+            <article class="flow-card">
+              <h3>Water Emergency Flow</h3>
+              <p>
+                Water Emergency records are intentionally blocked from the normal dispatch path and
+                shown through their own dedicated reporting area, including visits, equipment,
+                drying-stage context, reviews, blockers, and alerts.
+              </p>
+            </article>
+            <article class="flow-card">
+              <h3>Dashboard Flow</h3>
+              <p>
+                The dashboard reads backend information and displays it clearly. It does not invent
+                workflow rules, approve work, call vendors, or become the source of operational
+                truth.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <div class="module-toolbar" aria-label="Module report tools">
+        <div class="container-shell toolbar-inner">
+          <div class="filter-group" role="group" aria-label="Filter modules">
+            <button class="filter-button active" type="button" data-filter="all">All</button>
+            <button class="filter-button" type="button" data-filter="foundation">Foundation</button>
+            <button class="filter-button" type="button" data-filter="dispatch">Dispatch</button>
+            <button class="filter-button" type="button" data-filter="evidence">Evidence</button>
+            <button class="filter-button" type="button" data-filter="dashboard">Dashboard</button>
+            <button class="filter-button" type="button" data-filter="water">Water Emergency</button>
+          </div>
+          <label class="search-wrap">
+            <span class="hidden">Search modules</span>
+            <input id="moduleSearch" type="search" placeholder="Search modules..." />
+          </label>
+        </div>
+      </div>
+
+      <section class="section" id="modules">
+        <div class="container-shell">
+          <div class="metadata-text">Development log</div>
+          <h2>Module-by-module progress.</h2>
+          <p class="section-intro">
+            The explanations below are written for operations and ownership. They describe what
+            each module gives ACS in practical terms, with simple examples of how that part of the
+            system will eventually help the office.
+          </p>
+
+          <div class="modules-grid" id="modulesGrid">
+            <article class="module-card" data-group="foundation" data-search="module 1 backend foundation server settings database health">
+              <div class="module-top">
+                <span class="module-number">01</span>
+                <div>
+                  <h3>Backend Foundation</h3>
+                  <span class="module-group">Foundation</span>
+                </div>
+              </div>
+              <p>
+                This module creates the base server structure for the ACS Master System. It gives
+                the project a professional backend foundation where future office screens, dispatch
+                tools, database connections, and reports can connect safely.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                In the future, when the office opens a dashboard or submits a job update, this
+                backend is the part of the system that receives and handles that request.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="foundation" data-search="module 2 data model customers properties jobs work orders visits technicians water emergency">
+              <div class="module-top">
+                <span class="module-number">02</span>
+                <div>
+                  <h3>Core Data Model</h3>
+                  <span class="module-group">Foundation</span>
+                </div>
+              </div>
+              <p>
+                This module defines the main business records the system needs: customers,
+                properties, jobs, work orders, visits, technicians, route assignments, Manual
+                Review items, audit logs, and Water Emergency records.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                Instead of treating a job as only a calendar note or spreadsheet row, the system
+                can understand the job, the property, the visit, the assigned technician, and the
+                review history as connected records.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="foundation" data-search="module 3 configuration environment production safety secrets">
+              <div class="module-top">
+                <span class="module-number">03</span>
+                <div>
+                  <h3>Backend Safety Hardening</h3>
+                  <span class="module-group">Foundation</span>
+                </div>
+              </div>
+              <p>
+                This module separates local development, testing, and future production settings.
+                That helps prevent unsafe configuration mistakes and prepares the system for a VPS
+                production environment later.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A developer can test safely on a local database without accidentally pointing the
+                system at a production database or exposing production credentials.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="foundation" data-search="module 4 repository session database access business logic separation">
+              <div class="module-top">
+                <span class="module-number">04</span>
+                <div>
+                  <h3>Database Access Boundary</h3>
+                  <span class="module-group">Foundation</span>
+                </div>
+              </div>
+              <p>
+                This module separates database access from business decisions. It keeps the system
+                organized so that saving information and deciding what should happen do not become
+                tangled together.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                The system can save a visit record in one layer while a separate service decides
+                whether that visit is ready for routing, dispatch, or Manual Review.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="foundation" data-search="module 5 intake validation normalization confidence manual review preparation">
+              <div class="module-top">
+                <span class="module-number">05</span>
+                <div>
+                  <h3>Intake Checking</h3>
+                  <span class="module-group">Foundation</span>
+                </div>
+              </div>
+              <p>
+                This module begins the process of receiving job information and checking whether it
+                looks clear, complete, risky, or uncertain before it can move toward dispatch.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                If an intake record has a missing address, a confusing service description, or a
+                possible cancellation, the system can flag it instead of letting it become a normal
+                dispatch job.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="foundation" data-search="module 6 manual review queue safety uncertain jobs">
+              <div class="module-top">
+                <span class="module-number">06</span>
+                <div>
+                  <h3>Manual Review Queue</h3>
+                  <span class="module-group">Foundation</span>
+                </div>
+              </div>
+              <p>
+                This module creates the persistent Manual Review Queue foundation. Manual Review is
+                the safety area for records that should not continue automatically.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A job with unclear notes like "cancel if not confirmed" can be held for an office
+                person to review instead of being automatically dispatched.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="foundation" data-search="module 7 dispatch orchestration eligibility intake review confidence">
+              <div class="module-top">
+                <span class="module-number">07</span>
+                <div>
+                  <h3>Dispatch Preparation Logic</h3>
+                  <span class="module-group">Foundation</span>
+                </div>
+              </div>
+              <p>
+                This module connects intake checks, validation, confidence scoring, and Manual
+                Review preparation into one dispatch-readiness result.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A clean standard job may be marked ready for future processing, while a low
+                confidence or Water Emergency record is stopped and clearly explained.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="foundation" data-search="module 8 intake persistence records audit storage">
+              <div class="module-top">
+                <span class="module-number">08</span>
+                <div>
+                  <h3>Intake Record Storage</h3>
+                  <span class="module-group">Foundation</span>
+                </div>
+              </div>
+              <p>
+                This module stores intake results so ACS can trace what came into the system, what
+                checks were performed, and why a record was approved, blocked, or review-required.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                If a manager asks why a job did not move forward, the system can preserve the
+                original intake evidence and the reason it was stopped.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 9 job creation approved intake standard jobs">
+              <div class="module-top">
+                <span class="module-number">09</span>
+                <div>
+                  <h3>Controlled Job Creation</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module allows approved standard intake records to become standard jobs in the
+                system. It blocks unsafe, duplicate, review-required, and Water Emergency records
+                from becoming normal jobs.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A clear carpet cleaning request can become a standard job, while a possible flood
+                emergency is separated for the Water Emergency path.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 10 work orders visits jobs generation">
+              <div class="module-top">
+                <span class="module-number">10</span>
+                <div>
+                  <h3>Work Orders and Visits</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module creates the foundation for turning standard jobs into work orders and
+                field visits. A work order describes the service, while a visit represents a
+                technician visit connected to that work.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A carpet cleaning job can produce a work order and one scheduled visit, giving the
+                office and technician a clearer operational structure than a simple calendar title.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 11 assignment scheduling readiness technician">
+              <div class="module-top">
+                <span class="module-number">11</span>
+                <div>
+                  <h3>Assignment and Scheduling Readiness</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module prepares the information needed before assigning technicians or setting
+                exact schedules. It checks readiness without actually assigning or dispatching.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                The system can identify that a visit still needs a technician or schedule window
+                before anyone attempts to route it.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 12 routing dispatch readiness technician schedule">
+              <div class="module-top">
+                <span class="module-number">12</span>
+                <div>
+                  <h3>Routing and Dispatch Readiness</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module checks whether visits are ready for routing and dispatch preparation.
+                It protects against incomplete records, inactive technicians, missing schedules,
+                and Water Emergency work entering the standard dispatch path.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A visit without a technician or time window will remain blocked instead of being
+                marked dispatch-ready by mistake.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 13 route assignment dispatch authorization">
+              <div class="module-top">
+                <span class="module-number">13</span>
+                <div>
+                  <h3>Route Assignment and Authorization</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module creates the first durable boundary for route assignment and dispatch
+                authorization. It records evidence that a visit is ready to wait for dispatch
+                execution.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                Before a technician is sent, the system can preserve who the route is for, what job
+                it relates to, and whether it passed the required readiness checks.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 14 internal dispatch execution no vendors">
+              <div class="module-top">
+                <span class="module-number">14</span>
+                <div>
+                  <h3>Internal Dispatch Boundary</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module adds the internal dispatch boundary. It lets the ACS system represent
+                that work has moved into an internal dispatched state, while still keeping vendor
+                calls turned off.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A standard job can be marked internally dispatched in ACS records without
+                automatically sending anything to Google Calendar, Sheets, FastField, or a mobile
+                app.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 15 external adapter preparation fastfield sheets calendar mobile">
+              <div class="module-top">
+                <span class="module-number">15</span>
+                <div>
+                  <h3>External Adapter Preparation</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module prepares future information packages for systems like FastField,
+                Google Sheets, Google Calendar, and technician mobile workflows. It does not call
+                those systems yet.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                The system can prepare the kind of information that would later be sent to
+                FastField, while still keeping the actual vendor send disabled.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 16 external confirmation failure recovery retry">
+              <div class="module-top">
+                <span class="module-number">16</span>
+                <div>
+                  <h3>External Confirmation and Recovery Preparation</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module prepares the system to track future external confirmation, vendor
+                failures, retry preparation, and reconciliation needs after integrations are added.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                If a future calendar sync fails, the system will need a safe way to record the
+                failure and prepare recovery instead of silently assuming everything worked.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="evidence" data-search="module 17 operational event history audit timeline immutable">
+              <div class="module-top">
+                <span class="module-number">17</span>
+                <div>
+                  <h3>Operational Event History</h3>
+                  <span class="module-group">Evidence</span>
+                </div>
+              </div>
+              <p>
+                This module creates an append-only operational timeline. It preserves important
+                evidence about lifecycle changes, dispatch preparation, vendor preparation,
+                failures, and recovery context.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A manager can later see the history of a job: when it was received, checked,
+                approved, dispatched internally, or blocked.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dispatch" data-search="module 18 controlled external execution simulated vendor boundary">
+              <div class="module-top">
+                <span class="module-number">18</span>
+                <div>
+                  <h3>Controlled External Execution Boundary</h3>
+                  <span class="module-group">Dispatch</span>
+                </div>
+              </div>
+              <p>
+                This module adds a controlled simulation boundary for future vendor execution. It
+                proves the lifecycle can support external execution later without calling live
+                vendors now.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                The system can test what happens when an outside system reports success or failure,
+                but without sending real ACS data to that outside system.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="evidence" data-search="module 19 reconciliation consistency internal external mismatch">
+              <div class="module-top">
+                <span class="module-number">19</span>
+                <div>
+                  <h3>Dispatch Reconciliation</h3>
+                  <span class="module-group">Evidence</span>
+                </div>
+              </div>
+              <p>
+                This module prepares the system to compare internal ACS records against external
+                execution evidence. It helps detect mismatches before they become operational
+                problems.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                If ACS thinks a job was sent but a future vendor system reports something
+                different, reconciliation can identify that inconsistency for review.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="evidence" data-search="module 20 replay recovery rollback preparation">
+              <div class="module-top">
+                <span class="module-number">20</span>
+                <div>
+                  <h3>Replay and Recovery Preparation</h3>
+                  <span class="module-group">Evidence</span>
+                </div>
+              </div>
+              <p>
+                This module prepares future recovery workflows when something fails or needs
+                correction. It does not replay work, roll back records, or retry external actions.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                If a future export fails, the system can prepare a recovery package for an
+                authorized operator instead of trying to fix it automatically.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="evidence" data-search="module 21 governance approval operator control">
+              <div class="module-top">
+                <span class="module-number">21</span>
+                <div>
+                  <h3>Governance and Approval Evidence</h3>
+                  <span class="module-group">Evidence</span>
+                </div>
+              </div>
+              <p>
+                This module prepares a place to record operator approval and management control
+                evidence before sensitive future actions such as replay, rollback, or manual
+                intervention.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                A future manager approval can be recorded before a serious correction is allowed to
+                continue.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="evidence" data-search="module 22 accountability escalation incident preparation">
+              <div class="module-top">
+                <span class="module-number">22</span>
+                <div>
+                  <h3>Accountability and Escalation Preparation</h3>
+                  <span class="module-group">Evidence</span>
+                </div>
+              </div>
+              <p>
+                This module prepares evidence for future escalation and incident coordination when
+                serious operational issues need attention.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                If a critical dispatch or vendor mismatch needs management attention, the system
+                can preserve the evidence needed for escalation.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 23 dashboard read models api contract read only">
+              <div class="module-top">
+                <span class="module-number">23</span>
+                <div>
+                  <h3>Dashboard Read Models and API Contracts</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module creates read-only dashboard information from the backend. It gives the
+                future office dashboard stable information to display without letting the frontend
+                own business rules.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                Counts for Manual Review, dispatch readiness, route assignment, external evidence,
+                reconciliation, accountability, and timeline activity.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 24 frontend dashboard nextjs tailwind admin shell">
+              <div class="module-top">
+                <span class="module-number">24</span>
+                <div>
+                  <h3>Frontend Dashboard Foundation</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module creates the first visible admin dashboard foundation using Next.js and
+                Tailwind. It gives ACS a professional web interface structure for future office
+                use.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A sidebar, header, status panels, dashboard sections, and timeline previews showing
+                operational state without action buttons.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 25 visual qa responsive polish dashboard">
+              <div class="module-top">
+                <span class="module-number">25</span>
+                <div>
+                  <h3>Dashboard Visual Quality Pass</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module improves the dashboard layout, responsiveness, readability, and status
+                communication. The goal is for office users to scan important states quickly.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                Clearer cards for operational health, Manual Review, blockers, dispatch readiness,
+                Water Emergency separation, and timeline evidence.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 26 full stack local dashboard integration backend frontend">
+              <div class="module-top">
+                <span class="module-number">26</span>
+                <div>
+                  <h3>Full-Stack Local Dashboard Integration</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module connects the frontend dashboard to backend dashboard information in a
+                safe local development workflow.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                Developers can run the backend and frontend together and verify the dashboard is
+                reading from the backend instead of only showing mock layout data.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 27 local postgresql database workflow">
+              <div class="module-top">
+                <span class="module-number">27</span>
+                <div>
+                  <h3>Local PostgreSQL Development Workflow</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module prepares the local database workflow so dashboard information can be
+                tested against a real PostgreSQL database during development.
+              </p>
+              <div class="example-box">
+                <strong>Simple explanation</strong>
+                PostgreSQL is the database engine planned for the real system. This module lets
+                developers practice with a local version before production exists.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 28 postgresql bootstrap live verification migrations seed">
+              <div class="module-top">
+                <span class="module-number">28</span>
+                <div>
+                  <h3>Local PostgreSQL Bootstrap and Live Verification</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module verifies the local database, migrations, seed data, backend endpoints,
+                and live dashboard mode when PostgreSQL is available.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                The dashboard can be tested against real database records instead of only
+                placeholder screen data.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 29 synthetic seed scenarios live dashboard qa">
+              <div class="module-top">
+                <span class="module-number">29</span>
+                <div>
+                  <h3>Synthetic Seed Scenarios</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module adds safe fake development data so the dashboard can be tested with
+                realistic operational states without using real customers, real addresses, or real
+                vendor information.
+              </p>
+              <div class="example-box">
+                <strong>Simple example</strong>
+                The dashboard can show examples of review-required jobs, blocked dispatch, recovery
+                cases, and Water Emergency records while staying completely synthetic.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 30 scenario storyboard visualization operational states">
+              <div class="module-top">
+                <span class="module-number">30</span>
+                <div>
+                  <h3>Scenario Storyboard</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module adds a clearer visual explanation of the dashboard scenarios so office
+                users can understand what the live development data is showing.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                Groups for dispatch-ready work, Manual Review, blockers, external execution,
+                recovery, governance, Water Emergency separation, and timeline evidence.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="water" data-search="module 31 water emergency dashboard summary dedicated ui">
+              <div class="module-top">
+                <span class="module-number">31</span>
+                <div>
+                  <h3>Dedicated Water Emergency Dashboard</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module creates a separate read-only Water Emergency dashboard area. This is
+                important because Water Emergency jobs can involve urgent response, several visits,
+                equipment, drying checks, and follow-up.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                Open and closed Water Emergency counts, stage/status groupings, related visits,
+                review indicators, data gaps, and emergency timeline references.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="water" data-search="module 32 water emergency detail timeline evidence">
+              <div class="module-top">
+                <span class="module-number">32</span>
+                <div>
+                  <h3>Water Emergency Detail and Timeline</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module adds read-only detail visibility for one Water Emergency record. It can
+                show related job, work order, visit, review, audit, and timeline evidence where the
+                system has the information.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A focused emergency detail panel showing current status, connected visits, review
+                counts, missing information, and a chronological timeline.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="water" data-search="module 33 water emergency equipment visit chain drying stage">
+              <div class="module-top">
+                <span class="module-number">33</span>
+                <div>
+                  <h3>Water Emergency Equipment, Visits, and Drying Stage</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module shows Water Emergency equipment context, visit-chain information, and
+                drying-stage context where existing data supports it. It is visibility only, not
+                inventory management or field approval.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                Whether equipment is onsite, whether moisture tracking is expected, how many visits
+                are connected, and whether there are missing drying-stage details.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="water" data-search="module 34 water emergency review exceptions critical alerts blockers">
+              <div class="module-top">
+                <span class="module-number">34</span>
+                <div>
+                  <h3>Water Emergency Review, Exceptions, and Critical Alerts</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module shows Water Emergency review items, blocker reasons, exception
+                indicators, critical-alert counts, and audit references without adding action
+                buttons.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                Emergency-specific open reviews, deferred reviews, resolved review history,
+                blocker reason groups, critical unresolved indicators, and record-level review
+                context.
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-tight">
+        <div class="container-shell">
+          <div class="metadata-text">What is complete now</div>
+          <h2>The foundation is strong and safety-focused.</h2>
+          <p class="section-intro">
+            The current work gives ACS a serious foundation for future production modules. The
+            pieces below are in place as architecture, data, workflow evidence, local verification,
+            or read-only visibility foundations.
+          </p>
+
+          <div class="completion-grid">
+            <div class="check-item"><span class="check">✓</span><span>Production-oriented FastAPI backend foundation</span></div>
+            <div class="check-item"><span class="check">✓</span><span>PostgreSQL database and migration direction</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Manual Review Queue foundation</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
+            <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Read-only dashboard API contracts</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Next.js and Tailwind dashboard foundation</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Local PostgreSQL live-dashboard verification workflow</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Synthetic development data for realistic testing</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Dedicated Water Emergency dashboard visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Water Emergency review, blocker, exception, and alert visibility</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section safety-band">
+        <div class="container-shell">
+          <div class="metadata-text">Important safety boundaries</div>
+          <h2>What the system still does not do.</h2>
+          <p class="section-intro">
+            These limitations are intentional. They keep Phase 0 safe while the foundation is being
+            built and reviewed.
+          </p>
+
+          <div class="safety-list">
+            <div>It does not dispatch real jobs from the frontend.</div>
+            <div>It does not approve or reject Manual Review items.</div>
+            <div>It does not close or resolve Water Emergency records.</div>
+            <div>It does not call Google Calendar, Google Sheets, FastField, Verizon Connect, or AI services.</div>
+            <div>It does not use AI as operational authority.</div>
+            <div>It does not manage real customer production data from this report page.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-tight">
+        <div class="container-shell">
+          <div class="metadata-text">Overall assessment</div>
+          <h2>The project is moving in the right order.</h2>
+          <p class="section-intro">
+            The most important progress so far is not only that screens and backend pieces exist.
+            The important progress is that the system now has clear operational boundaries: the
+            database is the source of truth, Manual Review protects uncertain work, Water Emergency
+            is separate from standard dispatch, frontend screens do not own business logic, vendors
+            are future adapters only, AI is advisory only, and operational evidence is preserved for
+            traceability.
+          </p>
+        </div>
+      </section>
+
+      <section class="section developer-section">
+        <div class="container-shell">
+          <div class="metadata-text">Developer capability</div>
+          <h2>AI-augmented software engineering for real business systems.</h2>
+          <p class="section-intro">
+            This project also demonstrates the developer capability behind the system: combining
+            practical business operations knowledge, software development knowledge, architecture
+            judgment, AI tool orchestration, testing discipline, documentation, and deployment
+            control to build complex internal software faster and with stronger project
+            continuity.
+          </p>
+
+          <div class="developer-layout">
+            <article class="developer-panel featured">
+              <h3>How this system is being engineered</h3>
+              <p>
+                The ACS Master System is being built through a human-led, AI-assisted engineering
+                workflow. Human direction defines the business rules, operational priorities,
+                safety limits, and final review decisions. AI-assisted development accelerates
+                code generation, architecture research, refactoring, documentation, testing, and
+                quality checks. The result is not a shortcut around engineering; it is a more
+                efficient engineering process with clear supervision, traceability, and review.
+              </p>
+              <p>
+                In practice, each module is treated like a controlled engineering step: define the
+                business purpose, confirm the workflow boundary, design the data structure, build
+                only the approved scope, verify the result, document the decision, and then deploy
+                updates carefully. This keeps speed high without losing professional control.
+              </p>
+              <ul class="capability-list">
+                <li><span class="capability-marker"></span><span>Translate business operations into structured software requirements, workflows, data models, and dashboards.</span></li>
+                <li><span class="capability-marker"></span><span>Use AI tools to increase development speed while maintaining human control over architecture, scope, safety, and verification.</span></li>
+                <li><span class="capability-marker"></span><span>Build systems with documentation, test checks, review reports, deployment notes, and long-term maintainability in mind.</span></li>
+                <li><span class="capability-marker"></span><span>Separate backend logic, database models, frontend screens, integrations, and deployment concerns so the system can grow without becoming fragile.</span></li>
+                <li><span class="capability-marker"></span><span>Use repeatable review and QA habits: local tests, browser checks, server verification, documentation updates, and careful change tracking.</span></li>
+                <li><span class="capability-marker"></span><span>Design software around real business workflows instead of generic templates, so the final product matches how the company actually operates.</span></li>
+              </ul>
+            </article>
+
+            <article class="developer-panel">
+              <h3>Technical areas demonstrated</h3>
+              <p>
+                The work shown here, together with related project experience, covers full-stack
+                software foundations, including backend APIs, relational database design, workflow
+                modeling, dashboard contracts, frontend UI, responsive web design, cloud-connected
+                applications, AI service integration, local development environments, server
+                deployment, and operational reporting.
+              </p>
+              <div class="service-strip" aria-label="Technical capability areas">
+                <span class="service-chip">Python</span>
+                <span class="service-chip">JavaScript</span>
+                <span class="service-chip">HTML</span>
+                <span class="service-chip">React</span>
+                <span class="service-chip">FastAPI</span>
+                <span class="service-chip">PostgreSQL</span>
+                <span class="service-chip">SQLAlchemy</span>
+                <span class="service-chip">Next.js</span>
+                <span class="service-chip">Node.js</span>
+                <span class="service-chip">TypeScript</span>
+                <span class="service-chip">Tailwind</span>
+                <span class="service-chip">Google Cloud</span>
+                <span class="service-chip">Firebase</span>
+                <span class="service-chip">OpenAI</span>
+                <span class="service-chip">Gemini</span>
+                <span class="service-chip">VPS Deployment</span>
+                <span class="service-chip">AI Workflow</span>
+              </div>
+            </article>
+
+            <article class="developer-panel">
+              <h3>What this can offer other companies</h3>
+              <p>
+                The same approach can help companies create internal dashboards, workflow systems,
+                customer portals, reporting tools, database-backed applications, field-service
+                systems, AI-assisted operations tools, and automation foundations tailored to how
+                the business actually works.
+              </p>
+            </article>
+
+            <article class="developer-panel">
+              <h3>Professional delivery approach</h3>
+              <p>
+                Development is handled in controlled phases: understand the business process,
+                design the architecture, build small verifiable modules, test the result, document
+                decisions, review safety boundaries, and deploy updates carefully. This helps keep
+                the system understandable for owners, managers, and future developers.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container-shell footer-main">
+        <div>
+          <p class="footer-brand">Apple Cleaning Systems LLC</p>
+          <p>
+            Professional carpet and specialty cleaning for residential, commercial, and
+            property-management needs across Delaware, Pennsylvania, Maryland, and Southern New
+            Jersey.
+          </p>
+          <p class="metadata-text">Primary domain: applecleaningsystems.net</p>
+        </div>
+
+        <div>
+          <p class="footer-title">Contact</p>
+          <ul>
+            <li><a href="tel:+18004304027">1-800-430-4027</a></li>
+            <li><a href="tel:+18004304325">1-800-430-4325</a></li>
+            <li><a href="mailto:carpets@applecleaningsystems.net">carpets@applecleaningsystems.net</a></li>
+            <li>34 Blevins Drive, New Castle, DE 19720</li>
+          </ul>
+        </div>
+
+        <div>
+          <p class="footer-title">Homepage</p>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/#services">Services</a></li>
+            <li><a href="/#why-acs">Why ACS</a></li>
+            <li><a href="/#service-area">Service Area</a></li>
+            <li><a href="/#faq">FAQ</a></li>
+            <li><a href="/#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="container-shell footer-bottom-inner">
+          <span>Copyright 2026 Apple Cleaning Systems LLC.</span>
+          <span>Serving Delaware, Pennsylvania, Maryland, and Southern New Jersey.</span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const toggle = document.querySelector(".mobile-toggle");
+      const nav = document.querySelector("#mobileNav");
+      toggle.addEventListener("click", () => {
+        const isOpen = nav.classList.toggle("open");
+        toggle.classList.toggle("is-open", isOpen);
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        toggle.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+      });
+
+      nav.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          nav.classList.remove("open");
+          toggle.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.setAttribute("aria-label", "Open navigation");
+        });
+      });
+
+      const filterButtons = [...document.querySelectorAll(".filter-button")];
+      const searchInput = document.querySelector("#moduleSearch");
+      const moduleCards = [...document.querySelectorAll(".module-card")];
+      let activeFilter = "all";
+
+      function applyFilters() {
+        const term = searchInput.value.trim().toLowerCase();
+        moduleCards.forEach((card) => {
+          const matchesGroup = activeFilter === "all" || card.dataset.group === activeFilter;
+          const haystack = `${card.innerText} ${card.dataset.search || ""}`.toLowerCase();
+          const matchesSearch = !term || haystack.includes(term);
+          card.classList.toggle("hidden", !(matchesGroup && matchesSearch));
+        });
+      }
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          filterButtons.forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+          activeFilter = button.dataset.filter;
+          applyFilters();
+        });
+      });
+
+      searchInput.addEventListener("input", applyFilters);
+    </script>
+  </body>
+</html>
