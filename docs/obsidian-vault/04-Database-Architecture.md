@@ -274,6 +274,25 @@ Unresolved:
 - final Water Emergency readiness/closure taxonomy remains an operations decision
 - production read-model query optimization, pagination, and role-scoped readiness visibility remain future work
 
+## Phase 0 Module 37 Water Emergency Aging And Follow-Up Read Models
+
+Module 37 extends the Water Emergency dashboard projection without changing the database schema.
+
+Read-model behavior:
+
+- derives aging and follow-up labels from persisted `WaterEmergency` opened/closed timestamps, related `Visit` timestamps, scoped `ReviewItem` timestamps, and `OperationalEventRecord` timestamps
+- exposes time-sensitivity labels, timing groups, age buckets, follow-up buckets, stale/missing evidence indicators, reason codes, related IDs, audit IDs, and evidence references
+- treats unresolved scoped review evidence as waiting-for-review timing context
+- treats missing timestamp evidence as unknown timing instead of inventing an SLA state
+- treats closed/resolved Water Emergency records as separated timing history, not active overdue work
+- expands synthetic local seed examples for newly opened, active monitoring, follow-up due, follow-up overdue, stale evidence, waiting review, ready-for-close-review, closed/resolved, and unknown timing visibility
+
+Unresolved:
+
+- future schema may require stored Water Emergency SLA windows, follow-up checkpoints, stale-evidence acknowledgement history, and typed timing/review categories
+- final Water Emergency aging, SLA, and follow-up taxonomy remains an operations decision
+- production read-model query optimization, pagination, stale-data behavior, and role-scoped timing visibility remain future work
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:

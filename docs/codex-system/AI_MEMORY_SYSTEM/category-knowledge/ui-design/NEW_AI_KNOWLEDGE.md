@@ -268,3 +268,32 @@ Use this pattern for future triage dashboards where records need to be grouped f
 
 ### Verification Notes
 Module 36 tests verify backend queue grouping, closed/resolved separation, critical/open-review/blocker evidence ordering, frontend rendering of the Operator Queue panel, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.
+
+---
+
+## Water Emergency Aging And Follow-Up Risk Visibility
+
+Category:
+UI design / operational dashboard / Water Emergency
+Date Added:
+2026-05-22
+Last Verified:
+2026-05-22
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 37 verification
+
+### Discovery
+Water Emergency aging and follow-up panels should display backend-provided time-sensitivity labels, timing groups, age buckets, follow-up buckets, stale/missing evidence indicators, reason codes, timestamps, related references, and audit evidence only. Labels such as newly opened, active monitoring, follow-up due, follow-up overdue, stale evidence, waiting for review, ready for close review, closed/resolved, and unknown timing must remain visibility signals, not SLA or workflow authority.
+
+### Why It Matters
+Operators need time-sensitive awareness for Water Emergency work before action workflows exist. Aging visibility improves scanability while preserving Manual Review authority, backend lifecycle ownership, separation from standard dispatch, and the distinction between timing awareness and SLA execution.
+
+### Reusability
+Use this pattern for future time-sensitive dashboards where records need aging and stale-evidence visibility while final operations taxonomy, escalation rules, and action authority remain undecided.
+
+### Verification Notes
+Module 37 tests verify backend aging/follow-up labels, closed/resolved separation from active overdue work, unknown timing for missing timestamps, frontend rendering of the Aging & Follow-Up Risk panel, closed timing visibility beyond active limits, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.

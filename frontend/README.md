@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 36 keeps the frontend foundation read-only while adding Water Emergency operator queue and attention triage visibility backed by separated backend read-model contracts.
+Phase 0 Module 37 keeps the frontend foundation read-only while adding Water Emergency aging, follow-up risk, stale-evidence, and unknown-timing visibility backed by separated backend read-model contracts.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -138,6 +138,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Water Emergency review/exception, blocker, and critical-alert visibility panels
 - Water Emergency next-step readiness and evidence panels
 - Water Emergency operator queue and attention triage panel
+- Water Emergency aging and follow-up risk visibility panel
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -228,6 +229,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Closed or resolved Water Emergency records are displayed separately from active attention items.
 - Critical alerts and Manual Review evidence remain visibility signals only. The frontend does not prioritize work as operational authority, dispatch Water Emergency visits, approve reviews, close records, or execute vendor/AI calls.
 - The queue labels are not the final ACS operations taxonomy; future authenticated workflow modules still need Luis-confirmed rules and operator authority design.
+
+## Module 37 Water Emergency Aging Notes
+
+- The Water Emergency summary now displays a backend-provided Aging & Follow-Up Risk panel with active timing risk, follow-up due/overdue, stale evidence, unknown timing, and closed/resolved counts.
+- Timing items are derived from backend timestamp evidence only. They show time-sensitivity labels, timing groups, age/follow-up buckets, reason codes, missing timestamp indicators, related references, and audit evidence without adding workflow controls.
+- Closed or resolved Water Emergency records are displayed separately from active timing risks and are not shown as active overdue work.
+- Aging visibility is not an SLA engine. The frontend does not schedule follow-ups, escalate work, approve reviews, close records, dispatch Water Emergency visits, or execute vendor/AI calls.
+- Timing labels are not the final ACS operations taxonomy; future authenticated workflow modules still need Luis-confirmed SLA/follow-up rules and operator authority design.
 
 ## Troubleshooting
 

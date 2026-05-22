@@ -7,7 +7,10 @@ import {
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
 } from "@/lib/mock-dashboard";
-import type { WaterEmergencyQueueItemResponse } from "@/lib/dashboard-contracts";
+import type {
+  WaterEmergencyAgingFollowUpItemResponse,
+  WaterEmergencyQueueItemResponse
+} from "@/lib/dashboard-contracts";
 
 const mockWaterEmergencyResult = {
   data: mockWaterEmergencyDashboard,
@@ -242,6 +245,29 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Dispatch Water Emergency");
   });
 
+  it("renders Water Emergency aging and follow-up timing visibility without actions", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+      />
+    );
+
+    expect(html).toContain("Aging &amp; Follow-Up Risk");
+    expect(html).toContain("Read-only timing visibility");
+    expect(html).toContain("Not an SLA engine");
+    expect(html).toContain("Stale Evidence");
+    expect(html).toContain("Missing Last Evidence At");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve Water Emergency");
+    expect(html).not.toContain("Close Water Emergency");
+    expect(html).not.toContain("Dispatch Water Emergency");
+  });
+
   it("keeps closed Water Emergency queue records visible after active queue limits", () => {
     const activeBase =
       mockWaterEmergencyDashboard.operator_queue_summary.items[0];
@@ -323,6 +349,88 @@ describe("DashboardView", () => {
     expect(html).toContain("Closed Or Resolved");
     expect(html).toContain(
       "Closed tail Water Emergency record remains visible outside active attention limits."
+    );
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve Water Emergency");
+    expect(html).not.toContain("Close Water Emergency");
+    expect(html).not.toContain("Dispatch Water Emergency");
+  });
+
+  it("keeps closed Water Emergency timing records visible after active timing limits", () => {
+    const activeBase =
+      mockWaterEmergencyDashboard.aging_followup_summary.items[0];
+    const closedBase =
+      mockWaterEmergencyDashboard.aging_followup_summary.items.find(
+        (item) => item.timing_group === "closed_or_resolved"
+      ) ?? activeBase;
+    const activeItems: WaterEmergencyAgingFollowUpItemResponse[] = Array.from(
+      { length: 7 },
+      (_, index) => ({
+        ...activeBase,
+        water_emergency_id: `3000000${index}-0000-4000-8000-00000000000${index}`,
+        time_sensitivity_label: index === 0 ? "followup_overdue" : "followup_due",
+        timing_group: "followup_attention",
+        timing_rank: index === 0 ? 10 : 40,
+        summary: `Active timing test record ${index + 1}.`,
+        related_job_id: `4000000${index}-0000-4000-8000-00000000000${index}`,
+        related_visit_ids: [],
+        evidence_references: [`water_emergency:timing-active-${index}`]
+      })
+    );
+    const closedTailItem: WaterEmergencyAgingFollowUpItemResponse = {
+      ...closedBase,
+      water_emergency_id: "39999999-0000-4000-8000-000000000099",
+      time_sensitivity_label: "closed_or_resolved",
+      timing_group: "closed_or_resolved",
+      timing_rank: 90,
+      summary:
+        "Closed tail Water Emergency timing record remains visible outside active timing limits.",
+      reason_codes: ["closed_or_resolved"],
+      requires_operator_attention: false,
+      related_job_id: "39999998-0000-4000-8000-000000000098",
+      related_work_order_ids: [],
+      related_visit_ids: [],
+      audit_correlation_ids: [],
+      evidence_references: ["water_emergency:timing-closed-tail"]
+    };
+
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={{
+          data: {
+            ...mockWaterEmergencyDashboard,
+            aging_followup_summary: {
+              ...mockWaterEmergencyDashboard.aging_followup_summary,
+              total_records: activeItems.length + 1,
+              active_timing_risk_count: activeItems.length,
+              closed_or_resolved_count: 1,
+              followup_due_count: activeItems.length - 1,
+              followup_overdue_count: 1,
+              stale_evidence_count: 0,
+              unknown_timing_count: 0,
+              label_counts: [
+                { label: "followup_overdue", count: 1 },
+                { label: "followup_due", count: activeItems.length - 1 },
+                { label: "closed_or_resolved", count: 1 }
+              ],
+              items: [...activeItems, closedTailItem]
+            }
+          },
+          source: "mock"
+        }}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+      />
+    );
+
+    expect(html).toContain("Aging &amp; Follow-Up Risk");
+    expect(html).toContain("Showing first 6 active timing records.");
+    expect(html).toContain("Closed Or Resolved");
+    expect(html).toContain(
+      "Closed tail Water Emergency timing record remains visible outside active timing limits."
     );
     expect(html).not.toMatch(/<button|role="button"/);
     expect(html).not.toContain("Approve Water Emergency");

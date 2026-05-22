@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type {
   DashboardFetchResult,
+  WaterEmergencyAgingFollowUpItemResponse,
   WaterEmergencyDashboardResponse,
   WaterEmergencyNextStepReadinessResponse,
   WaterEmergencyQueueItemResponse
@@ -24,6 +25,7 @@ export function WaterEmergencyDashboard({
   const reviewException = data.review_exception_summary;
   const nextStep = data.next_step_summary;
   const operatorQueue = data.operator_queue_summary;
+  const agingFollowup = data.aging_followup_summary;
   const activeQueueItems = operatorQueue.items.filter(
     (item) => item.queue_group !== "closed_or_resolved"
   );
@@ -33,6 +35,15 @@ export function WaterEmergencyDashboard({
   const visibleActiveQueueItems = activeQueueItems.slice(0, 6);
   const hiddenActiveQueueItemCount =
     activeQueueItems.length - visibleActiveQueueItems.length;
+  const activeTimingItems = agingFollowup.items.filter(
+    (item) => item.timing_group !== "closed_or_resolved"
+  );
+  const closedTimingItems = agingFollowup.items.filter(
+    (item) => item.timing_group === "closed_or_resolved"
+  );
+  const visibleActiveTimingItems = activeTimingItems.slice(0, 6);
+  const hiddenActiveTimingItemCount =
+    activeTimingItems.length - visibleActiveTimingItems.length;
 
   return (
     <SectionCard
@@ -193,6 +204,102 @@ export function WaterEmergencyDashboard({
                     Attention labels
                   </div>
                   <BucketPills buckets={operatorQueue.attention_label_counts} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </VisibilityPanel>
+
+        <VisibilityPanel title="Aging & Follow-Up Risk">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
+            <div className="grid gap-2 sm:grid-cols-2 xl:w-[22rem] xl:shrink-0">
+              <RecordMetric
+                label="Active Risk"
+                value={agingFollowup.active_timing_risk_count}
+              />
+              <RecordMetric label="Due" value={agingFollowup.followup_due_count} />
+              <RecordMetric
+                label="Overdue"
+                value={agingFollowup.followup_overdue_count}
+              />
+              <RecordMetric label="Stale" value={agingFollowup.stale_evidence_count} />
+              <RecordMetric
+                label="Unknown"
+                value={agingFollowup.unknown_timing_count}
+              />
+              <RecordMetric
+                label="Closed"
+                value={agingFollowup.closed_or_resolved_count}
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap gap-2">
+                <StatusBadge label="Read-only timing visibility" variant="info" />
+                <StatusBadge label="Not an SLA engine" variant="warning" />
+                <StatusBadge label="No workflow execution" variant="info" />
+              </div>
+              <div className="mt-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                  Active timing risks
+                </div>
+                {visibleActiveTimingItems.length > 0 ? (
+                  <div className="mt-2 grid gap-3 xl:grid-cols-2">
+                    {visibleActiveTimingItems.map((item) => (
+                      <AgingFollowUpItemCard
+                        key={item.water_emergency_id}
+                        item={item}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    No active aging or follow-up risk records returned.
+                  </p>
+                )}
+                {hiddenActiveTimingItemCount > 0 ? (
+                  <p className="mt-3 text-sm leading-6 text-slate-500">
+                    Showing first {visibleActiveTimingItems.length} active timing
+                    records.
+                  </p>
+                ) : null}
+              </div>
+              {closedTimingItems.length > 0 ? (
+                <div className="mt-5">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Closed or resolved timing records
+                  </div>
+                  <div className="mt-2 grid gap-3 xl:grid-cols-2">
+                    {closedTimingItems.map((item) => (
+                      <AgingFollowUpItemCard
+                        key={item.water_emergency_id}
+                        item={item}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-5 text-sm leading-6 text-slate-500">
+                  No closed or resolved timing records returned.
+                </p>
+              )}
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Time labels
+                  </div>
+                  <BucketPills buckets={agingFollowup.label_counts} />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Age buckets
+                  </div>
+                  <BucketPills buckets={agingFollowup.age_bucket_counts} />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Follow-up buckets
+                  </div>
+                  <BucketPills buckets={agingFollowup.followup_bucket_counts} />
                 </div>
               </div>
             </div>
@@ -487,6 +594,96 @@ function VisibilityPanel({
   );
 }
 
+function AgingFollowUpItemCard({
+  item
+}: {
+  item: WaterEmergencyAgingFollowUpItemResponse;
+}) {
+  const latestEvidenceAt = latestVisibleEvidenceDate(item);
+
+  return (
+    <article className="rounded-md border border-slate-200 bg-white p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge
+          label={humanizeLabel(item.time_sensitivity_label)}
+          variant={timingVariant(item.time_sensitivity_label)}
+        />
+        <StatusBadge label={humanizeLabel(item.timing_group)} variant="info" />
+      </div>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{item.summary}</p>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs font-semibold text-slate-600 sm:grid-cols-4">
+        <TimingMetric label="Age" value={formatNullableHours(item.age_hours)} />
+        <TimingMetric
+          label="Last Visit"
+          value={formatNullableHours(item.hours_since_last_visit)}
+        />
+        <TimingMetric
+          label="Last Review"
+          value={formatNullableHours(item.hours_since_last_review)}
+        />
+        <TimingMetric
+          label="Last Event"
+          value={formatNullableHours(item.hours_since_last_event)}
+        />
+      </div>
+      <div className="mt-3 grid gap-2 text-xs font-semibold text-slate-500 sm:grid-cols-2">
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Age {humanizeLabel(item.age_bucket)}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Follow-up {humanizeLabel(item.followup_bucket)}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Opened {item.opened_at ? formatDateTime(item.opened_at) : "not recorded"}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Last Evidence{" "}
+          {latestEvidenceAt ? formatDateTime(latestEvidenceAt) : "not recorded"}
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Water Emergency {compactId(item.water_emergency_id)}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Job {compactId(item.related_job_id)}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Visits {formatCount(item.related_visit_ids.length)}
+        </span>
+      </div>
+      {item.reason_codes.length > 0 ? (
+        <div className="mt-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Timing evidence
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {item.reason_codes.slice(0, 4).map((reason) => (
+              <span
+                key={reason}
+                className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600"
+              >
+                {humanizeLabel(reason)}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {item.missing_timestamp_indicators.length > 0 ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {item.missing_timestamp_indicators.map((indicator) => (
+            <StatusBadge
+              key={indicator}
+              label={humanizeLabel(indicator)}
+              variant="warning"
+            />
+          ))}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
 function OperatorQueueItemCard({ item }: { item: WaterEmergencyQueueItemResponse }) {
   return (
     <article className="rounded-md border border-slate-200 bg-white p-3">
@@ -571,6 +768,22 @@ function attentionVariant(label: string) {
   return "warning";
 }
 
+function timingVariant(label: string) {
+  if (label === "followup_overdue" || label === "stale_evidence") return "danger";
+  if (label === "followup_due" || label === "waiting_for_review") return "warning";
+  if (label === "closed_or_resolved" || label === "active_monitoring") return "success";
+  if (label === "newly_opened" || label === "ready_for_close_review") return "info";
+  return "warning";
+}
+
+function latestVisibleEvidenceDate(item: WaterEmergencyAgingFollowUpItemResponse) {
+  return item.last_event_at ?? item.last_review_at ?? item.last_visit_at;
+}
+
+function formatNullableHours(value: number | null) {
+  return value === null ? "Not recorded" : `${formatCount(value)}h`;
+}
+
 function BucketPills({ buckets }: { buckets: { label: string; count: number }[] }) {
   if (buckets.length === 0) {
     return (
@@ -590,6 +803,15 @@ function BucketPills({ buckets }: { buckets: { label: string; count: number }[] 
           {humanizeLabel(bucket.label)} {formatCount(bucket.count)}
         </span>
       ))}
+    </div>
+  );
+}
+
+function TimingMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-14 rounded-md border border-slate-200 bg-white px-2 py-2">
+      <div className="text-sm font-semibold leading-5 text-[#162033]">{value}</div>
+      <div className="mt-1 leading-4">{label}</div>
     </div>
   );
 }

@@ -104,7 +104,7 @@ Optional synthetic dashboard data for local read-model verification:
 make seed-dashboard
 ```
 
-The seed command upserts clearly labeled synthetic records with `source_system=module27_dev_seed`. It refuses production, refuses non-local hosts, refuses placeholder passwords, does not call vendors, and does not imply real ACS production state. The source name remains stable for compatibility with the original local seed set; Module 36 expands the scenario version reported by the seed output.
+The seed command upserts clearly labeled synthetic records with `source_system=module27_dev_seed`. It refuses production, refuses non-local hosts, refuses placeholder passwords, does not call vendors, and does not imply real ACS production state. The source name remains stable for compatibility with the original local seed set; Module 37 expands the scenario version reported by the seed output.
 
 Module 29 seed scenarios cover:
 
@@ -122,6 +122,7 @@ Module 29 seed scenarios cover:
 - Water Emergency synthetic open, deferred, and archived review/exception examples plus critical/blocker evidence for read-only visibility
 - Water Emergency synthetic next-step readiness examples for Manual Review, equipment review, visit follow-up, missing data, ready-for-close-review visibility, and closed/no-active-action visibility
 - Water Emergency synthetic operator queue examples for critical attention, blocked/missing information, visit follow-up, equipment review, monitoring, close review, and closed/resolved visibility
+- Water Emergency synthetic aging/follow-up examples for newly opened, active monitoring, follow-up due, follow-up overdue, stale evidence, waiting review, ready-for-close-review, closed/resolved, and unknown timing visibility
 
 `make seed-dashboard` is safe to rerun. It updates seed-owned records by deterministic identifiers or natural seed keys, inserts missing seed records, and does not delete non-seed data. It does not reset the database.
 
@@ -214,7 +215,7 @@ GET /api/v1/dashboard/water-emergency/{water_emergency_id}
 
 These routes summarize persisted backend state through dashboard read models. They do not mutate records, execute dispatch, resolve Manual Review, call integrations, or call AI.
 
-The Water Emergency dashboard contract is dedicated to emergency visibility. It summarizes existing `WaterEmergency` records, status/stage distributions, equipment context, visit-chain summaries, drying-stage visibility, review/exception counts, blocker reason buckets, critical-alert indicators, read-only next-step readiness labels, operator queue/attention groups, related job/work-order/visit references, data gaps, audit correlation references, and emergency timeline evidence. The detail contract returns one Water Emergency record, related job/work-order/visit references, specifically scoped Manual Review indicators, review/exception context, equipment notes/unknowns, visit-chain timing/status counts, drying-stage context, next-step readiness evidence, detail data gaps, audit correlations, and chronological timeline evidence. These endpoints do not create, close, dispatch, approve, edit, or otherwise execute Water Emergency work.
+The Water Emergency dashboard contract is dedicated to emergency visibility. It summarizes existing `WaterEmergency` records, status/stage distributions, equipment context, visit-chain summaries, drying-stage visibility, review/exception counts, blocker reason buckets, critical-alert indicators, read-only next-step readiness labels, operator queue/attention groups, aging/follow-up timing visibility, stale/missing evidence indicators, related job/work-order/visit references, data gaps, audit correlation references, and emergency timeline evidence. The detail contract returns one Water Emergency record, related job/work-order/visit references, specifically scoped Manual Review indicators, review/exception context, equipment notes/unknowns, visit-chain timing/status counts, drying-stage context, next-step readiness evidence, detail data gaps, audit correlations, and chronological timeline evidence. These endpoints do not create, close, dispatch, approve, edit, schedule, escalate, enforce SLA rules, or otherwise execute Water Emergency work.
 
 Module 33 does not add a dedicated equipment inventory table or final Water Emergency drying taxonomy. The read models expose existing persisted fields and explicit unknown indicators such as `equipment_inventory_not_modeled` until future Water Emergency workflow modules define those operational rules.
 

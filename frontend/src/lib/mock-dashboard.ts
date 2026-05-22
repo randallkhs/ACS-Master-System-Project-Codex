@@ -489,6 +489,94 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       }
     ]
   },
+  aging_followup_summary: {
+    total_records: 2,
+    active_timing_risk_count: 1,
+    closed_or_resolved_count: 1,
+    followup_due_count: 0,
+    followup_overdue_count: 0,
+    stale_evidence_count: 1,
+    unknown_timing_count: 0,
+    label_counts: [
+      { label: "stale_evidence", count: 1 },
+      { label: "closed_or_resolved", count: 1 }
+    ],
+    age_bucket_counts: [
+      { label: "3_to_7_days", count: 1 },
+      { label: "over_7_days", count: 1 }
+    ],
+    followup_bucket_counts: [
+      { label: "followup_not_due", count: 1 },
+      { label: "closed_or_resolved", count: 1 }
+    ],
+    items: [
+      {
+        water_emergency_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        time_sensitivity_label: "stale_evidence",
+        timing_group: "stale_or_unknown",
+        timing_rank: 30,
+        age_bucket: "3_to_7_days",
+        followup_bucket: "followup_not_due",
+        age_hours: 96,
+        hours_since_last_visit: 76,
+        hours_since_last_review: 30,
+        hours_since_last_event: 76,
+        opened_at: "2026-05-16T06:30:00Z",
+        last_visit_at: "2026-05-17T10:00:00Z",
+        last_review_at: "2026-05-19T08:30:00Z",
+        last_event_at: "2026-05-17T10:00:00Z",
+        closed_at: null,
+        summary:
+          "The latest related evidence is old enough to be flagged as stale for operator awareness.",
+        reason_codes: ["stale_evidence", "water_detail_unknown_blocker"],
+        missing_timestamp_indicators: [],
+        stale_indicator_count: 1,
+        requires_operator_attention: true,
+        related_job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
+        related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
+        related_visit_ids: [
+          "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
+          "94b62507-5b8d-4a9d-9578-5225492d81d1"
+        ],
+        audit_correlation_ids: ["audit-dashboard-003"],
+        evidence_references: [
+          "job:72eba727-e804-4dd0-8628-bf7eb1212c60",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7"
+        ]
+      },
+      {
+        water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
+        time_sensitivity_label: "closed_or_resolved",
+        timing_group: "closed_or_resolved",
+        timing_rank: 90,
+        age_bucket: "over_7_days",
+        followup_bucket: "closed_or_resolved",
+        age_hours: 240,
+        hours_since_last_visit: null,
+        hours_since_last_review: null,
+        hours_since_last_event: null,
+        opened_at: "2026-05-10T08:00:00Z",
+        last_visit_at: null,
+        last_review_at: null,
+        last_event_at: null,
+        closed_at: "2026-05-14T17:00:00Z",
+        summary:
+          "Closed or resolved Water Emergency record; it is separated from active timing risks.",
+        reason_codes: ["closed_or_resolved"],
+        missing_timestamp_indicators: ["missing_last_evidence_at"],
+        stale_indicator_count: 0,
+        requires_operator_attention: false,
+        related_job_id: "871ac83f-88bb-4f09-8ca3-c3718dce6a46",
+        related_work_order_ids: [],
+        related_visit_ids: [],
+        audit_correlation_ids: [],
+        evidence_references: [
+          "job:871ac83f-88bb-4f09-8ca3-c3718dce6a46",
+          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831"
+        ]
+      }
+    ]
+  },
   related_job_count: 2,
   related_work_order_count: 1,
   related_visit_count: 2,

@@ -20,6 +20,8 @@ from app.domain.dashboard import (
     OperationalTimelineEntry,
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
+    WaterEmergencyAgingFollowUpItem,
+    WaterEmergencyAgingFollowUpSummary,
     WaterEmergencyDashboardReadModel,
     WaterEmergencyDetailDryingStageContext,
     WaterEmergencyDetailEquipmentContext,
@@ -59,7 +61,13 @@ UNRESOLVED_REVIEW_STATUSES = {
 }
 RESOLVED_REVIEW_STATUSES = {"approved", "rejected", "resolved", "closed"}
 ESCALATION_SEVERITIES = {"high", "critical"}
-TERMINAL_WATER_EMERGENCY_STATUSES = {"closed", "completed", "cancelled", "canceled"}
+TERMINAL_WATER_EMERGENCY_STATUSES = {
+    "closed",
+    "completed",
+    "resolved",
+    "cancelled",
+    "canceled",
+}
 READY_FOR_CLOSE_REVIEW_STATUSES = {
     "ready_for_close_review",
     "ready_for_pickup",
@@ -87,6 +95,10 @@ WATER_EMERGENCY_BLOCKER_REASON_KEYWORDS = {
     "unknown",
 }
 MAX_SORTABLE_DATETIME = datetime.max.replace(tzinfo=UTC)
+NEWLY_OPENED_HOURS = 24
+FOLLOWUP_DUE_HOURS = 24
+FOLLOWUP_OVERDUE_HOURS = 72
+STALE_EVIDENCE_HOURS = 72
 
 
 class DashboardReadModelService:
@@ -289,9 +301,10 @@ class DashboardReadModelService:
             review_items=related_reviews,
             operational_events=related_events,
         )
+        generated_at = self.now()
 
         return WaterEmergencyDashboardReadModel(
-            generated_at=self.now(),
+            generated_at=generated_at,
             total_records=len(water_emergencies),
             open_count=len(open_records),
             closed_count=len(water_emergencies) - len(open_records),
@@ -325,6 +338,14 @@ class DashboardReadModelService:
             ),
             next_step_summary=next_step_summary,
             operator_queue_summary=water_emergency_operator_queue_summary(next_step_summary),
+            aging_followup_summary=water_emergency_aging_followup_summary(
+                water_emergencies,
+                now=generated_at,
+                work_orders=related_work_orders,
+                visits=related_visits,
+                review_items=related_reviews,
+                operational_events=related_events,
+            ),
             related_job_count=len(related_jobs),
             related_work_order_count=len(water_work_order_ids),
             related_visit_count=len(water_visit_ids),
@@ -1201,6 +1222,343 @@ def water_emergency_operator_queue_summary(
     )
 
 
+def water_emergency_aging_followup_summary(
+    water_emergencies: Sequence[WaterEmergency],
+    *,
+    now: datetime,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    review_items: Sequence[ReviewItem],
+    operational_events: Sequence[OperationalEventRecord],
+) -> WaterEmergencyAgingFollowUpSummary:
+    items = tuple(
+        sorted(
+            (
+                water_emergency_aging_followup_item(
+                    record,
+                    now=now,
+                    work_orders=work_orders,
+                    visits=visits,
+                    review_items=review_items,
+                    operational_events=operational_events,
+                )
+                for record in water_emergencies
+            ),
+            key=lambda item: (
+                item.timing_rank,
+                item.timing_group,
+                item.time_sensitivity_label,
+                str(item.water_emergency_id),
+            ),
+        ),
+    )
+
+    return WaterEmergencyAgingFollowUpSummary(
+        total_records=len(items),
+        active_timing_risk_count=count_where(
+            items,
+            lambda item: item.requires_operator_attention,
+        ),
+        closed_or_resolved_count=count_where(
+            items,
+            lambda item: item.time_sensitivity_label == "closed_or_resolved",
+        ),
+        followup_due_count=count_where(
+            items,
+            lambda item: item.time_sensitivity_label == "followup_due",
+        ),
+        followup_overdue_count=count_where(
+            items,
+            lambda item: item.time_sensitivity_label == "followup_overdue",
+        ),
+        stale_evidence_count=count_where(
+            items,
+            lambda item: item.time_sensitivity_label == "stale_evidence",
+        ),
+        unknown_timing_count=count_where(
+            items,
+            lambda item: item.time_sensitivity_label == "unknown_timing",
+        ),
+        label_counts=count_values(item.time_sensitivity_label for item in items),
+        age_bucket_counts=count_values(item.age_bucket for item in items),
+        followup_bucket_counts=count_values(item.followup_bucket for item in items),
+        items=items,
+    )
+
+
+def water_emergency_aging_followup_item(
+    record: WaterEmergency,
+    *,
+    now: datetime,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    review_items: Sequence[ReviewItem],
+    operational_events: Sequence[OperationalEventRecord],
+) -> WaterEmergencyAgingFollowUpItem:
+    related_work_orders = water_emergency_related_work_orders(record, work_orders=work_orders)
+    related_visits = water_emergency_related_visits(record, visits=visits)
+    related_reviews = water_emergency_related_reviews(
+        record,
+        visits=related_visits,
+        review_items=review_items,
+    )
+    related_events = water_emergency_related_events(
+        record,
+        work_orders=related_work_orders,
+        visits=related_visits,
+        operational_events=operational_events,
+    )
+    opened_at = water_emergency_opened_at(record)
+    last_visit_at = latest_datetime(visit_chain_datetime(visit) for visit in related_visits)
+    last_review_at = latest_datetime(review_timeline_datetime(review) for review in related_reviews)
+    last_event_at = latest_datetime(event_timeline_datetime(event) for event in related_events)
+    age_hours = hours_between(opened_at, now)
+    hours_since_last_visit = hours_between(last_visit_at, now)
+    hours_since_last_review = hours_between(last_review_at, now)
+    hours_since_last_event = hours_between(last_event_at, now)
+    unresolved_reviews = tuple(
+        review
+        for review in related_reviews
+        if normalized(review.status) in UNRESOLVED_REVIEW_STATUSES
+    )
+    latest_evidence_at = latest_datetime((last_visit_at, last_review_at, last_event_at))
+    label = water_emergency_time_sensitivity_label(
+        record,
+        now=now,
+        age_hours=age_hours,
+        latest_evidence_at=latest_evidence_at,
+        unresolved_reviews=unresolved_reviews,
+        related_visits=related_visits,
+    )
+    reason_codes = water_emergency_timing_reason_codes(
+        record,
+        label=label,
+        unresolved_reviews=unresolved_reviews,
+        related_visits=related_visits,
+        latest_evidence_at=latest_evidence_at,
+    )
+    missing_indicators = water_emergency_missing_timing_indicators(
+        opened_at=opened_at,
+        last_visit_at=last_visit_at,
+        last_review_at=last_review_at,
+        last_event_at=last_event_at,
+    )
+    related_work_order_ids = {
+        work_order.id for work_order in related_work_orders if work_order.id is not None
+    }
+    related_visit_ids = {visit.id for visit in related_visits if visit.id is not None}
+
+    return WaterEmergencyAgingFollowUpItem(
+        water_emergency_id=record.id,
+        time_sensitivity_label=label,
+        timing_group=water_emergency_timing_group(label),
+        timing_rank=water_emergency_timing_rank(label),
+        age_bucket=water_emergency_age_bucket(age_hours),
+        followup_bucket=water_emergency_followup_bucket(label),
+        age_hours=age_hours,
+        hours_since_last_visit=hours_since_last_visit,
+        hours_since_last_review=hours_since_last_review,
+        hours_since_last_event=hours_since_last_event,
+        opened_at=opened_at,
+        last_visit_at=last_visit_at,
+        last_review_at=last_review_at,
+        last_event_at=last_event_at,
+        closed_at=record.closed_at,
+        summary=water_emergency_timing_summary_text(label),
+        reason_codes=reason_codes,
+        missing_timestamp_indicators=missing_indicators,
+        stale_indicator_count=1 if label == "stale_evidence" else 0,
+        requires_operator_attention=label
+        not in {"newly_opened", "active_monitoring", "closed_or_resolved"},
+        related_job_id=record.job_id,
+        related_work_order_ids=sorted_uuid_tuple(related_work_order_ids),
+        related_visit_ids=sorted_uuid_tuple(related_visit_ids),
+        audit_correlation_ids=unique_audit_correlation_ids(
+            related_work_orders,
+            related_visits,
+            related_reviews,
+            related_events,
+        ),
+        evidence_references=water_emergency_next_step_evidence_references(
+            record,
+            related_work_orders=related_work_orders,
+            related_visits=related_visits,
+            related_reviews=related_reviews,
+            related_events=related_events,
+        ),
+    )
+
+
+def water_emergency_time_sensitivity_label(
+    record: WaterEmergency,
+    *,
+    now: datetime,
+    age_hours: int | None,
+    latest_evidence_at: datetime | None,
+    unresolved_reviews: Sequence[ReviewItem],
+    related_visits: Sequence[Visit],
+) -> str:
+    if not is_open_water_emergency(record):
+        return "closed_or_resolved"
+    if unresolved_reviews:
+        return "waiting_for_review"
+    if age_hours is None:
+        return "unknown_timing"
+    if water_emergency_ready_for_close_review(record):
+        return "ready_for_close_review"
+    if age_hours <= NEWLY_OPENED_HOURS:
+        return "newly_opened"
+
+    if water_emergency_needs_visit_followup(record, related_visits):
+        followup_hours = hours_between(
+            latest_datetime(visit_chain_datetime(visit) for visit in related_visits),
+            now,
+        )
+        if followup_hours is None:
+            followup_hours = age_hours
+        if followup_hours >= FOLLOWUP_OVERDUE_HOURS:
+            return "followup_overdue"
+        if followup_hours >= FOLLOWUP_DUE_HOURS:
+            return "followup_due"
+
+    evidence_age_hours = hours_between(latest_evidence_at, now)
+    if evidence_age_hours is not None and evidence_age_hours >= STALE_EVIDENCE_HOURS:
+        return "stale_evidence"
+    if latest_evidence_at is None:
+        return "unknown_timing"
+    if "monitor" in normalized(record.status) or "monitor" in normalized(record.drying_stage):
+        return "active_monitoring"
+    return "active_monitoring"
+
+
+def water_emergency_timing_group(label: str) -> str:
+    return {
+        "newly_opened": "active_monitoring",
+        "active_monitoring": "active_monitoring",
+        "followup_due": "followup_attention",
+        "followup_overdue": "followup_attention",
+        "stale_evidence": "stale_or_unknown",
+        "waiting_for_review": "manual_review",
+        "ready_for_close_review": "close_review",
+        "closed_or_resolved": "closed_or_resolved",
+        "unknown_timing": "stale_or_unknown",
+    }.get(label, "stale_or_unknown")
+
+
+def water_emergency_timing_rank(label: str) -> int:
+    return {
+        "followup_overdue": 10,
+        "waiting_for_review": 20,
+        "stale_evidence": 30,
+        "followup_due": 40,
+        "unknown_timing": 50,
+        "ready_for_close_review": 60,
+        "newly_opened": 70,
+        "active_monitoring": 80,
+        "closed_or_resolved": 90,
+    }.get(label, 50)
+
+
+def water_emergency_age_bucket(age_hours: int | None) -> str:
+    if age_hours is None:
+        return "unknown_age"
+    if age_hours <= NEWLY_OPENED_HOURS:
+        return "under_24h"
+    if age_hours < FOLLOWUP_OVERDUE_HOURS:
+        return "1_to_3_days"
+    if age_hours < 168:
+        return "3_to_7_days"
+    return "over_7_days"
+
+
+def water_emergency_followup_bucket(label: str) -> str:
+    return {
+        "followup_due": "followup_due",
+        "followup_overdue": "followup_overdue",
+        "unknown_timing": "unknown_followup",
+        "closed_or_resolved": "closed_or_resolved",
+    }.get(label, "followup_not_due")
+
+
+def water_emergency_timing_reason_codes(
+    record: WaterEmergency,
+    *,
+    label: str,
+    unresolved_reviews: Sequence[ReviewItem],
+    related_visits: Sequence[Visit],
+    latest_evidence_at: datetime | None,
+) -> tuple[str, ...]:
+    reasons: list[str] = [label]
+    reasons.extend(
+        normalized(review.reason_code)
+        for review in unresolved_reviews
+        if normalized(review.reason_code)
+    )
+    if not related_visits and is_open_water_emergency(record):
+        reasons.append("no_visit_history")
+    if latest_evidence_at is None and is_open_water_emergency(record):
+        reasons.append("no_timestamped_evidence")
+    if record.opened_at is None and is_open_water_emergency(record):
+        reasons.append("missing_opened_at")
+    if not reasons:
+        reasons.append("no_deterministic_timing_reason")
+    return tuple(dict.fromkeys(reasons))
+
+
+def water_emergency_missing_timing_indicators(
+    *,
+    opened_at: datetime | None,
+    last_visit_at: datetime | None,
+    last_review_at: datetime | None,
+    last_event_at: datetime | None,
+) -> tuple[str, ...]:
+    missing: list[str] = []
+    if opened_at is None:
+        missing.append("missing_opened_at")
+    if latest_datetime((last_visit_at, last_review_at, last_event_at)) is None:
+        missing.append("missing_last_evidence_at")
+    return tuple(missing)
+
+
+def water_emergency_timing_summary_text(label: str) -> str:
+    return {
+        "newly_opened": (
+            "The Water Emergency record was opened recently; Phase 0 shows timing context "
+            "without implying an automated next action."
+        ),
+        "active_monitoring": (
+            "Recent visit or event evidence exists, so the record is shown as active "
+            "monitoring visibility only."
+        ),
+        "followup_due": (
+            "Existing timestamp evidence suggests follow-up attention may be due; this is a "
+            "conservative Phase 0 visibility label, not an SLA rule."
+        ),
+        "followup_overdue": (
+            "Existing timestamp evidence suggests follow-up attention may be overdue; this is "
+            "visibility only and does not escalate or execute work."
+        ),
+        "stale_evidence": (
+            "The latest related evidence is old enough to be flagged as stale for operator "
+            "awareness."
+        ),
+        "waiting_for_review": (
+            "Open Manual Review evidence exists; Manual Review remains authoritative."
+        ),
+        "ready_for_close_review": (
+            "Persisted status/stage evidence suggests close-review readiness, but no close "
+            "action is executed."
+        ),
+        "closed_or_resolved": (
+            "Closed or resolved Water Emergency record; it is separated from active timing risks."
+        ),
+        "unknown_timing": (
+            "The record is missing enough timestamp evidence that no timing category should "
+            "be inferred."
+        ),
+    }.get(label, "Read-only timing visibility is derived from persisted evidence only.")
+
+
 def water_emergency_queue_item(
     readiness: WaterEmergencyNextStepReadiness,
 ) -> WaterEmergencyQueueItem:
@@ -1624,7 +1982,37 @@ def is_completed_visit(visit: Visit) -> bool:
 
 
 def visit_chain_datetime(visit: Visit) -> datetime | None:
-    return visit.scheduled_start_at or visit.arrived_at or visit.completed_at
+    return visit.completed_at or visit.arrived_at or visit.scheduled_start_at
+
+
+def review_timeline_datetime(review: ReviewItem) -> datetime | None:
+    return review.resolved_at or review.reviewed_at or review.deferred_until or review.created_at
+
+
+def event_timeline_datetime(event: OperationalEventRecord) -> datetime | None:
+    return event.occurred_at or event.recorded_at
+
+
+def water_emergency_opened_at(record: WaterEmergency) -> datetime | None:
+    return record.opened_at
+
+
+def latest_datetime(values: Sequence[datetime | None] | object) -> datetime | None:
+    datetimes = tuple(value for value in values if value is not None)
+    if not datetimes:
+        return None
+    return max(datetimes)
+
+
+def hours_between(start: datetime | None, end: datetime | None) -> int | None:
+    if start is None or end is None:
+        return None
+    if start.tzinfo is None and end.tzinfo is not None:
+        start = start.replace(tzinfo=end.tzinfo)
+    if end.tzinfo is None and start.tzinfo is not None:
+        end = end.replace(tzinfo=start.tzinfo)
+    delta_hours = int((end - start).total_seconds() // 3600)
+    return max(delta_hours, 0)
 
 
 def is_water_emergency_review_item(

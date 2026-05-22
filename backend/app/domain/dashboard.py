@@ -283,6 +283,50 @@ class WaterEmergencyOperatorQueueSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class WaterEmergencyAgingFollowUpItem:
+    water_emergency_id: UUID
+    time_sensitivity_label: str
+    timing_group: str
+    timing_rank: int
+    age_bucket: str
+    followup_bucket: str
+    age_hours: int | None
+    hours_since_last_visit: int | None
+    hours_since_last_review: int | None
+    hours_since_last_event: int | None
+    opened_at: datetime | None
+    last_visit_at: datetime | None
+    last_review_at: datetime | None
+    last_event_at: datetime | None
+    closed_at: datetime | None
+    summary: str
+    reason_codes: tuple[str, ...]
+    missing_timestamp_indicators: tuple[str, ...]
+    stale_indicator_count: int
+    requires_operator_attention: bool
+    related_job_id: UUID
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyAgingFollowUpSummary:
+    total_records: int
+    active_timing_risk_count: int
+    closed_or_resolved_count: int
+    followup_due_count: int
+    followup_overdue_count: int
+    stale_evidence_count: int
+    unknown_timing_count: int
+    label_counts: tuple[CountBucket, ...]
+    age_bucket_counts: tuple[CountBucket, ...]
+    followup_bucket_counts: tuple[CountBucket, ...]
+    items: tuple[WaterEmergencyAgingFollowUpItem, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class WaterEmergencyDetailReadModel:
     generated_at: datetime
     record: WaterEmergencyRecordSummary
@@ -317,6 +361,7 @@ class WaterEmergencyDashboardReadModel:
     review_exception_summary: WaterEmergencyReviewExceptionSummary
     next_step_summary: WaterEmergencyNextStepReadinessSummary
     operator_queue_summary: WaterEmergencyOperatorQueueSummary
+    aging_followup_summary: WaterEmergencyAgingFollowUpSummary
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

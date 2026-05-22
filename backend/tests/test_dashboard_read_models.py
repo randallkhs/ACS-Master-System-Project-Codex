@@ -1,4 +1,4 @@
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from uuid import uuid4
 
 from app.models.intake_processing_record import IntakeProcessingRecord
@@ -628,6 +628,318 @@ def test_water_emergency_operator_queue_uses_safe_blocked_group_for_unknowns() -
     assert queue_items[water_emergency.id].unknown_count >= 3
     assert summary.operator_queue_summary.active_attention_count == 1
     assert summary.operator_queue_summary.closed_or_resolved_count == 1
+
+
+def test_water_emergency_aging_followup_labels_are_deterministic_and_evidence_based() -> None:
+    now = datetime(2026, 5, 22, 12, 0, tzinfo=UTC)
+    service = DashboardReadModelService(now=lambda: now)
+    scenario_ids = {
+        "new": uuid4(),
+        "monitoring": uuid4(),
+        "due": uuid4(),
+        "overdue": uuid4(),
+        "stale": uuid4(),
+        "review": uuid4(),
+        "close": uuid4(),
+        "closed": uuid4(),
+        "unknown": uuid4(),
+    }
+    job_ids = {name: uuid4() for name in scenario_ids}
+    visit_ids = {name: uuid4() for name in scenario_ids}
+    event_ids = {name: uuid4() for name in scenario_ids}
+
+    water_emergencies = [
+        WaterEmergency(
+            id=scenario_ids["new"],
+            job_id=job_ids["new"],
+            status="NEW",
+            drying_stage="initial_response",
+            next_required_action="Review newly opened synthetic emergency.",
+            opened_at=now - timedelta(hours=6),
+        ),
+        WaterEmergency(
+            id=scenario_ids["monitoring"],
+            job_id=job_ids["monitoring"],
+            status="DRYING_IN_PROGRESS",
+            drying_stage="monitoring",
+            next_required_action="Continue monitoring visibility.",
+            opened_at=now - timedelta(days=2),
+            moisture_tracking_required=True,
+        ),
+        WaterEmergency(
+            id=scenario_ids["due"],
+            job_id=job_ids["due"],
+            status="WAITING_FOR_NEXT_VISIT",
+            drying_stage="monitoring",
+            next_required_action="Synthetic follow-up due visibility.",
+            opened_at=now - timedelta(days=2),
+        ),
+        WaterEmergency(
+            id=scenario_ids["overdue"],
+            job_id=job_ids["overdue"],
+            status="WAITING_FOR_NEXT_VISIT",
+            drying_stage="monitoring",
+            next_required_action="Synthetic follow-up overdue visibility.",
+            opened_at=now - timedelta(days=5),
+        ),
+        WaterEmergency(
+            id=scenario_ids["stale"],
+            job_id=job_ids["stale"],
+            status="DRYING_IN_PROGRESS",
+            drying_stage="monitoring",
+            next_required_action="Synthetic stale evidence visibility.",
+            opened_at=now - timedelta(days=6),
+        ),
+        WaterEmergency(
+            id=scenario_ids["review"],
+            job_id=job_ids["review"],
+            status="DRYING_IN_PROGRESS",
+            drying_stage="monitoring",
+            next_required_action="Synthetic waiting-for-review visibility.",
+            opened_at=now - timedelta(days=2),
+        ),
+        WaterEmergency(
+            id=scenario_ids["close"],
+            job_id=job_ids["close"],
+            status="READY_FOR_PICKUP",
+            drying_stage="ready_for_pickup",
+            next_required_action="Ready for close review visibility only.",
+            opened_at=now - timedelta(days=4),
+        ),
+        WaterEmergency(
+            id=scenario_ids["closed"],
+            job_id=job_ids["closed"],
+            status="CLOSED",
+            drying_stage="closed_after_monitoring",
+            next_required_action="No active timing action.",
+            opened_at=now - timedelta(days=8),
+            closed_at=now - timedelta(days=1),
+        ),
+        WaterEmergency(
+            id=scenario_ids["unknown"],
+            job_id=job_ids["unknown"],
+            status="DRYING_IN_PROGRESS",
+            drying_stage=None,
+            next_required_action=None,
+            created_at=now - timedelta(hours=6),
+        ),
+    ]
+    visits = [
+        Visit(
+            id=visit_ids["monitoring"],
+            job_id=job_ids["monitoring"],
+            visit_type="water_emergency",
+            status="in_progress",
+            arrived_at=now - timedelta(hours=2),
+            audit_correlation_id="audit-aging-monitoring",
+        ),
+        Visit(
+            id=visit_ids["due"],
+            job_id=job_ids["due"],
+            visit_type="water_emergency",
+            status="completed",
+            completed_at=now - timedelta(hours=30),
+            audit_correlation_id="audit-aging-due",
+        ),
+        Visit(
+            id=visit_ids["overdue"],
+            job_id=job_ids["overdue"],
+            visit_type="water_emergency",
+            status="completed",
+            completed_at=now - timedelta(hours=80),
+            audit_correlation_id="audit-aging-overdue",
+        ),
+        Visit(
+            id=visit_ids["stale"],
+            job_id=job_ids["stale"],
+            visit_type="water_emergency",
+            status="in_progress",
+            arrived_at=now - timedelta(hours=80),
+            audit_correlation_id="audit-aging-stale",
+        ),
+        Visit(
+            id=visit_ids["close"],
+            job_id=job_ids["close"],
+            visit_type="water_emergency",
+            status="completed",
+            completed_at=now - timedelta(hours=8),
+            audit_correlation_id="audit-aging-close",
+        ),
+    ]
+    review_created_at = now - timedelta(hours=20)
+    review_items = [
+        ReviewItem(
+            id=uuid4(),
+            job_id=job_ids["review"],
+            entity_type="water_emergency",
+            entity_id=scenario_ids["review"],
+            reason_code="water_emergency_waiting_for_review",
+            status="open",
+            severity="high",
+            created_at=review_created_at,
+            audit_correlation_id="audit-aging-review",
+        ),
+    ]
+    operational_events = [
+        OperationalEventRecord(
+            id=event_ids["monitoring"],
+            occurred_at=now - timedelta(hours=1),
+            recorded_at=now - timedelta(hours=1),
+            event_type="water_emergency.monitoring_active",
+            event_state="monitoring",
+            entity_type="water_emergency",
+            entity_id=scenario_ids["monitoring"],
+            job_id=job_ids["monitoring"],
+            visit_id=visit_ids["monitoring"],
+            audit_correlation_id="audit-aging-monitoring",
+            event_fingerprint="aging-monitoring",
+        ),
+        OperationalEventRecord(
+            id=event_ids["stale"],
+            occurred_at=now - timedelta(hours=80),
+            recorded_at=now - timedelta(hours=80),
+            event_type="water_emergency.monitoring_stale",
+            event_state="monitoring",
+            entity_type="water_emergency",
+            entity_id=scenario_ids["stale"],
+            job_id=job_ids["stale"],
+            visit_id=visit_ids["stale"],
+            audit_correlation_id="audit-aging-stale",
+            event_fingerprint="aging-stale",
+        ),
+    ]
+
+    summary = service.build_water_emergency(
+        jobs=[
+            Job(id=job_id, job_type="water_emergency", status="active")
+            for job_id in job_ids.values()
+        ],
+        visits=visits,
+        review_items=review_items,
+        water_emergencies=water_emergencies,
+        operational_events=operational_events,
+    )
+    aging_items = {item.water_emergency_id: item for item in summary.aging_followup_summary.items}
+
+    assert bucket_count(summary.aging_followup_summary.label_counts, "newly_opened") == 1
+    assert bucket_count(summary.aging_followup_summary.label_counts, "active_monitoring") == 1
+    assert bucket_count(summary.aging_followup_summary.label_counts, "followup_due") == 1
+    assert bucket_count(summary.aging_followup_summary.label_counts, "followup_overdue") == 1
+    assert bucket_count(summary.aging_followup_summary.label_counts, "stale_evidence") == 1
+    assert bucket_count(summary.aging_followup_summary.label_counts, "waiting_for_review") == 1
+    assert bucket_count(summary.aging_followup_summary.label_counts, "ready_for_close_review") == 1
+    assert bucket_count(summary.aging_followup_summary.label_counts, "closed_or_resolved") == 1
+    assert bucket_count(summary.aging_followup_summary.label_counts, "unknown_timing") == 1
+    assert summary.aging_followup_summary.followup_due_count == 1
+    assert summary.aging_followup_summary.followup_overdue_count == 1
+    assert summary.aging_followup_summary.stale_evidence_count == 1
+    assert summary.aging_followup_summary.unknown_timing_count == 1
+    assert aging_items[scenario_ids["closed"]].time_sensitivity_label == "closed_or_resolved"
+    assert aging_items[scenario_ids["closed"]].requires_operator_attention is False
+    assert aging_items[scenario_ids["closed"]].timing_group == "closed_or_resolved"
+    assert aging_items[scenario_ids["review"]].time_sensitivity_label == "waiting_for_review"
+    assert aging_items[scenario_ids["review"]].last_review_at == review_created_at
+    assert aging_items[scenario_ids["due"]].followup_bucket == "followup_due"
+    assert aging_items[scenario_ids["overdue"]].followup_bucket == "followup_overdue"
+    assert aging_items[scenario_ids["unknown"]].time_sensitivity_label == "unknown_timing"
+    assert "missing_opened_at" in aging_items[scenario_ids["unknown"]].missing_timestamp_indicators
+    assert (
+        f"water_emergency:{scenario_ids['closed']}"
+        in aging_items[scenario_ids["closed"]].evidence_references
+    )
+
+
+def test_closed_water_emergency_aging_does_not_count_as_active_overdue_work() -> None:
+    now = datetime(2026, 5, 22, 12, 0, tzinfo=UTC)
+    job_id = uuid4()
+    water_emergency_id = uuid4()
+
+    summary = DashboardReadModelService(now=lambda: now).build_water_emergency(
+        jobs=[Job(id=job_id, job_type="water_emergency", status="closed")],
+        water_emergencies=[
+            WaterEmergency(
+                id=water_emergency_id,
+                job_id=job_id,
+                status="CLOSED",
+                drying_stage="closed_after_monitoring",
+                opened_at=now - timedelta(days=30),
+                closed_at=now - timedelta(days=20),
+            ),
+        ],
+    )
+
+    item = summary.aging_followup_summary.items[0]
+
+    assert item.time_sensitivity_label == "closed_or_resolved"
+    assert item.timing_group == "closed_or_resolved"
+    assert item.requires_operator_attention is False
+    assert summary.aging_followup_summary.followup_overdue_count == 0
+    assert summary.aging_followup_summary.active_timing_risk_count == 0
+
+
+def test_resolved_water_emergency_status_is_terminal_without_closed_timestamp() -> None:
+    now = datetime(2026, 5, 22, 12, 0, tzinfo=UTC)
+    resolved_job_id = uuid4()
+    active_job_id = uuid4()
+    resolved_water_emergency_id = uuid4()
+    active_water_emergency_id = uuid4()
+    active_visit_id = uuid4()
+
+    summary = DashboardReadModelService(now=lambda: now).build_water_emergency(
+        jobs=[
+            Job(id=resolved_job_id, job_type="water_emergency", status="resolved"),
+            Job(id=active_job_id, job_type="water_emergency", status="active"),
+        ],
+        water_emergencies=[
+            WaterEmergency(
+                id=resolved_water_emergency_id,
+                job_id=resolved_job_id,
+                status="RESOLVED",
+                drying_stage="monitoring",
+                opened_at=now - timedelta(days=10),
+                closed_at=None,
+            ),
+            WaterEmergency(
+                id=active_water_emergency_id,
+                job_id=active_job_id,
+                status="WAITING_FOR_NEXT_VISIT",
+                drying_stage="monitoring",
+                opened_at=now - timedelta(days=5),
+            ),
+        ],
+        visits=[
+            Visit(
+                id=active_visit_id,
+                job_id=active_job_id,
+                visit_type="water_emergency",
+                status="completed",
+                completed_at=now - timedelta(hours=80),
+            ),
+        ],
+    )
+
+    aging_items = {item.water_emergency_id: item for item in summary.aging_followup_summary.items}
+    resolved_item = aging_items[resolved_water_emergency_id]
+
+    assert summary.open_count == 1
+    assert summary.closed_count == 1
+    assert resolved_item.time_sensitivity_label == "closed_or_resolved"
+    assert resolved_item.timing_group == "closed_or_resolved"
+    assert resolved_item.followup_bucket == "closed_or_resolved"
+    assert resolved_item.requires_operator_attention is False
+    assert resolved_item.time_sensitivity_label not in {
+        "followup_due",
+        "followup_overdue",
+        "stale_evidence",
+    }
+    assert summary.aging_followup_summary.closed_or_resolved_count == 1
+    assert summary.aging_followup_summary.active_timing_risk_count == 1
+    assert summary.aging_followup_summary.followup_due_count == 0
+    assert summary.aging_followup_summary.followup_overdue_count == 1
+    assert summary.aging_followup_summary.stale_evidence_count == 0
+    assert summary.aging_followup_summary.items[-1].water_emergency_id == (
+        resolved_water_emergency_id
+    )
 
 
 def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:

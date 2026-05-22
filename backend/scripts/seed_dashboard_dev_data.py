@@ -26,7 +26,7 @@ from app.models.work_order import WorkOrder
 
 SEED_SOURCE_SYSTEM = "module27_dev_seed"
 SEED_AUDIT_CORRELATION_ID = "module27-dashboard-demo-001"
-SEED_SCENARIO_VERSION = "module36_live_dashboard_seed"
+SEED_SCENARIO_VERSION = "module37_live_dashboard_seed"
 SEED_SCENARIO_LABELS = (
     "standard_dispatch_ready",
     "manual_review_blocked",
@@ -43,6 +43,11 @@ SEED_SCENARIO_LABELS = (
     "water_emergency_visit_followup_needed",
     "water_emergency_equipment_review_needed",
     "water_emergency_monitoring",
+    "water_emergency_aging_newly_opened",
+    "water_emergency_followup_due",
+    "water_emergency_followup_overdue",
+    "water_emergency_stale_evidence",
+    "water_emergency_unknown_timing",
 )
 
 CUSTOMER_ID = UUID("11111111-1111-4111-8111-111111111111")
@@ -62,6 +67,8 @@ READY_CLOSE_WATER_JOB_ID = UUID("55555555-aaaa-4555-8555-555555555555")
 FOLLOWUP_WATER_JOB_ID = UUID("55555555-bbbb-4555-8555-555555555555")
 EQUIPMENT_REVIEW_WATER_JOB_ID = UUID("55555555-cccc-4555-8555-555555555555")
 MONITORING_WATER_JOB_ID = UUID("55555555-dddd-4555-8555-555555555555")
+NEWLY_OPENED_WATER_JOB_ID = UUID("55555555-eeee-4555-8555-555555555555")
+STALE_EVIDENCE_WATER_JOB_ID = UUID("55555555-ffff-4555-8555-555555555555")
 WORK_ORDER_ID = UUID("66666666-6666-4666-8666-666666666666")
 READY_WORK_ORDER_ID = UUID("66666666-7777-4666-8666-666666666666")
 CONFIRMED_WORK_ORDER_ID = UUID("66666666-8888-4666-8666-666666666666")
@@ -71,6 +78,8 @@ READY_CLOSE_WATER_WORK_ORDER_ID = UUID("66666666-bbbb-4666-8666-666666666666")
 FOLLOWUP_WATER_WORK_ORDER_ID = UUID("66666666-cccc-4666-8666-666666666666")
 EQUIPMENT_REVIEW_WATER_WORK_ORDER_ID = UUID("66666666-dddd-4666-8666-666666666666")
 MONITORING_WATER_WORK_ORDER_ID = UUID("66666666-eeee-4666-8666-666666666666")
+NEWLY_OPENED_WATER_WORK_ORDER_ID = UUID("66666666-ffff-4666-8666-666666666666")
+STALE_EVIDENCE_WATER_WORK_ORDER_ID = UUID("66666666-1111-4666-8666-777777777777")
 STANDARD_VISIT_ID = UUID("77777777-7777-4777-8777-777777777777")
 WATER_VISIT_ID = UUID("88888888-8888-4888-8888-888888888888")
 WATER_FOLLOWUP_VISIT_ID = UUID("88888888-9999-4888-8888-888888888888")
@@ -78,6 +87,7 @@ READY_CLOSE_WATER_VISIT_ID = UUID("88888888-aaaa-4888-8888-888888888888")
 FOLLOWUP_WATER_VISIT_ID = UUID("88888888-bbbb-4888-8888-888888888888")
 EQUIPMENT_REVIEW_WATER_VISIT_ID = UUID("88888888-cccc-4888-8888-888888888888")
 MONITORING_WATER_VISIT_ID = UUID("88888888-dddd-4888-8888-888888888888")
+STALE_EVIDENCE_WATER_VISIT_ID = UUID("88888888-eeee-4888-8888-888888888888")
 READY_VISIT_ID = UUID("77777777-8888-4777-8777-777777777777")
 CONFIRMED_VISIT_ID = UUID("77777777-9999-4777-8777-777777777777")
 RECOVERY_VISIT_ID = UUID("77777777-aaaa-4777-8777-777777777777")
@@ -100,6 +110,8 @@ READY_CLOSE_WATER_EMERGENCY_ID = UUID("dddddddd-1111-4ddd-8ddd-dddddddddddd")
 FOLLOWUP_WATER_EMERGENCY_ID = UUID("dddddddd-2222-4ddd-8ddd-dddddddddddd")
 EQUIPMENT_REVIEW_WATER_EMERGENCY_ID = UUID("dddddddd-3333-4ddd-8ddd-dddddddddddd")
 MONITORING_WATER_EMERGENCY_ID = UUID("dddddddd-4444-4ddd-8ddd-dddddddddddd")
+NEWLY_OPENED_WATER_EMERGENCY_ID = UUID("dddddddd-5555-4ddd-8ddd-dddddddddddd")
+STALE_EVIDENCE_WATER_EMERGENCY_ID = UUID("dddddddd-6666-4ddd-8ddd-dddddddddddd")
 DISPATCH_EVENT_ID = UUID("eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee")
 ADAPTER_EVENT_ID = UUID("ffffffff-ffff-4fff-8fff-ffffffffffff")
 CONFIRMATION_EVENT_ID = UUID("eeeeeeee-1111-4eee-8eee-eeeeeeeeeeee")
@@ -115,6 +127,8 @@ READY_CLOSE_WATER_EVENT_ID = UUID("eeeeeeee-aaaa-4eee-8eee-eeeeeeeeeeee")
 FOLLOWUP_WATER_EVENT_ID = UUID("eeeeeeee-bbbb-4eee-8eee-eeeeeeeeeeee")
 EQUIPMENT_REVIEW_WATER_EVENT_ID = UUID("eeeeeeee-cccc-4eee-8eee-eeeeeeeeeeee")
 MONITORING_WATER_EVENT_ID = UUID("eeeeeeee-dddd-4eee-8eee-eeeeeeeeeeee")
+NEWLY_OPENED_WATER_EVENT_ID = UUID("eeeeeeee-1212-4eee-8eee-eeeeeeeeeeee")
+STALE_EVIDENCE_WATER_EVENT_ID = UUID("eeeeeeee-ffff-4eee-8eee-eeeeeeeeeeee")
 
 
 @dataclass(frozen=True)
@@ -384,6 +398,38 @@ def build_dashboard_dev_seed_records(
                     "Synthetic Water Emergency monitoring state for operator queue visibility."
                 ),
             ),
+            Job(
+                id=NEWLY_OPENED_WATER_JOB_ID,
+                customer_id=CUSTOMER_ID,
+                property_id=PROPERTY_ID,
+                job_type="water_emergency",
+                status="active",
+                priority="urgent",
+                requested_date=route_date,
+                scheduled_date=route_date,
+                source_system=SEED_SOURCE_SYSTEM,
+                source_event_id="module37-newly-opened-water-emergency-job",
+                description=(
+                    "Synthetic newly opened Water Emergency for aging visibility. No "
+                    "production data."
+                ),
+            ),
+            Job(
+                id=STALE_EVIDENCE_WATER_JOB_ID,
+                customer_id=COMMERCIAL_CUSTOMER_ID,
+                property_id=COMMERCIAL_PROPERTY_ID,
+                job_type="water_emergency",
+                status="active",
+                priority="urgent",
+                requested_date=route_date,
+                scheduled_date=route_date,
+                source_system=SEED_SOURCE_SYSTEM,
+                source_event_id="module37-stale-evidence-water-emergency-job",
+                description=(
+                    "Synthetic Water Emergency with stale evidence for timing visibility. "
+                    "No production data."
+                ),
+            ),
             WorkOrder(
                 id=WORK_ORDER_ID,
                 job_id=STANDARD_JOB_ID,
@@ -539,6 +585,43 @@ def build_dashboard_dev_seed_records(
                     "water_emergency_execution": "not_executed",
                 },
             ),
+            WorkOrder(
+                id=NEWLY_OPENED_WATER_WORK_ORDER_ID,
+                job_id=NEWLY_OPENED_WATER_JOB_ID,
+                assigned_technician_id=SECONDARY_TECHNICIAN_ID,
+                work_order_number="MOD37-DEMO-WO-WATER-NEW",
+                status="generated",
+                dispatch_status="water_emergency_separated",
+                audit_correlation_id="module37-dashboard-demo-water-newly-opened",
+                service_instructions=(
+                    "Synthetic newly opened Water Emergency context for read-only aging visibility."
+                ),
+                generation_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "water_emergency_aging_newly_opened",
+                    "production_data": False,
+                    "water_emergency_execution": "not_executed",
+                },
+            ),
+            WorkOrder(
+                id=STALE_EVIDENCE_WATER_WORK_ORDER_ID,
+                job_id=STALE_EVIDENCE_WATER_JOB_ID,
+                assigned_technician_id=SECONDARY_TECHNICIAN_ID,
+                work_order_number="MOD37-DEMO-WO-WATER-STALE",
+                status="generated",
+                dispatch_status="water_emergency_separated",
+                audit_correlation_id="module37-dashboard-demo-water-stale",
+                service_instructions=(
+                    "Synthetic stale Water Emergency evidence context. No workflow action "
+                    "is executed."
+                ),
+                generation_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "water_emergency_stale_evidence",
+                    "production_data": False,
+                    "water_emergency_execution": "not_executed",
+                },
+            ),
             Visit(
                 id=STANDARD_VISIT_ID,
                 job_id=STANDARD_JOB_ID,
@@ -656,9 +739,9 @@ def build_dashboard_dev_seed_records(
                 visit_type="water_emergency",
                 status="completed",
                 audit_correlation_id="module36-dashboard-demo-water-followup-needed",
-                scheduled_start_at=morning_start - timedelta(hours=5),
-                scheduled_end_at=morning_start - timedelta(hours=4),
-                completed_at=morning_start - timedelta(hours=4),
+                scheduled_start_at=morning_start - timedelta(days=1, hours=5),
+                scheduled_end_at=morning_start - timedelta(days=1, hours=4),
+                completed_at=morning_start - timedelta(days=1, hours=4),
                 notes=(
                     "Synthetic completed Water Emergency visit that leaves follow-up "
                     "visibility needed."
@@ -670,10 +753,11 @@ def build_dashboard_dev_seed_records(
                 work_order_id=EQUIPMENT_REVIEW_WATER_WORK_ORDER_ID,
                 technician_id=SECONDARY_TECHNICIAN_ID,
                 visit_type="water_emergency",
-                status="scheduled",
+                status="completed",
                 audit_correlation_id="module36-dashboard-demo-water-equipment-review",
-                scheduled_start_at=morning_start + timedelta(hours=4),
-                scheduled_end_at=morning_start + timedelta(hours=5),
+                scheduled_start_at=morning_start - timedelta(days=4, hours=4),
+                scheduled_end_at=morning_start - timedelta(days=4, hours=3),
+                completed_at=morning_start - timedelta(days=4, hours=3),
                 notes=("Synthetic Water Emergency visit for equipment-review visibility only."),
             ),
             Visit(
@@ -687,6 +771,20 @@ def build_dashboard_dev_seed_records(
                 scheduled_start_at=morning_start + timedelta(hours=6),
                 scheduled_end_at=morning_start + timedelta(hours=7),
                 notes="Synthetic Water Emergency monitoring visit. No action is executed.",
+            ),
+            Visit(
+                id=STALE_EVIDENCE_WATER_VISIT_ID,
+                job_id=STALE_EVIDENCE_WATER_JOB_ID,
+                work_order_id=STALE_EVIDENCE_WATER_WORK_ORDER_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                visit_type="water_emergency",
+                status="in_progress",
+                audit_correlation_id="module37-dashboard-demo-water-stale",
+                arrived_at=morning_start - timedelta(days=4, hours=2),
+                notes=(
+                    "Synthetic Water Emergency stale evidence visit. No follow-up or "
+                    "dispatch action is executed."
+                ),
             ),
             RouteAssignment(
                 id=ROUTE_ASSIGNMENT_ID,
@@ -1108,7 +1206,7 @@ def build_dashboard_dev_seed_records(
                 next_required_action=None,
                 equipment_onsite=False,
                 moisture_tracking_required=True,
-                opened_at=scheduled_start - timedelta(hours=6),
+                opened_at=None,
                 notes=(
                     "Synthetic Module 35 missing-data Water Emergency example. Not production data."
                 ),
@@ -1135,7 +1233,7 @@ def build_dashboard_dev_seed_records(
                 next_required_action="Synthetic follow-up visit visibility needed.",
                 equipment_onsite=False,
                 moisture_tracking_required=False,
-                opened_at=morning_start - timedelta(hours=7),
+                opened_at=morning_start - timedelta(days=2),
                 notes=(
                     "Synthetic Module 36 visit-follow-up Water Emergency example. "
                     "Not production data."
@@ -1149,7 +1247,7 @@ def build_dashboard_dev_seed_records(
                 next_required_action="Synthetic equipment context review needed.",
                 equipment_onsite=True,
                 moisture_tracking_required=False,
-                opened_at=morning_start - timedelta(hours=6),
+                opened_at=morning_start - timedelta(days=5),
                 notes=(
                     "Synthetic Module 36 equipment-review Water Emergency example. "
                     "Not production data."
@@ -1163,9 +1261,36 @@ def build_dashboard_dev_seed_records(
                 next_required_action="Continue synthetic monitoring visibility.",
                 equipment_onsite=False,
                 moisture_tracking_required=False,
-                opened_at=morning_start - timedelta(hours=5),
+                opened_at=morning_start - timedelta(days=2),
                 notes=(
                     "Synthetic Module 36 monitoring Water Emergency example. Not production data."
+                ),
+            ),
+            WaterEmergency(
+                id=NEWLY_OPENED_WATER_EMERGENCY_ID,
+                job_id=NEWLY_OPENED_WATER_JOB_ID,
+                status="NEW",
+                drying_stage="initial_response",
+                next_required_action="Synthetic newly opened timing visibility.",
+                equipment_onsite=False,
+                moisture_tracking_required=False,
+                opened_at=generated_at - timedelta(hours=6),
+                notes=(
+                    "Synthetic Module 37 newly opened Water Emergency example. Not production data."
+                ),
+            ),
+            WaterEmergency(
+                id=STALE_EVIDENCE_WATER_EMERGENCY_ID,
+                job_id=STALE_EVIDENCE_WATER_JOB_ID,
+                status="DRYING_IN_PROGRESS",
+                drying_stage="monitoring",
+                next_required_action="Synthetic stale evidence review visibility.",
+                equipment_onsite=False,
+                moisture_tracking_required=False,
+                opened_at=morning_start - timedelta(days=6),
+                notes=(
+                    "Synthetic Module 37 stale evidence Water Emergency example. "
+                    "Not production data."
                 ),
             ),
             OperationalEventRecord(
@@ -1342,6 +1467,58 @@ def build_dashboard_dev_seed_records(
                     "scenario": "water_emergency_monitoring",
                     "production_data": False,
                     "water_emergency_execution": "not_executed",
+                },
+            ),
+            OperationalEventRecord(
+                id=NEWLY_OPENED_WATER_EVENT_ID,
+                occurred_at=generated_at - timedelta(hours=5),
+                recorded_at=generated_at - timedelta(hours=5),
+                event_type="water_emergency.newly_opened",
+                event_state="newly_opened",
+                entity_type="water_emergency",
+                entity_id=NEWLY_OPENED_WATER_EMERGENCY_ID,
+                route_assignment_id=None,
+                visit_id=None,
+                work_order_id=NEWLY_OPENED_WATER_WORK_ORDER_ID,
+                job_id=NEWLY_OPENED_WATER_JOB_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                audit_correlation_id="module37-dashboard-demo-water-newly-opened",
+                previous_state=None,
+                new_state="newly_opened",
+                event_fingerprint="module37-dashboard-demo-water-newly-opened",
+                is_immutable=True,
+                event_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "water_emergency_aging_newly_opened",
+                    "production_data": False,
+                    "water_emergency_execution": "not_executed",
+                    "sla_engine": "not_implemented",
+                },
+            ),
+            OperationalEventRecord(
+                id=STALE_EVIDENCE_WATER_EVENT_ID,
+                occurred_at=morning_start - timedelta(days=4, hours=2),
+                recorded_at=morning_start - timedelta(days=4, hours=2),
+                event_type="water_emergency.stale_monitoring_evidence",
+                event_state="monitoring",
+                entity_type="water_emergency",
+                entity_id=STALE_EVIDENCE_WATER_EMERGENCY_ID,
+                route_assignment_id=None,
+                visit_id=STALE_EVIDENCE_WATER_VISIT_ID,
+                work_order_id=STALE_EVIDENCE_WATER_WORK_ORDER_ID,
+                job_id=STALE_EVIDENCE_WATER_JOB_ID,
+                technician_id=SECONDARY_TECHNICIAN_ID,
+                audit_correlation_id="module37-dashboard-demo-water-stale",
+                previous_state="monitoring",
+                new_state="monitoring",
+                event_fingerprint="module37-dashboard-demo-water-stale-evidence",
+                is_immutable=True,
+                event_snapshot={
+                    "source": SEED_SOURCE_SYSTEM,
+                    "scenario": "water_emergency_stale_evidence",
+                    "production_data": False,
+                    "water_emergency_execution": "not_executed",
+                    "sla_engine": "not_implemented",
                 },
             ),
             OperationalEventRecord(

@@ -328,6 +328,48 @@ export type WaterEmergencyOperatorQueueSummaryResponse = {
   items: WaterEmergencyQueueItemResponse[];
 };
 
+export type WaterEmergencyAgingFollowUpItemResponse = {
+  water_emergency_id: string;
+  time_sensitivity_label: string;
+  timing_group: string;
+  timing_rank: number;
+  age_bucket: string;
+  followup_bucket: string;
+  age_hours: number | null;
+  hours_since_last_visit: number | null;
+  hours_since_last_review: number | null;
+  hours_since_last_event: number | null;
+  opened_at: string | null;
+  last_visit_at: string | null;
+  last_review_at: string | null;
+  last_event_at: string | null;
+  closed_at: string | null;
+  summary: string;
+  reason_codes: string[];
+  missing_timestamp_indicators: string[];
+  stale_indicator_count: number;
+  requires_operator_attention: boolean;
+  related_job_id: string;
+  related_work_order_ids: string[];
+  related_visit_ids: string[];
+  audit_correlation_ids: string[];
+  evidence_references: string[];
+};
+
+export type WaterEmergencyAgingFollowUpSummaryResponse = {
+  total_records: number;
+  active_timing_risk_count: number;
+  closed_or_resolved_count: number;
+  followup_due_count: number;
+  followup_overdue_count: number;
+  stale_evidence_count: number;
+  unknown_timing_count: number;
+  label_counts: CountBucket[];
+  age_bucket_counts: CountBucket[];
+  followup_bucket_counts: CountBucket[];
+  items: WaterEmergencyAgingFollowUpItemResponse[];
+};
+
 export type WaterEmergencyDashboardResponse = {
   generated_at: string;
   total_records: number;
@@ -344,6 +386,7 @@ export type WaterEmergencyDashboardResponse = {
   review_exception_summary: WaterEmergencyReviewExceptionSummaryResponse;
   next_step_summary: WaterEmergencyNextStepReadinessSummaryResponse;
   operator_queue_summary: WaterEmergencyOperatorQueueSummaryResponse;
+  aging_followup_summary: WaterEmergencyAgingFollowUpSummaryResponse;
   related_job_count: number;
   related_work_order_count: number;
   related_visit_count: number;

@@ -710,6 +710,28 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 37 Water Emergency Aging And Follow-Up Visibility Boundary
+
+Module 37 extends Water Emergency summary visibility with read-only aging, follow-up risk, stale evidence, and unknown timing context:
+
+- backend read models expose time-sensitivity labels, timing groups, age/follow-up buckets, timestamp references, reason codes, missing timestamp indicators, stale counts, related references, and audit-correlation IDs from existing persisted evidence
+- labels are derived from Water Emergency opened/closed timestamps, related Visit timestamps, scoped Review timestamps, and related operational event timestamps
+- open Manual Review evidence is shown as waiting-for-review timing context
+- closed/resolved records remain separated from active timing risks and are never shown as active overdue work
+- frontend panels display timing context without creating Water Emergency action controls
+- local synthetic seed data now includes newly opened, active monitoring, follow-up due, follow-up overdue, stale evidence, waiting review, ready-for-close-review, closed/resolved, and unknown timing examples
+
+The boundary remains projection-only. The endpoint and UI do not create, edit, close, resolve, approve, reject, archive, dispatch, schedule, escalate, enforce an SLA, integrate, reconcile, or execute Water Emergency workflows. They also do not call AI, define final operations taxonomy, or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- final Water Emergency aging, follow-up, SLA, and stale-evidence taxonomy
+- whether future timing labels should become persisted workflow state or remain derived read-model projections
+- production filtering, pagination, refresh cadence, stale-data behavior, and role-scoped timing visibility
+- future authenticated Water Emergency action modules for follow-up scheduling, equipment review, drying confirmation, escalation, and closure review
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

@@ -18,6 +18,8 @@ from app.domain.dashboard import (
     OperationalTimelineEntry,
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
+    WaterEmergencyAgingFollowUpItem,
+    WaterEmergencyAgingFollowUpSummary,
     WaterEmergencyDashboardReadModel,
     WaterEmergencyDetailDryingStageContext,
     WaterEmergencyDetailEquipmentContext,
@@ -250,6 +252,52 @@ def water_emergency_contract() -> WaterEmergencyDashboardReadModel:
                     related_work_order_ids=(),
                     related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
                     audit_correlation_ids=("audit-water-001",),
+                ),
+            ),
+        ),
+        aging_followup_summary=WaterEmergencyAgingFollowUpSummary(
+            total_records=1,
+            active_timing_risk_count=1,
+            closed_or_resolved_count=0,
+            followup_due_count=0,
+            followup_overdue_count=0,
+            stale_evidence_count=0,
+            unknown_timing_count=0,
+            label_counts=(CountBucket(label="waiting_for_review", count=1),),
+            age_bucket_counts=(CountBucket(label="under_24h", count=1),),
+            followup_bucket_counts=(CountBucket(label="followup_not_due", count=1),),
+            items=(
+                WaterEmergencyAgingFollowUpItem(
+                    water_emergency_id=UUID("00000000-0000-0000-0000-000000000031"),
+                    time_sensitivity_label="waiting_for_review",
+                    timing_group="manual_review",
+                    timing_rank=20,
+                    age_bucket="under_24h",
+                    followup_bucket="followup_not_due",
+                    age_hours=4,
+                    hours_since_last_visit=2,
+                    hours_since_last_review=1,
+                    hours_since_last_event=1,
+                    opened_at=datetime(2026, 5, 16, 8, 0, tzinfo=UTC),
+                    last_visit_at=datetime(2026, 5, 16, 10, 0, tzinfo=UTC),
+                    last_review_at=datetime(2026, 5, 16, 11, 0, tzinfo=UTC),
+                    last_event_at=datetime(2026, 5, 16, 11, 0, tzinfo=UTC),
+                    closed_at=None,
+                    summary=(
+                        "Open Manual Review evidence exists; Manual Review remains authoritative."
+                    ),
+                    reason_codes=("waiting_for_review", "water_detail_review"),
+                    missing_timestamp_indicators=(),
+                    stale_indicator_count=0,
+                    requires_operator_attention=True,
+                    related_job_id=UUID("00000000-0000-0000-0000-000000000032"),
+                    related_work_order_ids=(),
+                    related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
+                    audit_correlation_ids=("audit-water-001",),
+                    evidence_references=(
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                    ),
                 ),
             ),
         ),
@@ -542,6 +590,13 @@ def test_dashboard_api_routes_return_read_only_contracts(
     ]
     assert water_response.json()["operator_queue_summary"]["items"][0]["queue_group"] == (
         "active_attention"
+    )
+    assert water_response.json()["aging_followup_summary"]["label_counts"] == [
+        {"label": "waiting_for_review", "count": 1},
+    ]
+    assert (
+        water_response.json()["aging_followup_summary"]["items"][0]["time_sensitivity_label"]
+        == "waiting_for_review"
     )
     assert water_response.json()["records"][0]["related_visit_ids"] == [
         "00000000-0000-0000-0000-000000000033",

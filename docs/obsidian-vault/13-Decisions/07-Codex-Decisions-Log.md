@@ -1167,3 +1167,39 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database/system architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-22 — Phase 0 Module 37 Water Emergency Aging, Follow-Up Risk, And Time-Sensitive Visibility
+
+- Decision type: Implementation / Water Emergency visibility / read-only timing contract
+- Status: Implemented
+- Decision:
+  - Extend the Water Emergency dashboard read model with aging, follow-up risk, stale evidence, unknown timing, and closed/resolved timing visibility.
+  - Derive timing labels from existing persisted Water Emergency opened/closed timestamps, related Visit timestamps, scoped ReviewItem timestamps, and operational event timestamps.
+  - Add time-sensitivity labels, timing groups/ranks, age buckets, follow-up buckets, reason codes, missing timestamp indicators, stale counts, related references, evidence references, and audit-correlation IDs.
+  - Treat open Manual Review evidence as waiting-for-review timing context.
+  - Treat missing timestamp evidence as unknown timing instead of inventing SLA state.
+  - Keep closed/resolved Water Emergency records separated from active timing risks and never show them as active overdue work.
+  - Add a read-only frontend Aging & Follow-Up Risk panel without action controls.
+  - Expand local synthetic seed data with examples for newly opened, active monitoring, follow-up due, follow-up overdue, stale evidence, waiting review, ready-for-close-review, closed/resolved, and unknown timing states.
+- Rationale:
+  - Operators need time-sensitive Water Emergency awareness before authenticated execution workflows exist.
+  - Timing visibility should make stale or missing evidence obvious without creating workflow authority, SLA enforcement, automatic escalation, scheduling, dispatch, or closure behavior.
+  - Manual Review remains authoritative; uncertain or incomplete timing evidence should stay visible as review/unknown context rather than progressing automatically.
+- Future implications:
+  - Future modules still need a Luis-confirmed Water Emergency aging, SLA, follow-up, stale-evidence, escalation, and closure taxonomy.
+  - Timing labels may later become persisted workflow state, but Module 37 keeps them as deterministic read-model projections.
+  - Production read models may need query optimization, pagination, stale-data refresh rules, and role-scoped timing visibility.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Local synthetic dashboard seed data
+  - Frontend dashboard API contracts/mock data
+  - Frontend Water Emergency summary section
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

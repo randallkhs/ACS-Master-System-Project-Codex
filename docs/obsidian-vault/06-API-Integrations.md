@@ -566,3 +566,28 @@ Open API/frontend concerns:
 - final Water Emergency triage, priority, and queue taxonomy
 - whether queue labels should remain derived read-model projections or become persisted workflow state later
 - production filtering, pagination, refresh cadence, stale-data handling, and role-scoped queue visibility
+
+## Phase 0 Module 37 Water Emergency Aging Contract Boundary
+
+The existing Water Emergency dashboard API contract now includes read-only aging, follow-up risk, stale evidence, and unknown timing visibility fields.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/water-emergency` exposes summary-level time-sensitivity label counts, age bucket counts, follow-up bucket counts, active timing risk counts, closed/resolved timing counts, stale-evidence counts, and per-record timing items
+- timing items include Water Emergency ID, time-sensitivity label, timing group/rank, age and follow-up buckets, opened/closed/latest evidence timestamps, reason codes, missing timestamp indicators, stale indicator count, related job/work-order/visit IDs, audit references, and evidence references
+- fields are derived only from persisted Water Emergency, Work Order, Visit, Review, and operational event evidence
+- closed/resolved records are separated from active timing risks and must not appear as active overdue work
+- missing timestamp evidence returns unknown timing rather than an invented SLA state
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no Manual Review approve/reject/resolve/archive calls are added
+- no Water Emergency closure, dispatch, visit scheduling, drying approval, equipment pickup, escalation execution, SLA engine, vendor, priority-engine, or AI execution calls are added
+- frontend display must consume the backend timing contract instead of deriving hidden time-sensitive authority
+
+Open API/frontend concerns:
+
+- final Water Emergency aging, follow-up, stale-evidence, and SLA taxonomy
+- whether timing labels should remain derived read-model projections or become persisted workflow state later
+- production filtering, pagination, refresh cadence, stale-data handling, and role-scoped timing visibility

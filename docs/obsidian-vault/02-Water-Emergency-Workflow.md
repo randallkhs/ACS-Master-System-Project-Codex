@@ -461,6 +461,35 @@ Unresolved:
 
 ---
 
+# Phase 0 Module 37 — Aging, Follow-Up Risk, And Time-Sensitive Visibility
+
+Module 37 extends the dedicated read-only Water Emergency dashboard with timing awareness based on existing timestamps and persisted evidence.
+
+The read models may show:
+
+- time-sensitivity labels such as newly opened, active monitoring, follow-up due, follow-up overdue, stale evidence, waiting for review, ready for close review, closed or resolved, and unknown timing
+- created/opened, last visit, last review, last event, and closed timestamps when existing records provide them
+- age buckets, follow-up buckets, stale/missing evidence indicators, and reason codes explaining why a label appears
+- closed/resolved Water Emergency records separated from active timing risks
+- synthetic local examples for timing visibility without production/customer/vendor data
+
+Boundary:
+
+- aging visibility is not an SLA engine
+- follow-up visibility is not workflow execution, auto-escalation, scheduling, dispatch, closure, or approval
+- timing labels are conservative Phase 0 projections from persisted evidence only
+- missing timestamp evidence must show unknown timing rather than inventing an SLA or hidden lifecycle transition
+- closed/resolved Water Emergency records must not appear as active overdue work
+
+Unresolved:
+
+- final Luis-confirmed Water Emergency SLA, aging, and follow-up taxonomy
+- whether timing labels should remain read-model projections or become stored workflow states later
+- authenticated role-scoped timing visibility and operator authority
+- future execution modules for follow-up scheduling, drying confirmation, equipment pickup, escalation, and closure review
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

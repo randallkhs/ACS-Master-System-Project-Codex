@@ -263,6 +263,48 @@ class WaterEmergencyOperatorQueueSummaryResponse(DashboardSchema):
     items: tuple[WaterEmergencyQueueItemResponse, ...]
 
 
+class WaterEmergencyAgingFollowUpItemResponse(DashboardSchema):
+    water_emergency_id: UUID
+    time_sensitivity_label: str
+    timing_group: str
+    timing_rank: int
+    age_bucket: str
+    followup_bucket: str
+    age_hours: int | None
+    hours_since_last_visit: int | None
+    hours_since_last_review: int | None
+    hours_since_last_event: int | None
+    opened_at: datetime | None
+    last_visit_at: datetime | None
+    last_review_at: datetime | None
+    last_event_at: datetime | None
+    closed_at: datetime | None
+    summary: str
+    reason_codes: tuple[str, ...]
+    missing_timestamp_indicators: tuple[str, ...]
+    stale_indicator_count: int
+    requires_operator_attention: bool
+    related_job_id: UUID
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+
+
+class WaterEmergencyAgingFollowUpSummaryResponse(DashboardSchema):
+    total_records: int
+    active_timing_risk_count: int
+    closed_or_resolved_count: int
+    followup_due_count: int
+    followup_overdue_count: int
+    stale_evidence_count: int
+    unknown_timing_count: int
+    label_counts: tuple[CountBucketResponse, ...]
+    age_bucket_counts: tuple[CountBucketResponse, ...]
+    followup_bucket_counts: tuple[CountBucketResponse, ...]
+    items: tuple[WaterEmergencyAgingFollowUpItemResponse, ...]
+
+
 class RouteAssignmentSummaryResponse(DashboardSchema):
     total_assignments: int
     status_counts: tuple[CountBucketResponse, ...]
@@ -354,6 +396,7 @@ class WaterEmergencyDashboardResponse(DashboardSchema):
     review_exception_summary: WaterEmergencyReviewExceptionSummaryResponse
     next_step_summary: WaterEmergencyNextStepReadinessSummaryResponse
     operator_queue_summary: WaterEmergencyOperatorQueueSummaryResponse
+    aging_followup_summary: WaterEmergencyAgingFollowUpSummaryResponse
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int
