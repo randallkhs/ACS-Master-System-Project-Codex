@@ -124,7 +124,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
         if "event_fingerprint" in record.__dict__
     }
 
-    assert seed_records.record_count == 54
+    assert seed_records.record_count == 61
     assert seed_records.scenario_labels == (
         "standard_dispatch_ready",
         "manual_review_blocked",
@@ -134,6 +134,9 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
         "governance_accountability_required",
         "water_emergency_separated",
         "water_emergency_closed",
+        "water_emergency_next_step_readiness",
+        "water_emergency_missing_data_blocked",
+        "water_emergency_ready_for_close_review",
     )
     assert source_systems == {SEED_SOURCE_SYSTEM}
     assert "module27-dashboard-demo-dispatched" in event_fingerprints
@@ -143,6 +146,7 @@ def test_dashboard_dev_seed_records_are_synthetic_and_read_only() -> None:
     assert "module32-dashboard-demo-water-extraction-started" in event_fingerprints
     assert "module33-dashboard-demo-water-drying-check-scheduled" in event_fingerprints
     assert "module34-dashboard-demo-water-review-exception-flagged" in event_fingerprints
+    assert "module35-dashboard-demo-water-ready-for-close-review" in event_fingerprints
 
     route_assignment = next(
         record
@@ -167,10 +171,10 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
         operational_events=seed_records_of_type(seed_records, OperationalEventRecord),
     )
 
-    assert overview.operational_summary.total_jobs == 6
+    assert overview.operational_summary.total_jobs == 8
     assert overview.operational_summary.total_route_assignments == 5
     assert overview.operational_summary.open_manual_reviews == 4
-    assert overview.operational_summary.open_water_emergencies == 1
+    assert overview.operational_summary.open_water_emergencies == 3
 
     lifecycle = overview.lifecycle_summary
     assert bucket_count(lifecycle.intake_lifecycle_counts, "approved_for_dispatch") == 2
@@ -178,7 +182,7 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
     assert bucket_count(lifecycle.intake_lifecycle_counts, "job_created") == 1
     assert lifecycle.dispatch_ready_visits == 2
     assert lifecycle.dispatched_route_assignments == 2
-    assert lifecycle.water_emergency_records == 2
+    assert lifecycle.water_emergency_records == 4
     assert lifecycle.water_emergency_separated_intake == 1
 
     review = overview.manual_review_summary
@@ -209,11 +213,11 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
         water_emergencies=seed_records_of_type(seed_records, WaterEmergency),
         operational_events=seed_records_of_type(seed_records, OperationalEventRecord),
     )
-    assert water_emergency.visit_chain_summary.total_visits == 2
+    assert water_emergency.visit_chain_summary.total_visits == 3
     assert water_emergency.visit_chain_summary.multi_visit_record_count == 1
     assert water_emergency.equipment_summary.work_orders_with_equipment_notes_count == 1
     assert water_emergency.equipment_summary.inventory_entity_available is False
-    assert water_emergency.drying_stage_summary.moisture_tracking_required_count == 1
+    assert water_emergency.drying_stage_summary.moisture_tracking_required_count == 2
     assert water_emergency.review_exception_summary.total_review_count == 3
     assert water_emergency.review_exception_summary.open_review_count == 1
     assert water_emergency.review_exception_summary.deferred_review_count == 1
@@ -226,9 +230,37 @@ def test_dashboard_dev_seed_scenarios_cover_realistic_read_model_states() -> Non
         )
         == 1
     )
+    assert water_emergency.next_step_summary.total_records == 4
+    assert water_emergency.next_step_summary.needs_attention_count == 3
+    assert water_emergency.next_step_summary.closed_without_active_action_count == 1
+    assert bucket_count(water_emergency.next_step_summary.label_counts, "needs_manual_review") == 1
+    assert (
+        bucket_count(water_emergency.next_step_summary.label_counts, "needs_equipment_review") == 1
+    )
+    assert bucket_count(water_emergency.next_step_summary.label_counts, "needs_visit_followup") == 1
+    assert (
+        bucket_count(water_emergency.next_step_summary.label_counts, "blocked_by_missing_data") == 2
+    )
+    assert (
+        bucket_count(water_emergency.next_step_summary.label_counts, "ready_for_close_review") == 1
+    )
+    assert (
+        bucket_count(
+            water_emergency.next_step_summary.label_counts,
+            "closed_no_active_next_step",
+        )
+        == 1
+    )
+    assert (
+        bucket_count(
+            water_emergency.next_step_summary.blocker_counts,
+            "missing_drying_stage",
+        )
+        == 1
+    )
 
     timeline = overview.timeline_summary
-    assert timeline.total_events == 11
+    assert timeline.total_events == 12
     assert timeline.mutable_event_count == 0
     assert [entry.occurred_at for entry in timeline.entries] == sorted(
         entry.occurred_at for entry in timeline.entries

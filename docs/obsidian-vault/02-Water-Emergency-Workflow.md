@@ -402,6 +402,36 @@ Unresolved:
 
 ---
 
+# Phase 0 Module 35 — Next-Step Readiness Visibility
+
+Module 35 extends the dedicated read-only Water Emergency dashboard and detail views with operator-safe next-step readiness visibility.
+
+The read models may show:
+
+- readiness labels such as Manual Review needed, operator decision needed, visit follow-up needed, equipment review needed, drying-stage confirmation needed, blocked by missing data, awaiting more information, ready for close review, or closed with no active next-step action
+- short explanations for why each readiness label was selected
+- review, critical-alert, blocker, and unknown-data counts that support the readiness label
+- related job, work-order, visit, review, event, and audit-correlation evidence references
+- synthetic local examples that demonstrate readiness states without using production/customer/vendor data
+
+Boundary:
+
+- next-step readiness is visibility only
+- readiness labels are not workflow execution
+- readiness labels are not operator authority, approval, close, dispatch, vendor, or AI controls
+- `ready_for_close_review` does not close a Water Emergency record and does not define final closure rules
+- closed or resolved Water Emergency records must not imply an active workflow action
+- missing data must produce safe review/readiness language instead of hidden lifecycle transitions
+
+Unresolved:
+
+- final Luis-confirmed Water Emergency readiness taxonomy
+- exact closure-readiness and equipment-pickup requirements
+- whether readiness labels should become stored workflow states in a future execution module
+- how authenticated roles should see or act on readiness context once Water Emergency operations are implemented
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

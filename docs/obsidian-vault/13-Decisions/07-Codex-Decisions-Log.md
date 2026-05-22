@@ -1099,3 +1099,38 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database/system architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-21 — Phase 0 Module 35 Water Emergency Operator Next-Step Readiness And Workflow Preparation Visibility
+
+- Decision type: Implementation / Water Emergency visibility / read-only readiness contract
+- Status: Implemented
+- Decision:
+  - Extend Water Emergency dashboard/detail read models with next-step readiness labels, explanation text, attention counts, blocker/reason buckets, unknown counts, and evidence references.
+  - Derive readiness labels from persisted Water Emergency, Work Order, Visit, Manual Review, and operational event evidence only.
+  - Treat unresolved scoped reviews as Manual Review/operator-decision readiness context.
+  - Treat missing work-order, visit, timeline, drying-stage, or next-action evidence as blocked/missing-data readiness context.
+  - Treat closed or resolved Water Emergency records as no-active-next-step visibility.
+  - Show ready-for-close-review as read-only evidence only; no close action, workflow transition, approval, or final closure rule is implemented.
+  - Expand local synthetic seed data with examples for Manual Review, equipment review, visit follow-up, missing data, ready-for-close-review, and closed/no-active-action readiness states.
+- Rationale:
+  - Operators need safe decision context before Water Emergency execution workflows exist.
+  - Readiness labels help organize emergency evidence without creating frontend authority or hidden lifecycle transitions.
+  - Manual Review remains authoritative; uncertain, blocked, or incomplete records should remain visible as review/readiness context rather than progressing automatically.
+- Future implications:
+  - Future modules still need a Luis-confirmed Water Emergency readiness/closure taxonomy, equipment pickup rules, drying confirmation rules, and authenticated operator workflow actions.
+  - Readiness may later become persisted workflow state, but Module 35 keeps it as a deterministic read-model projection.
+  - Production read models may need query optimization, pagination, role-scoped readiness visibility, refresh cadence, and stale-data rules.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Local synthetic dashboard seed data
+  - Frontend dashboard API contracts/mock data
+  - Frontend Water Emergency summary/detail sections
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

@@ -104,7 +104,7 @@ Optional synthetic dashboard data for local read-model verification:
 make seed-dashboard
 ```
 
-The seed command upserts clearly labeled synthetic records with `source_system=module27_dev_seed`. It refuses production, refuses non-local hosts, refuses placeholder passwords, does not call vendors, and does not imply real ACS production state. The source name remains stable for compatibility with the original local seed set; Module 33 expands the scenario version reported by the seed output.
+The seed command upserts clearly labeled synthetic records with `source_system=module27_dev_seed`. It refuses production, refuses non-local hosts, refuses placeholder passwords, does not call vendors, and does not imply real ACS production state. The source name remains stable for compatibility with the original local seed set; Module 35 expands the scenario version reported by the seed output.
 
 Module 29 seed scenarios cover:
 
@@ -120,6 +120,7 @@ Module 29 seed scenarios cover:
 - open and closed Water Emergency examples kept separate from standard dispatch
 - Water Emergency synthetic work-order equipment notes, multi-visit chain context, and drying-check timeline evidence for read-only visibility
 - Water Emergency synthetic open, deferred, and archived review/exception examples plus critical/blocker evidence for read-only visibility
+- Water Emergency synthetic next-step readiness examples for Manual Review, equipment review, visit follow-up, missing data, ready-for-close-review visibility, and closed/no-active-action visibility
 
 `make seed-dashboard` is safe to rerun. It updates seed-owned records by deterministic identifiers or natural seed keys, inserts missing seed records, and does not delete non-seed data. It does not reset the database.
 
@@ -212,11 +213,13 @@ GET /api/v1/dashboard/water-emergency/{water_emergency_id}
 
 These routes summarize persisted backend state through dashboard read models. They do not mutate records, execute dispatch, resolve Manual Review, call integrations, or call AI.
 
-The Water Emergency dashboard contract is dedicated to emergency visibility. It summarizes existing `WaterEmergency` records, status/stage distributions, equipment context, visit-chain summaries, drying-stage visibility, review/exception counts, blocker reason buckets, critical-alert indicators, related job/work-order/visit references, data gaps, audit correlation references, and emergency timeline evidence. The detail contract returns one Water Emergency record, related job/work-order/visit references, specifically scoped Manual Review indicators, review/exception context, equipment notes/unknowns, visit-chain timing/status counts, drying-stage context, detail data gaps, audit correlations, and chronological timeline evidence. These endpoints do not create, close, dispatch, approve, edit, or otherwise execute Water Emergency work.
+The Water Emergency dashboard contract is dedicated to emergency visibility. It summarizes existing `WaterEmergency` records, status/stage distributions, equipment context, visit-chain summaries, drying-stage visibility, review/exception counts, blocker reason buckets, critical-alert indicators, read-only next-step readiness labels, related job/work-order/visit references, data gaps, audit correlation references, and emergency timeline evidence. The detail contract returns one Water Emergency record, related job/work-order/visit references, specifically scoped Manual Review indicators, review/exception context, equipment notes/unknowns, visit-chain timing/status counts, drying-stage context, next-step readiness evidence, detail data gaps, audit correlations, and chronological timeline evidence. These endpoints do not create, close, dispatch, approve, edit, or otherwise execute Water Emergency work.
 
 Module 33 does not add a dedicated equipment inventory table or final Water Emergency drying taxonomy. The read models expose existing persisted fields and explicit unknown indicators such as `equipment_inventory_not_modeled` until future Water Emergency workflow modules define those operational rules.
 
 Module 34 does not add a final review/escalation taxonomy or Manual Review action workflow. It exposes existing Water Emergency `ReviewItem` status, severity, reason-code, blocker-like reason, review ID, and audit-correlation evidence as read-only visibility only. Per-record detail still scopes reviews through specific job, entity, or visit links so generic Water Emergency labels do not attach to every record.
+
+Module 35 does not add a workflow engine or operator actions. It derives Water Emergency next-step readiness labels from persisted evidence only, including Manual Review presence, missing data, visit-chain context, equipment/drying context, closed/resolved state, and ready-for-close-review evidence. These labels are decision-support visibility only; they do not auto-close, auto-dispatch, auto-approve, or advance Water Emergency records.
 
 Local full-stack dashboard testing expects the backend on `http://127.0.0.1:8000` and the frontend `ACS_DASHBOARD_API_BASE_URL` set to that origin. A real local PostgreSQL database and migrations are still required for live backend reads; the frontend falls back to typed local data when the backend is unavailable.
 

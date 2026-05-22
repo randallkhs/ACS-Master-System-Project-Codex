@@ -26,6 +26,8 @@ from app.domain.dashboard import (
     WaterEmergencyEquipmentNote,
     WaterEmergencyEquipmentSummary,
     WaterEmergencyJobReference,
+    WaterEmergencyNextStepReadiness,
+    WaterEmergencyNextStepReadinessSummary,
     WaterEmergencyRecordSummary,
     WaterEmergencyReviewExceptionContext,
     WaterEmergencyReviewExceptionSummary,
@@ -179,6 +181,43 @@ def water_emergency_contract() -> WaterEmergencyDashboardReadModel:
             review_item_ids=(UUID("00000000-0000-0000-0000-000000000035"),),
             audit_correlation_ids=("audit-water-001",),
         ),
+        next_step_summary=WaterEmergencyNextStepReadinessSummary(
+            total_records=1,
+            needs_attention_count=1,
+            closed_without_active_action_count=0,
+            label_counts=(
+                CountBucket(label="needs_manual_review", count=1),
+                CountBucket(label="needs_operator_decision", count=1),
+            ),
+            blocker_counts=(CountBucket(label="water_detail_review", count=1),),
+            records=(
+                WaterEmergencyNextStepReadiness(
+                    water_emergency_id=UUID("00000000-0000-0000-0000-000000000031"),
+                    primary_label="needs_manual_review",
+                    labels=("needs_manual_review", "needs_operator_decision"),
+                    summary=(
+                        "Open Manual Review evidence exists; operator review remains required "
+                        "before any future Water Emergency workflow step."
+                    ),
+                    reason_codes=("water_detail_review",),
+                    evidence_references=(
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                    ),
+                    current_status="drying_in_progress",
+                    current_stage="monitoring",
+                    open_review_count=1,
+                    critical_alert_count=0,
+                    blocker_count=1,
+                    unknown_count=0,
+                    requires_operator_attention=True,
+                    related_job_id=UUID("00000000-0000-0000-0000-000000000032"),
+                    related_work_order_ids=(),
+                    related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
+                    audit_correlation_ids=("audit-water-001",),
+                ),
+            ),
+        ),
         related_job_count=1,
         related_work_order_count=0,
         related_visit_count=2,
@@ -314,6 +353,33 @@ def water_emergency_detail_contract() -> WaterEmergencyDetailReadModel:
             review_item_ids=(UUID("00000000-0000-0000-0000-000000000035"),),
             audit_correlation_ids=("audit-water-001",),
         ),
+        next_step_readiness=WaterEmergencyNextStepReadiness(
+            water_emergency_id=record.water_emergency_id,
+            primary_label="needs_manual_review",
+            labels=("needs_manual_review", "needs_operator_decision"),
+            summary=(
+                "Open Manual Review evidence exists; operator review remains required before "
+                "any future Water Emergency workflow step."
+            ),
+            reason_codes=("water_detail_review",),
+            evidence_references=(
+                f"job:{record.job_id}",
+                f"water_emergency:{record.water_emergency_id}",
+                "visit:00000000-0000-0000-0000-000000000033",
+                "review:00000000-0000-0000-0000-000000000035",
+            ),
+            current_status="drying_in_progress",
+            current_stage="monitoring",
+            open_review_count=1,
+            critical_alert_count=0,
+            blocker_count=1,
+            unknown_count=0,
+            requires_operator_attention=True,
+            related_job_id=record.job_id,
+            related_work_order_ids=(UUID("00000000-0000-0000-0000-000000000034"),),
+            related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
+            audit_correlation_ids=("audit-water-001",),
+        ),
         data_gap_counts=(),
         audit_correlation_ids=("audit-water-001",),
         timeline_summary=OperationalEventTimelineSummary(
@@ -432,6 +498,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert water_response.json()["drying_stage_summary"]["active_stage_counts"] == [
         {"label": "monitoring", "count": 1},
     ]
+    assert water_response.json()["next_step_summary"]["label_counts"] == [
+        {"label": "needs_manual_review", "count": 1},
+        {"label": "needs_operator_decision", "count": 1},
+    ]
     assert water_response.json()["records"][0]["related_visit_ids"] == [
         "00000000-0000-0000-0000-000000000033",
     ]
@@ -447,6 +517,12 @@ def test_dashboard_api_routes_return_read_only_contracts(
     ]
     assert water_detail_response.json()["visit_chain"]["total_visits"] == 1
     assert water_detail_response.json()["drying_stage_context"]["current_stage"] == "monitoring"
+    assert water_detail_response.json()["next_step_readiness"]["primary_label"] == (
+        "needs_manual_review"
+    )
+    assert (
+        "needs_operator_decision" in water_detail_response.json()["next_step_readiness"]["labels"]
+    )
     assert water_detail_response.json()["timeline_summary"]["entries"][0]["event_type"] == (
         "water_emergency.extraction_started"
     )

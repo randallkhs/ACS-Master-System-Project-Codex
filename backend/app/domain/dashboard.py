@@ -219,6 +219,37 @@ class WaterEmergencyReviewExceptionContext:
 
 
 @dataclass(frozen=True, slots=True)
+class WaterEmergencyNextStepReadiness:
+    water_emergency_id: UUID
+    primary_label: str
+    labels: tuple[str, ...]
+    summary: str
+    reason_codes: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    current_status: str
+    current_stage: str | None
+    open_review_count: int
+    critical_alert_count: int
+    blocker_count: int
+    unknown_count: int
+    requires_operator_attention: bool
+    related_job_id: UUID
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyNextStepReadinessSummary:
+    total_records: int
+    needs_attention_count: int
+    closed_without_active_action_count: int
+    label_counts: tuple[CountBucket, ...]
+    blocker_counts: tuple[CountBucket, ...]
+    records: tuple[WaterEmergencyNextStepReadiness, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class WaterEmergencyDetailReadModel:
     generated_at: datetime
     record: WaterEmergencyRecordSummary
@@ -230,6 +261,7 @@ class WaterEmergencyDetailReadModel:
     visit_chain: WaterEmergencyVisitChain
     drying_stage_context: WaterEmergencyDetailDryingStageContext
     review_exception_context: WaterEmergencyReviewExceptionContext
+    next_step_readiness: WaterEmergencyNextStepReadiness
     data_gap_counts: tuple[CountBucket, ...]
     audit_correlation_ids: tuple[str, ...]
     timeline_summary: OperationalEventTimelineSummary
@@ -250,6 +282,7 @@ class WaterEmergencyDashboardReadModel:
     visit_chain_summary: WaterEmergencyVisitChainSummary
     drying_stage_summary: WaterEmergencyDryingStageSummary
     review_exception_summary: WaterEmergencyReviewExceptionSummary
+    next_step_summary: WaterEmergencyNextStepReadinessSummary
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

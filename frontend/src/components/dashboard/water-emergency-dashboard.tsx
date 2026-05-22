@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import type {
   DashboardFetchResult,
-  WaterEmergencyDashboardResponse
+  WaterEmergencyDashboardResponse,
+  WaterEmergencyNextStepReadinessResponse
 } from "@/lib/dashboard-contracts";
 import { compactId, formatCount, formatDateTime, humanizeLabel } from "@/lib/format";
 import { AlertStrip } from "@/components/dashboard/alert-strip";
@@ -20,6 +21,7 @@ export function WaterEmergencyDashboard({
 }: WaterEmergencyDashboardProps) {
   const { data, source, errorMessage } = result;
   const reviewException = data.review_exception_summary;
+  const nextStep = data.next_step_summary;
 
   return (
     <SectionCard
@@ -100,6 +102,34 @@ export function WaterEmergencyDashboard({
         </div>
 
         <div className="grid gap-4 xl:grid-cols-3">
+          <VisibilityPanel title="Next-Step Readiness">
+            <div className="grid grid-cols-2 gap-2">
+              <RecordMetric label="Records" value={nextStep.total_records} />
+              <RecordMetric
+                label="Needs Attention"
+                value={nextStep.needs_attention_count}
+              />
+              <RecordMetric
+                label="Closed"
+                value={nextStep.closed_without_active_action_count}
+              />
+              <RecordMetric label="Labels" value={nextStep.label_counts.length} />
+            </div>
+            <div className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Readiness labels
+            </div>
+            <BucketPills buckets={nextStep.label_counts} />
+            <div className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Readiness blockers
+            </div>
+            <BucketPills buckets={nextStep.blocker_counts} />
+            <div className="mt-4 space-y-2">
+              {nextStep.records.slice(0, 3).map((record) => (
+                <ReadinessSummaryCard key={record.water_emergency_id} record={record} />
+              ))}
+            </div>
+          </VisibilityPanel>
+
           <VisibilityPanel title="Review Exception Visibility">
             <div className="grid grid-cols-2 gap-2">
               <RecordMetric label="Open" value={reviewException.open_review_count} />
@@ -355,6 +385,36 @@ function VisibilityPanel({
     <div className="rounded-md border border-slate-200 bg-slate-50/70 p-4">
       <h3 className="text-sm font-semibold text-[#162033]">{title}</h3>
       <div className="mt-3">{children}</div>
+    </div>
+  );
+}
+
+function ReadinessSummaryCard({
+  record
+}: {
+  record: WaterEmergencyNextStepReadinessResponse;
+}) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge
+          label={humanizeLabel(record.primary_label)}
+          variant={record.requires_operator_attention ? "warning" : "success"}
+        />
+        <StatusBadge label={humanizeLabel(record.current_status)} variant="info" />
+      </div>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{record.summary}</p>
+      <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Water Emergency {compactId(record.water_emergency_id)}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Reviews {formatCount(record.open_review_count)}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Unknowns {formatCount(record.unknown_count)}
+        </span>
+      </div>
     </div>
   );
 }

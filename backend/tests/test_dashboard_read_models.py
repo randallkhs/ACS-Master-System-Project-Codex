@@ -435,6 +435,12 @@ def test_water_emergency_dashboard_summary_stays_separate_and_read_only() -> Non
     assert summary.review_exception_summary.archived_review_count == 1
     assert summary.review_exception_summary.critical_unresolved_count == 1
     assert summary.review_exception_summary.escalation_indicator_count == 2
+    assert summary.next_step_summary.total_records == 2
+    assert summary.next_step_summary.needs_attention_count == 1
+    assert summary.next_step_summary.closed_without_active_action_count == 1
+    assert bucket_count(summary.next_step_summary.label_counts, "needs_manual_review") == 1
+    assert bucket_count(summary.next_step_summary.label_counts, "needs_operator_decision") == 1
+    assert bucket_count(summary.next_step_summary.label_counts, "closed_no_active_next_step") == 1
     assert (
         bucket_count(
             summary.review_exception_summary.review_reason_counts,
@@ -564,6 +570,7 @@ def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
     records["review_items"].extend(
         [
             ReviewItem(
+                id=uuid4(),
                 job_id=water_job_id,
                 entity_type="water_emergency",
                 entity_id=water_emergency.id,
@@ -669,6 +676,15 @@ def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
     assert detail.review_exception_context.total_review_count == 1
     assert detail.review_exception_context.open_review_count == 1
     assert detail.review_exception_context.critical_unresolved_count == 1
+    assert detail.next_step_readiness.primary_label == "needs_manual_review"
+    assert "needs_operator_decision" in detail.next_step_readiness.labels
+    assert detail.next_step_readiness.open_review_count == 1
+    assert detail.next_step_readiness.critical_alert_count == 1
+    assert detail.next_step_readiness.requires_operator_attention is True
+    assert any(
+        reference.startswith("review:")
+        for reference in detail.next_step_readiness.evidence_references
+    )
     assert (
         bucket_count(
             detail.review_exception_context.blocker_reason_counts,
@@ -702,6 +718,135 @@ def test_water_emergency_detail_review_exception_context_reports_missing_scoped_
     assert detail is not None
     assert detail.review_exception_context.total_review_count == 0
     assert "no_scoped_review_items" in detail.review_exception_context.unknown_indicators
+
+
+def test_water_emergency_next_step_missing_data_blocks_readiness() -> None:
+    records = dashboard_source_records()
+    water_emergency = records["water_emergencies"][0]
+    assert isinstance(water_emergency, WaterEmergency)
+    water_emergency.drying_stage = None
+    water_emergency.next_required_action = None
+    water_emergency.moisture_tracking_required = True
+
+    records["visits"] = [
+        visit
+        for visit in records["visits"]
+        if getattr(visit, "job_id", None) != water_emergency.job_id
+    ]
+    records["review_items"] = []
+    records["operational_events"] = []
+
+    detail = DashboardReadModelService().build_water_emergency_detail(
+        water_emergency.id,
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    assert detail is not None
+    assert detail.next_step_readiness.primary_label == "blocked_by_missing_data"
+    assert "awaiting_more_information" in detail.next_step_readiness.labels
+    assert "needs_visit_followup" in detail.next_step_readiness.labels
+    assert "needs_drying_stage_confirmation" in detail.next_step_readiness.labels
+    assert detail.next_step_readiness.open_review_count == 0
+    assert detail.next_step_readiness.unknown_count >= 3
+
+
+def test_water_emergency_next_step_ready_for_close_review_is_visibility_only() -> None:
+    job_id = uuid4()
+    work_order_id = uuid4()
+    visit_id = uuid4()
+    water_emergency_id = uuid4()
+    event_id = uuid4()
+    technician_id = uuid4()
+    occurred_at = datetime(2026, 1, 15, 16, tzinfo=UTC)
+    water_emergency = WaterEmergency(
+        id=water_emergency_id,
+        job_id=job_id,
+        status="READY_FOR_PICKUP",
+        drying_stage="ready_for_pickup",
+        next_required_action="Ready for close-review visibility only.",
+        equipment_onsite=False,
+        moisture_tracking_required=False,
+        opened_at=occurred_at,
+    )
+
+    detail = DashboardReadModelService().build_water_emergency_detail(
+        water_emergency_id,
+        jobs=[Job(id=job_id, job_type="water_emergency", status="ready_for_close_review")],
+        work_orders=[
+            WorkOrder(
+                id=work_order_id,
+                job_id=job_id,
+                status="completed",
+                dispatch_status="water_emergency_separated",
+                audit_correlation_id="audit-ready-close-review",
+            ),
+        ],
+        visits=[
+            Visit(
+                id=visit_id,
+                job_id=job_id,
+                work_order_id=work_order_id,
+                technician_id=technician_id,
+                visit_type="water_emergency",
+                status="completed",
+                completed_at=occurred_at,
+                audit_correlation_id="audit-ready-close-review",
+            ),
+        ],
+        review_items=[],
+        water_emergencies=[water_emergency],
+        operational_events=[
+            OperationalEventRecord(
+                id=event_id,
+                occurred_at=occurred_at,
+                recorded_at=occurred_at,
+                event_type="water_emergency.ready_for_close_review",
+                event_state="ready_for_close_review",
+                entity_type="water_emergency",
+                entity_id=water_emergency_id,
+                job_id=job_id,
+                work_order_id=work_order_id,
+                visit_id=visit_id,
+                audit_correlation_id="audit-ready-close-review",
+                event_fingerprint="ready-close-review-test",
+            ),
+        ],
+    )
+
+    assert detail is not None
+    assert detail.next_step_readiness.primary_label == "ready_for_close_review"
+    assert detail.next_step_readiness.labels == ("ready_for_close_review",)
+    assert detail.next_step_readiness.requires_operator_attention is True
+    assert detail.next_step_readiness.open_review_count == 0
+    assert detail.next_step_readiness.blocker_count == 0
+    assert detail.next_step_readiness.unknown_count == 0
+
+
+def test_closed_water_emergency_next_step_does_not_imply_active_action() -> None:
+    records = dashboard_source_records()
+    closed_water_emergency = records["water_emergencies"][1]
+    assert isinstance(closed_water_emergency, WaterEmergency)
+
+    detail = DashboardReadModelService().build_water_emergency_detail(
+        closed_water_emergency.id,
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    assert detail is not None
+    assert detail.next_step_readiness.primary_label == "closed_no_active_next_step"
+    assert detail.next_step_readiness.labels == ("closed_no_active_next_step",)
+    assert detail.next_step_readiness.requires_operator_attention is False
+    assert detail.next_step_readiness.open_review_count == 0
 
 
 def test_water_emergency_detail_read_model_returns_none_for_missing_record() -> None:

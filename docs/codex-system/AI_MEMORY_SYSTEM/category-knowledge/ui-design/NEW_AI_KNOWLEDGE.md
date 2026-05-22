@@ -210,3 +210,32 @@ Use this pattern for future high-risk review/alert dashboards where the UI needs
 
 ### Verification Notes
 Module 34 tests verify backend review/exception summaries, per-record review scoping, blocker/unknown indicators, frontend rendering of review/critical/blocker panels, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, and no horizontal overflow.
+
+---
+
+## Water Emergency Next-Step Readiness Visibility
+
+Category:
+UI design / operational dashboard / Water Emergency
+Date Added:
+2026-05-21
+Last Verified:
+2026-05-21
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 35 verification
+
+### Discovery
+Water Emergency next-step readiness panels should display backend-provided readiness labels, summaries, reason codes, attention counts, blocker/unknown counts, and evidence references only. Labels such as Manual Review needed, visit follow-up needed, equipment review needed, drying-stage confirmation needed, blocked by missing data, ready for close review, and closed with no active next-step action must remain visibility signals, not workflow authority.
+
+### Why It Matters
+Operators need a clear way to understand what evidence is still unresolved before Water Emergency execution modules exist. Readiness visibility improves review context while preserving Manual Review authority, backend lifecycle ownership, and separation from standard dispatch.
+
+### Reusability
+Use this pattern for future decision-context dashboards where the UI needs to explain likely next review areas without adding action buttons, workflow mutations, vendor calls, or frontend-owned state transitions.
+
+### Verification Notes
+Module 35 tests verify backend readiness labels for open reviews, missing data, ready-for-close-review visibility, and closed/no-active-action records; frontend tests verify the readiness panels render evidence without mutation controls. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.

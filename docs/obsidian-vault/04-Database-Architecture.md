@@ -255,6 +255,25 @@ Unresolved:
 - final review/escalation taxonomy remains an operations decision
 - production read-model query optimization, pagination, and role-scoped review visibility remain future work
 
+## Phase 0 Module 35 Water Emergency Next-Step Readiness Read Models
+
+Module 35 extends the Water Emergency dashboard/detail projections without changing the database schema.
+
+Read-model behavior:
+
+- derives next-step readiness labels from persisted `WaterEmergency`, `Job`, `WorkOrder`, `Visit`, `ReviewItem`, and `OperationalEventRecord` evidence
+- treats unresolved scoped review evidence as Manual Review/operator-decision readiness context
+- treats missing work-order, visit, timeline, drying-stage, or next-action evidence as missing-data readiness context
+- treats closed/resolved Water Emergency records as no-active-next-step visibility
+- exposes ready-for-close-review as read-only evidence only; no close action or final closure rule is implemented
+- expands synthetic local seed examples for missing data, visit follow-up, equipment review, ready-for-close-review, and closed/no-active-action visibility
+
+Unresolved:
+
+- future schema may require stored Water Emergency readiness states, typed blocker categories, equipment deployment/pickup tables, moisture readings, and closure-review history
+- final Water Emergency readiness/closure taxonomy remains an operations decision
+- production read-model query optimization, pagination, and role-scoped readiness visibility remain future work
+
 ## Repository And Session Boundary
 
 Phase 0 Module 4 adds the first database access boundary:

@@ -666,6 +666,29 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 35 Water Emergency Readiness Visibility Boundary
+
+Module 35 extends Water Emergency summary/detail visibility with read-only next-step readiness context:
+
+- backend read models expose readiness labels, explanation text, blocker/reason buckets, attention counts, and evidence references from existing persisted records
+- unresolved scoped reviews produce Manual Review/operator-decision readiness labels
+- missing work-order, visit, timeline, drying-stage, or next-action evidence produces blocked/missing-data readiness labels
+- closed or resolved Water Emergency records produce no-active-next-step visibility
+- ready-for-close-review is displayed as read-only evidence only and does not execute closure
+- frontend panels display readiness context without creating Water Emergency action controls
+- local synthetic seed data now includes readiness examples for Manual Review, equipment review, visit follow-up, missing data, ready-for-close-review, and closed/no-active-action states
+
+The boundary remains projection-only. The endpoint and UI do not create, edit, close, resolve, approve, reject, archive, dispatch, schedule, integrate, escalate, reconcile, or execute Water Emergency workflows. They also do not call AI, define final operations taxonomy, or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- final Water Emergency readiness and closure-review taxonomy
+- whether future readiness should become persisted workflow state or remain a derived projection
+- role-scoped readiness visibility and authority after authentication exists
+- future Water Emergency action modules for operator-controlled visits, equipment pickup, drying confirmation, and closure review
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

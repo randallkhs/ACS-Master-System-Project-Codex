@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 34 keeps the frontend foundation read-only while adding Water Emergency review, exception, blocker, and critical-alert visibility backed by separated backend read-model contracts.
+Phase 0 Module 35 keeps the frontend foundation read-only while adding Water Emergency next-step readiness visibility backed by separated backend read-model contracts.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -136,6 +136,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Water Emergency detail and evidence timeline view
 - Water Emergency equipment, visit-chain, and drying-stage visibility panels
 - Water Emergency review/exception, blocker, and critical-alert visibility panels
+- Water Emergency next-step readiness and evidence panels
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -211,6 +212,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Blocker and critical labels are derived from persisted review status/severity/reason evidence only and do not define the final Water Emergency escalation taxonomy.
 - Generic Water Emergency review labels remain dashboard-level context only; detail visibility depends on specific job/entity/visit linkage from the backend contract.
 
+## Module 35 Water Emergency Readiness Notes
+
+- The Water Emergency summary now displays backend-provided next-step readiness labels, blocker/reason buckets, attention counts, and per-record readiness previews.
+- The detail section now displays backend-provided readiness labels, explanation text, review/critical/blocker/unknown counts, and evidence references for the selected Water Emergency record.
+- Readiness visibility is decision context only. The frontend does not create, close, approve, dispatch, schedule, resolve, replay, or advance Water Emergency records.
+- `ready_for_close_review` is displayed only as a read-only signal from persisted status/stage/evidence. It is not a close action and does not imply final closure rules.
+- Missing-data, Manual Review, equipment, visit-chain, and drying-stage readiness labels remain backend-owned and do not define the final Water Emergency operating taxonomy.
+
 ## Troubleshooting
 
 - If the dashboard shows `Mock fallback`, confirm `frontend/.env.local` contains `ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000`.
@@ -223,5 +232,5 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Authentication and role-scoped dashboard visibility are not implemented.
 - Production filtering, sorting, and pagination for event timelines are not finalized.
 - Refresh cadence and stale-data rules need an explicit operations decision.
-- Water Emergency execution workflow, closure rules, final drying taxonomy, equipment inventory records, moisture reading records, and role-scoped emergency operations remain future backend modules.
+- Water Emergency execution workflow, closure rules, final readiness taxonomy, final drying taxonomy, equipment inventory records, moisture reading records, and role-scoped emergency operations remain future backend modules.
 - Storyboard grouping may need to become backend-provided scenario metadata if production operators need formal scenario filters instead of local QA context.

@@ -194,6 +194,30 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Resolve review");
   });
 
+  it("renders Water Emergency next-step readiness and evidence without actions", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+      />
+    );
+
+    expect(html).toContain("Next-Step Readiness");
+    expect(html).toContain("Needs Manual Review");
+    expect(html).toContain("Needs Operator Decision");
+    expect(html).toContain("Read-only readiness visibility");
+    expect(html).toContain("Operator attention");
+    expect(html).toContain("Evidence");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve Water Emergency");
+    expect(html).not.toContain("Close Water Emergency");
+    expect(html).not.toContain("Dispatch Water Emergency");
+  });
+
   it("renders timeline events in stable read-model order", () => {
     const html = renderToStaticMarkup(
       <DashboardView

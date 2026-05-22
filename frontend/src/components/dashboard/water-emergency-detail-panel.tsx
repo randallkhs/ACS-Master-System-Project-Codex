@@ -4,6 +4,7 @@ import type {
   DashboardFetchResult,
   WaterEmergencyDetailResponse,
   WaterEmergencyEquipmentNoteResponse,
+  WaterEmergencyNextStepReadinessResponse,
   WaterEmergencyReviewIndicatorResponse,
   WaterEmergencyVisitReferenceResponse,
   WaterEmergencyWorkOrderReferenceResponse
@@ -82,6 +83,7 @@ function WaterEmergencyDetailContent({
 }) {
   const { record } = data;
   const reviewException = data.review_exception_context;
+  const nextStep = data.next_step_readiness;
 
   return (
     <div className="space-y-5">
@@ -107,6 +109,46 @@ function WaterEmergencyDetailContent({
           tone={data.timeline_summary.returned_events > 0 ? "info" : "warning"}
         />
       </div>
+
+      <ReferencePanel title="Next-Step Readiness">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap gap-2">
+              <StatusBadge
+                label={humanizeLabel(nextStep.primary_label)}
+                variant={nextStep.requires_operator_attention ? "warning" : "success"}
+              />
+              <StatusBadge label="Read-only readiness visibility" variant="info" />
+              <StatusBadge
+                label={
+                  nextStep.requires_operator_attention
+                    ? "Operator attention"
+                    : "No active workflow action"
+                }
+                variant={nextStep.requires_operator_attention ? "warning" : "success"}
+              />
+            </div>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+              {nextStep.summary}
+            </p>
+          </div>
+          <div className="grid min-w-[16rem] grid-cols-2 gap-2">
+            <DetailMetric label="Reviews" value={nextStep.open_review_count} />
+            <DetailMetric label="Critical" value={nextStep.critical_alert_count} />
+            <DetailMetric label="Blockers" value={nextStep.blocker_count} />
+            <DetailMetric label="Unknowns" value={nextStep.unknown_count} />
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <ReadinessDetailBlock title="Labels" values={nextStep.labels} />
+          <ReadinessDetailBlock title="Reasons" values={nextStep.reason_codes} />
+          <ReadinessDetailBlock
+            title="Evidence"
+            values={nextStep.evidence_references.slice(0, 8)}
+          />
+        </div>
+      </ReferencePanel>
 
       <ReferencePanel title="Detail Review Exceptions">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
@@ -514,6 +556,31 @@ function ReviewReference({
           <ReferenceChip label={`Visit ${compactId(review.visit_id)}`} />
         ) : null}
       </div>
+    </div>
+  );
+}
+
+function ReadinessDetailBlock({
+  title,
+  values
+}: {
+  title: string;
+  values: WaterEmergencyNextStepReadinessResponse["labels"];
+}) {
+  return (
+    <div>
+      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+        {title}
+      </div>
+      {values.length > 0 ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {values.map((value) => (
+            <ReferenceChip key={`${title}-${value}`} label={humanizeLabel(value)} />
+          ))}
+        </div>
+      ) : (
+        <EmptyDetailText label="No readiness evidence returned." />
+      )}
     </div>
   );
 }

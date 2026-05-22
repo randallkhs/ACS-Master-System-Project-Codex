@@ -28,6 +28,8 @@ from app.domain.dashboard import (
     WaterEmergencyEquipmentNote,
     WaterEmergencyEquipmentSummary,
     WaterEmergencyJobReference,
+    WaterEmergencyNextStepReadiness,
+    WaterEmergencyNextStepReadinessSummary,
     WaterEmergencyRecordSummary,
     WaterEmergencyReviewExceptionContext,
     WaterEmergencyReviewExceptionSummary,
@@ -56,6 +58,18 @@ UNRESOLVED_REVIEW_STATUSES = {
 RESOLVED_REVIEW_STATUSES = {"approved", "rejected", "resolved", "closed"}
 ESCALATION_SEVERITIES = {"high", "critical"}
 TERMINAL_WATER_EMERGENCY_STATUSES = {"closed", "completed", "cancelled", "canceled"}
+READY_FOR_CLOSE_REVIEW_STATUSES = {
+    "ready_for_close_review",
+    "ready_for_pickup",
+    "pickup_scheduled",
+    "completed",
+}
+READY_FOR_CLOSE_REVIEW_STAGES = {
+    "ready_for_close_review",
+    "ready_for_pickup",
+    "final_verification",
+    "pickup_ready",
+}
 BLOCKED_ROUTE_STATES = {"blocked", "reconciliation_blocked", "replay_blocked"}
 BLOCKED_GOVERNANCE_STATES = {"governance_blocked"}
 BLOCKED_ACCOUNTABILITY_STATES = {"accountability_blocked"}
@@ -300,6 +314,13 @@ class DashboardReadModelService:
                 visits=related_visits,
                 review_items=related_reviews,
             ),
+            next_step_summary=water_emergency_next_step_readiness_summary(
+                water_emergencies,
+                work_orders=related_work_orders,
+                visits=related_visits,
+                review_items=related_reviews,
+                operational_events=related_events,
+            ),
             related_job_count=len(related_jobs),
             related_work_order_count=len(water_work_order_ids),
             related_visit_count=len(water_visit_ids),
@@ -438,6 +459,13 @@ class DashboardReadModelService:
             drying_stage_context=water_emergency_detail_drying_stage_context(record),
             review_exception_context=water_emergency_review_exception_context(
                 related_reviews,
+            ),
+            next_step_readiness=water_emergency_next_step_readiness(
+                record,
+                work_orders=related_work_orders,
+                visits=related_visits,
+                review_items=related_reviews,
+                operational_events=related_events,
             ),
             data_gap_counts=water_emergency_detail_data_gap_counts(
                 record,
@@ -1086,6 +1114,312 @@ def water_emergency_review_exception_context(
         ),
         audit_correlation_ids=unique_audit_correlation_ids(review_items),
     )
+
+
+def water_emergency_next_step_readiness_summary(
+    water_emergencies: Sequence[WaterEmergency],
+    *,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    review_items: Sequence[ReviewItem],
+    operational_events: Sequence[OperationalEventRecord],
+) -> WaterEmergencyNextStepReadinessSummary:
+    records = tuple(
+        water_emergency_next_step_readiness(
+            record,
+            work_orders=work_orders,
+            visits=visits,
+            review_items=review_items,
+            operational_events=operational_events,
+        )
+        for record in sorted(
+            water_emergencies,
+            key=lambda record: (
+                not is_open_water_emergency(record),
+                normalized(record.status),
+                str(record.job_id),
+            ),
+        )
+    )
+    return WaterEmergencyNextStepReadinessSummary(
+        total_records=len(records),
+        needs_attention_count=count_where(
+            records,
+            lambda record: record.requires_operator_attention,
+        ),
+        closed_without_active_action_count=count_where(
+            records,
+            lambda record: record.primary_label == "closed_no_active_next_step",
+        ),
+        label_counts=count_values(label for record in records for label in record.labels),
+        blocker_counts=count_values(
+            reason_code
+            for record in records
+            for reason_code in record.reason_codes
+            if is_next_step_blocker_reason(reason_code)
+        ),
+        records=records,
+    )
+
+
+def water_emergency_next_step_readiness(
+    record: WaterEmergency,
+    *,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    review_items: Sequence[ReviewItem],
+    operational_events: Sequence[OperationalEventRecord],
+) -> WaterEmergencyNextStepReadiness:
+    related_work_orders = water_emergency_related_work_orders(record, work_orders=work_orders)
+    related_visits = water_emergency_related_visits(record, visits=visits)
+    related_reviews = water_emergency_related_reviews(
+        record,
+        visits=related_visits,
+        review_items=review_items,
+    )
+    related_events = water_emergency_related_events(
+        record,
+        work_orders=related_work_orders,
+        visits=related_visits,
+        operational_events=operational_events,
+    )
+    related_work_order_ids = {
+        work_order.id for work_order in related_work_orders if work_order.id is not None
+    }
+    related_visit_ids = {visit.id for visit in related_visits if visit.id is not None}
+    unresolved_reviews = tuple(
+        review
+        for review in related_reviews
+        if normalized(review.status) in UNRESOLVED_REVIEW_STATUSES
+    )
+    data_gap_labels = tuple(
+        bucket.label
+        for bucket in water_emergency_detail_data_gap_counts(
+            record,
+            job=None,
+            work_orders=related_work_orders,
+            visits=related_visits,
+            events=related_events,
+        )
+        if bucket.label != "missing_job_reference"
+    )
+    equipment_context = water_emergency_detail_equipment_context(
+        record,
+        work_orders=related_work_orders,
+    )
+    drying_context = water_emergency_detail_drying_stage_context(record)
+    needs_equipment_review = water_emergency_needs_equipment_review(
+        record,
+        equipment_context=equipment_context,
+    )
+    equipment_unknowns = (
+        tuple(equipment_context.unknown_indicators) if needs_equipment_review else ()
+    )
+    drying_unknowns = tuple(drying_context.missing_indicators)
+    unknown_labels = tuple(
+        dict.fromkeys((*data_gap_labels, *equipment_unknowns, *drying_unknowns)),
+    )
+    blocker_count = count_where(unresolved_reviews, is_blocker_review_reason)
+    critical_alert_count = count_where(unresolved_reviews, is_critical_unresolved_review)
+
+    labels: list[str] = []
+    reason_codes: list[str] = []
+
+    if not is_open_water_emergency(record):
+        labels.append("closed_no_active_next_step")
+        reason_codes.append("water_emergency_closed_or_resolved")
+        summary = (
+            "Closed or resolved Water Emergency record; no active next-step action is implied."
+        )
+    else:
+        if unresolved_reviews:
+            labels.extend(("needs_manual_review", "needs_operator_decision"))
+            reason_codes.extend(
+                normalized(review.reason_code)
+                for review in unresolved_reviews
+                if normalized(review.reason_code)
+            )
+
+        if blocker_count > 0 or unknown_labels:
+            labels.extend(("blocked_by_missing_data", "awaiting_more_information"))
+            reason_codes.extend(unknown_labels)
+
+        if not related_visits:
+            labels.append("needs_visit_followup")
+            reason_codes.append("no_visit_history")
+        elif water_emergency_needs_visit_followup(record, related_visits):
+            labels.append("needs_visit_followup")
+            reason_codes.append("open_visit_chain_followup_needed")
+
+        if needs_equipment_review:
+            labels.append("needs_equipment_review")
+            reason_codes.extend(equipment_unknowns or ("equipment_context_review_needed",))
+
+        if water_emergency_needs_drying_stage_confirmation(
+            record,
+            drying_context=drying_context,
+        ):
+            labels.append("needs_drying_stage_confirmation")
+            reason_codes.extend(drying_unknowns or ("drying_stage_confirmation_needed",))
+
+        if not labels and water_emergency_ready_for_close_review(record):
+            labels.append("ready_for_close_review")
+            reason_codes.append("ready_for_close_review_evidence")
+
+        if not labels:
+            labels.append("needs_operator_review")
+            reason_codes.append("no_deterministic_next_step")
+
+        summary = water_emergency_next_step_summary_text(labels[0])
+
+    labels_tuple = tuple(dict.fromkeys(labels))
+    reason_codes_tuple = tuple(dict.fromkeys(reason_codes))
+    evidence_references = water_emergency_next_step_evidence_references(
+        record,
+        related_work_orders=related_work_orders,
+        related_visits=related_visits,
+        related_reviews=related_reviews,
+        related_events=related_events,
+    )
+    return WaterEmergencyNextStepReadiness(
+        water_emergency_id=record.id,
+        primary_label=labels_tuple[0],
+        labels=labels_tuple,
+        summary=summary,
+        reason_codes=reason_codes_tuple,
+        evidence_references=evidence_references,
+        current_status=normalized(record.status),
+        current_stage=normalized(record.drying_stage) or None,
+        open_review_count=len(unresolved_reviews),
+        critical_alert_count=critical_alert_count,
+        blocker_count=blocker_count,
+        unknown_count=len(unknown_labels),
+        requires_operator_attention=labels_tuple[0] != "closed_no_active_next_step",
+        related_job_id=record.job_id,
+        related_work_order_ids=sorted_uuid_tuple(related_work_order_ids),
+        related_visit_ids=sorted_uuid_tuple(related_visit_ids),
+        audit_correlation_ids=unique_audit_correlation_ids(
+            related_work_orders,
+            related_visits,
+            related_reviews,
+            related_events,
+        ),
+    )
+
+
+def water_emergency_needs_visit_followup(
+    record: WaterEmergency,
+    visits: Sequence[Visit],
+) -> bool:
+    if not is_open_water_emergency(record):
+        return False
+    if water_emergency_ready_for_close_review(record):
+        return False
+    return not any(
+        not is_completed_visit(visit) and (is_scheduled_visit(visit) or visit.arrived_at)
+        for visit in visits
+    )
+
+
+def water_emergency_needs_equipment_review(
+    record: WaterEmergency,
+    *,
+    equipment_context: WaterEmergencyDetailEquipmentContext,
+) -> bool:
+    if not is_open_water_emergency(record):
+        return False
+    return record.equipment_onsite and (
+        bool(equipment_context.unknown_indicators) or not equipment_context.required_equipment_notes
+    )
+
+
+def water_emergency_needs_drying_stage_confirmation(
+    record: WaterEmergency,
+    *,
+    drying_context: WaterEmergencyDetailDryingStageContext,
+) -> bool:
+    if not is_open_water_emergency(record):
+        return False
+    return record.moisture_tracking_required and bool(drying_context.missing_indicators)
+
+
+def water_emergency_ready_for_close_review(record: WaterEmergency) -> bool:
+    status = normalized(record.status)
+    stage = normalized(record.drying_stage)
+    next_action = normalized(record.next_required_action)
+    return (
+        status in READY_FOR_CLOSE_REVIEW_STATUSES
+        or stage in READY_FOR_CLOSE_REVIEW_STAGES
+        or ("close" in next_action and "review" in next_action)
+    )
+
+
+def is_next_step_blocker_reason(reason_code: str) -> bool:
+    normalized_reason = normalized(reason_code)
+    return (
+        "missing" in normalized_reason
+        or "blocker" in normalized_reason
+        or "unknown" in normalized_reason
+        or normalized_reason.startswith("no_")
+        or (
+            "review" in normalized_reason and normalized_reason != "ready_for_close_review_evidence"
+        )
+    )
+
+
+def water_emergency_next_step_summary_text(label: str) -> str:
+    return {
+        "needs_manual_review": (
+            "Open Manual Review evidence exists; operator review remains required before any "
+            "future Water Emergency workflow step."
+        ),
+        "blocked_by_missing_data": (
+            "Persisted blocker or missing-data evidence exists; the record needs more "
+            "information before future workflow progress."
+        ),
+        "needs_visit_followup": (
+            "The visit chain indicates follow-up visibility is needed before future workflow "
+            "modules can safely proceed."
+        ),
+        "needs_equipment_review": (
+            "Equipment context needs review because existing evidence is incomplete or equipment "
+            "inventory is not modeled yet."
+        ),
+        "needs_drying_stage_confirmation": (
+            "Drying or moisture-tracking context needs confirmation from persisted evidence."
+        ),
+        "ready_for_close_review": (
+            "Persisted status evidence suggests the record can be reviewed for future closure "
+            "readiness, but no close action is executed."
+        ),
+        "needs_operator_review": (
+            "No deterministic next-step label can be selected from current evidence; operator "
+            "review is needed."
+        ),
+    }.get(label, "Read-only next-step visibility is derived from persisted evidence only.")
+
+
+def water_emergency_next_step_evidence_references(
+    record: WaterEmergency,
+    *,
+    related_work_orders: Sequence[WorkOrder],
+    related_visits: Sequence[Visit],
+    related_reviews: Sequence[ReviewItem],
+    related_events: Sequence[OperationalEventRecord],
+) -> tuple[str, ...]:
+    references = [
+        f"job:{record.job_id}",
+        f"water_emergency:{record.id}",
+    ]
+    references.extend(
+        f"work_order:{work_order.id}"
+        for work_order in related_work_orders
+        if work_order.id is not None
+    )
+    references.extend(f"visit:{visit.id}" for visit in related_visits if visit.id is not None)
+    references.extend(f"review:{review.id}" for review in related_reviews if review.id is not None)
+    references.extend(f"event:{event.id}" for event in related_events if event.id is not None)
+    return tuple(dict.fromkeys(references))
 
 
 def is_critical_unresolved_review(review: ReviewItem) -> bool:

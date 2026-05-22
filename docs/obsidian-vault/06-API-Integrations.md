@@ -516,3 +516,28 @@ Open API/frontend concerns:
 - final Water Emergency review and escalation taxonomy
 - typed exception/alert API contracts after operations confirms categories
 - production filtering, pagination, refresh cadence, notification routing, and role-scoped review visibility
+
+## Phase 0 Module 35 Water Emergency Readiness Contract Boundary
+
+The existing Water Emergency dashboard API contracts now include read-only next-step readiness visibility fields.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/water-emergency` exposes summary-level readiness counts, label buckets, blocker/reason buckets, and per-record readiness previews
+- `GET /api/v1/dashboard/water-emergency/{water_emergency_id}` exposes detail-level readiness labels, explanation text, review/critical/blocker/unknown counts, and evidence references
+- fields are derived only from persisted Water Emergency, Work Order, Visit, Review, and event evidence
+- closed/resolved records are represented as no-active-next-step visibility
+- ready-for-close-review is represented as readiness evidence only and not as an execution instruction
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no Manual Review approve/reject/resolve/archive calls are added
+- no Water Emergency closure, dispatch, visit scheduling, drying approval, equipment pickup, vendor, or AI execution calls are added
+- frontend display must consume the backend contract instead of deriving hidden emergency workflow state
+
+Open API/frontend concerns:
+
+- final Water Emergency readiness and closure taxonomy
+- whether readiness should later become persisted workflow state or remain a read-model projection
+- production filtering, pagination, refresh cadence, and role-scoped readiness visibility

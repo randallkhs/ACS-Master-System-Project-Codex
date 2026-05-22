@@ -203,6 +203,35 @@ class WaterEmergencyReviewExceptionContextResponse(DashboardSchema):
     audit_correlation_ids: tuple[str, ...]
 
 
+class WaterEmergencyNextStepReadinessResponse(DashboardSchema):
+    water_emergency_id: UUID
+    primary_label: str
+    labels: tuple[str, ...]
+    summary: str
+    reason_codes: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    current_status: str
+    current_stage: str | None
+    open_review_count: int
+    critical_alert_count: int
+    blocker_count: int
+    unknown_count: int
+    requires_operator_attention: bool
+    related_job_id: UUID
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+
+
+class WaterEmergencyNextStepReadinessSummaryResponse(DashboardSchema):
+    total_records: int
+    needs_attention_count: int
+    closed_without_active_action_count: int
+    label_counts: tuple[CountBucketResponse, ...]
+    blocker_counts: tuple[CountBucketResponse, ...]
+    records: tuple[WaterEmergencyNextStepReadinessResponse, ...]
+
+
 class RouteAssignmentSummaryResponse(DashboardSchema):
     total_assignments: int
     status_counts: tuple[CountBucketResponse, ...]
@@ -292,6 +321,7 @@ class WaterEmergencyDashboardResponse(DashboardSchema):
     visit_chain_summary: WaterEmergencyVisitChainSummaryResponse
     drying_stage_summary: WaterEmergencyDryingStageSummaryResponse
     review_exception_summary: WaterEmergencyReviewExceptionSummaryResponse
+    next_step_summary: WaterEmergencyNextStepReadinessSummaryResponse
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int
@@ -314,6 +344,7 @@ class WaterEmergencyDetailResponse(DashboardSchema):
     visit_chain: WaterEmergencyVisitChainResponse
     drying_stage_context: WaterEmergencyDetailDryingStageContextResponse
     review_exception_context: WaterEmergencyReviewExceptionContextResponse
+    next_step_readiness: WaterEmergencyNextStepReadinessResponse
     data_gap_counts: tuple[CountBucketResponse, ...]
     audit_correlation_ids: tuple[str, ...]
     timeline_summary: OperationalEventTimelineSummaryResponse

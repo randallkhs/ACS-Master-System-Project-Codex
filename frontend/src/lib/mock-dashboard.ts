@@ -340,6 +340,80 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
     ],
     audit_correlation_ids: ["audit-dashboard-003", "audit-dashboard-review"]
   },
+  next_step_summary: {
+    total_records: 2,
+    needs_attention_count: 1,
+    closed_without_active_action_count: 1,
+    label_counts: [
+      { label: "needs_manual_review", count: 1 },
+      { label: "needs_operator_decision", count: 1 },
+      { label: "needs_equipment_review", count: 1 },
+      { label: "closed_no_active_next_step", count: 1 }
+    ],
+    blocker_counts: [
+      { label: "water_detail_unknown_blocker", count: 1 },
+      { label: "equipment_inventory_not_modeled", count: 1 }
+    ],
+    records: [
+      {
+        water_emergency_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        primary_label: "needs_manual_review",
+        labels: [
+          "needs_manual_review",
+          "needs_operator_decision",
+          "needs_equipment_review"
+        ],
+        summary:
+          "Open Manual Review evidence exists; operator review remains required before any future Water Emergency workflow step.",
+        reason_codes: [
+          "water_detail_unknown_blocker",
+          "equipment_inventory_not_modeled"
+        ],
+        evidence_references: [
+          "job:72eba727-e804-4dd0-8628-bf7eb1212c60",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+          "review:74c29ad0-a8f0-4b9a-b596-285b35556717"
+        ],
+        current_status: "drying_in_progress",
+        current_stage: "monitoring",
+        open_review_count: 1,
+        critical_alert_count: 1,
+        blocker_count: 1,
+        unknown_count: 1,
+        requires_operator_attention: true,
+        related_job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
+        related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
+        related_visit_ids: [
+          "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
+          "94b62507-5b8d-4a9d-9578-5225492d81d1"
+        ],
+        audit_correlation_ids: ["audit-dashboard-003"]
+      },
+      {
+        water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
+        primary_label: "closed_no_active_next_step",
+        labels: ["closed_no_active_next_step"],
+        summary:
+          "Closed or resolved Water Emergency record; no active next-step action is implied.",
+        reason_codes: ["water_emergency_closed_or_resolved"],
+        evidence_references: [
+          "job:871ac83f-88bb-4f09-8ca3-c3718dce6a46",
+          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831"
+        ],
+        current_status: "closed",
+        current_stage: "closed_after_monitoring",
+        open_review_count: 0,
+        critical_alert_count: 0,
+        blocker_count: 0,
+        unknown_count: 0,
+        requires_operator_attention: false,
+        related_job_id: "871ac83f-88bb-4f09-8ca3-c3718dce6a46",
+        related_work_order_ids: [],
+        related_visit_ids: [],
+        audit_correlation_ids: []
+      }
+    ]
+  },
   related_job_count: 2,
   related_work_order_count: 1,
   related_visit_count: 2,
@@ -523,6 +597,7 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
     review_item_ids: ["74c29ad0-a8f0-4b9a-b596-285b35556717"],
     audit_correlation_ids: ["audit-dashboard-003"]
   },
+  next_step_readiness: mockWaterEmergencyDashboard.next_step_summary.records[0],
   data_gap_counts: [],
   audit_correlation_ids: ["audit-dashboard-003"],
   timeline_summary: {
