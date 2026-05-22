@@ -532,6 +532,104 @@ def test_water_emergency_record_reviews_are_scoped_to_each_record() -> None:
     assert summary.review_exception_summary.deferred_review_count == 1
 
 
+def test_water_emergency_operator_queue_groups_attention_by_deterministic_evidence() -> None:
+    records = dashboard_source_records()
+    water_emergency = records["water_emergencies"][0]
+    closed_water_emergency = records["water_emergencies"][1]
+    assert isinstance(water_emergency, WaterEmergency)
+    assert isinstance(closed_water_emergency, WaterEmergency)
+
+    water_work_order_id = uuid4()
+    records["work_orders"].append(
+        WorkOrder(
+            id=water_work_order_id,
+            job_id=water_emergency.job_id,
+            work_order_number="WATER-QUEUE-001",
+            status="generated",
+            dispatch_status="water_emergency_separated",
+            required_equipment_notes="Synthetic Water Emergency queue equipment context.",
+            audit_correlation_id="audit-dashboard-water-queue",
+        ),
+    )
+    records["review_items"].append(
+        ReviewItem(
+            id=uuid4(),
+            job_id=water_emergency.job_id,
+            entity_type="water_emergency",
+            entity_id=water_emergency.id,
+            reason_code="water_emergency_critical_attention",
+            status="open",
+            severity="critical",
+            audit_correlation_id="audit-dashboard-water-queue",
+        ),
+    )
+
+    summary = DashboardReadModelService().build_water_emergency(
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    queue = summary.operator_queue_summary
+
+    assert queue.total_records == 2
+    assert queue.active_attention_count == 1
+    assert queue.closed_or_resolved_count == 1
+    assert queue.critical_attention_count == 1
+    assert bucket_count(queue.queue_group_counts, "active_attention") == 1
+    assert bucket_count(queue.queue_group_counts, "closed_or_resolved") == 1
+    assert bucket_count(queue.attention_label_counts, "critical_attention") == 1
+    assert queue.items[0].water_emergency_id == water_emergency.id
+    assert queue.items[0].attention_label == "critical_attention"
+    assert queue.items[0].queue_group == "active_attention"
+    assert queue.items[0].open_review_count == 1
+    assert queue.items[0].critical_alert_count == 1
+    assert "water_emergency_critical_attention" in queue.items[0].reason_codes
+    assert queue.items[-1].water_emergency_id == closed_water_emergency.id
+    assert queue.items[-1].attention_label == "closed_or_resolved"
+    assert queue.items[-1].queue_group == "closed_or_resolved"
+
+
+def test_water_emergency_operator_queue_uses_safe_blocked_group_for_unknowns() -> None:
+    records = dashboard_source_records()
+    water_emergency = records["water_emergencies"][0]
+    assert isinstance(water_emergency, WaterEmergency)
+    water_emergency.drying_stage = None
+    water_emergency.next_required_action = None
+    water_emergency.equipment_onsite = False
+    water_emergency.moisture_tracking_required = True
+
+    records["work_orders"] = []
+    records["visits"] = [
+        visit
+        for visit in records["visits"]
+        if getattr(visit, "job_id", None) != water_emergency.job_id
+    ]
+    records["review_items"] = []
+    records["operational_events"] = []
+
+    summary = DashboardReadModelService().build_water_emergency(
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    queue_items = {item.water_emergency_id: item for item in summary.operator_queue_summary.items}
+
+    assert queue_items[water_emergency.id].attention_label == "blocked_missing_data"
+    assert queue_items[water_emergency.id].queue_group == "blocked_or_missing_info"
+    assert "blocked_by_missing_data" in queue_items[water_emergency.id].readiness_labels
+    assert queue_items[water_emergency.id].unknown_count >= 3
+    assert summary.operator_queue_summary.active_attention_count == 1
+    assert summary.operator_queue_summary.closed_or_resolved_count == 1
+
+
 def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
     records = dashboard_source_records()
     water_emergency = records["water_emergencies"][0]

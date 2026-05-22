@@ -541,3 +541,28 @@ Open API/frontend concerns:
 - final Water Emergency readiness and closure taxonomy
 - whether readiness should later become persisted workflow state or remain a read-model projection
 - production filtering, pagination, refresh cadence, and role-scoped readiness visibility
+
+## Phase 0 Module 36 Water Emergency Queue Contract Boundary
+
+The existing Water Emergency dashboard API contract now includes read-only operator queue and attention visibility fields.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/water-emergency` exposes summary-level queue-group counts, attention-label counts, and per-record queue items
+- queue items include Water Emergency ID, attention label, queue group, attention rank, readiness labels, reason codes, evidence references, review/critical/blocker/unknown counts, related job/work-order/visit IDs, and audit references
+- fields are derived only from persisted Water Emergency, Work Order, Visit, Review, and event evidence through the existing readiness read model
+- closed/resolved records are separated from active attention items
+- critical-alert evidence sorts above lower-attention queue items
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no Manual Review approve/reject/resolve/archive calls are added
+- no Water Emergency closure, dispatch, visit scheduling, drying approval, equipment pickup, vendor, priority-engine, or AI execution calls are added
+- frontend display must consume the backend queue contract instead of deriving hidden triage authority
+
+Open API/frontend concerns:
+
+- final Water Emergency triage, priority, and queue taxonomy
+- whether queue labels should remain derived read-model projections or become persisted workflow state later
+- production filtering, pagination, refresh cadence, stale-data handling, and role-scoped queue visibility

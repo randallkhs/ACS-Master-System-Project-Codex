@@ -432,6 +432,35 @@ Unresolved:
 
 ---
 
+# Phase 0 Module 36 — Operator Queue And Attention Visibility
+
+Module 36 extends the dedicated read-only Water Emergency dashboard with operator-safe queue and attention visibility.
+
+The read models may show:
+
+- queue groups such as active attention, Manual Review, blocked or missing information, follow-up readiness, close-review visibility, monitoring, and closed/resolved records
+- deterministic attention labels such as critical attention, needs Manual Review, blocked missing data, needs follow-up, equipment review needed, drying-stage review needed, ready for close review, monitoring, and closed or resolved
+- why each record appears in a queue group, using existing readiness labels, review counts, critical-alert counts, blocker counts, unknown counts, visit-chain context, equipment/drying context, and evidence references
+- closed/resolved Water Emergency records separated from active attention records
+- synthetic local examples for queue scanning without production/customer/vendor data
+
+Boundary:
+
+- queue visibility is not workflow execution
+- attention labels are not operator authority and do not approve, dispatch, close, or schedule Water Emergency work
+- the queue is not a final prioritization engine or final ACS operations taxonomy
+- Manual Review remains authoritative when review evidence exists
+- unknown or incomplete evidence must remain visible as blocked/review context instead of hidden lifecycle progress
+
+Unresolved:
+
+- final Luis-confirmed Water Emergency triage and priority taxonomy
+- whether future queue labels should remain derived read models or become persisted workflow states
+- authenticated role-scoped queue visibility and operator authority
+- future execution modules for visits, equipment review, drying confirmation, and closure review
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

@@ -30,6 +30,8 @@ from app.domain.dashboard import (
     WaterEmergencyJobReference,
     WaterEmergencyNextStepReadiness,
     WaterEmergencyNextStepReadinessSummary,
+    WaterEmergencyOperatorQueueSummary,
+    WaterEmergencyQueueItem,
     WaterEmergencyRecordSummary,
     WaterEmergencyReviewExceptionContext,
     WaterEmergencyReviewExceptionSummary,
@@ -280,6 +282,13 @@ class DashboardReadModelService:
         open_records = tuple(
             record for record in water_emergencies if is_open_water_emergency(record)
         )
+        next_step_summary = water_emergency_next_step_readiness_summary(
+            water_emergencies,
+            work_orders=related_work_orders,
+            visits=related_visits,
+            review_items=related_reviews,
+            operational_events=related_events,
+        )
 
         return WaterEmergencyDashboardReadModel(
             generated_at=self.now(),
@@ -314,13 +323,8 @@ class DashboardReadModelService:
                 visits=related_visits,
                 review_items=related_reviews,
             ),
-            next_step_summary=water_emergency_next_step_readiness_summary(
-                water_emergencies,
-                work_orders=related_work_orders,
-                visits=related_visits,
-                review_items=related_reviews,
-                operational_events=related_events,
-            ),
+            next_step_summary=next_step_summary,
+            operator_queue_summary=water_emergency_operator_queue_summary(next_step_summary),
             related_job_count=len(related_jobs),
             related_work_order_count=len(water_work_order_ids),
             related_visit_count=len(water_visit_ids),
@@ -1159,6 +1163,172 @@ def water_emergency_next_step_readiness_summary(
             if is_next_step_blocker_reason(reason_code)
         ),
         records=records,
+    )
+
+
+def water_emergency_operator_queue_summary(
+    next_step_summary: WaterEmergencyNextStepReadinessSummary,
+) -> WaterEmergencyOperatorQueueSummary:
+    items = tuple(
+        sorted(
+            (water_emergency_queue_item(record) for record in next_step_summary.records),
+            key=lambda item: (
+                item.attention_rank,
+                item.queue_group,
+                item.attention_label,
+                str(item.water_emergency_id),
+            ),
+        ),
+    )
+
+    return WaterEmergencyOperatorQueueSummary(
+        total_records=len(items),
+        active_attention_count=count_where(
+            items,
+            lambda item: item.queue_group != "closed_or_resolved",
+        ),
+        closed_or_resolved_count=count_where(
+            items,
+            lambda item: item.attention_label == "closed_or_resolved",
+        ),
+        critical_attention_count=count_where(
+            items,
+            lambda item: item.attention_label == "critical_attention",
+        ),
+        queue_group_counts=count_values(item.queue_group for item in items),
+        attention_label_counts=count_values(item.attention_label for item in items),
+        items=items,
+    )
+
+
+def water_emergency_queue_item(
+    readiness: WaterEmergencyNextStepReadiness,
+) -> WaterEmergencyQueueItem:
+    attention_label = water_emergency_attention_label(readiness)
+    return WaterEmergencyQueueItem(
+        water_emergency_id=readiness.water_emergency_id,
+        attention_label=attention_label,
+        queue_group=water_emergency_queue_group(attention_label),
+        attention_rank=water_emergency_attention_rank(attention_label),
+        readiness_labels=readiness.labels,
+        summary=water_emergency_attention_summary_text(attention_label),
+        reason_codes=readiness.reason_codes,
+        evidence_references=readiness.evidence_references,
+        current_status=readiness.current_status,
+        current_stage=readiness.current_stage,
+        open_review_count=readiness.open_review_count,
+        critical_alert_count=readiness.critical_alert_count,
+        blocker_count=readiness.blocker_count,
+        unknown_count=readiness.unknown_count,
+        related_job_id=readiness.related_job_id,
+        related_work_order_ids=readiness.related_work_order_ids,
+        related_visit_ids=readiness.related_visit_ids,
+        audit_correlation_ids=readiness.audit_correlation_ids,
+    )
+
+
+def water_emergency_attention_label(
+    readiness: WaterEmergencyNextStepReadiness,
+) -> str:
+    labels = set(readiness.labels)
+    if readiness.primary_label == "closed_no_active_next_step":
+        return "closed_or_resolved"
+    if readiness.critical_alert_count > 0:
+        return "critical_attention"
+    if "needs_manual_review" in labels or "needs_operator_decision" in labels:
+        return "needs_manual_review"
+    if "needs_equipment_review" in labels:
+        return "equipment_review_needed"
+    if "needs_drying_stage_confirmation" in labels and readiness.unknown_count <= 2:
+        return "drying_stage_review_needed"
+    if "blocked_by_missing_data" in labels or "awaiting_more_information" in labels:
+        return "blocked_missing_data"
+    if "needs_visit_followup" in labels:
+        return "needs_followup"
+    if "ready_for_close_review" in labels:
+        return "ready_for_close_review"
+    if "monitor" in normalized(readiness.current_status) or "monitor" in normalized(
+        readiness.current_stage
+    ):
+        return "monitoring"
+    return "needs_operator_review"
+
+
+def water_emergency_queue_group(attention_label: str) -> str:
+    return {
+        "critical_attention": "active_attention",
+        "needs_manual_review": "manual_review",
+        "blocked_missing_data": "blocked_or_missing_info",
+        "needs_followup": "readiness_followup",
+        "equipment_review_needed": "readiness_followup",
+        "drying_stage_review_needed": "readiness_followup",
+        "ready_for_close_review": "close_review",
+        "monitoring": "monitoring",
+        "closed_or_resolved": "closed_or_resolved",
+        "needs_operator_review": "operator_review",
+    }.get(attention_label, "operator_review")
+
+
+def water_emergency_attention_rank(attention_label: str) -> int:
+    return {
+        "critical_attention": 10,
+        "needs_manual_review": 20,
+        "blocked_missing_data": 30,
+        "equipment_review_needed": 40,
+        "drying_stage_review_needed": 45,
+        "needs_followup": 50,
+        "needs_operator_review": 60,
+        "ready_for_close_review": 70,
+        "monitoring": 80,
+        "closed_or_resolved": 90,
+    }.get(attention_label, 60)
+
+
+def water_emergency_attention_summary_text(attention_label: str) -> str:
+    return {
+        "critical_attention": (
+            "Critical unresolved Water Emergency evidence exists; operator attention is "
+            "needed before any future emergency workflow step."
+        ),
+        "needs_manual_review": (
+            "Open Manual Review or operator-decision evidence exists; Manual Review remains "
+            "authoritative."
+        ),
+        "blocked_missing_data": (
+            "Persisted blocker, unknown, or missing-data evidence exists; the record needs "
+            "safe operator review before future progress."
+        ),
+        "needs_followup": (
+            "The visit chain indicates follow-up visibility is needed before future workflow "
+            "modules can safely proceed."
+        ),
+        "equipment_review_needed": (
+            "Equipment evidence needs operator review; this is visibility only and not "
+            "equipment execution."
+        ),
+        "drying_stage_review_needed": (
+            "Drying-stage or moisture-tracking evidence needs confirmation before future "
+            "workflow modules can proceed."
+        ),
+        "ready_for_close_review": (
+            "Persisted evidence suggests close-review readiness, but no close action is "
+            "executed by the dashboard."
+        ),
+        "monitoring": (
+            "Persisted status/stage evidence indicates monitoring visibility without an "
+            "active workflow action."
+        ),
+        "closed_or_resolved": (
+            "Closed or resolved Water Emergency record; it is separated from active "
+            "attention items."
+        ),
+        "needs_operator_review": (
+            "No deterministic queue category is safer than operator review from the current "
+            "evidence."
+        ),
+    }.get(
+        attention_label,
+        "Read-only Water Emergency queue visibility is derived from persisted evidence only.",
     )
 
 

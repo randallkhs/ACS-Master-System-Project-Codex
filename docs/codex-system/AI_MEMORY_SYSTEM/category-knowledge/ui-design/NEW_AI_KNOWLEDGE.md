@@ -239,3 +239,32 @@ Use this pattern for future decision-context dashboards where the UI needs to ex
 
 ### Verification Notes
 Module 35 tests verify backend readiness labels for open reviews, missing data, ready-for-close-review visibility, and closed/no-active-action records; frontend tests verify the readiness panels render evidence without mutation controls. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.
+
+---
+
+## Water Emergency Operator Queue And Attention Visibility
+
+Category:
+UI design / operational dashboard / Water Emergency
+Date Added:
+2026-05-21
+Last Verified:
+2026-05-21
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 36 verification
+
+### Discovery
+Water Emergency operator queue panels should display backend-provided queue groups, attention labels, attention counts, reason codes, review/critical/blocker/unknown counts, related references, and audit evidence only. Critical attention can sort ahead of lower attention items, and closed/resolved records should remain visually separate from active attention records.
+
+### Why It Matters
+Queue visibility improves scanability for operators without creating a workflow engine, operational priority authority, approval control, dispatch action, closure action, vendor call, or AI authority. It keeps Manual Review and backend read models authoritative while preparing for future authenticated Water Emergency workflows.
+
+### Reusability
+Use this pattern for future triage dashboards where records need to be grouped for visibility while the final operations taxonomy and action authority remain undecided.
+
+### Verification Notes
+Module 36 tests verify backend queue grouping, closed/resolved separation, critical/open-review/blocker evidence ordering, frontend rendering of the Operator Queue panel, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.

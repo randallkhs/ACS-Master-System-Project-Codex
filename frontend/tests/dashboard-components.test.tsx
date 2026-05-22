@@ -7,6 +7,7 @@ import {
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
 } from "@/lib/mock-dashboard";
+import type { WaterEmergencyQueueItemResponse } from "@/lib/dashboard-contracts";
 
 const mockWaterEmergencyResult = {
   data: mockWaterEmergencyDashboard,
@@ -212,6 +213,117 @@ describe("DashboardView", () => {
     expect(html).toContain("Read-only readiness visibility");
     expect(html).toContain("Operator attention");
     expect(html).toContain("Evidence");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve Water Emergency");
+    expect(html).not.toContain("Close Water Emergency");
+    expect(html).not.toContain("Dispatch Water Emergency");
+  });
+
+  it("renders Water Emergency operator queue attention groups without action controls", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+      />
+    );
+
+    expect(html).toContain("Operator Queue");
+    expect(html).toContain("Critical Attention");
+    expect(html).toContain("Active Attention");
+    expect(html).toContain("Closed Or Resolved");
+    expect(html).toContain("Read-only triage visibility");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve Water Emergency");
+    expect(html).not.toContain("Close Water Emergency");
+    expect(html).not.toContain("Dispatch Water Emergency");
+  });
+
+  it("keeps closed Water Emergency queue records visible after active queue limits", () => {
+    const activeBase =
+      mockWaterEmergencyDashboard.operator_queue_summary.items[0];
+    const closedBase =
+      mockWaterEmergencyDashboard.operator_queue_summary.items.find(
+        (item) => item.queue_group === "closed_or_resolved"
+      ) ?? activeBase;
+    const activeItems: WaterEmergencyQueueItemResponse[] = Array.from(
+      { length: 7 },
+      (_, index) => ({
+        ...activeBase,
+        water_emergency_id: `1000000${index}-0000-4000-8000-00000000000${index}`,
+        attention_label: index === 0 ? "critical_attention" : "needs_manual_review",
+        queue_group: "active_attention",
+        attention_rank: index === 0 ? 10 : 20,
+        summary: `Active queue test record ${index + 1}.`,
+        related_job_id: `2000000${index}-0000-4000-8000-00000000000${index}`,
+        related_visit_ids: [],
+        evidence_references: [`water_emergency:active-${index}`]
+      })
+    );
+    const closedTailItem: WaterEmergencyQueueItemResponse = {
+      ...closedBase,
+      water_emergency_id: "99999999-0000-4000-8000-000000000099",
+      attention_label: "closed_or_resolved",
+      queue_group: "closed_or_resolved",
+      attention_rank: 90,
+      summary:
+        "Closed tail Water Emergency record remains visible outside active attention limits.",
+      reason_codes: ["water_emergency_closed_or_resolved"],
+      evidence_references: ["water_emergency:closed-tail"],
+      current_status: "closed",
+      current_stage: "closed_after_monitoring",
+      open_review_count: 0,
+      critical_alert_count: 0,
+      blocker_count: 0,
+      unknown_count: 0,
+      related_job_id: "99999998-0000-4000-8000-000000000098",
+      related_work_order_ids: [],
+      related_visit_ids: [],
+      audit_correlation_ids: []
+    };
+
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={{
+          data: {
+            ...mockWaterEmergencyDashboard,
+            operator_queue_summary: {
+              ...mockWaterEmergencyDashboard.operator_queue_summary,
+              total_records: activeItems.length + 1,
+              active_attention_count: activeItems.length,
+              closed_or_resolved_count: 1,
+              critical_attention_count: 1,
+              queue_group_counts: [
+                { label: "active_attention", count: activeItems.length },
+                { label: "closed_or_resolved", count: 1 }
+              ],
+              attention_label_counts: [
+                { label: "critical_attention", count: 1 },
+                { label: "needs_manual_review", count: activeItems.length - 1 },
+                { label: "closed_or_resolved", count: 1 }
+              ],
+              items: [...activeItems, closedTailItem]
+            }
+          },
+          source: "mock"
+        }}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+      />
+    );
+
+    expect(html).toContain("Operator Queue");
+    expect(html).toContain("Showing first 6 active attention records.");
+    expect(html).toContain("Closed Or Resolved");
+    expect(html).toContain(
+      "Closed tail Water Emergency record remains visible outside active attention limits."
+    );
     expect(html).not.toMatch(/<button|role="button"/);
     expect(html).not.toContain("Approve Water Emergency");
     expect(html).not.toContain("Close Water Emergency");

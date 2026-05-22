@@ -689,6 +689,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 36 Water Emergency Operator Queue Visibility Boundary
+
+Module 36 extends Water Emergency summary visibility with read-only operator queue and attention grouping:
+
+- backend read models expose operator queue items, queue-group counts, attention-label counts, attention ranks, reason codes, evidence references, review counts, critical-alert counts, blocker counts, unknown counts, related references, and audit-correlation IDs from existing persisted evidence
+- queue groups are derived from Module 35 readiness evidence and do not introduce workflow execution
+- critical-alert records sort ahead of lower-attention records, while closed/resolved records remain separated from active attention items
+- frontend panels display queue/triage context without creating Water Emergency action controls
+- local synthetic seed data now includes queue examples for critical attention, blocked/missing information, visit follow-up, equipment review, monitoring, close review, and closed/resolved records
+
+The boundary remains projection-only. The endpoint and UI do not create, edit, close, resolve, approve, reject, archive, dispatch, schedule, prioritize as operational authority, integrate, escalate, reconcile, or execute Water Emergency workflows. They also do not call AI, define final operations taxonomy, or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- final Water Emergency triage, priority, and queue taxonomy
+- whether future queue labels should become persisted workflow state or remain derived read-model projections
+- production filtering, pagination, stale-data behavior, and role-scoped queue visibility
+- future authenticated Water Emergency action modules for operator-controlled visits, equipment review, drying confirmation, and closure review
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

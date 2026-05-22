@@ -232,6 +232,37 @@ class WaterEmergencyNextStepReadinessSummaryResponse(DashboardSchema):
     records: tuple[WaterEmergencyNextStepReadinessResponse, ...]
 
 
+class WaterEmergencyQueueItemResponse(DashboardSchema):
+    water_emergency_id: UUID
+    attention_label: str
+    queue_group: str
+    attention_rank: int
+    readiness_labels: tuple[str, ...]
+    summary: str
+    reason_codes: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    current_status: str
+    current_stage: str | None
+    open_review_count: int
+    critical_alert_count: int
+    blocker_count: int
+    unknown_count: int
+    related_job_id: UUID
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+
+
+class WaterEmergencyOperatorQueueSummaryResponse(DashboardSchema):
+    total_records: int
+    active_attention_count: int
+    closed_or_resolved_count: int
+    critical_attention_count: int
+    queue_group_counts: tuple[CountBucketResponse, ...]
+    attention_label_counts: tuple[CountBucketResponse, ...]
+    items: tuple[WaterEmergencyQueueItemResponse, ...]
+
+
 class RouteAssignmentSummaryResponse(DashboardSchema):
     total_assignments: int
     status_counts: tuple[CountBucketResponse, ...]
@@ -322,6 +353,7 @@ class WaterEmergencyDashboardResponse(DashboardSchema):
     drying_stage_summary: WaterEmergencyDryingStageSummaryResponse
     review_exception_summary: WaterEmergencyReviewExceptionSummaryResponse
     next_step_summary: WaterEmergencyNextStepReadinessSummaryResponse
+    operator_queue_summary: WaterEmergencyOperatorQueueSummaryResponse
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

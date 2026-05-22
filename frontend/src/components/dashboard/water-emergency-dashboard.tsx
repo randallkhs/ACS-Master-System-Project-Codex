@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import type {
   DashboardFetchResult,
   WaterEmergencyDashboardResponse,
-  WaterEmergencyNextStepReadinessResponse
+  WaterEmergencyNextStepReadinessResponse,
+  WaterEmergencyQueueItemResponse
 } from "@/lib/dashboard-contracts";
 import { compactId, formatCount, formatDateTime, humanizeLabel } from "@/lib/format";
 import { AlertStrip } from "@/components/dashboard/alert-strip";
@@ -22,6 +23,16 @@ export function WaterEmergencyDashboard({
   const { data, source, errorMessage } = result;
   const reviewException = data.review_exception_summary;
   const nextStep = data.next_step_summary;
+  const operatorQueue = data.operator_queue_summary;
+  const activeQueueItems = operatorQueue.items.filter(
+    (item) => item.queue_group !== "closed_or_resolved"
+  );
+  const closedQueueItems = operatorQueue.items.filter(
+    (item) => item.queue_group === "closed_or_resolved"
+  );
+  const visibleActiveQueueItems = activeQueueItems.slice(0, 6);
+  const hiddenActiveQueueItemCount =
+    activeQueueItems.length - visibleActiveQueueItems.length;
 
   return (
     <SectionCard
@@ -100,6 +111,93 @@ export function WaterEmergencyDashboard({
             tone={data.escalation_indicator_count > 0 ? "danger" : "good"}
           />
         </div>
+
+        <VisibilityPanel title="Operator Queue">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
+            <div className="grid gap-2 sm:grid-cols-2 xl:w-[22rem] xl:shrink-0">
+              <RecordMetric
+                label="Active"
+                value={operatorQueue.active_attention_count}
+              />
+              <RecordMetric
+                label="Critical"
+                value={operatorQueue.critical_attention_count}
+              />
+              <RecordMetric
+                label="Closed"
+                value={operatorQueue.closed_or_resolved_count}
+              />
+              <RecordMetric
+                label="Groups"
+                value={operatorQueue.queue_group_counts.length}
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap gap-2">
+                <StatusBadge label="Read-only triage visibility" variant="info" />
+                <StatusBadge label="Separated from standard dispatch" variant="info" />
+              </div>
+              <div className="mt-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                  Active attention records
+                </div>
+                {visibleActiveQueueItems.length > 0 ? (
+                  <div className="mt-2 grid gap-3 xl:grid-cols-2">
+                    {visibleActiveQueueItems.map((item) => (
+                      <OperatorQueueItemCard
+                        key={item.water_emergency_id}
+                        item={item}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    No active attention queue records returned.
+                  </p>
+                )}
+                {hiddenActiveQueueItemCount > 0 ? (
+                  <p className="mt-3 text-sm leading-6 text-slate-500">
+                    Showing first {visibleActiveQueueItems.length} active attention
+                    records.
+                  </p>
+                ) : null}
+              </div>
+              {closedQueueItems.length > 0 ? (
+                <div className="mt-5">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Closed or resolved records
+                  </div>
+                  <div className="mt-2 grid gap-3 xl:grid-cols-2">
+                    {closedQueueItems.map((item) => (
+                      <OperatorQueueItemCard
+                        key={item.water_emergency_id}
+                        item={item}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-5 text-sm leading-6 text-slate-500">
+                  No closed or resolved queue records returned.
+                </p>
+              )}
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Queue groups
+                  </div>
+                  <BucketPills buckets={operatorQueue.queue_group_counts} />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    Attention labels
+                  </div>
+                  <BucketPills buckets={operatorQueue.attention_label_counts} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </VisibilityPanel>
 
         <div className="grid gap-4 xl:grid-cols-3">
           <VisibilityPanel title="Next-Step Readiness">
@@ -389,6 +487,53 @@ function VisibilityPanel({
   );
 }
 
+function OperatorQueueItemCard({ item }: { item: WaterEmergencyQueueItemResponse }) {
+  return (
+    <article className="rounded-md border border-slate-200 bg-white p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge
+          label={humanizeLabel(item.attention_label)}
+          variant={attentionVariant(item.attention_label)}
+        />
+        <StatusBadge label={humanizeLabel(item.queue_group)} variant="info" />
+      </div>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{item.summary}</p>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs font-semibold text-slate-600 sm:grid-cols-4">
+        <RecordMetric label="Reviews" value={item.open_review_count} />
+        <RecordMetric label="Critical" value={item.critical_alert_count} />
+        <RecordMetric label="Blocked" value={item.blocker_count} />
+        <RecordMetric label="Unknown" value={item.unknown_count} />
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Water Emergency {compactId(item.water_emergency_id)}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Job {compactId(item.related_job_id)}
+        </span>
+        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          Visits {formatCount(item.related_visit_ids.length)}
+        </span>
+      </div>
+      <div className="mt-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Reasons
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {item.reason_codes.slice(0, 4).map((reason) => (
+            <span
+              key={reason}
+              className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600"
+            >
+              {humanizeLabel(reason)}
+            </span>
+          ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function ReadinessSummaryCard({
   record
 }: {
@@ -417,6 +562,13 @@ function ReadinessSummaryCard({
       </div>
     </div>
   );
+}
+
+function attentionVariant(label: string) {
+  if (label === "critical_attention") return "danger";
+  if (label === "closed_or_resolved" || label === "monitoring") return "success";
+  if (label === "ready_for_close_review") return "info";
+  return "warning";
 }
 
 function BucketPills({ buckets }: { buckets: { label: string; count: number }[] }) {

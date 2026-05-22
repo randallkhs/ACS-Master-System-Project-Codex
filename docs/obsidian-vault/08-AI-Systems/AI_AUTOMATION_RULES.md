@@ -319,6 +319,14 @@ AI is still not used in this module.
 
 AI must not infer final Water Emergency readiness taxonomy, choose operational next actions, approve Manual Review, close emergency work, schedule follow-up visits, authorize equipment pickup, confirm drying stages, dispatch Water Emergency visits, call vendor integrations, or transform read-only readiness context into workflow control. Future AI explanations for Water Emergency readiness evidence must remain advisory and separate from persisted backend read models.
 
+## Phase 0 Module 36 Boundary
+
+Water Emergency operator queue and attention triage visibility is deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer final Water Emergency queue taxonomy, prioritize work as operational authority, approve Manual Review, close emergency work, schedule follow-up visits, authorize equipment pickup, confirm drying stages, dispatch Water Emergency visits, call vendor integrations, or transform read-only queue context into workflow control. Future AI explanations for Water Emergency queue evidence must remain advisory and separate from persisted backend read models.
+
 ---
 
 ## Confidence And Review

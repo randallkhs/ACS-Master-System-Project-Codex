@@ -297,6 +297,37 @@ export type WaterEmergencyNextStepReadinessSummaryResponse = {
   records: WaterEmergencyNextStepReadinessResponse[];
 };
 
+export type WaterEmergencyQueueItemResponse = {
+  water_emergency_id: string;
+  attention_label: string;
+  queue_group: string;
+  attention_rank: number;
+  readiness_labels: string[];
+  summary: string;
+  reason_codes: string[];
+  evidence_references: string[];
+  current_status: string;
+  current_stage: string | null;
+  open_review_count: number;
+  critical_alert_count: number;
+  blocker_count: number;
+  unknown_count: number;
+  related_job_id: string;
+  related_work_order_ids: string[];
+  related_visit_ids: string[];
+  audit_correlation_ids: string[];
+};
+
+export type WaterEmergencyOperatorQueueSummaryResponse = {
+  total_records: number;
+  active_attention_count: number;
+  closed_or_resolved_count: number;
+  critical_attention_count: number;
+  queue_group_counts: CountBucket[];
+  attention_label_counts: CountBucket[];
+  items: WaterEmergencyQueueItemResponse[];
+};
+
 export type WaterEmergencyDashboardResponse = {
   generated_at: string;
   total_records: number;
@@ -312,6 +343,7 @@ export type WaterEmergencyDashboardResponse = {
   drying_stage_summary: WaterEmergencyDryingStageSummaryResponse;
   review_exception_summary: WaterEmergencyReviewExceptionSummaryResponse;
   next_step_summary: WaterEmergencyNextStepReadinessSummaryResponse;
+  operator_queue_summary: WaterEmergencyOperatorQueueSummaryResponse;
   related_job_count: number;
   related_work_order_count: number;
   related_visit_count: number;

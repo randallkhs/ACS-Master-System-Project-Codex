@@ -28,6 +28,8 @@ from app.domain.dashboard import (
     WaterEmergencyJobReference,
     WaterEmergencyNextStepReadiness,
     WaterEmergencyNextStepReadinessSummary,
+    WaterEmergencyOperatorQueueSummary,
+    WaterEmergencyQueueItem,
     WaterEmergencyRecordSummary,
     WaterEmergencyReviewExceptionContext,
     WaterEmergencyReviewExceptionSummary,
@@ -211,6 +213,39 @@ def water_emergency_contract() -> WaterEmergencyDashboardReadModel:
                     blocker_count=1,
                     unknown_count=0,
                     requires_operator_attention=True,
+                    related_job_id=UUID("00000000-0000-0000-0000-000000000032"),
+                    related_work_order_ids=(),
+                    related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
+                    audit_correlation_ids=("audit-water-001",),
+                ),
+            ),
+        ),
+        operator_queue_summary=WaterEmergencyOperatorQueueSummary(
+            total_records=1,
+            active_attention_count=1,
+            closed_or_resolved_count=0,
+            critical_attention_count=1,
+            queue_group_counts=(CountBucket(label="active_attention", count=1),),
+            attention_label_counts=(CountBucket(label="critical_attention", count=1),),
+            items=(
+                WaterEmergencyQueueItem(
+                    water_emergency_id=UUID("00000000-0000-0000-0000-000000000031"),
+                    attention_label="critical_attention",
+                    queue_group="active_attention",
+                    attention_rank=10,
+                    readiness_labels=("needs_manual_review", "needs_operator_decision"),
+                    summary=("Critical Water Emergency review evidence needs operator attention."),
+                    reason_codes=("water_detail_review",),
+                    evidence_references=(
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                    ),
+                    current_status="drying_in_progress",
+                    current_stage="monitoring",
+                    open_review_count=1,
+                    critical_alert_count=1,
+                    blocker_count=1,
+                    unknown_count=0,
                     related_job_id=UUID("00000000-0000-0000-0000-000000000032"),
                     related_work_order_ids=(),
                     related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
@@ -502,6 +537,12 @@ def test_dashboard_api_routes_return_read_only_contracts(
         {"label": "needs_manual_review", "count": 1},
         {"label": "needs_operator_decision", "count": 1},
     ]
+    assert water_response.json()["operator_queue_summary"]["attention_label_counts"] == [
+        {"label": "critical_attention", "count": 1},
+    ]
+    assert water_response.json()["operator_queue_summary"]["items"][0]["queue_group"] == (
+        "active_attention"
+    )
     assert water_response.json()["records"][0]["related_visit_ids"] == [
         "00000000-0000-0000-0000-000000000033",
     ]

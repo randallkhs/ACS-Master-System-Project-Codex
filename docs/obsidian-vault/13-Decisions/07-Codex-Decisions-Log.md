@@ -1037,6 +1037,39 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-21 — Phase 0 Module 36 Water Emergency Operator Queue, Attention Priority, And Triage Visibility
+
+- Decision type: Implementation / Water Emergency visibility / read-only queue contract
+- Status: Implemented
+- Decision:
+  - Extend the Water Emergency dashboard read model with an operator queue summary derived from existing next-step readiness evidence.
+  - Add queue items with attention label, queue group, attention rank, readiness labels, reason codes, evidence references, review/critical/blocker/unknown counts, related references, and audit-correlation IDs.
+  - Sort critical-alert records ahead of lower-attention records while keeping closed/resolved records separated from active attention items.
+  - Add a read-only frontend Operator Queue panel to display attention groups, reasons, and evidence without action controls.
+  - Expand local synthetic seed data with examples for critical attention, blocked/missing information, visit follow-up, equipment review, monitoring, close-review visibility, and closed/resolved Water Emergency records.
+- Rationale:
+  - Operators need a scan-friendly Water Emergency queue before authenticated execution workflows exist.
+  - Queue grouping should organize persisted evidence without becoming workflow authority, final prioritization logic, or frontend-owned business rules.
+  - Manual Review remains authoritative; critical, blocked, or unknown evidence must stay visible rather than progressing automatically.
+- Future implications:
+  - Future modules still need a Luis-confirmed Water Emergency triage/priority taxonomy, authenticated operator queue authority, and production filtering/pagination/stale-data behavior.
+  - Queue labels may later become persisted workflow state, but Module 36 keeps them as deterministic read-model projections.
+  - Future action modules for visits, equipment review, drying confirmation, and closure review must preserve these read-only boundaries until explicitly designed.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Local synthetic dashboard seed data
+  - Frontend dashboard API contracts/mock data
+  - Frontend Water Emergency summary section
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - System architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary
+
+---
+
 ## 2026-05-17 — Phase 0 Module 32 Water Emergency Detail Read Model And Timeline Visualization
 
 - Decision type: Implementation / Water Emergency detail / read-only API contract
