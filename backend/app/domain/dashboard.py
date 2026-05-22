@@ -327,6 +327,60 @@ class WaterEmergencyAgingFollowUpSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class WaterEmergencyFilterOption:
+    key: str
+    label: str
+    count: int
+    description: str
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencySortOption:
+    key: str
+    label: str
+    description: str
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyViewStateItem:
+    water_emergency_id: UUID
+    filter_groups: tuple[str, ...]
+    primary_filter_group: str
+    sort_rank: int
+    sort_label: str
+    queue_group: str
+    attention_label: str
+    time_sensitivity_label: str
+    readiness_label: str
+    is_active: bool
+    current_status: str
+    current_stage: str | None
+    open_review_count: int
+    critical_alert_count: int
+    blocker_count: int
+    unknown_count: int
+    last_activity_at: datetime | None
+    summary: str
+    reason_codes: tuple[str, ...]
+    related_job_id: UUID
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyViewStateSummary:
+    total_records: int
+    active_record_count: int
+    closed_or_resolved_count: int
+    available_filters: tuple[WaterEmergencyFilterOption, ...]
+    sort_options: tuple[WaterEmergencySortOption, ...]
+    group_counts: tuple[CountBucket, ...]
+    items: tuple[WaterEmergencyViewStateItem, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class WaterEmergencyDetailReadModel:
     generated_at: datetime
     record: WaterEmergencyRecordSummary
@@ -362,6 +416,7 @@ class WaterEmergencyDashboardReadModel:
     next_step_summary: WaterEmergencyNextStepReadinessSummary
     operator_queue_summary: WaterEmergencyOperatorQueueSummary
     aging_followup_summary: WaterEmergencyAgingFollowUpSummary
+    view_state_summary: WaterEmergencyViewStateSummary
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

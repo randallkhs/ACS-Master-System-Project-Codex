@@ -942,6 +942,100 @@ def test_resolved_water_emergency_status_is_terminal_without_closed_timestamp() 
     )
 
 
+def test_water_emergency_view_state_filters_sort_and_separate_closed_records() -> None:
+    now = datetime(2026, 5, 22, 12, 0, tzinfo=UTC)
+    critical_id = uuid4()
+    overdue_id = uuid4()
+    closed_id = uuid4()
+    unknown_id = uuid4()
+    job_ids = {
+        "critical": uuid4(),
+        "overdue": uuid4(),
+        "closed": uuid4(),
+        "unknown": uuid4(),
+    }
+    overdue_visit_id = uuid4()
+
+    summary = DashboardReadModelService(now=lambda: now).build_water_emergency(
+        jobs=[
+            Job(id=job_id, job_type="water_emergency", status="active")
+            for job_id in job_ids.values()
+        ],
+        water_emergencies=[
+            WaterEmergency(
+                id=critical_id,
+                job_id=job_ids["critical"],
+                status="DRYING_IN_PROGRESS",
+                drying_stage="monitoring",
+                opened_at=now - timedelta(days=2),
+            ),
+            WaterEmergency(
+                id=overdue_id,
+                job_id=job_ids["overdue"],
+                status="WAITING_FOR_NEXT_VISIT",
+                drying_stage="monitoring",
+                opened_at=now - timedelta(days=5),
+            ),
+            WaterEmergency(
+                id=closed_id,
+                job_id=job_ids["closed"],
+                status="RESOLVED",
+                drying_stage="closed_after_monitoring",
+                opened_at=now - timedelta(days=10),
+                closed_at=None,
+            ),
+            WaterEmergency(
+                id=unknown_id,
+                job_id=job_ids["unknown"],
+                status="DRYING_IN_PROGRESS",
+                drying_stage=None,
+                next_required_action=None,
+                created_at=now - timedelta(hours=6),
+            ),
+        ],
+        visits=[
+            Visit(
+                id=overdue_visit_id,
+                job_id=job_ids["overdue"],
+                visit_type="water_emergency",
+                status="completed",
+                completed_at=now - timedelta(hours=80),
+            ),
+        ],
+        review_items=[
+            ReviewItem(
+                id=uuid4(),
+                job_id=job_ids["critical"],
+                entity_type="water_emergency",
+                entity_id=critical_id,
+                reason_code="water_emergency_critical_attention",
+                status="open",
+                severity="critical",
+            ),
+        ],
+    )
+
+    view_state = summary.view_state_summary
+    filter_counts = {option.key: option.count for option in view_state.available_filters}
+    items_by_id = {item.water_emergency_id: item for item in view_state.items}
+
+    assert filter_counts["all"] == 4
+    assert filter_counts["active"] == 3
+    assert filter_counts["critical_attention"] == 1
+    assert filter_counts["needs_manual_review"] == 1
+    assert filter_counts["followup_overdue"] == 1
+    assert filter_counts["blocked_missing_data"] >= 1
+    assert filter_counts["unknown_timing"] == 1
+    assert filter_counts["closed_or_resolved"] == 1
+    assert items_by_id[critical_id].primary_filter_group == "critical_attention"
+    assert "needs_manual_review" in items_by_id[critical_id].filter_groups
+    assert "followup_overdue" in items_by_id[overdue_id].filter_groups
+    assert "closed_or_resolved" in items_by_id[closed_id].filter_groups
+    assert items_by_id[closed_id].is_active is False
+    assert view_state.items[0].water_emergency_id == critical_id
+    assert view_state.items[-1].water_emergency_id == closed_id
+
+
 def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
     records = dashboard_source_records()
     water_emergency = records["water_emergencies"][0]

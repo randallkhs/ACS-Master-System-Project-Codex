@@ -577,6 +577,204 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       }
     ]
   },
+  view_state_summary: {
+    total_records: 2,
+    active_record_count: 1,
+    closed_or_resolved_count: 1,
+    available_filters: [
+      {
+        key: "all",
+        label: "All records",
+        count: 2,
+        description:
+          "Every persisted Water Emergency record in this read-only dashboard response."
+      },
+      {
+        key: "active",
+        label: "Active records",
+        count: 1,
+        description:
+          "Open Water Emergency records separated from closed or resolved records."
+      },
+      {
+        key: "critical_attention",
+        label: "Critical attention",
+        count: 1,
+        description: "Records with critical persisted review or alert evidence."
+      },
+      {
+        key: "needs_manual_review",
+        label: "Needs Manual Review",
+        count: 1,
+        description: "Records with Manual Review or operator-decision evidence."
+      },
+      {
+        key: "blocked_missing_data",
+        label: "Blocked or missing data",
+        count: 1,
+        description: "Records with blocker, unknown, or missing-data evidence."
+      },
+      {
+        key: "followup_due",
+        label: "Follow-up due",
+        count: 0,
+        description: "Records with conservative Phase 0 follow-up due visibility."
+      },
+      {
+        key: "followup_overdue",
+        label: "Follow-up overdue",
+        count: 0,
+        description: "Records with conservative Phase 0 follow-up overdue visibility."
+      },
+      {
+        key: "stale_evidence",
+        label: "Stale evidence",
+        count: 1,
+        description:
+          "Records where related evidence is old enough to flag for operator awareness."
+      },
+      {
+        key: "ready_for_close_review",
+        label: "Ready for close review",
+        count: 0,
+        description: "Records with persisted close-review readiness evidence."
+      },
+      {
+        key: "needs_followup",
+        label: "Needs follow-up",
+        count: 0,
+        description: "Records with visit-chain follow-up visibility evidence."
+      },
+      {
+        key: "equipment_review_needed",
+        label: "Equipment review needed",
+        count: 0,
+        description: "Records with equipment context that needs operator review."
+      },
+      {
+        key: "drying_stage_review_needed",
+        label: "Drying-stage review needed",
+        count: 0,
+        description:
+          "Records with drying-stage or moisture confirmation visibility."
+      },
+      {
+        key: "needs_operator_review",
+        label: "Needs operator review",
+        count: 0,
+        description:
+          "Records with no safer deterministic group than operator review."
+      },
+      {
+        key: "unknown_timing",
+        label: "Unknown timing",
+        count: 0,
+        description: "Records missing enough timing evidence to avoid inferred SLA status."
+      },
+      {
+        key: "closed_or_resolved",
+        label: "Closed or resolved",
+        count: 1,
+        description: "Closed or resolved records separated from active attention groups."
+      }
+    ],
+    sort_options: [
+      {
+        key: "attention",
+        label: "Attention priority",
+        description:
+          "Critical, review, blocker, timing, close-review, monitoring, then closed."
+      },
+      {
+        key: "last_activity",
+        label: "Last activity",
+        description:
+          "Most recent persisted visit, review, event, opened, or closed timestamp."
+      },
+      {
+        key: "status",
+        label: "Status and stage",
+        description: "Current status, drying stage, and deterministic attention rank."
+      }
+    ],
+    group_counts: [
+      { label: "critical_attention", count: 1 },
+      { label: "closed_or_resolved", count: 1 }
+    ],
+    items: [
+      {
+        water_emergency_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        filter_groups: [
+          "all",
+          "active",
+          "critical_attention",
+          "needs_manual_review",
+          "blocked_missing_data",
+          "stale_evidence"
+        ],
+        primary_filter_group: "critical_attention",
+        sort_rank: 10,
+        sort_label: "critical_attention",
+        queue_group: "active_attention",
+        attention_label: "critical_attention",
+        time_sensitivity_label: "stale_evidence",
+        readiness_label: "needs_manual_review",
+        is_active: true,
+        current_status: "drying_in_progress",
+        current_stage: "monitoring",
+        open_review_count: 1,
+        critical_alert_count: 1,
+        blocker_count: 1,
+        unknown_count: 1,
+        last_activity_at: "2026-05-19T08:30:00Z",
+        summary:
+          "Critical unresolved Water Emergency evidence exists; operator attention is needed before any future emergency workflow step.",
+        reason_codes: ["water_detail_unknown_blocker", "stale_evidence"],
+        related_job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
+        related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
+        related_visit_ids: [
+          "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
+          "94b62507-5b8d-4a9d-9578-5225492d81d1"
+        ],
+        audit_correlation_ids: ["audit-dashboard-003"],
+        evidence_references: [
+          "job:72eba727-e804-4dd0-8628-bf7eb1212c60",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+          "review:74c29ad0-a8f0-4b9a-b596-285b35556717"
+        ]
+      },
+      {
+        water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
+        filter_groups: ["all", "closed_or_resolved"],
+        primary_filter_group: "closed_or_resolved",
+        sort_rank: 140,
+        sort_label: "closed_or_resolved",
+        queue_group: "closed_or_resolved",
+        attention_label: "closed_or_resolved",
+        time_sensitivity_label: "closed_or_resolved",
+        readiness_label: "closed_no_active_next_step",
+        is_active: false,
+        current_status: "closed",
+        current_stage: "closed_after_monitoring",
+        open_review_count: 0,
+        critical_alert_count: 0,
+        blocker_count: 0,
+        unknown_count: 0,
+        last_activity_at: "2026-05-14T17:00:00Z",
+        summary:
+          "Closed or resolved Water Emergency record; it is separated from active attention items.",
+        reason_codes: ["water_emergency_closed_or_resolved", "closed_or_resolved"],
+        related_job_id: "871ac83f-88bb-4f09-8ca3-c3718dce6a46",
+        related_work_order_ids: [],
+        related_visit_ids: [],
+        audit_correlation_ids: [],
+        evidence_references: [
+          "job:871ac83f-88bb-4f09-8ca3-c3718dce6a46",
+          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831"
+        ]
+      }
+    ]
+  },
   related_job_count: 2,
   related_work_order_count: 1,
   related_visit_count: 2,

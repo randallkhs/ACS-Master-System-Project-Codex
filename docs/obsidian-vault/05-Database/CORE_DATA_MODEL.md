@@ -508,6 +508,14 @@ No workflow logic, CRUD behavior, auth behavior, integration behavior, or Water 
 
 ---
 
+## Phase 0 Module 38 Read-Model Note
+
+Module 38 adds Water Emergency filter, sort, grouping, and operator view-state visibility as dashboard read-model projections only.
+
+No database table or column was added for filters, saved views, user preferences, or Water Emergency taxonomy. Filter groups and sort labels are derived from existing persisted Water Emergency, Work Order, Visit, Review, and operational event evidence through the dashboard service. If ACS later needs saved operator views, role-specific filters, or production pagination state, those should be modeled explicitly in a future authenticated module.
+
+---
+
 ## Initial Status Concepts
 
 Suggested statuses to refine with operations:

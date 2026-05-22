@@ -490,6 +490,37 @@ Unresolved:
 
 ---
 
+# Phase 0 Module 38 — Filtering, Sorting, And Operator View-State Visibility
+
+Module 38 extends the dedicated read-only Water Emergency dashboard with operator-safe filtering, sorting, grouping, and view-state clarity.
+
+The read models may show:
+
+- available filter groups such as all, active, critical attention, needs Manual Review, blocked or missing data, follow-up due, follow-up overdue, stale evidence, ready for close review, unknown timing, and closed/resolved
+- deterministic sort options for attention priority, last activity, and status/stage scanning
+- per-record filter group membership, primary filter group, sort label/rank, queue group, timing label, readiness label, review counts, critical counts, blocker counts, unknown counts, related references, audit references, and evidence references
+- active Water Emergency records separated from closed/resolved records
+- empty filter states without implying hidden lifecycle progress or operator authority
+- synthetic local examples using existing Module 29-37 seed coverage without production/customer/vendor data
+
+Boundary:
+
+- filtering and sorting are visibility only
+- frontend view state is not backend operational state
+- filters do not approve, dispatch, close, escalate, schedule, mutate, or execute Water Emergency work
+- filter labels are not final ACS operations taxonomy
+- Manual Review remains authoritative when review evidence exists
+- closed/resolved records must remain separate from active attention and timing views
+
+Unresolved:
+
+- final Luis-confirmed Water Emergency filter, triage, and queue taxonomy
+- whether future filter metadata should remain derived read-model projections or become persisted user preferences
+- production pagination, role-scoped visibility, saved views, refresh cadence, and stale-data behavior
+- future authenticated Water Emergency action modules for follow-up scheduling, equipment review, drying confirmation, escalation, and closure review
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

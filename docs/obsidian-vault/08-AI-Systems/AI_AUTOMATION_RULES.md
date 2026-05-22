@@ -335,6 +335,14 @@ AI is still not used in this module.
 
 AI must not infer final Water Emergency SLA taxonomy, decide overdue authority, auto-escalate, approve Manual Review, close emergency work, schedule follow-up visits, authorize equipment pickup, confirm drying stages, dispatch Water Emergency visits, call vendor integrations, or transform read-only timing context into workflow control. Future AI explanations for Water Emergency timing evidence must remain advisory and separate from persisted backend read models.
 
+## Phase 0 Module 38 Boundary
+
+Water Emergency filtering, sorting, grouping, and operator view-state visibility is deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer final Water Emergency filter taxonomy, choose operational priority, persist user view preferences, approve Manual Review, close emergency work, schedule follow-up visits, authorize equipment pickup, confirm drying stages, dispatch Water Emergency visits, call vendor integrations, or transform read-only filter/sort context into workflow control. Future AI explanations for Water Emergency view-state evidence must remain advisory and separate from persisted backend read models.
+
 ---
 
 ## Confidence And Review

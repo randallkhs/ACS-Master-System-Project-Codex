@@ -732,6 +732,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 38 Water Emergency Filter/Sort View-State Boundary
+
+Module 38 extends Water Emergency summary visibility with read-only filtering, sorting, grouping, and operator view-state clarity:
+
+- backend read models expose available filter options, sort options, group counts, per-record filter memberships, primary filter groups, sort labels/ranks, last-activity timestamps, queue labels, timing labels, readiness labels, counts, references, and evidence IDs from existing persisted evidence
+- filter groups are derived from Module 35 readiness, Module 36 queue/attention, and Module 37 aging/follow-up projections
+- critical, review, blocker, follow-up, stale, close-review, unknown, active, and closed/resolved groups are visibility categories only
+- frontend controls change only local dashboard display state and do not persist state or call mutation endpoints
+- closed/resolved records remain visually separated from active records even when a filter or list limit is active
+
+The boundary remains projection-only. The endpoint and UI do not create, edit, close, resolve, approve, reject, archive, dispatch, schedule, escalate, persist user preferences, integrate, reconcile, or execute Water Emergency workflows. They also do not call AI, define final operations taxonomy, or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- final Water Emergency filtering, sorting, triage, and saved-view taxonomy
+- whether filter metadata should remain derived read-model projections or become persisted user/role preferences later
+- production pagination, refresh cadence, stale-data behavior, saved view defaults, and role-scoped filter visibility
+- future authenticated Water Emergency action modules for follow-up scheduling, equipment review, drying confirmation, escalation, and closure review
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

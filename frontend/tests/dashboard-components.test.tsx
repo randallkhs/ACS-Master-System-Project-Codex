@@ -9,8 +9,10 @@ import {
 } from "@/lib/mock-dashboard";
 import type {
   WaterEmergencyAgingFollowUpItemResponse,
-  WaterEmergencyQueueItemResponse
+  WaterEmergencyQueueItemResponse,
+  WaterEmergencyViewStateItemResponse
 } from "@/lib/dashboard-contracts";
+import { deriveWaterEmergencyVisibleRecords } from "@/lib/water-emergency-view-state";
 
 const mockWaterEmergencyResult = {
   data: mockWaterEmergencyDashboard,
@@ -436,6 +438,63 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Approve Water Emergency");
     expect(html).not.toContain("Close Water Emergency");
     expect(html).not.toContain("Dispatch Water Emergency");
+  });
+
+  it("filters Water Emergency view-state records without hiding closed records", () => {
+    const criticalItem = mockWaterEmergencyDashboard.view_state_summary.items[0];
+    const closedItem =
+      mockWaterEmergencyDashboard.view_state_summary.items.find(
+        (item) => item.primary_filter_group === "closed_or_resolved"
+      ) ?? criticalItem;
+    const overdueItem: WaterEmergencyViewStateItemResponse = {
+      ...criticalItem,
+      water_emergency_id: "88888888-0000-4000-8000-000000000088",
+      filter_groups: ["all", "active", "followup_overdue"],
+      primary_filter_group: "followup_overdue",
+      sort_rank: 20,
+      sort_label: "followup_overdue",
+      queue_group: "readiness_followup",
+      attention_label: "needs_followup",
+      time_sensitivity_label: "followup_overdue",
+      readiness_label: "needs_visit_followup",
+      open_review_count: 0,
+      critical_alert_count: 0,
+      blocker_count: 0,
+      unknown_count: 0,
+      last_activity_at: "2026-05-18T04:00:00Z",
+      related_job_id: "88888887-0000-4000-8000-000000000087",
+      related_work_order_ids: [],
+      related_visit_ids: [],
+      audit_correlation_ids: [],
+      evidence_references: ["water_emergency:followup-overdue-test"]
+    };
+    const data = {
+      ...mockWaterEmergencyDashboard,
+      view_state_summary: {
+        ...mockWaterEmergencyDashboard.view_state_summary,
+        items: [criticalItem, overdueItem, closedItem]
+      }
+    };
+
+    const overdueView = deriveWaterEmergencyVisibleRecords(data, {
+      selectedFilter: "followup_overdue",
+      selectedSort: "attention"
+    });
+    const closedView = deriveWaterEmergencyVisibleRecords(data, {
+      selectedFilter: "closed_or_resolved",
+      selectedSort: "attention"
+    });
+
+    expect(overdueView.visibleActiveItems).toHaveLength(1);
+    expect(overdueView.visibleActiveItems[0].water_emergency_id).toBe(
+      overdueItem.water_emergency_id
+    );
+    expect(overdueView.visibleClosedItems).toHaveLength(0);
+    expect(closedView.visibleActiveItems).toHaveLength(0);
+    expect(closedView.visibleClosedItems).toHaveLength(1);
+    expect(closedView.visibleClosedItems[0].primary_filter_group).toBe(
+      "closed_or_resolved"
+    );
   });
 
   it("renders timeline events in stable read-model order", () => {

@@ -13,6 +13,7 @@ import { SectionCard } from "@/components/dashboard/section-card";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 import { TimelineList } from "@/components/dashboard/timeline-list";
+import { WaterEmergencyViewStatePanel } from "@/components/dashboard/water-emergency-view-state-panel";
 
 type WaterEmergencyDashboardProps = {
   result: DashboardFetchResult<WaterEmergencyDashboardResponse>;
@@ -122,6 +123,8 @@ export function WaterEmergencyDashboard({
             tone={data.escalation_indicator_count > 0 ? "danger" : "good"}
           />
         </div>
+
+        <WaterEmergencyViewStatePanel data={data} />
 
         <VisibilityPanel title="Operator Queue">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-start">

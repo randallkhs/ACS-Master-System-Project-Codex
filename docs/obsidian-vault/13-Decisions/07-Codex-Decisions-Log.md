@@ -1203,3 +1203,35 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database/system architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-22 — Phase 0 Module 38 Water Emergency Filtering, Sorting, And Operator View-State Visibility
+
+- Decision type: Implementation / Water Emergency visibility / read-only view-state contract
+- Status: Implemented
+- Decision:
+  - Extend the Water Emergency dashboard read model with available filter options, sort options, group counts, and per-record view-state items.
+  - Derive filter memberships from existing readiness, operator queue, and aging/follow-up projections instead of adding workflow execution or persisted frontend state.
+  - Include per-record primary filter group, deterministic sort rank/label, queue group, attention label, time-sensitivity label, readiness label, review/critical/blocker/unknown counts, last-activity timestamp, related references, audit references, and evidence references.
+  - Add frontend read-only filter and sort controls that change only local display state.
+  - Keep closed/resolved Water Emergency records visually separated from active records when filters and active-list limits are used.
+- Rationale:
+  - Operators need faster scanning and isolation of Water Emergency states before authenticated workflow actions exist.
+  - Filter/sort visibility should help review critical, Manual Review, blocked, follow-up, stale, close-review, unknown, and closed/resolved records without creating operational authority.
+  - Backend read models remain the source of truth; the frontend must not infer hidden lifecycle transitions from view controls.
+- Future implications:
+  - Future modules still need Luis-confirmed Water Emergency filter, triage, saved-view, SLA, and action-authority taxonomy.
+  - View-state metadata may remain derived or may later gain role-scoped saved preferences, but this module intentionally avoids persistence.
+  - Production read models may need pagination, refresh cadence, stale-data handling, query optimization, and role-scoped filter visibility.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Water Emergency summary section
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

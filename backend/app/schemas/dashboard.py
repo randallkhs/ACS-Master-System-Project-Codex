@@ -305,6 +305,56 @@ class WaterEmergencyAgingFollowUpSummaryResponse(DashboardSchema):
     items: tuple[WaterEmergencyAgingFollowUpItemResponse, ...]
 
 
+class WaterEmergencyFilterOptionResponse(DashboardSchema):
+    key: str
+    label: str
+    count: int
+    description: str
+
+
+class WaterEmergencySortOptionResponse(DashboardSchema):
+    key: str
+    label: str
+    description: str
+
+
+class WaterEmergencyViewStateItemResponse(DashboardSchema):
+    water_emergency_id: UUID
+    filter_groups: tuple[str, ...]
+    primary_filter_group: str
+    sort_rank: int
+    sort_label: str
+    queue_group: str
+    attention_label: str
+    time_sensitivity_label: str
+    readiness_label: str
+    is_active: bool
+    current_status: str
+    current_stage: str | None
+    open_review_count: int
+    critical_alert_count: int
+    blocker_count: int
+    unknown_count: int
+    last_activity_at: datetime | None
+    summary: str
+    reason_codes: tuple[str, ...]
+    related_job_id: UUID
+    related_work_order_ids: tuple[UUID, ...]
+    related_visit_ids: tuple[UUID, ...]
+    audit_correlation_ids: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+
+
+class WaterEmergencyViewStateSummaryResponse(DashboardSchema):
+    total_records: int
+    active_record_count: int
+    closed_or_resolved_count: int
+    available_filters: tuple[WaterEmergencyFilterOptionResponse, ...]
+    sort_options: tuple[WaterEmergencySortOptionResponse, ...]
+    group_counts: tuple[CountBucketResponse, ...]
+    items: tuple[WaterEmergencyViewStateItemResponse, ...]
+
+
 class RouteAssignmentSummaryResponse(DashboardSchema):
     total_assignments: int
     status_counts: tuple[CountBucketResponse, ...]
@@ -397,6 +447,7 @@ class WaterEmergencyDashboardResponse(DashboardSchema):
     next_step_summary: WaterEmergencyNextStepReadinessSummaryResponse
     operator_queue_summary: WaterEmergencyOperatorQueueSummaryResponse
     aging_followup_summary: WaterEmergencyAgingFollowUpSummaryResponse
+    view_state_summary: WaterEmergencyViewStateSummaryResponse
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

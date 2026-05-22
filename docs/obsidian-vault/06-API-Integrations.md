@@ -591,3 +591,28 @@ Open API/frontend concerns:
 - final Water Emergency aging, follow-up, stale-evidence, and SLA taxonomy
 - whether timing labels should remain derived read-model projections or become persisted workflow state later
 - production filtering, pagination, refresh cadence, stale-data handling, and role-scoped timing visibility
+
+## Phase 0 Module 38 Water Emergency Filter/Sort Contract Boundary
+
+The existing Water Emergency dashboard API contract now includes read-only filtering, sorting, grouping, and operator view-state metadata.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/water-emergency` exposes available filter options, sort options, group counts, and per-record view-state items
+- view-state items include Water Emergency ID, filter groups, primary filter group, sort rank/label, queue group, attention label, time-sensitivity label, readiness label, active/closed state, current status/stage, review/critical/blocker/unknown counts, last-activity timestamp, related job/work-order/visit IDs, audit references, and evidence references
+- fields are derived only from persisted Water Emergency, Work Order, Visit, Review, and operational event evidence through existing readiness, queue, and timing projections
+- closed/resolved records are separated from active records in the contract so the frontend can keep them visible even when active lists are limited
+- frontend filter and sort controls change only local display state
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no Manual Review approve/reject/resolve/archive calls are added
+- no Water Emergency closure, dispatch, visit scheduling, drying approval, equipment pickup, escalation execution, SLA engine, vendor, priority-engine, saved-view persistence, or AI execution calls are added
+- frontend display must consume the backend view-state contract instead of deriving hidden workflow authority
+
+Open API/frontend concerns:
+
+- final Water Emergency filter, triage, and saved-view taxonomy
+- whether filter metadata should remain derived read-model projections or become persisted user/role preferences later
+- production pagination, refresh cadence, stale-data handling, role-scoped filter visibility, and saved default views

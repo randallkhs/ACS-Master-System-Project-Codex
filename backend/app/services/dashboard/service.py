@@ -29,6 +29,7 @@ from app.domain.dashboard import (
     WaterEmergencyDryingStageSummary,
     WaterEmergencyEquipmentNote,
     WaterEmergencyEquipmentSummary,
+    WaterEmergencyFilterOption,
     WaterEmergencyJobReference,
     WaterEmergencyNextStepReadiness,
     WaterEmergencyNextStepReadinessSummary,
@@ -38,6 +39,9 @@ from app.domain.dashboard import (
     WaterEmergencyReviewExceptionContext,
     WaterEmergencyReviewExceptionSummary,
     WaterEmergencyReviewIndicator,
+    WaterEmergencySortOption,
+    WaterEmergencyViewStateItem,
+    WaterEmergencyViewStateSummary,
     WaterEmergencyVisitChain,
     WaterEmergencyVisitChainSummary,
     WaterEmergencyVisitReference,
@@ -99,6 +103,119 @@ NEWLY_OPENED_HOURS = 24
 FOLLOWUP_DUE_HOURS = 24
 FOLLOWUP_OVERDUE_HOURS = 72
 STALE_EVIDENCE_HOURS = 72
+WATER_EMERGENCY_FILTER_DEFINITIONS = (
+    (
+        "all",
+        "All records",
+        "Every persisted Water Emergency record in this read-only dashboard response.",
+    ),
+    (
+        "active",
+        "Active records",
+        "Open Water Emergency records separated from closed or resolved records.",
+    ),
+    (
+        "critical_attention",
+        "Critical attention",
+        "Records with critical persisted review or alert evidence.",
+    ),
+    (
+        "needs_manual_review",
+        "Needs Manual Review",
+        "Records with Manual Review or operator-decision evidence.",
+    ),
+    (
+        "blocked_missing_data",
+        "Blocked or missing data",
+        "Records with blocker, unknown, or missing-data evidence.",
+    ),
+    (
+        "followup_due",
+        "Follow-up due",
+        "Records with conservative Phase 0 follow-up due visibility.",
+    ),
+    (
+        "followup_overdue",
+        "Follow-up overdue",
+        "Records with conservative Phase 0 follow-up overdue visibility.",
+    ),
+    (
+        "stale_evidence",
+        "Stale evidence",
+        "Records where related evidence is old enough to flag for operator awareness.",
+    ),
+    (
+        "ready_for_close_review",
+        "Ready for close review",
+        "Records with persisted close-review readiness evidence.",
+    ),
+    (
+        "needs_followup",
+        "Needs follow-up",
+        "Records with visit-chain follow-up visibility evidence.",
+    ),
+    (
+        "equipment_review_needed",
+        "Equipment review needed",
+        "Records with equipment context that needs operator review.",
+    ),
+    (
+        "drying_stage_review_needed",
+        "Drying-stage review needed",
+        "Records with drying-stage or moisture confirmation visibility.",
+    ),
+    (
+        "needs_operator_review",
+        "Needs operator review",
+        "Records with no safer deterministic group than operator review.",
+    ),
+    (
+        "unknown_timing",
+        "Unknown timing",
+        "Records missing enough timing evidence to avoid inferred SLA status.",
+    ),
+    (
+        "closed_or_resolved",
+        "Closed or resolved",
+        "Closed or resolved records separated from active attention groups.",
+    ),
+)
+WATER_EMERGENCY_SORT_OPTIONS = (
+    WaterEmergencySortOption(
+        key="attention",
+        label="Attention priority",
+        description="Critical, review, blocker, timing, close-review, monitoring, then closed.",
+    ),
+    WaterEmergencySortOption(
+        key="last_activity",
+        label="Last activity",
+        description="Most recent persisted visit, review, event, opened, or closed timestamp.",
+    ),
+    WaterEmergencySortOption(
+        key="status",
+        label="Status and stage",
+        description="Current status, drying stage, and deterministic attention rank.",
+    ),
+)
+WATER_EMERGENCY_VIEW_FILTER_PRIORITY = (
+    "critical_attention",
+    "needs_manual_review",
+    "blocked_missing_data",
+    "followup_overdue",
+    "stale_evidence",
+    "followup_due",
+    "ready_for_close_review",
+    "needs_followup",
+    "equipment_review_needed",
+    "drying_stage_review_needed",
+    "needs_operator_review",
+    "unknown_timing",
+    "active",
+    "closed_or_resolved",
+)
+WATER_EMERGENCY_VIEW_SORT_RANKS = {
+    label: index * 10 for index, label in enumerate(WATER_EMERGENCY_VIEW_FILTER_PRIORITY, start=1)
+}
 
 
 class DashboardReadModelService:
@@ -302,6 +419,20 @@ class DashboardReadModelService:
             operational_events=related_events,
         )
         generated_at = self.now()
+        operator_queue_summary = water_emergency_operator_queue_summary(next_step_summary)
+        aging_followup_summary = water_emergency_aging_followup_summary(
+            water_emergencies,
+            now=generated_at,
+            work_orders=related_work_orders,
+            visits=related_visits,
+            review_items=related_reviews,
+            operational_events=related_events,
+        )
+        view_state_summary = water_emergency_view_state_summary(
+            next_step_summary=next_step_summary,
+            operator_queue_summary=operator_queue_summary,
+            aging_followup_summary=aging_followup_summary,
+        )
 
         return WaterEmergencyDashboardReadModel(
             generated_at=generated_at,
@@ -337,15 +468,9 @@ class DashboardReadModelService:
                 review_items=related_reviews,
             ),
             next_step_summary=next_step_summary,
-            operator_queue_summary=water_emergency_operator_queue_summary(next_step_summary),
-            aging_followup_summary=water_emergency_aging_followup_summary(
-                water_emergencies,
-                now=generated_at,
-                work_orders=related_work_orders,
-                visits=related_visits,
-                review_items=related_reviews,
-                operational_events=related_events,
-            ),
+            operator_queue_summary=operator_queue_summary,
+            aging_followup_summary=aging_followup_summary,
+            view_state_summary=view_state_summary,
             related_job_count=len(related_jobs),
             related_work_order_count=len(water_work_order_ids),
             related_visit_count=len(water_visit_ids),
@@ -1284,6 +1409,174 @@ def water_emergency_aging_followup_summary(
         followup_bucket_counts=count_values(item.followup_bucket for item in items),
         items=items,
     )
+
+
+def water_emergency_view_state_summary(
+    *,
+    next_step_summary: WaterEmergencyNextStepReadinessSummary,
+    operator_queue_summary: WaterEmergencyOperatorQueueSummary,
+    aging_followup_summary: WaterEmergencyAgingFollowUpSummary,
+) -> WaterEmergencyViewStateSummary:
+    readiness_by_id = {record.water_emergency_id: record for record in next_step_summary.records}
+    aging_by_id = {item.water_emergency_id: item for item in aging_followup_summary.items}
+    items = tuple(
+        sorted(
+            (
+                water_emergency_view_state_item(
+                    queue_item,
+                    readiness=readiness_by_id[queue_item.water_emergency_id],
+                    aging=aging_by_id[queue_item.water_emergency_id],
+                )
+                for queue_item in operator_queue_summary.items
+                if queue_item.water_emergency_id in readiness_by_id
+                and queue_item.water_emergency_id in aging_by_id
+            ),
+            key=lambda item: (
+                item.sort_rank,
+                item.primary_filter_group,
+                normalized(item.current_status),
+                normalized(item.current_stage),
+                str(item.water_emergency_id),
+            ),
+        ),
+    )
+    filter_counts = Counter(filter_group for item in items for filter_group in item.filter_groups)
+
+    return WaterEmergencyViewStateSummary(
+        total_records=len(items),
+        active_record_count=count_where(items, lambda item: item.is_active),
+        closed_or_resolved_count=count_where(
+            items,
+            lambda item: item.primary_filter_group == "closed_or_resolved",
+        ),
+        available_filters=tuple(
+            WaterEmergencyFilterOption(
+                key=key,
+                label=label,
+                count=filter_counts[key],
+                description=description,
+            )
+            for key, label, description in WATER_EMERGENCY_FILTER_DEFINITIONS
+        ),
+        sort_options=WATER_EMERGENCY_SORT_OPTIONS,
+        group_counts=count_values(item.primary_filter_group for item in items),
+        items=items,
+    )
+
+
+def water_emergency_view_state_item(
+    queue_item: WaterEmergencyQueueItem,
+    *,
+    readiness: WaterEmergencyNextStepReadiness,
+    aging: WaterEmergencyAgingFollowUpItem,
+) -> WaterEmergencyViewStateItem:
+    filter_groups = water_emergency_view_filter_groups(
+        queue_item,
+        readiness=readiness,
+        aging=aging,
+    )
+    primary_filter_group = water_emergency_primary_view_filter_group(filter_groups)
+
+    return WaterEmergencyViewStateItem(
+        water_emergency_id=queue_item.water_emergency_id,
+        filter_groups=filter_groups,
+        primary_filter_group=primary_filter_group,
+        sort_rank=WATER_EMERGENCY_VIEW_SORT_RANKS.get(primary_filter_group, 999),
+        sort_label=primary_filter_group,
+        queue_group=queue_item.queue_group,
+        attention_label=queue_item.attention_label,
+        time_sensitivity_label=aging.time_sensitivity_label,
+        readiness_label=readiness.primary_label,
+        is_active=primary_filter_group != "closed_or_resolved",
+        current_status=queue_item.current_status,
+        current_stage=queue_item.current_stage,
+        open_review_count=queue_item.open_review_count,
+        critical_alert_count=queue_item.critical_alert_count,
+        blocker_count=queue_item.blocker_count,
+        unknown_count=queue_item.unknown_count,
+        last_activity_at=latest_datetime(
+            (
+                aging.last_event_at,
+                aging.last_review_at,
+                aging.last_visit_at,
+                aging.closed_at,
+                aging.opened_at,
+            ),
+        ),
+        summary=queue_item.summary,
+        reason_codes=tuple(
+            dict.fromkeys((*queue_item.reason_codes, *aging.reason_codes)),
+        ),
+        related_job_id=queue_item.related_job_id,
+        related_work_order_ids=queue_item.related_work_order_ids,
+        related_visit_ids=queue_item.related_visit_ids,
+        audit_correlation_ids=queue_item.audit_correlation_ids,
+        evidence_references=tuple(
+            dict.fromkeys((*queue_item.evidence_references, *aging.evidence_references)),
+        ),
+    )
+
+
+def water_emergency_view_filter_groups(
+    queue_item: WaterEmergencyQueueItem,
+    *,
+    readiness: WaterEmergencyNextStepReadiness,
+    aging: WaterEmergencyAgingFollowUpItem,
+) -> tuple[str, ...]:
+    groups: list[str] = ["all"]
+
+    if queue_item.queue_group == "closed_or_resolved":
+        groups.append("closed_or_resolved")
+    else:
+        groups.append("active")
+
+    labels = set(readiness.labels)
+    if queue_item.attention_label == "critical_attention":
+        groups.append("critical_attention")
+    if (
+        queue_item.attention_label == "needs_manual_review"
+        or "needs_manual_review" in labels
+        or "needs_operator_decision" in labels
+        or aging.time_sensitivity_label == "waiting_for_review"
+    ):
+        groups.append("needs_manual_review")
+    if (
+        queue_item.attention_label == "blocked_missing_data"
+        or "blocked_by_missing_data" in labels
+        or "awaiting_more_information" in labels
+    ):
+        groups.append("blocked_missing_data")
+    if queue_item.attention_label == "needs_followup":
+        groups.append("needs_followup")
+    if queue_item.attention_label == "equipment_review_needed":
+        groups.append("equipment_review_needed")
+    if queue_item.attention_label == "drying_stage_review_needed":
+        groups.append("drying_stage_review_needed")
+    if (
+        queue_item.attention_label == "ready_for_close_review"
+        or readiness.primary_label == "ready_for_close_review"
+        or aging.time_sensitivity_label == "ready_for_close_review"
+    ):
+        groups.append("ready_for_close_review")
+    if queue_item.attention_label == "needs_operator_review":
+        groups.append("needs_operator_review")
+    if aging.time_sensitivity_label in {
+        "followup_due",
+        "followup_overdue",
+        "stale_evidence",
+        "unknown_timing",
+    }:
+        groups.append(aging.time_sensitivity_label)
+
+    return tuple(dict.fromkeys(groups))
+
+
+def water_emergency_primary_view_filter_group(filter_groups: Sequence[str]) -> str:
+    group_set = set(filter_groups)
+    for group in WATER_EMERGENCY_VIEW_FILTER_PRIORITY:
+        if group in group_set:
+            return group
+    return "needs_operator_review"
 
 
 def water_emergency_aging_followup_item(

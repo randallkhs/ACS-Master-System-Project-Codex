@@ -27,6 +27,7 @@ from app.domain.dashboard import (
     WaterEmergencyDryingStageSummary,
     WaterEmergencyEquipmentNote,
     WaterEmergencyEquipmentSummary,
+    WaterEmergencyFilterOption,
     WaterEmergencyJobReference,
     WaterEmergencyNextStepReadiness,
     WaterEmergencyNextStepReadinessSummary,
@@ -36,6 +37,9 @@ from app.domain.dashboard import (
     WaterEmergencyReviewExceptionContext,
     WaterEmergencyReviewExceptionSummary,
     WaterEmergencyReviewIndicator,
+    WaterEmergencySortOption,
+    WaterEmergencyViewStateItem,
+    WaterEmergencyViewStateSummary,
     WaterEmergencyVisitChain,
     WaterEmergencyVisitChainSummary,
     WaterEmergencyVisitReference,
@@ -290,6 +294,70 @@ def water_emergency_contract() -> WaterEmergencyDashboardReadModel:
                     missing_timestamp_indicators=(),
                     stale_indicator_count=0,
                     requires_operator_attention=True,
+                    related_job_id=UUID("00000000-0000-0000-0000-000000000032"),
+                    related_work_order_ids=(),
+                    related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
+                    audit_correlation_ids=("audit-water-001",),
+                    evidence_references=(
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                    ),
+                ),
+            ),
+        ),
+        view_state_summary=WaterEmergencyViewStateSummary(
+            total_records=1,
+            active_record_count=1,
+            closed_or_resolved_count=0,
+            available_filters=(
+                WaterEmergencyFilterOption(
+                    key="all",
+                    label="All records",
+                    count=1,
+                    description="Every persisted Water Emergency record.",
+                ),
+                WaterEmergencyFilterOption(
+                    key="active",
+                    label="Active records",
+                    count=1,
+                    description="Open Water Emergency records.",
+                ),
+                WaterEmergencyFilterOption(
+                    key="needs_manual_review",
+                    label="Needs Manual Review",
+                    count=1,
+                    description="Records with Manual Review evidence.",
+                ),
+            ),
+            sort_options=(
+                WaterEmergencySortOption(
+                    key="attention",
+                    label="Attention priority",
+                    description="Critical, review, blocker, timing, and closed ordering.",
+                ),
+            ),
+            group_counts=(CountBucket(label="needs_manual_review", count=1),),
+            items=(
+                WaterEmergencyViewStateItem(
+                    water_emergency_id=UUID("00000000-0000-0000-0000-000000000031"),
+                    filter_groups=("all", "active", "needs_manual_review"),
+                    primary_filter_group="needs_manual_review",
+                    sort_rank=20,
+                    sort_label="needs_manual_review",
+                    queue_group="active_attention",
+                    attention_label="critical_attention",
+                    time_sensitivity_label="waiting_for_review",
+                    readiness_label="needs_manual_review",
+                    is_active=True,
+                    current_status="drying_in_progress",
+                    current_stage="monitoring",
+                    open_review_count=1,
+                    critical_alert_count=1,
+                    blocker_count=1,
+                    unknown_count=0,
+                    last_activity_at=datetime(2026, 5, 16, 11, 0, tzinfo=UTC),
+                    summary="Critical Water Emergency review evidence needs operator attention.",
+                    reason_codes=("waiting_for_review", "water_detail_review"),
                     related_job_id=UUID("00000000-0000-0000-0000-000000000032"),
                     related_work_order_ids=(),
                     related_visit_ids=(UUID("00000000-0000-0000-0000-000000000033"),),
@@ -598,6 +666,17 @@ def test_dashboard_api_routes_return_read_only_contracts(
         water_response.json()["aging_followup_summary"]["items"][0]["time_sensitivity_label"]
         == "waiting_for_review"
     )
+    assert water_response.json()["view_state_summary"]["available_filters"][0] == {
+        "key": "all",
+        "label": "All records",
+        "count": 1,
+        "description": "Every persisted Water Emergency record.",
+    }
+    assert water_response.json()["view_state_summary"]["items"][0]["filter_groups"] == [
+        "all",
+        "active",
+        "needs_manual_review",
+    ]
     assert water_response.json()["records"][0]["related_visit_ids"] == [
         "00000000-0000-0000-0000-000000000033",
     ]

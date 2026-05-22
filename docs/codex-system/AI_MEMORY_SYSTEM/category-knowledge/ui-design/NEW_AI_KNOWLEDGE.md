@@ -297,3 +297,32 @@ Use this pattern for future time-sensitive dashboards where records need aging a
 
 ### Verification Notes
 Module 37 tests verify backend aging/follow-up labels, closed/resolved separation from active overdue work, unknown timing for missing timestamps, frontend rendering of the Aging & Follow-Up Risk panel, closed timing visibility beyond active limits, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.
+
+---
+
+## Water Emergency Filtering, Sorting, And View-State Visibility
+
+Category:
+UI design / operational dashboard / Water Emergency
+Date Added:
+2026-05-22
+Last Verified:
+2026-05-22
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 38 verification
+
+### Discovery
+Water Emergency filter/sort panels should display backend-provided available filters, sort options, group counts, per-record filter memberships, primary view groups, queue labels, timing labels, readiness labels, counts, last-activity timestamps, related references, and audit evidence only. Frontend controls may change local display state, but they must not persist preferences, call mutation endpoints, or infer workflow authority.
+
+### Why It Matters
+Operators need to isolate critical, Manual Review, blocked, follow-up, stale, ready-for-close, unknown, active, and closed/resolved Water Emergency records quickly. View-state controls improve scanability while preserving backend lifecycle ownership, Manual Review authority, and separation from standard dispatch.
+
+### Reusability
+Use this pattern for future read-only dashboards where user controls should filter and sort existing backend read models without becoming operational controls or workflow engines.
+
+### Verification Notes
+Module 38 tests verify backend filter metadata, deterministic group membership, closed/resolved separation, frontend view-state filtering, empty-state rendering, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.

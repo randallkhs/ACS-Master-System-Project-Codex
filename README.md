@@ -54,7 +54,7 @@ The backend scaffold includes:
 - deterministic operational governance, approval control, manual intervention, replay authorization, rollback authorization, and reconciliation approval foundation with no automatic execution
 - deterministic operational accountability, escalation, intervention-escalation, and incident-preparation foundation with no automatic incident execution
 - deterministic read-only operational dashboard summaries, lifecycle counts, blocker indicators, escalation indicators, event timeline read models, and dashboard API contracts with no mutation or workflow execution endpoints
-- deterministic read-only Water Emergency dashboard summaries, per-record detail read models, status/stage distributions, equipment context, visit-chain summaries, drying-stage visibility, scoped Manual Review indicators, review/exception summaries, critical-alert and blocker indicators, next-step readiness labels, operator queue/attention grouping, data-gap counts, related references, and emergency timeline evidence without Water Emergency execution
+- deterministic read-only Water Emergency dashboard summaries, per-record detail read models, status/stage distributions, equipment context, visit-chain summaries, drying-stage visibility, scoped Manual Review indicators, review/exception summaries, critical-alert and blocker indicators, next-step readiness labels, operator queue/attention grouping, aging/follow-up visibility, filter/sort view-state metadata, data-gap counts, related references, and emergency timeline evidence without Water Emergency execution
 - backend Makefile developer commands
 - pytest and Ruff configuration
 - local PostgreSQL development database check, expanded synthetic dashboard seed scenarios, read-only dashboard endpoint verification scripts, and local bootstrap verification notes
@@ -69,7 +69,7 @@ The frontend foundation includes:
 - TypeScript dashboard API contract types matching the backend Module 23 read models
 - Tailwind CSS admin dashboard shell with sidebar, header, responsive layout, status badges, stat cards, lifecycle panels, operational health signals, warning indicators, and timeline preview
 - read-only scenario storyboard section that groups existing backend read-model counts into local seed scenario families without adding workflow logic
-- dedicated read-only Water Emergency dashboard and detail/timeline sections that consume the separated Water Emergency API contracts, including operator queue/attention grouping, equipment context, visit-chain, drying-stage, review/exception, blocker, critical-alert, and next-step readiness visibility, without adding create/close/dispatch/approval controls
+- dedicated read-only Water Emergency dashboard and detail/timeline sections that consume the separated Water Emergency API contracts, including operator queue/attention grouping, aging/follow-up visibility, filter/sort view-state controls, equipment context, visit-chain, drying-stage, review/exception, blocker, critical-alert, and next-step readiness visibility, without adding create/close/dispatch/approval controls
 - server-side read-only dashboard API client using `ACS_DASHBOARD_API_BASE_URL`
 - typed mock/fallback data for local layout work when the backend is unavailable
 - smoke tests for dashboard API client behavior, dashboard rendering, and absence of operational mutation controls

@@ -856,3 +856,22 @@ Unresolved:
 - how escalation acknowledgement and closure should work once auth exists
 - how accountability should create or link Manual Review items in future modules
 - how Water Emergency accountability persistence should differ from the standard path
+
+## Water Emergency Filter/Sort View-State Projection
+
+Phase 0 Module 38 adds read-only filter, sort, grouping, and view-state metadata to the Water Emergency dashboard contract without adding database tables or columns.
+
+Persistence philosophy:
+
+- filter options, sort options, primary view groups, and sort ranks are derived read-model projections
+- frontend filter selection is display state only and is not persisted as operational state
+- view-state items combine existing Water Emergency, Work Order, Visit, Review, and operational event evidence through the existing readiness, queue, and aging projections
+- closed/resolved records remain separated from active records in the read model
+- missing or ambiguous evidence remains visible as blocked, unknown, or needs-operator-review context instead of hidden lifecycle progress
+
+Unresolved:
+
+- whether production saved views or role-specific filters need dedicated persistence later
+- final Luis-confirmed filter, triage, queue, SLA, and Water Emergency operations taxonomy
+- production pagination/query optimization for larger Water Emergency record sets
+- how future authenticated actions should interact with filter state without making the frontend the source of truth

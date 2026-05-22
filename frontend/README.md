@@ -238,6 +238,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Aging visibility is not an SLA engine. The frontend does not schedule follow-ups, escalate work, approve reviews, close records, dispatch Water Emergency visits, or execute vendor/AI calls.
 - Timing labels are not the final ACS operations taxonomy; future authenticated workflow modules still need Luis-confirmed SLA/follow-up rules and operator authority design.
 
+## Module 38 Water Emergency View-State Notes
+
+- The Water Emergency summary now displays a `Water Emergency View State` panel with backend-provided filter options, sort options, selected group counts, active visible records, and closed/resolved visible records.
+- Filter and sort controls are frontend view-state controls only. They do not call mutation endpoints, persist preferences, approve reviews, dispatch visits, close records, escalate work, call vendors, or call AI.
+- Closed or resolved Water Emergency records remain visually separated from active records even when filters and active-list limits are used.
+- View-state records combine backend queue labels, aging/follow-up labels, readiness labels, review/critical/blocker/unknown counts, last-activity timestamps, related references, and evidence references.
+- Filter labels are not the final ACS operations taxonomy; future authenticated workflow modules still need Luis-confirmed triage/filter rules, role-scoped visibility, and production pagination decisions.
+
 ## Troubleshooting
 
 - If the dashboard shows `Mock fallback`, confirm `frontend/.env.local` contains `ACS_DASHBOARD_API_BASE_URL=http://127.0.0.1:8000`.
