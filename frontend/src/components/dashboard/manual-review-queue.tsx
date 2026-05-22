@@ -1,9 +1,25 @@
+"use client";
+
+import { useMemo, useState, useSyncExternalStore } from "react";
 import type {
   DashboardFetchResult,
   ManualReviewQueueItemResponse,
   ManualReviewQueueResponse
 } from "@/lib/dashboard-contracts";
-import { compactId, formatDateTime, humanizeLabel } from "@/lib/format";
+import {
+  deriveManualReviewVisibleRecords,
+  type ManualReviewSortKey
+} from "@/lib/manual-review-view-state";
+import {
+  getManualReviewBrowserStorage,
+  getManualReviewViewPreferencesServerSnapshot,
+  getManualReviewViewPreferencesSnapshot,
+  notifyManualReviewViewPreferencesChanged,
+  readManualReviewViewPreferencesSnapshot,
+  subscribeManualReviewViewPreferences,
+  writeManualReviewViewPreferences
+} from "@/lib/manual-review-view-preferences";
+import { compactId, formatCount, formatDateTime, humanizeLabel } from "@/lib/format";
 import { CountBucketPanel } from "@/components/dashboard/count-bucket-panel";
 import { SectionCard } from "@/components/dashboard/section-card";
 import { SectionHeading } from "@/components/dashboard/section-heading";
@@ -19,18 +35,66 @@ type ManualReviewQueueProps = {
 
 export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
   const { data } = result;
-  const waterEmergencyItems = data.items.filter((item) =>
-    item.visibility_groups.includes("water_emergency_related")
+  const [fallbackPreferences, setFallbackPreferences] = useState({
+    selectedFilter: "all",
+    selectedSort: "attention" as ManualReviewSortKey
+  });
+  const availableFilterKeys = useMemo(
+    () => new Set(data.available_filters.map((option) => option.key)),
+    [data.available_filters]
   );
-  const standardItems = data.items.filter(
-    (item) => !item.visibility_groups.includes("water_emergency_related")
+  const availableSortKeys = useMemo(
+    () => new Set(data.sort_options.map((option) => option.key)),
+    [data.sort_options]
   );
-  const activeStandardItems = standardItems.filter(
+  const preferenceSnapshot = useSyncExternalStore(
+    subscribeManualReviewViewPreferences,
+    getManualReviewViewPreferencesSnapshot,
+    getManualReviewViewPreferencesServerSnapshot
+  );
+  const preferenceReadResult = useMemo(
+    () =>
+      readManualReviewViewPreferencesSnapshot(preferenceSnapshot, {
+        availableFilterKeys,
+        availableSortKeys
+      }),
+    [availableFilterKeys, availableSortKeys, preferenceSnapshot]
+  );
+  const selectedFilter =
+    preferenceReadResult.preferences?.selectedFilter ?? fallbackPreferences.selectedFilter;
+  const selectedSort =
+    preferenceReadResult.preferences?.selectedSort ?? fallbackPreferences.selectedSort;
+  const viewState = useMemo(
+    () =>
+      deriveManualReviewVisibleRecords(data, {
+        selectedFilter,
+        selectedSort
+      }),
+    [data, selectedFilter, selectedSort]
+  );
+  const activeStandardItems = viewState.visibleStandardItems.filter(
     (item) => item.attention_indicator
   );
-  const inactiveStandardItems = standardItems.filter(
+  const inactiveStandardItems = viewState.visibleStandardItems.filter(
     (item) => !item.attention_indicator
   );
+
+  function savePreferences(nextPreferences: {
+    selectedFilter: string;
+    selectedSort: ManualReviewSortKey;
+  }) {
+    const writeResult = writeManualReviewViewPreferences(
+      getManualReviewBrowserStorage(),
+      nextPreferences
+    );
+
+    if (writeResult.available) {
+      notifyManualReviewViewPreferencesChanged();
+      return;
+    }
+
+    setFallbackPreferences(nextPreferences);
+  }
 
   return (
     <section className="space-y-4">
@@ -68,6 +132,80 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
       </div>
 
       <SectionCard
+        title="Manual Review View State"
+        description="Read-only filter and sort controls change only this dashboard view. They do not approve, reject, defer, archive, dispatch, or update Manual Review records."
+      >
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="text-sm font-semibold text-[#162033]">
+              Filter review items
+              <select
+                className="mt-2 min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-[#162033] shadow-sm focus:border-[#2f7ae5] focus:outline-none focus:ring-2 focus:ring-[#2f7ae5]/20"
+                value={viewState.selectedFilter.key}
+                onChange={(event) =>
+                  savePreferences({
+                    selectedFilter: event.target.value,
+                    selectedSort
+                  })
+                }
+              >
+                {data.available_filters.map((filter) => (
+                  <option key={filter.key} value={filter.key}>
+                    {filter.label} ({formatCount(filter.count)})
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm font-semibold text-[#162033]">
+              Sort review items
+              <select
+                className="mt-2 min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-[#162033] shadow-sm focus:border-[#2f7ae5] focus:outline-none focus:ring-2 focus:ring-[#2f7ae5]/20"
+                value={viewState.selectedSort.key}
+                onChange={(event) =>
+                  savePreferences({
+                    selectedFilter,
+                    selectedSort: event.target.value as ManualReviewSortKey
+                  })
+                }
+              >
+                {data.sort_options.map((sort) => (
+                  <option key={sort.key} value={sort.key}>
+                    {sort.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-3">
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Saved view preferences
+            </div>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Stored on this device only. The selected Manual Review filter and
+              sort order are browser view preferences, not backend operational
+              state.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <MiniMetric
+            label="Selected records"
+            value={formatCount(viewState.visibleItems.length)}
+          />
+          <MiniMetric
+            label="Backend result window"
+            value={`${formatCount(data.result_window_metadata.visible_count)} of ${formatCount(data.result_window_metadata.total_count)}`}
+          />
+          <MiniMetric
+            label="Current sort"
+            value={viewState.selectedSort.label}
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard
         title="Randall-authorized Phase 0 review taxonomy baseline"
         description={`${data.taxonomy_metadata.baseline_note} These labels are internal software visibility groups, not legal policy, insurance language, or Manual Review action authority.`}
       >
@@ -93,7 +231,7 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         <ReviewItemGroup
           title="Water Emergency-related reviews"
           description="Separated Manual Review visibility for review records tied to Water Emergency records, jobs, or visits."
-          items={waterEmergencyItems}
+          items={viewState.visibleWaterEmergencyItems}
           emptyLabel="No Water Emergency-related review items returned."
         />
 
@@ -101,7 +239,7 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
           title="Standard dispatch and other reviews"
           description="Standard job, work-order, visit, route-assignment, and uncategorized review items remain read-only."
           items={[...activeStandardItems, ...inactiveStandardItems]}
-          emptyLabel="No standard dispatch or other review items returned."
+          emptyLabel="No standard dispatch or other review items match the selected read-only filter."
         />
       </div>
     </section>

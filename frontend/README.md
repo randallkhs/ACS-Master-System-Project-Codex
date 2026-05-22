@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 39 keeps the frontend foundation read-only while adding Water Emergency governance notes, frontend-only saved view preferences, and scalability/read-model metadata visibility backed by separated backend contracts.
+Phase 0 Module 42 keeps the frontend foundation read-only while adding Manual Review queue filtering, sorting, browser-only saved view preferences, and queue result metadata visibility backed by separated backend contracts.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -141,6 +141,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Water Emergency aging and follow-up risk visibility panel
 - Water Emergency filter/sort view-state panel with frontend-only saved preferences
 - Water Emergency Randall-authorized Phase 0 baseline and Alfonso owner-review boundary notes
+- Manual Review queue filter/sort view-state panel with frontend-only saved preferences
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -269,6 +270,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - The Manual Review detail panel shows the selected review summary, reason/evidence context, linked entity context, Water Emergency separation when applicable, data-gap indicators, audit references, and backend-ordered timeline evidence.
 - A live 404 for the detail endpoint renders a safe not-found/null detail state instead of substituting mock detail data.
 - The detail panel is read-only and does not add approve, reject, defer, archive, resolve, dispatch, vendor, or AI controls.
+
+## Module 42 Manual Review Filter And Saved-View Notes
+
+- The Manual Review Queue now displays read-only filter and sort controls backed by backend-provided filter options, sort options, counts, and result-window metadata.
+- Filters can isolate open, deferred, resolved, archived, active-attention, Water Emergency-related, dispatch-related, missing-data, duplicate/conflict, cancellation/status-uncertainty, and needs-operator-review records without changing backend state.
+- The selected Manual Review filter and sort option can persist only in browser localStorage. The preference stores no tokens, secrets, PII, customer data, backend records, or operational workflow state.
+- If localStorage is unavailable, the dashboard falls back to in-memory defaults without blocking Manual Review visibility.
+- The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution controls.
 
 ## Module 38 Water Emergency View-State Notes
 

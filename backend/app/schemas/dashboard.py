@@ -71,6 +71,28 @@ class ManualReviewTaxonomyMetadataResponse(DashboardSchema):
     group_definitions: tuple[ManualReviewTaxonomyMetadataItemResponse, ...]
 
 
+class ManualReviewFilterOptionResponse(DashboardSchema):
+    key: str
+    label: str
+    count: int
+    description: str
+
+
+class ManualReviewSortOptionResponse(DashboardSchema):
+    key: str
+    label: str
+    description: str
+
+
+class ManualReviewResultWindowMetadataResponse(DashboardSchema):
+    total_count: int
+    visible_count: int
+    result_limit: int
+    has_more: bool
+    sort_key: str
+    generated_at: datetime
+
+
 class ManualReviewQueueItemResponse(DashboardSchema):
     review_item_id: UUID
     status: str
@@ -118,6 +140,9 @@ class ManualReviewQueueResponse(DashboardSchema):
     age_bucket_counts: tuple[CountBucketResponse, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadataResponse
+    available_filters: tuple[ManualReviewFilterOptionResponse, ...]
+    sort_options: tuple[ManualReviewSortOptionResponse, ...]
+    result_window_metadata: ManualReviewResultWindowMetadataResponse
     items: tuple[ManualReviewQueueItemResponse, ...]
 
 

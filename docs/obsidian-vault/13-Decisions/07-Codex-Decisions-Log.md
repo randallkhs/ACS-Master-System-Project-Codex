@@ -1339,3 +1339,36 @@ Use this file for durable decisions that affect future development. Do not recor
   - Manual Review business-rule documentation
   - System architecture notes
   - API/frontend contract notes
+
+---
+
+## 2026-05-22 — Phase 0 Module 42 Manual Review Filtering, Sorting, View Preferences, And Queue Scalability Visibility
+
+- Decision type: Implementation / Manual Review visibility / read-only view-state contract
+- Status: Implemented
+- Decision:
+  - Extend the Manual Review queue read model with available filter options, sort options, and result-window metadata.
+  - Keep filter groups as Randall-authorized Phase 0 visibility labels: all, open, deferred, resolved, archived, active attention, Water Emergency-related, dispatch-related, missing data, duplicate/conflict, cancellation/status uncertainty, and needs operator review.
+  - Add frontend read-only filter and sort controls that change only local dashboard view state.
+  - Add browser-only saved Manual Review filter/sort preferences with safe fallback when localStorage is unavailable.
+  - Preserve Water Emergency-related review separation from standard dispatch and other Manual Review items.
+- Rationale:
+  - Manual Review is the system safety authority, so operators need faster scanning and isolation of review states before action workflows exist.
+  - Filtering and sorting should improve visibility without hiding active safety records by default or creating approval/rejection authority.
+  - Result-window metadata prepares future queue scaling decisions without adding backend pagination parameters or workflow execution.
+- Future implications:
+  - Future authenticated modules still need formal Manual Review action workflows.
+  - Future production queues may need backend query parameters, pagination, role-scoped visibility, refresh cadence, stale-data indicators, and backend-persisted user preferences.
+  - Review group labels may later be refined with stakeholder feedback, but Module 42 treats them as safe internal Phase 0 visibility defaults.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review view-state/preference helpers
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - System architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

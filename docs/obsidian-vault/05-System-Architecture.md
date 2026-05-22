@@ -819,6 +819,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 42 Manual Review Filter/Sort View-State Boundary
+
+Module 42 extends Manual Review queue visibility with read-only filtering, sorting, frontend saved view preferences, and queue result metadata:
+
+- backend read models expose available Manual Review filter options, sort options, result-window metadata, and counts from existing ReviewItem evidence
+- filter groups include all, open, deferred, resolved, archived, active attention, Water Emergency-related, dispatch-related, missing data, duplicate/conflict, cancellation/status uncertainty, and needs operator review
+- frontend controls change only local dashboard view state and preserve Water Emergency-related review separation
+- frontend saved preferences are limited to selected Manual Review filter and sort order in browser storage, with safe in-memory fallback when storage is unavailable
+- open/active Manual Review items remain visible unless the operator explicitly chooses a narrower local view filter
+
+The boundary remains projection and view-state only. The endpoint and UI do not execute Manual Review actions, mutate review records, persist backend preferences, dispatch work, call external integrations, add AI authority, implement auth/RBAC, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review approve/reject/defer/archive workflows
+- final Manual Review filter/action taxonomy and role authority
+- whether saved view preferences should later move from browser-only storage to backend user preferences
+- production query parameters, pagination, refresh cadence, stale-data behavior, and role-scoped visibility for large review queues
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

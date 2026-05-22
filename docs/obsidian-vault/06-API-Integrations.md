@@ -687,3 +687,29 @@ Open API/frontend concerns:
 - final Manual Review reason/action taxonomy
 - role-scoped review visibility after auth/RBAC exists
 - production pagination/query parameters once review queue volume requires them
+
+## Phase 0 Module 42 Manual Review Filter/Sort And View Preference Contract Boundary
+
+The Manual Review queue API contract now includes read-only filter/sort metadata and result-window metadata for frontend view-state.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes available filter options, sort options, and result-window metadata alongside queue items.
+- filter options include all, open, deferred, resolved, archived, active attention, Water Emergency-related, dispatch-related, missing data, duplicate/conflict, cancellation/status uncertainty, and needs operator review.
+- sort options are informational read-only choices for frontend view-state: attention priority, newest first, and status/reason ordering.
+- result-window metadata exposes total count, visible count, result limit, `has_more`, sort key, and generated timestamp for future pagination/query scaling readiness.
+- frontend saved view preferences are browser-local state only and are not sent to the backend API.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, backend preference persistence, or workflow execution calls are added
+- filter/sort metadata changes only dashboard visibility and must not imply operational approval, closure, rejection, dispatch, or escalation
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review action endpoints
+- final Manual Review filter/action taxonomy
+- role-scoped review visibility after auth/RBAC exists
+- future backend-persisted saved preferences if ACS needs account-level saved views
+- production pagination/query parameters once review queue volume requires them

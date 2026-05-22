@@ -75,6 +75,31 @@ class ManualReviewTaxonomyMetadata:
 
 
 @dataclass(frozen=True, slots=True)
+class ManualReviewFilterOption:
+    key: str
+    label: str
+    count: int
+    description: str
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewSortOption:
+    key: str
+    label: str
+    description: str
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewResultWindowMetadata:
+    total_count: int
+    visible_count: int
+    result_limit: int
+    has_more: bool
+    sort_key: str
+    generated_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewQueueItem:
     review_item_id: UUID
     status: str
@@ -123,6 +148,9 @@ class ManualReviewQueueReadModel:
     age_bucket_counts: tuple[CountBucket, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadata
+    available_filters: tuple[ManualReviewFilterOption, ...]
+    sort_options: tuple[ManualReviewSortOption, ...]
+    result_window_metadata: ManualReviewResultWindowMetadata
     items: tuple[ManualReviewQueueItem, ...]
 
 

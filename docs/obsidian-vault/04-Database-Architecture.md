@@ -896,3 +896,23 @@ Unresolved:
 - whether future pagination should use cursor-based read models or materialized dashboard projections
 - exact role-scoped visibility rules after auth exists
 - final owner-reviewed SLA, insurance, drying certification, warranty, and customer-facing policy language
+
+## Manual Review Filter/Sort View-State Projection
+
+Phase 0 Module 42 adds read-only filter, sort, and result-window metadata to the Manual Review queue contract without adding database tables or columns.
+
+Persistence philosophy:
+
+- Manual Review filter groups and sort options are derived read-model metadata from existing ReviewItem evidence
+- frontend filter selection and sort selection are display state only and are not persisted as backend operational state
+- browser-local saved preferences may remember only the selected Manual Review filter and sort option
+- saved preferences must not store tokens, secrets, PII, customer data, backend records, or Manual Review decisions
+- Water Emergency-related reviews remain separated through concrete persisted linkage, not frontend inference
+- no authentication, RBAC, user-preference table, backend saved-view persistence, or Manual Review action execution is added in Module 42
+
+Unresolved:
+
+- whether future authenticated saved views need a dedicated user-preferences table
+- whether production review queues should use cursor-based pagination, result windows, or materialized projections
+- exact role-scoped Manual Review visibility rules after auth exists
+- final Manual Review action taxonomy and operator authority model

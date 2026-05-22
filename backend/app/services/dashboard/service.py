@@ -17,9 +17,12 @@ from app.domain.dashboard import (
     GovernanceAccountabilitySummary,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
+    ManualReviewFilterOption,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
+    ManualReviewResultWindowMetadata,
+    ManualReviewSortOption,
     ManualReviewSummary,
     ManualReviewTaxonomyMetadata,
     ManualReviewTaxonomyMetadataItem,
@@ -364,6 +367,85 @@ MANUAL_REVIEW_GROUP_DEFINITIONS = (
         "Fallback visibility group when no more specific Phase 0 group is deterministic.",
     ),
 )
+MANUAL_REVIEW_FILTER_DEFINITIONS = (
+    (
+        "all",
+        "All reviews",
+        "Every persisted Manual Review item returned by this read-only queue.",
+    ),
+    (
+        "open",
+        "Open",
+        "Open Manual Review items requiring safety visibility.",
+    ),
+    (
+        "deferred",
+        "Deferred",
+        "Review items intentionally deferred for later operator follow-up.",
+    ),
+    (
+        "resolved",
+        "Resolved",
+        "Resolved review items kept separate from active review needs.",
+    ),
+    (
+        "archived",
+        "Archived",
+        "Archived review history separated from active review needs.",
+    ),
+    (
+        "active_attention",
+        "Active attention",
+        "Open or deferred review items still requiring operator attention.",
+    ),
+    (
+        "water_emergency_related",
+        "Water Emergency related",
+        "Review items specifically tied to Water Emergency records, jobs, or visits.",
+    ),
+    (
+        "dispatch_related",
+        "Dispatch related",
+        "Review items tied to standard job, work-order, visit, or route evidence.",
+    ),
+    (
+        "missing_data",
+        "Missing data",
+        "Review items whose reason indicates missing, invalid, incomplete, or unknown data.",
+    ),
+    (
+        "duplicate_or_conflict",
+        "Duplicate or conflict",
+        "Review items whose reason indicates duplicate or conflicting evidence.",
+    ),
+    (
+        "cancellation_or_status_uncertainty",
+        "Cancellation or status uncertainty",
+        "Review items whose reason indicates cancellation or status uncertainty.",
+    ),
+    (
+        "needs_operator_review",
+        "Needs operator review",
+        "Fallback visibility group when no more specific Phase 0 group is deterministic.",
+    ),
+)
+MANUAL_REVIEW_SORT_OPTIONS = (
+    ManualReviewSortOption(
+        key="attention",
+        label="Attention priority",
+        description="Active, blocker, severity, status, and created-time ordering.",
+    ),
+    ManualReviewSortOption(
+        key="newest",
+        label="Newest first",
+        description="Most recently created Manual Review items first.",
+    ),
+    ManualReviewSortOption(
+        key="status",
+        label="Status and reason",
+        description="Status group, reason code, attention, and created-time ordering.",
+    ),
+)
 
 
 class DashboardReadModelService:
@@ -583,6 +665,12 @@ class DashboardReadModelService:
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
+            available_filters=manual_review_filter_options(queue_items),
+            sort_options=MANUAL_REVIEW_SORT_OPTIONS,
+            result_window_metadata=manual_review_result_window_metadata(
+                queue_items=queue_items,
+                generated_at=generated_at,
+            ),
             items=queue_items,
         )
 
@@ -1281,6 +1369,45 @@ def manual_review_taxonomy_metadata() -> ManualReviewTaxonomyMetadata:
             )
             for key, label, reason in MANUAL_REVIEW_GROUP_DEFINITIONS
         ),
+    )
+
+
+def manual_review_filter_options(
+    queue_items: Sequence[ManualReviewQueueItem],
+) -> tuple[ManualReviewFilterOption, ...]:
+    filter_counts = Counter(
+        filter_group for item in queue_items for filter_group in item.visibility_groups
+    )
+    filter_counts["all"] = len(queue_items)
+    filter_counts["active_attention"] = count_where(
+        queue_items,
+        lambda item: item.attention_indicator,
+    )
+
+    return tuple(
+        ManualReviewFilterOption(
+            key=key,
+            label=label,
+            count=filter_counts[key],
+            description=description,
+        )
+        for key, label, description in MANUAL_REVIEW_FILTER_DEFINITIONS
+    )
+
+
+def manual_review_result_window_metadata(
+    *,
+    queue_items: Sequence[ManualReviewQueueItem],
+    generated_at: datetime,
+) -> ManualReviewResultWindowMetadata:
+    total_count = len(queue_items)
+    return ManualReviewResultWindowMetadata(
+        total_count=total_count,
+        visible_count=total_count,
+        result_limit=total_count,
+        has_more=False,
+        sort_key="attention",
+        generated_at=generated_at,
     )
 
 

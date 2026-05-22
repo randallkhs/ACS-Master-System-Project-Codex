@@ -417,6 +417,29 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert queue.taxonomy_metadata.randall_authorized_phase_0_baseline is True
     assert queue.taxonomy_metadata.legal_or_insurance_policy is False
     assert queue.taxonomy_metadata.requires_alfonso_owner_review is False
+    assert queue.result_window_metadata.total_count == 4
+    assert queue.result_window_metadata.visible_count == 4
+    assert queue.result_window_metadata.result_limit == 4
+    assert queue.result_window_metadata.has_more is False
+    assert queue.result_window_metadata.sort_key == "attention"
+
+    filter_counts = {option.key: option.count for option in queue.available_filters}
+    assert filter_counts["all"] == 4
+    assert filter_counts["open"] == 1
+    assert filter_counts["deferred"] == 1
+    assert filter_counts["resolved"] == 1
+    assert filter_counts["archived"] == 1
+    assert filter_counts["active_attention"] == 2
+    assert filter_counts["water_emergency_related"] == 1
+    assert filter_counts["dispatch_related"] == 3
+    assert filter_counts["missing_data"] == 1
+    assert filter_counts["duplicate_or_conflict"] == 1
+    assert filter_counts["cancellation_or_status_uncertainty"] == 1
+    assert {option.key for option in queue.sort_options} == {
+        "attention",
+        "newest",
+        "status",
+    }
 
 
 def test_manual_review_detail_read_model_includes_entity_context_and_ordered_evidence() -> None:

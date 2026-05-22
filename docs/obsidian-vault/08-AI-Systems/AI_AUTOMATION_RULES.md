@@ -351,6 +351,30 @@ AI is still not used in this module.
 
 AI must not infer final Water Emergency legal policy, insurance policy, SLA taxonomy, warranty language, drying certification language, owner-review outcomes, role authorization, saved-view authority, or workflow priority. AI must not approve Manual Review, close emergency work, schedule follow-up visits, authorize equipment pickup, confirm drying stages, dispatch Water Emergency visits, call vendor integrations, persist backend preferences, implement auth/RBAC, or transform governance metadata into workflow control. Future AI explanations for Water Emergency governance evidence must remain advisory and separate from persisted backend read models and Alfonso owner-review policy decisions.
 
+## Phase 0 Module 40 Boundary
+
+Manual Review queue visibility is deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer final Manual Review action taxonomy, approve, reject, defer, archive, resolve, dispatch, escalate, clear blockers, call vendor integrations, or transform queue visibility into workflow control. Future AI explanations for Manual Review queue evidence must remain advisory and separate from persisted backend read models.
+
+## Phase 0 Module 41 Boundary
+
+Manual Review detail and evidence timeline visibility is deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer hidden lifecycle transitions from Manual Review detail evidence, approve, reject, defer, archive, resolve, dispatch, escalate, clear blockers, call vendor integrations, or transform timeline context into workflow control. Future AI explanations for Manual Review detail evidence must remain advisory and separate from persisted backend read models.
+
+## Phase 0 Module 42 Boundary
+
+Manual Review filtering, sorting, saved view preferences, and queue scalability visibility are deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer final Manual Review filter taxonomy, choose operational priority, approve, reject, defer, archive, resolve, dispatch, escalate, persist backend preferences, implement auth/RBAC, call vendor integrations, or transform frontend view-state into workflow control. Future AI explanations for Manual Review filter/sort evidence must remain advisory and separate from persisted backend read models.
+
 ---
 
 ## Confidence And Review

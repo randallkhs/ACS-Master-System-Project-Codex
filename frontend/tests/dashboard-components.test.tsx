@@ -17,11 +17,17 @@ import type {
   WaterEmergencyViewStateItemResponse
 } from "@/lib/dashboard-contracts";
 import { deriveWaterEmergencyVisibleRecords } from "@/lib/water-emergency-view-state";
+import { deriveManualReviewVisibleRecords } from "@/lib/manual-review-view-state";
 import {
   getBrowserStorage,
   readWaterEmergencyViewPreferences,
   writeWaterEmergencyViewPreferences
 } from "@/lib/water-emergency-view-preferences";
+import {
+  getManualReviewBrowserStorage,
+  readManualReviewViewPreferences,
+  writeManualReviewViewPreferences
+} from "@/lib/manual-review-view-preferences";
 
 const mockWaterEmergencyResult = {
   data: mockWaterEmergencyDashboard,
@@ -611,6 +617,136 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Defer review");
     expect(html).not.toContain("Archive review");
     expect(html).not.toContain("Action");
+  });
+
+  it("renders Manual Review filter controls and can isolate Water Emergency reviews", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+        manualReviewQueueResult={mockManualReviewQueueResult}
+      />
+    );
+    const visibleRecords = deriveManualReviewVisibleRecords(mockManualReviewQueue, {
+      selectedFilter: "water_emergency_related",
+      selectedSort: "attention"
+    });
+
+    expect(html).toContain("Manual Review View State");
+    expect(html).toContain("Filter review items");
+    expect(html).toContain("Sort review items");
+    expect(html).toContain("Saved view preferences");
+    expect(visibleRecords.visibleItems).toHaveLength(1);
+    expect(visibleRecords.visibleItems[0]?.water_emergency_id).not.toBeNull();
+    expect(visibleRecords.visibleStandardItems).toHaveLength(0);
+    expect(visibleRecords.visibleWaterEmergencyItems).toHaveLength(1);
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve review");
+    expect(html).not.toContain("Reject review");
+    expect(html).not.toContain("Defer review");
+    expect(html).not.toContain("Archive review");
+  });
+
+  it("renders a safe empty state when a Manual Review filter has no records", () => {
+    const visibleRecords = deriveManualReviewVisibleRecords(mockManualReviewQueue, {
+      selectedFilter: "active_attention",
+      selectedSort: "attention"
+    });
+    const emptyQueue: ManualReviewQueueResponse = {
+      ...mockManualReviewQueue,
+      available_filters: mockManualReviewQueue.available_filters.map((filter) =>
+        filter.key === "active_attention" ? { ...filter, count: 0 } : filter
+      ),
+      items: mockManualReviewQueue.items.map((item) => ({
+        ...item,
+        attention_indicator: false,
+        visibility_groups: item.visibility_groups.filter(
+          (group) => group !== "active_attention"
+        )
+      }))
+    };
+    const emptyVisibleRecords = deriveManualReviewVisibleRecords(emptyQueue, {
+      selectedFilter: "active_attention",
+      selectedSort: "attention"
+    });
+
+    expect(visibleRecords.visibleItems.length).toBeGreaterThan(0);
+    expect(emptyVisibleRecords.visibleItems).toHaveLength(0);
+  });
+
+  it("persists Manual Review filter and sort preferences in safe local storage", () => {
+    const storage = createMemoryStorage();
+
+    const writeResult = writeManualReviewViewPreferences(storage, {
+      selectedFilter: "water_emergency_related",
+      selectedSort: "newest"
+    });
+    const readResult = readManualReviewViewPreferences(storage, {
+      availableFilterKeys: new Set(["all", "water_emergency_related"]),
+      availableSortKeys: new Set(["attention", "newest"])
+    });
+
+    expect(writeResult.available).toBe(true);
+    expect(readResult.available).toBe(true);
+    expect(readResult.preferences).toEqual({
+      selectedFilter: "water_emergency_related",
+      selectedSort: "newest"
+    });
+  });
+
+  it("fails safely when Manual Review saved-view storage is unavailable", () => {
+    const storage = createThrowingStorage();
+
+    const writeResult = writeManualReviewViewPreferences(storage, {
+      selectedFilter: "water_emergency_related",
+      selectedSort: "newest"
+    });
+    const readResult = readManualReviewViewPreferences(storage, {
+      availableFilterKeys: new Set(["all", "water_emergency_related"]),
+      availableSortKeys: new Set(["attention", "newest"])
+    });
+
+    expect(writeResult.available).toBe(false);
+    expect(readResult.available).toBe(false);
+    expect(readResult.preferences).toBeNull();
+  });
+
+  it("returns null when Manual Review browser localStorage access throws", () => {
+    const originalWindow = globalThis.window;
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: {
+        get localStorage() {
+          throw new Error("localStorage access denied");
+        }
+      }
+    });
+
+    try {
+      const storage = getManualReviewBrowserStorage();
+      const writeResult = writeManualReviewViewPreferences(storage, {
+        selectedFilter: "water_emergency_related",
+        selectedSort: "newest"
+      });
+      const readResult = readManualReviewViewPreferences(storage, {
+        availableFilterKeys: new Set(["all", "water_emergency_related"]),
+        availableSortKeys: new Set(["attention", "newest"])
+      });
+
+      expect(storage).toBeNull();
+      expect(writeResult.available).toBe(false);
+      expect(readResult.available).toBe(false);
+      expect(readResult.preferences).toBeNull();
+    } finally {
+      Object.defineProperty(globalThis, "window", {
+        configurable: true,
+        value: originalWindow
+      });
+    }
   });
 
   it("renders Manual Review detail, linked entity context, and timeline evidence without actions", () => {

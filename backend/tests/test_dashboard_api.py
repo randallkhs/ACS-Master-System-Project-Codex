@@ -14,9 +14,12 @@ from app.domain.dashboard import (
     GovernanceAccountabilitySummary,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
+    ManualReviewFilterOption,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
+    ManualReviewResultWindowMetadata,
+    ManualReviewSortOption,
     ManualReviewSummary,
     ManualReviewTaxonomyMetadata,
     ManualReviewTaxonomyMetadataItem,
@@ -719,6 +722,46 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                 ),
             ),
         ),
+        available_filters=(
+            ManualReviewFilterOption(
+                key="all",
+                label="All reviews",
+                count=2,
+                description="Every persisted Manual Review item returned by this read-only queue.",
+            ),
+            ManualReviewFilterOption(
+                key="active_attention",
+                label="Active attention",
+                count=1,
+                description="Open or deferred review items still requiring operator attention.",
+            ),
+            ManualReviewFilterOption(
+                key="water_emergency_related",
+                label="Water Emergency related",
+                count=1,
+                description="Review items specifically tied to Water Emergency records.",
+            ),
+        ),
+        sort_options=(
+            ManualReviewSortOption(
+                key="attention",
+                label="Attention priority",
+                description="Active, blocker, severity, status, and created-time ordering.",
+            ),
+            ManualReviewSortOption(
+                key="newest",
+                label="Newest first",
+                description="Most recently created Manual Review items first.",
+            ),
+        ),
+        result_window_metadata=ManualReviewResultWindowMetadata(
+            total_count=2,
+            visible_count=2,
+            result_limit=2,
+            has_more=False,
+            sort_key="attention",
+            generated_at=datetime(2026, 5, 16, 12, 50, tzinfo=UTC),
+        ),
         items=(
             ManualReviewQueueItem(
                 review_item_id=UUID("00000000-0000-0000-0000-000000000040"),
@@ -972,6 +1015,19 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["active_attention_count"] == 1
     assert manual_review_queue_response.json()["water_emergency_related_count"] == 1
     assert manual_review_queue_response.json()["dispatch_related_count"] == 1
+    assert manual_review_queue_response.json()["result_window_metadata"] == {
+        "total_count": 2,
+        "visible_count": 2,
+        "result_limit": 2,
+        "has_more": False,
+        "sort_key": "attention",
+        "generated_at": "2026-05-16T12:50:00Z",
+    }
+    assert manual_review_queue_response.json()["available_filters"][1]["key"] == (
+        "active_attention"
+    )
+    assert manual_review_queue_response.json()["available_filters"][1]["count"] == 1
+    assert manual_review_queue_response.json()["sort_options"][0]["key"] == "attention"
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"

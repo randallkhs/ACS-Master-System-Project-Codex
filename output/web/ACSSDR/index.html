@@ -1004,7 +1004,7 @@
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
                 <span class="status-pill"><span class="status-dot"></span>Under Development</span>
-                <strong>Last updated: May 22, 2026 at 2:59 PM EDT</strong>
+                <strong>Last updated: May 22, 2026 at 3:37 PM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1014,16 +1014,16 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>40</strong>
+                <strong>41</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>New Manual Review visibility update added since the last public report</span>
+                <span>New Manual Review detail update added since the last public report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Dedicated Manual Review Queue detail area now visible in the dashboard foundation</span>
+                <span>Dedicated Manual Review detail and evidence timeline area now visible</span>
               </div>
               <div class="stat-card">
                 <strong>0</strong>
@@ -1969,6 +1969,29 @@
                 reject, defer, archive, dispatch, or change any record.
               </div>
             </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 41 manual review detail entity context evidence timeline water emergency separated review item">
+              <div class="module-top">
+                <span class="module-number">41</span>
+                <div>
+                  <h3>Manual Review Detail, Entity Context, and Evidence Timeline</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module adds a read-only detail view for an individual Manual Review item.
+                Instead of only seeing that a record needs review, the office can see the reason,
+                the connected job, work order, visit, route assignment, or Water Emergency record,
+                and the evidence timeline that explains how the item reached the review queue.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                If a job is stopped for Manual Review because information is missing or uncertain,
+                the detail panel can show the review reason, related records, audit references, and
+                timeline events in order. The view is still visibility only: it does not approve,
+                reject, defer, archive, resolve, dispatch, or change anything.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -1988,6 +2011,7 @@
             <div class="check-item"><span class="check">✓</span><span>PostgreSQL database and migration direction</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review Queue foundation</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review Queue detail visibility and reason grouping</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Manual Review single-item detail and evidence timeline visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2008,35 +2032,36 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 40 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 41 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 40 completed the first detailed Manual Review Queue visibility layer. The
-            module was reviewed and committed before Module 41 work begins. This gives ACS a safer
-            way to see review items and understand why work is being held without adding any
-            operational action buttons yet.
+            Module 41 completed the first read-only Manual Review detail view. The module was
+            reviewed and committed before Module 42 work begins. This gives ACS a clearer way to
+            investigate a specific review item, see what it is connected to, and understand the
+            evidence behind it without adding operational action buttons yet.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The dashboard can now show Manual Review queue details, review reasons, review
-                status groups, attention indicators, blocker counts, linked job or visit context,
-                and a clear separation between Water Emergency-related reviews and standard
-                dispatch or other review items.
+                The dashboard can now show one selected Manual Review item in detail, including
+                reason and evidence context, linked job/work-order/visit/route information when
+                available, Water Emergency context when specifically related, audit references,
+                and chronological timeline evidence.
               </p>
             </article>
             <article class="overview-card">
               <h3>Why it matters</h3>
               <p>
-                Manual Review is the safety system. This work helps Luis and the office see what
-                needs attention and why, while still preventing the screen from approving,
-                rejecting, dispatching, or changing records prematurely.
+                Manual Review is the safety system. This work helps Luis and the office understand
+                exactly why a record is being held and what information supports that decision,
+                while still preventing the screen from approving, rejecting, dispatching, or
+                changing records prematurely.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 40 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                Module 41 passed backend checks, frontend checks, local PostgreSQL live dashboard
                 verification, browser checks, and ChatGPT review follow-up. It has been committed
                 and pushed by Randall.
               </p>
@@ -2044,9 +2069,9 @@
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is Module 41: read-only Manual Review detail visibility for
-                individual review items, including linked entity context and evidence/timeline
-                information. Module 41 is not marked complete yet.
+                The next planned area is Module 42: read-only Manual Review filtering, sorting,
+                saved view preferences, and queue scalability visibility. Module 42 is not marked
+                complete yet.
               </p>
             </article>
           </div>

@@ -216,6 +216,8 @@ Prepare for:
 - operator decision
 - resolution timestamp
 
+Module 42 adds Manual Review filter, sort, saved-view, and queue scalability visibility as read-model metadata only. It does not add persisted user preferences, action states, auth/RBAC tables, or new Manual Review workflow authority. Future production modules may need user preference storage, pagination windows, and role-scoped review visibility after authentication exists.
+
 ## Audit Logs
 
 Represents durable trace history.

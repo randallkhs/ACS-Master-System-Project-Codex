@@ -61,6 +61,28 @@ export type ManualReviewTaxonomyMetadataResponse = {
   group_definitions: ManualReviewTaxonomyMetadataItemResponse[];
 };
 
+export type ManualReviewFilterOptionResponse = {
+  key: string;
+  label: string;
+  count: number;
+  description: string;
+};
+
+export type ManualReviewSortOptionResponse = {
+  key: string;
+  label: string;
+  description: string;
+};
+
+export type ManualReviewResultWindowMetadataResponse = {
+  total_count: number;
+  visible_count: number;
+  result_limit: number;
+  has_more: boolean;
+  sort_key: string;
+  generated_at: string;
+};
+
 export type ManualReviewQueueItemResponse = {
   review_item_id: string;
   status: string;
@@ -108,6 +130,9 @@ export type ManualReviewQueueResponse = {
   age_bucket_counts: CountBucket[];
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
+  available_filters: ManualReviewFilterOptionResponse[];
+  sort_options: ManualReviewSortOptionResponse[];
+  result_window_metadata: ManualReviewResultWindowMetadataResponse;
   items: ManualReviewQueueItemResponse[];
 };
 

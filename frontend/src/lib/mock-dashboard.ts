@@ -355,6 +355,105 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       }
     ]
   },
+  available_filters: [
+    {
+      key: "all",
+      label: "All reviews",
+      count: 5,
+      description: "Every persisted Manual Review item returned by this read-only queue."
+    },
+    {
+      key: "open",
+      label: "Open",
+      count: 2,
+      description: "Open Manual Review items requiring safety visibility."
+    },
+    {
+      key: "deferred",
+      label: "Deferred",
+      count: 1,
+      description: "Review items intentionally deferred for later operator follow-up."
+    },
+    {
+      key: "resolved",
+      label: "Resolved",
+      count: 1,
+      description: "Resolved review items kept separate from active review needs."
+    },
+    {
+      key: "archived",
+      label: "Archived",
+      count: 1,
+      description: "Archived review history separated from active review needs."
+    },
+    {
+      key: "active_attention",
+      label: "Active attention",
+      count: 3,
+      description: "Open or deferred review items still requiring operator attention."
+    },
+    {
+      key: "water_emergency_related",
+      label: "Water Emergency related",
+      count: 1,
+      description: "Review items specifically tied to Water Emergency records, jobs, or visits."
+    },
+    {
+      key: "dispatch_related",
+      label: "Dispatch related",
+      count: 3,
+      description: "Review items tied to standard job, work-order, visit, or route evidence."
+    },
+    {
+      key: "missing_data",
+      label: "Missing data",
+      count: 1,
+      description: "Review items whose reason indicates missing, invalid, incomplete, or unknown data."
+    },
+    {
+      key: "duplicate_or_conflict",
+      label: "Duplicate or conflict",
+      count: 1,
+      description: "Review items whose reason indicates duplicate or conflicting evidence."
+    },
+    {
+      key: "cancellation_or_status_uncertainty",
+      label: "Cancellation or status uncertainty",
+      count: 1,
+      description: "Review items whose reason indicates cancellation or status uncertainty."
+    },
+    {
+      key: "needs_operator_review",
+      label: "Needs operator review",
+      count: 1,
+      description: "Fallback visibility group when no more specific Phase 0 group is deterministic."
+    }
+  ],
+  sort_options: [
+    {
+      key: "attention",
+      label: "Attention priority",
+      description: "Active, blocker, severity, status, and created-time ordering."
+    },
+    {
+      key: "newest",
+      label: "Newest first",
+      description: "Most recently created Manual Review items first."
+    },
+    {
+      key: "status",
+      label: "Status and reason",
+      description: "Status group, reason code, attention, and created-time ordering."
+    }
+  ],
+  result_window_metadata: {
+    total_count: 5,
+    visible_count: 5,
+    result_limit: 5,
+    has_more: false,
+    sort_key: "attention",
+    generated_at: "2026-05-16T09:35:00Z"
+  },
   items: [
     {
       review_item_id: "41000000-0000-4000-8000-000000000001",

@@ -255,6 +255,14 @@ Manual Review now has a read-only single-item detail view for operator investiga
 
 This detail visibility is a Randall-authorized Phase 0 baseline for internal review investigation only. It does not approve, reject, defer, archive, resolve, dispatch, escalate, call AI, call vendors, or create final company policy.
 
+## Phase 0 Module 42 Manual Review Filter, Sort, And Saved-View Visibility
+
+Manual Review now has read-only queue filter and sort visibility for operator scanability. The queue can expose internal view groups such as open, deferred, resolved, archived, active attention, Water Emergency-related, dispatch-related, missing data, duplicate/conflict, cancellation/status uncertainty, and needs operator review.
+
+These groups are Randall-authorized Phase 0 visibility baselines only. They do not approve, reject, defer, archive, resolve, dispatch, escalate, enforce SLA rules, create legal/company policy, or replace future authenticated Manual Review action workflows.
+
+Frontend saved view preferences are browser-only UI preferences. They may remember the selected Manual Review filter and sort option, but they must not store tokens, secrets, customer data, PII, backend operational state, or Manual Review decisions.
+
 ---
 
 # 10. Confidence Scoring
