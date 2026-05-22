@@ -17,6 +17,7 @@ const navItems = [
   { label: "Lifecycle", href: "#lifecycle" },
   { label: "Manual Review", href: "#manual-review" },
   { label: "Review Queue", href: "#manual-review-queue" },
+  { label: "Review Detail", href: "#manual-review-detail" },
   { label: "Dispatch", href: "#dispatch" },
   { label: "Execution", href: "#external-execution" },
   { label: "Recovery", href: "#recovery" },

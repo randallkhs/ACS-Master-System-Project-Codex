@@ -210,6 +210,7 @@ GET /api/v1/dashboard/overview
 GET /api/v1/dashboard/lifecycle
 GET /api/v1/dashboard/review
 GET /api/v1/dashboard/manual-review/queue
+GET /api/v1/dashboard/manual-review/queue/{review_item_id}
 GET /api/v1/dashboard/dispatch
 GET /api/v1/dashboard/water-emergency
 GET /api/v1/dashboard/water-emergency/{water_emergency_id}
@@ -217,13 +218,15 @@ GET /api/v1/dashboard/water-emergency/{water_emergency_id}
 
 These routes summarize persisted backend state through dashboard read models. They do not mutate records, execute dispatch, resolve Manual Review, call integrations, or call AI.
 
-The Manual Review Queue contract is dedicated to read-only safety visibility. `GET /api/v1/dashboard/manual-review/queue` exposes queue-item details, status counts, reason counts, severity counts, visibility group counts, conservative age buckets, active-attention counts, blocker indicators, entity links, Water Emergency links when specifically tied to the review item, audit-correlation references, evidence references, and Randall-authorized Phase 0 review taxonomy metadata. It does not approve, reject, defer, archive, resolve, dispatch, escalate, call vendors, call AI, or mutate review records.
+The Manual Review Queue contract is dedicated to read-only safety visibility. `GET /api/v1/dashboard/manual-review/queue` exposes queue-item details, status counts, reason counts, severity counts, visibility group counts, conservative age buckets, active-attention counts, blocker indicators, entity links, Water Emergency links when specifically tied to the review item, audit-correlation references, evidence references, and Randall-authorized Phase 0 review taxonomy metadata. `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` returns one review item with reason/evidence context, linked entity context, Water Emergency separation when applicable, data-gap counts, audit references, and chronological timeline evidence. These endpoints do not approve, reject, defer, archive, resolve, dispatch, escalate, call vendors, call AI, or mutate review records.
 
 The Water Emergency dashboard contract is dedicated to emergency visibility. It summarizes existing `WaterEmergency` records, status/stage distributions, equipment context, visit-chain summaries, drying-stage visibility, review/exception counts, blocker reason buckets, critical-alert indicators, read-only next-step readiness labels, operator queue/attention groups, aging/follow-up timing visibility, stale/missing evidence indicators, read-only filter/sort view-state metadata, Randall-authorized Phase 0 governance metadata, result-window scalability metadata, related job/work-order/visit references, data gaps, audit correlation references, and emergency timeline evidence. The detail contract returns one Water Emergency record, related job/work-order/visit references, specifically scoped Manual Review indicators, review/exception context, equipment notes/unknowns, visit-chain timing/status counts, drying-stage context, next-step readiness evidence, detail data gaps, audit correlations, and chronological timeline evidence. These endpoints do not create, close, dispatch, approve, edit, schedule, escalate, enforce SLA rules, persist frontend view state, or otherwise execute Water Emergency work.
 
 Module 39 formalizes the current Water Emergency software-visible labels as a Randall-authorized Phase 0 visibility baseline. Timing labels remain conservative internal heuristics, not final SLA enforcement, insurance language, drying certification, customer-facing promises, or company policy. The dashboard contract exposes Alfonso owner-review boundaries for legal, insurance, warranty, compliance, or company-liability policy decisions without finalizing those policies in software.
 
 Module 40 formalizes current Manual Review queue grouping as a Randall-authorized Phase 0 visibility baseline. Status, reason, age, blocked, dispatch-related, Water Emergency-related, duplicate/conflict, cancellation/status-uncertainty, and needs-operator-review labels are internal software visibility groups only. They do not define final Manual Review workflow action authority, legal policy, or company-liability policy.
+
+Module 41 extends Manual Review visibility with a read-only single-item detail contract. The detail endpoint is investigation context only: it scopes linked job, work order, visit, route-assignment, and Water Emergency references from persisted IDs; orders related operational events chronologically; returns 404 for missing live records; and does not substitute mock data when the backend says a detail record was not found.
 
 The result-window metadata is read-only preparation for future pagination/query scaling. It reports the current returned record count, visible count, result limit, sort key, generation time, and whether more records exist. Module 39 does not add backend pagination parameters, analytics engines, mutation routes, or saved-view persistence.
 

@@ -111,6 +111,40 @@ export type ManualReviewQueueResponse = {
   items: ManualReviewQueueItemResponse[];
 };
 
+export type ManualReviewReasonEvidenceContextResponse = {
+  reason_code: string;
+  status: string;
+  severity: string | null;
+  confidence_score: number | null;
+  recommended_action: string | null;
+  review_reason_codes: string[];
+  snapshot_keys: string[];
+  blocker_indicator: boolean;
+  attention_indicator: boolean;
+  evidence_references: string[];
+};
+
+export type ManualReviewDetailLinkedEntityContextResponse = {
+  entity_type: string | null;
+  entity_id: string | null;
+  job_id: string | null;
+  job_status: string | null;
+  job_type: string | null;
+  work_order_id: string | null;
+  work_order_status: string | null;
+  visit_id: string | null;
+  visit_status: string | null;
+  route_assignment_id: string | null;
+  route_assignment_status: string | null;
+  water_emergency_id: string | null;
+  water_emergency_status: string | null;
+  water_emergency_stage: string | null;
+  is_water_emergency_related: boolean;
+  is_dispatch_related: boolean;
+  unknown_indicators: string[];
+  audit_correlation_ids: string[];
+};
+
 export type RouteAssignmentSummaryResponse = {
   total_assignments: number;
   status_counts: CountBucket[];
@@ -570,6 +604,17 @@ export type WaterEmergencyDetailResponse = {
   next_step_readiness: WaterEmergencyNextStepReadinessResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];
+  timeline_summary: OperationalEventTimelineSummaryResponse;
+};
+
+export type ManualReviewDetailResponse = {
+  generated_at: string;
+  review_item: ManualReviewQueueItemResponse;
+  reason_context: ManualReviewReasonEvidenceContextResponse;
+  linked_entity_context: ManualReviewDetailLinkedEntityContextResponse;
+  data_gap_counts: CountBucket[];
+  audit_correlation_ids: string[];
+  taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   timeline_summary: OperationalEventTimelineSummaryResponse;
 };
 

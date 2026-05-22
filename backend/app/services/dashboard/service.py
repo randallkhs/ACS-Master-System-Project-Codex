@@ -15,8 +15,11 @@ from app.domain.dashboard import (
     DispatchLifecycleSummary,
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
+    ManualReviewDetailLinkedEntityContext,
+    ManualReviewDetailReadModel,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
+    ManualReviewReasonEvidenceContext,
     ManualReviewSummary,
     ManualReviewTaxonomyMetadata,
     ManualReviewTaxonomyMetadataItem,
@@ -583,6 +586,70 @@ class DashboardReadModelService:
             items=queue_items,
         )
 
+    def build_manual_review_detail(
+        self,
+        review_item_id: object,
+        *,
+        jobs: Sequence[Job] = (),
+        work_orders: Sequence[WorkOrder] = (),
+        visits: Sequence[Visit] = (),
+        route_assignments: Sequence[RouteAssignment] = (),
+        review_items: Sequence[ReviewItem] = (),
+        water_emergencies: Sequence[WaterEmergency] = (),
+        operational_events: Sequence[OperationalEventRecord] = (),
+        timeline_limit: int = 25,
+    ) -> ManualReviewDetailReadModel | None:
+        generated_at = self.now()
+        review = next(
+            (item for item in review_items if item.id == review_item_id),
+            None,
+        )
+        if review is None:
+            return None
+
+        queue_item = manual_review_queue_item(
+            review,
+            jobs=jobs,
+            work_orders=work_orders,
+            visits=visits,
+            route_assignments=route_assignments,
+            water_emergencies=water_emergencies,
+            now=generated_at,
+        )
+        related_events = manual_review_related_events(
+            queue_item,
+            review,
+            operational_events=operational_events,
+        )
+
+        return ManualReviewDetailReadModel(
+            generated_at=generated_at,
+            review_item=queue_item,
+            reason_context=manual_review_reason_evidence_context(
+                review,
+                queue_item=queue_item,
+            ),
+            linked_entity_context=manual_review_detail_linked_entity_context(
+                queue_item,
+                jobs=jobs,
+                work_orders=work_orders,
+                visits=visits,
+                route_assignments=route_assignments,
+                water_emergencies=water_emergencies,
+                review_events=related_events,
+            ),
+            data_gap_counts=manual_review_detail_data_gap_counts(
+                queue_item,
+                related_events=related_events,
+            ),
+            audit_correlation_ids=unique_audit_correlation_ids((review,), related_events),
+            taxonomy_metadata=manual_review_taxonomy_metadata(),
+            timeline_summary=self.build_timeline(
+                operational_events=related_events,
+                limit=timeline_limit,
+            ),
+        )
+
     def build_water_emergency(
         self,
         *,
@@ -1074,6 +1141,23 @@ class DashboardReadModelService:
             water_emergencies=source["water_emergencies"],
         )
 
+    def build_manual_review_detail_from_session(
+        self,
+        session: Session,
+        review_item_id: object,
+    ) -> ManualReviewDetailReadModel | None:
+        source = load_dashboard_source(session)
+        return self.build_manual_review_detail(
+            review_item_id,
+            jobs=source["jobs"],
+            work_orders=source["work_orders"],
+            visits=source["visits"],
+            route_assignments=source["route_assignments"],
+            review_items=source["review_items"],
+            water_emergencies=source["water_emergencies"],
+            operational_events=source["operational_events"],
+        )
+
     def build_dispatch_from_session(self, session: Session) -> DashboardDispatchSummary:
         source = load_dashboard_source(session)
         return self.build_dispatch(route_assignments=source["route_assignments"])
@@ -1542,6 +1626,184 @@ def manual_review_evidence_references(
     if review.audit_correlation_id:
         references.append(f"audit:{review.audit_correlation_id}")
     return tuple(references)
+
+
+def manual_review_reason_evidence_context(
+    review: ReviewItem,
+    *,
+    queue_item: ManualReviewQueueItem,
+) -> ManualReviewReasonEvidenceContext:
+    return ManualReviewReasonEvidenceContext(
+        reason_code=queue_item.reason_code,
+        status=queue_item.status,
+        severity=queue_item.severity,
+        confidence_score=review.confidence_score,
+        recommended_action=review.recommended_action,
+        review_reason_codes=manual_review_reason_codes(review),
+        snapshot_keys=manual_review_snapshot_keys(review),
+        blocker_indicator=queue_item.blocker_indicator,
+        attention_indicator=queue_item.attention_indicator,
+        evidence_references=queue_item.evidence_references,
+    )
+
+
+def manual_review_reason_codes(review: ReviewItem) -> tuple[str, ...]:
+    reasons: list[str] = []
+    for item in review.review_reasons or []:
+        if isinstance(item, dict):
+            value = item.get("code") or item.get("reason_code") or item.get("reason")
+            if normalized(value):
+                reasons.append(normalized(value))
+        elif normalized(item):
+            reasons.append(normalized(item))
+    return tuple(dict.fromkeys(reasons))
+
+
+def manual_review_snapshot_keys(review: ReviewItem) -> tuple[str, ...]:
+    snapshot_attrs = (
+        "confidence_snapshot",
+        "warning_snapshot",
+        "normalization_snapshot",
+        "validation_snapshot",
+        "source_snapshot",
+        "review_metadata",
+    )
+    return tuple(attr for attr in snapshot_attrs if bool(getattr(review, attr, None)))
+
+
+def manual_review_detail_linked_entity_context(
+    item: ManualReviewQueueItem,
+    *,
+    jobs: Sequence[Job],
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    route_assignments: Sequence[RouteAssignment],
+    water_emergencies: Sequence[WaterEmergency],
+    review_events: Sequence[OperationalEventRecord],
+) -> ManualReviewDetailLinkedEntityContext:
+    related_job = next((job for job in jobs if job.id == item.job_id), None)
+    related_work_order = next(
+        (work_order for work_order in work_orders if work_order.id == item.work_order_id),
+        None,
+    )
+    related_visit = next((visit for visit in visits if visit.id == item.visit_id), None)
+    related_route_assignment = next(
+        (route for route in route_assignments if route.id == item.route_assignment_id),
+        None,
+    )
+    related_water_emergency = next(
+        (record for record in water_emergencies if record.id == item.water_emergency_id),
+        None,
+    )
+    unknown_indicators: list[str] = []
+    if item.job_id is not None and related_job is None:
+        unknown_indicators.append("job_reference_missing")
+    if item.work_order_id is not None and related_work_order is None:
+        unknown_indicators.append("work_order_reference_missing")
+    if item.visit_id is not None and related_visit is None:
+        unknown_indicators.append("visit_reference_missing")
+    if item.route_assignment_id is not None and related_route_assignment is None:
+        unknown_indicators.append("route_assignment_reference_missing")
+    if item.water_emergency_id is not None and related_water_emergency is None:
+        unknown_indicators.append("water_emergency_reference_missing")
+    if (
+        item.entity_type is not None
+        and item.entity_id is not None
+        and all(
+            linked_id != item.entity_id
+            for linked_id in (
+                item.job_id,
+                item.work_order_id,
+                item.visit_id,
+                item.route_assignment_id,
+                item.water_emergency_id,
+            )
+        )
+    ):
+        unknown_indicators.append("entity_reference_not_modeled")
+
+    return ManualReviewDetailLinkedEntityContext(
+        entity_type=item.entity_type,
+        entity_id=item.entity_id,
+        job_id=item.job_id,
+        job_status=related_job.status if related_job else None,
+        job_type=related_job.job_type if related_job else None,
+        work_order_id=item.work_order_id,
+        work_order_status=related_work_order.status if related_work_order else None,
+        visit_id=item.visit_id,
+        visit_status=related_visit.status if related_visit else None,
+        route_assignment_id=item.route_assignment_id,
+        route_assignment_status=related_route_assignment.status
+        if related_route_assignment
+        else None,
+        water_emergency_id=item.water_emergency_id,
+        water_emergency_status=related_water_emergency.status if related_water_emergency else None,
+        water_emergency_stage=related_water_emergency.drying_stage
+        if related_water_emergency
+        else None,
+        is_water_emergency_related="water_emergency_related" in item.visibility_groups,
+        is_dispatch_related="dispatch_related" in item.visibility_groups,
+        unknown_indicators=tuple(dict.fromkeys(unknown_indicators)),
+        audit_correlation_ids=unique_audit_correlation_ids(review_events),
+    )
+
+
+def manual_review_related_events(
+    item: ManualReviewQueueItem,
+    review: ReviewItem,
+    *,
+    operational_events: Sequence[OperationalEventRecord],
+) -> tuple[OperationalEventRecord, ...]:
+    related_ids = {
+        value
+        for value in (
+            item.review_item_id,
+            item.entity_id,
+            item.job_id,
+            item.work_order_id,
+            item.visit_id,
+            item.route_assignment_id,
+            item.water_emergency_id,
+        )
+        if value is not None
+    }
+    audit_ids = {review.audit_correlation_id} if review.audit_correlation_id else set()
+
+    return tuple(
+        event
+        for event in operational_events
+        if (
+            event.entity_id in related_ids
+            or event.job_id in related_ids
+            or event.work_order_id in related_ids
+            or event.visit_id in related_ids
+            or event.route_assignment_id in related_ids
+            or event.audit_correlation_id in audit_ids
+        )
+    )
+
+
+def manual_review_detail_data_gap_counts(
+    item: ManualReviewQueueItem,
+    *,
+    related_events: Sequence[OperationalEventRecord],
+) -> tuple[CountBucket, ...]:
+    gaps: list[str] = []
+    if not related_events:
+        gaps.append("no_timeline_evidence")
+    if not item.audit_correlation_id:
+        gaps.append("audit_correlation_missing")
+    if not any(
+        (
+            item.job_id,
+            item.work_order_id,
+            item.visit_id,
+            item.route_assignment_id,
+            item.water_emergency_id,
+        ),
+    ):
+        gaps.append("linked_entity_context_missing")
+    return count_values(gaps)
 
 
 def count_authorization_states(

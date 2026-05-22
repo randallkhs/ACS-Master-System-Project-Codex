@@ -7,6 +7,7 @@ from app.schemas.dashboard import (
     DashboardDispatchSummaryResponse,
     DashboardOverviewResponse,
     DispatchLifecycleSummaryResponse,
+    ManualReviewDetailResponse,
     ManualReviewQueueResponse,
     ManualReviewSummaryResponse,
     WaterEmergencyDashboardResponse,
@@ -39,6 +40,23 @@ def read_dashboard_review(db_session: DBSession) -> ManualReviewSummaryResponse:
 def read_dashboard_manual_review_queue(db_session: DBSession) -> ManualReviewQueueResponse:
     read_model = DashboardReadModelService().build_manual_review_queue_from_session(db_session)
     return ManualReviewQueueResponse.model_validate(read_model)
+
+
+@router.get(
+    "/manual-review/queue/{review_item_id}",
+    response_model=ManualReviewDetailResponse,
+)
+def read_dashboard_manual_review_detail(
+    review_item_id: UUID,
+    db_session: DBSession,
+) -> ManualReviewDetailResponse:
+    read_model = DashboardReadModelService().build_manual_review_detail_from_session(
+        db_session,
+        review_item_id,
+    )
+    if read_model is None:
+        raise HTTPException(status_code=404, detail="Manual Review item not found")
+    return ManualReviewDetailResponse.model_validate(read_model)
 
 
 @router.get("/dispatch", response_model=DashboardDispatchSummaryResponse)

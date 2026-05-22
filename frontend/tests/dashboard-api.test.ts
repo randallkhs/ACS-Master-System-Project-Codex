@@ -4,6 +4,7 @@ import {
   dashboardEndpointUrl,
   getDashboardDispatch,
   getDashboardLifecycle,
+  getDashboardManualReviewDetail,
   getDashboardManualReviewQueue,
   getDashboardOverview,
   getDashboardReview,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/dashboard-api";
 import {
   mockDashboardOverview,
+  mockManualReviewDetail,
   mockManualReviewQueue,
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
@@ -48,6 +50,15 @@ describe("dashboard API client", () => {
     );
     expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.manualReviewQueue)).toBe(
       "http://127.0.0.1:8000/api/v1/dashboard/manual-review/queue"
+    );
+    expect(
+      dashboardEndpointUrl(
+        DASHBOARD_ENDPOINTS.manualReviewDetail(
+          "41000000-0000-4000-8000-000000000001"
+        )
+      )
+    ).toBe(
+      "http://127.0.0.1:8000/api/v1/dashboard/manual-review/queue/41000000-0000-4000-8000-000000000001"
     );
     expect(
       dashboardEndpointUrl(
@@ -115,6 +126,9 @@ describe("dashboard API client", () => {
     await getDashboardLifecycle();
     await getDashboardReview();
     await getDashboardManualReviewQueue();
+    await getDashboardManualReviewDetail(
+      "41000000-0000-4000-8000-000000000001"
+    );
     await getDashboardDispatch();
     await getDashboardWaterEmergency();
     await getDashboardWaterEmergencyDetail(
@@ -141,6 +155,10 @@ describe("dashboard API client", () => {
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/manual-review/queue",
+        method: "GET"
+      },
+      {
+        url: "https://api.acs.example.com/api/v1/dashboard/manual-review/queue/41000000-0000-4000-8000-000000000001",
         method: "GET"
       },
       {
@@ -178,6 +196,55 @@ describe("dashboard API client", () => {
     expect(result.data.items[0].reason_code).toBe("missing_customer_data");
     expect(result.data.taxonomy_metadata.randall_authorized_phase_0_baseline).toBe(
       true
+    );
+  });
+
+  it("returns typed Manual Review detail fallback when the detail read model is unavailable", async () => {
+    delete process.env.ACS_DASHBOARD_API_BASE_URL;
+
+    const result = await getDashboardManualReviewDetail(
+      "41000000-0000-4000-8000-000000000001"
+    );
+
+    expect(result.source).toBe("mock");
+    expect(result.data?.review_item.review_item_id).toBe(
+      mockManualReviewDetail.review_item.review_item_id
+    );
+    expect(result.data?.linked_entity_context.is_dispatch_related).toBe(true);
+  });
+
+  it("keeps no-selected Manual Review detail as live null data when an API base URL is configured", async () => {
+    process.env.ACS_DASHBOARD_API_BASE_URL = "https://api.acs.example.com";
+
+    const result = await getDashboardManualReviewDetail(null);
+
+    expect(result.source).toBe("api");
+    expect(result.data).toBeNull();
+    expect(result.errorMessage).toBe("No Manual Review detail record is selected.");
+  });
+
+  it("returns a live null result when the Manual Review detail record is not found", async () => {
+    process.env.ACS_DASHBOARD_API_BASE_URL = "https://api.acs.example.com";
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ detail: "Manual Review item not found" }), {
+        status: 404,
+        headers: { "content-type": "application/json" }
+      })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getDashboardManualReviewDetail("missing-review");
+
+    expect(result.source).toBe("api");
+    expect(result.data).toBeNull();
+    expect(result.data).not.toBe(mockManualReviewDetail);
+    expect(result.errorMessage).toBe("Manual Review detail record was not found.");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.acs.example.com/api/v1/dashboard/manual-review/queue/missing-review",
+      expect.objectContaining({
+        method: "GET",
+        cache: "no-store"
+      })
     );
   });
 

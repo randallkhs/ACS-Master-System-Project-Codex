@@ -798,6 +798,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 41 Manual Review Detail Visibility Boundary
+
+Module 41 extends Manual Review dashboard visibility with a read-only single-item detail contract:
+
+- backend read models return one selected ReviewItem as a queue item plus reason/evidence context, linked entity context, data-gap counts, audit-correlation IDs, taxonomy metadata, and related timeline evidence
+- linked entity context is derived only from persisted ReviewItem links and existing job, work-order, visit, route-assignment, and Water Emergency records
+- Water Emergency-related review details remain visually and architecturally separated from standard dispatch review details
+- timeline entries are ordered by the backend read model and preserve audit/correlation references
+- missing review IDs return a safe not-found response instead of mock success
+
+The boundary remains projection-only. The detail endpoint and UI do not execute Manual Review actions, mutate review records, dispatch work, call external integrations, add AI authority, implement auth/RBAC, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review approve/reject/defer/archive workflows
+- final Manual Review action taxonomy and role authority
+- production review detail pagination or event-window limits for very large timelines
+- formal legal, insurance, compliance, or company-liability policy if future detail language becomes customer-facing
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

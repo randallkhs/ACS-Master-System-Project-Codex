@@ -419,6 +419,177 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert queue.taxonomy_metadata.requires_alfonso_owner_review is False
 
 
+def test_manual_review_detail_read_model_includes_entity_context_and_ordered_evidence() -> None:
+    records = dashboard_source_records()
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    water_emergency = records["water_emergencies"][0]
+    water_visit = next(
+        visit
+        for visit in records["visits"]
+        if getattr(visit, "job_id", None) == water_emergency.job_id
+    )
+    review_id = uuid4()
+
+    records["review_items"] = [
+        ReviewItem(
+            id=review_id,
+            job_id=water_emergency.job_id,
+            visit_id=water_visit.id,
+            entity_type="water_emergency",
+            entity_id=water_emergency.id,
+            reason_code="water_emergency_equipment_review",
+            status="open",
+            severity="critical",
+            confidence_score=73.0,
+            review_reasons=[{"code": "equipment_context_missing"}],
+            validation_snapshot={"missing_fields": ["drying_log"]},
+            created_at=now - timedelta(hours=8),
+            audit_correlation_id="audit-manual-review-detail",
+            recommended_action="Review synthetic Water Emergency evidence.",
+        ),
+        ReviewItem(
+            id=uuid4(),
+            entity_type="water_emergency",
+            entity_id=uuid4(),
+            reason_code="unrelated_water_emergency_review",
+            status="open",
+            severity="high",
+            created_at=now - timedelta(hours=2),
+            audit_correlation_id="audit-manual-review-unrelated",
+        ),
+    ]
+    records["operational_events"] = [
+        OperationalEventRecord(
+            id=uuid4(),
+            occurred_at=datetime(2026, 5, 16, 11, 0, tzinfo=UTC),
+            recorded_at=datetime(2026, 5, 16, 11, 0, tzinfo=UTC),
+            event_type="manual_review.evidence_attached",
+            event_state="recorded",
+            entity_type="review_item",
+            entity_id=review_id,
+            route_assignment_id=None,
+            visit_id=water_visit.id,
+            work_order_id=None,
+            job_id=water_emergency.job_id,
+            technician_id=None,
+            audit_correlation_id="audit-manual-review-detail",
+            previous_state="open",
+            new_state="evidence_attached",
+            event_fingerprint="manual-review-detail-event-2",
+            is_immutable=True,
+        ),
+        OperationalEventRecord(
+            id=uuid4(),
+            occurred_at=datetime(2026, 5, 16, 10, 30, tzinfo=UTC),
+            recorded_at=datetime(2026, 5, 16, 10, 30, tzinfo=UTC),
+            event_type="water_emergency.review_required",
+            event_state="review_required",
+            entity_type="water_emergency",
+            entity_id=water_emergency.id,
+            route_assignment_id=None,
+            visit_id=water_visit.id,
+            work_order_id=None,
+            job_id=water_emergency.job_id,
+            technician_id=None,
+            audit_correlation_id="audit-manual-review-detail",
+            previous_state="monitoring",
+            new_state="review_required",
+            event_fingerprint="manual-review-detail-event-1",
+            is_immutable=True,
+        ),
+        OperationalEventRecord(
+            id=uuid4(),
+            occurred_at=datetime(2026, 5, 16, 9, 0, tzinfo=UTC),
+            recorded_at=datetime(2026, 5, 16, 9, 0, tzinfo=UTC),
+            event_type="manual_review.unrelated",
+            event_state="recorded",
+            entity_type="review_item",
+            entity_id=uuid4(),
+            route_assignment_id=None,
+            visit_id=None,
+            work_order_id=None,
+            job_id=None,
+            technician_id=None,
+            audit_correlation_id="audit-manual-review-unrelated",
+            previous_state=None,
+            new_state="recorded",
+            event_fingerprint="manual-review-detail-unrelated",
+            is_immutable=True,
+        ),
+    ]
+
+    detail = DashboardReadModelService(now=lambda: now).build_manual_review_detail(
+        review_id,
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        route_assignments=records["route_assignments"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+        operational_events=records["operational_events"],
+    )
+
+    assert detail is not None
+    assert detail.review_item.review_item_id == review_id
+    assert detail.reason_context.reason_code == "water_emergency_equipment_review"
+    assert detail.reason_context.review_reason_codes == ("equipment_context_missing",)
+    assert detail.reason_context.snapshot_keys == ("validation_snapshot",)
+    assert detail.reason_context.blocker_indicator is True
+    assert detail.reason_context.attention_indicator is True
+    assert detail.linked_entity_context.water_emergency_id == water_emergency.id
+    assert detail.linked_entity_context.water_emergency_status == "DRYING_IN_PROGRESS"
+    assert detail.linked_entity_context.visit_id == water_visit.id
+    assert detail.linked_entity_context.is_water_emergency_related is True
+    assert detail.linked_entity_context.is_dispatch_related is False
+    assert detail.audit_correlation_ids == ("audit-manual-review-detail",)
+    assert [entry.event_type for entry in detail.timeline_summary.entries] == [
+        "water_emergency.review_required",
+        "manual_review.evidence_attached",
+    ]
+    assert all(
+        entry.audit_correlation_id == "audit-manual-review-detail"
+        for entry in detail.timeline_summary.entries
+    )
+    assert detail.taxonomy_metadata.randall_authorized_phase_0_baseline is True
+    assert detail.taxonomy_metadata.legal_or_insurance_policy is False
+
+
+def test_manual_review_detail_returns_none_for_missing_record() -> None:
+    detail = DashboardReadModelService().build_manual_review_detail(
+        uuid4(),
+        review_items=[],
+    )
+
+    assert detail is None
+
+
+def test_manual_review_detail_resolved_item_does_not_imply_active_action() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    review_id = uuid4()
+    review = ReviewItem(
+        id=review_id,
+        entity_type="job",
+        entity_id=uuid4(),
+        reason_code="duplicate_route_conflict",
+        status="resolved",
+        severity="medium",
+        created_at=now - timedelta(days=4),
+        resolved_at=now - timedelta(hours=3),
+        audit_correlation_id="audit-manual-review-resolved",
+    )
+
+    detail = DashboardReadModelService(now=lambda: now).build_manual_review_detail(
+        review_id,
+        review_items=[review],
+    )
+
+    assert detail is not None
+    assert detail.review_item.status == "resolved"
+    assert detail.review_item.age_bucket == "resolved_or_archived"
+    assert detail.review_item.attention_indicator is False
+    assert detail.reason_context.attention_indicator is False
+
+
 def test_dispatch_lifecycle_summary_counts_persisted_lifecycle_state() -> None:
     lifecycle = build_overview().lifecycle_summary
 

@@ -2,6 +2,7 @@ import type {
   DashboardFetchResult,
   DashboardOverviewResponse,
   DashboardSource,
+  ManualReviewDetailResponse,
   ManualReviewQueueResponse,
   WaterEmergencyDashboardResponse,
   WaterEmergencyDetailResponse
@@ -9,6 +10,7 @@ import type {
 import { AppShell } from "@/components/layout/app-shell";
 import { AlertStrip } from "@/components/dashboard/alert-strip";
 import { CountBucketPanel } from "@/components/dashboard/count-bucket-panel";
+import { ManualReviewDetailPanel } from "@/components/dashboard/manual-review-detail-panel";
 import { ManualReviewQueue } from "@/components/dashboard/manual-review-queue";
 import { OperationalHealthPanel } from "@/components/dashboard/operational-health-panel";
 import { ScenarioStoryboard } from "@/components/dashboard/scenario-storyboard";
@@ -24,13 +26,15 @@ type DashboardViewProps = {
   waterEmergencyResult: DashboardFetchResult<WaterEmergencyDashboardResponse>;
   waterEmergencyDetailResult: DashboardFetchResult<WaterEmergencyDetailResponse | null>;
   manualReviewQueueResult?: DashboardFetchResult<ManualReviewQueueResponse>;
+  manualReviewDetailResult?: DashboardFetchResult<ManualReviewDetailResponse | null>;
 };
 
 export function DashboardView({
   result,
   waterEmergencyResult,
   waterEmergencyDetailResult,
-  manualReviewQueueResult
+  manualReviewQueueResult,
+  manualReviewDetailResult
 }: DashboardViewProps) {
   const { data, source, errorMessage } = result;
   const { operational_summary: summary } = data;
@@ -41,7 +45,8 @@ export function DashboardView({
     source === "api" &&
     waterEmergencyResult.source === "api" &&
     waterEmergencyDetailResult.source === "api" &&
-    (!manualReviewQueueResult || manualReviewQueueResult.source === "api")
+    (!manualReviewQueueResult || manualReviewQueueResult.source === "api") &&
+    (!manualReviewDetailResult || manualReviewDetailResult.source === "api")
       ? "api"
       : "mock";
   const fallbackMessage =
@@ -49,7 +54,8 @@ export function DashboardView({
       errorMessage,
       waterEmergencyResult.errorMessage,
       waterEmergencyDetailResult.errorMessage,
-      manualReviewQueueResult?.errorMessage
+      manualReviewQueueResult?.errorMessage,
+      manualReviewDetailResult?.errorMessage
     ]
       .filter(Boolean)
       .join(" ") || undefined;
@@ -199,6 +205,8 @@ export function DashboardView({
         {manualReviewQueueResult ? (
           <ManualReviewQueue result={manualReviewQueueResult} />
         ) : null}
+
+        <ManualReviewDetailPanel result={manualReviewDetailResult} />
 
         <section className="space-y-4">
           <SectionHeading

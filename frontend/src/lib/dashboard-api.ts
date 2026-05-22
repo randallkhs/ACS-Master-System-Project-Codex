@@ -3,6 +3,7 @@ import type {
   DashboardFetchResult,
   DashboardOverviewResponse,
   DispatchLifecycleSummaryResponse,
+  ManualReviewDetailResponse,
   ManualReviewQueueResponse,
   ManualReviewSummaryResponse,
   WaterEmergencyDashboardResponse,
@@ -10,6 +11,7 @@ import type {
 } from "@/lib/dashboard-contracts";
 import {
   mockDashboardOverview,
+  mockManualReviewDetail,
   mockManualReviewQueue,
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
@@ -20,6 +22,8 @@ export const DASHBOARD_ENDPOINTS = {
   lifecycle: "/api/v1/dashboard/lifecycle",
   review: "/api/v1/dashboard/review",
   manualReviewQueue: "/api/v1/dashboard/manual-review/queue",
+  manualReviewDetail: (reviewItemId: string) =>
+    `/api/v1/dashboard/manual-review/queue/${encodeURIComponent(reviewItemId)}`,
   dispatch: "/api/v1/dashboard/dispatch",
   waterEmergency: "/api/v1/dashboard/water-emergency",
   waterEmergencyDetail: (waterEmergencyId: string) =>
@@ -80,6 +84,24 @@ export async function getDashboardManualReviewQueue(): Promise<
     DASHBOARD_ENDPOINTS.manualReviewQueue,
     mockManualReviewQueue
   );
+}
+
+export async function getDashboardManualReviewDetail(
+  reviewItemId: string | null
+): Promise<DashboardFetchResult<ManualReviewDetailResponse | null>> {
+  if (!reviewItemId) {
+    const baseUrl = dashboardApiBaseUrl();
+
+    return {
+      data: null,
+      source: baseUrl ? "api" : "mock",
+      errorMessage: baseUrl
+        ? "No Manual Review detail record is selected."
+        : "No Manual Review record is available for detail display."
+    };
+  }
+
+  return fetchManualReviewDetailReadModel(reviewItemId);
 }
 
 export async function getDashboardDispatch(): Promise<
@@ -209,6 +231,61 @@ async function fetchWaterEmergencyDetailReadModel(
   } catch (error) {
     return {
       data: mockWaterEmergencyDetail,
+      source: "mock",
+      requestedUrl,
+      errorMessage:
+        error instanceof Error
+          ? error.message
+          : "Dashboard API could not be reached."
+    };
+  }
+}
+
+async function fetchManualReviewDetailReadModel(
+  reviewItemId: string
+): Promise<DashboardFetchResult<ManualReviewDetailResponse | null>> {
+  const path = DASHBOARD_ENDPOINTS.manualReviewDetail(reviewItemId);
+  const requestedUrl = dashboardEndpointUrl(path);
+
+  if (!requestedUrl) {
+    return {
+      data: mockManualReviewDetail,
+      source: "mock",
+      errorMessage:
+        "ACS_DASHBOARD_API_BASE_URL is not set, so typed local fallback data is displayed."
+    };
+  }
+
+  try {
+    const response = await fetch(requestedUrl, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        accept: "application/json"
+      }
+    });
+
+    if (response.status === 404) {
+      return {
+        data: null,
+        source: "api",
+        requestedUrl,
+        errorMessage: "Manual Review detail record was not found."
+      };
+    }
+
+    if (!response.ok) {
+      throw new Error(`Dashboard API returned ${response.status}`);
+    }
+
+    return {
+      data: (await response.json()) as ManualReviewDetailResponse,
+      source: "api",
+      requestedUrl
+    };
+  } catch (error) {
+    return {
+      data: mockManualReviewDetail,
       source: "mock",
       requestedUrl,
       errorMessage:

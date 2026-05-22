@@ -1,5 +1,6 @@
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import {
+  getDashboardManualReviewDetail,
   getDashboardManualReviewQueue,
   getDashboardOverview,
   getDashboardWaterEmergencyDetail,
@@ -24,6 +25,14 @@ export default async function DashboardPage() {
   const waterEmergencyDetailResult = await getDashboardWaterEmergencyDetail(
     selectedWaterEmergencyId
   );
+  const selectedManualReviewId =
+    manualReviewQueueResult.data.items.find((item) => item.attention_indicator)
+      ?.review_item_id ??
+    manualReviewQueueResult.data.items[0]?.review_item_id ??
+    null;
+  const manualReviewDetailResult = await getDashboardManualReviewDetail(
+    selectedManualReviewId
+  );
 
   return (
     <DashboardView
@@ -31,6 +40,7 @@ export default async function DashboardPage() {
       waterEmergencyResult={waterEmergencyResult}
       waterEmergencyDetailResult={waterEmergencyDetailResult}
       manualReviewQueueResult={manualReviewQueueResult}
+      manualReviewDetailResult={manualReviewDetailResult}
     />
   );
 }

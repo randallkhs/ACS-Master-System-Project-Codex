@@ -249,6 +249,12 @@ The Manual Review Queue now has a read-only dashboard detail view. It groups rev
 
 This visibility does not approve, reject, defer, archive, resolve, dispatch, or otherwise execute review actions. Manual Review remains authoritative until future authenticated action workflows are explicitly designed.
 
+## Phase 0 Module 41 Manual Review Detail Visibility
+
+Manual Review now has a read-only single-item detail view for operator investigation context. The detail view shows the selected review item, reason and evidence context, linked job/work-order/visit/route-assignment context, Water Emergency context when specifically linked, audit references, and chronological timeline evidence.
+
+This detail visibility is a Randall-authorized Phase 0 baseline for internal review investigation only. It does not approve, reject, defer, archive, resolve, dispatch, escalate, call AI, call vendors, or create final company policy.
+
 ---
 
 # 10. Confidence Scoring

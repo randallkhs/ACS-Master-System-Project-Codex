@@ -1307,3 +1307,35 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database/system architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-22 — Phase 0 Module 41 Manual Review Detail, Entity Context, And Evidence Timeline
+
+- Decision type: Implementation / Manual Review visibility / read-only detail contract
+- Status: Implemented
+- Decision:
+  - Add a read-only Manual Review detail read model and API endpoint at `GET /api/v1/dashboard/manual-review/queue/{review_item_id}`.
+  - Return one selected Manual Review item with reason/evidence context, linked entity context, data-gap counts, audit-correlation IDs, taxonomy metadata, and chronological operational event timeline evidence.
+  - Scope linked entity context to persisted ReviewItem job, work-order, visit, route-assignment, and Water Emergency references only.
+  - Keep Water Emergency-related review details visually separated from standard dispatch review details.
+  - Treat live backend `404` responses for missing review details as not-found/null detail state, not mock fallback success.
+  - Add frontend Manual Review detail visibility without approve/reject/defer/archive/resolve/dispatch controls.
+- Rationale:
+  - Module 40 made the Manual Review queue visible, but operators also need read-only investigation context for a selected review item before action workflows exist.
+  - Manual Review remains the core safety authority, so detail visibility must expose evidence without creating operational authority.
+  - Water Emergency-related Manual Review details must remain separate from standard dispatch context to preserve first-class emergency boundaries.
+- Future implications:
+  - Future authenticated modules still need formal Manual Review action workflows.
+  - Future production detail views may need event-window pagination, role-scoped visibility, and refresh cadence decisions.
+  - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas/routes
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - System architecture notes
+  - API/frontend contract notes

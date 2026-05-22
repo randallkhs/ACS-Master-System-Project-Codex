@@ -4,12 +4,14 @@ import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { ScenarioStoryboard } from "@/components/dashboard/scenario-storyboard";
 import {
   mockDashboardOverview,
+  mockManualReviewDetail,
   mockManualReviewQueue,
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
 } from "@/lib/mock-dashboard";
 import type {
   ManualReviewQueueResponse,
+  ManualReviewDetailResponse,
   WaterEmergencyAgingFollowUpItemResponse,
   WaterEmergencyQueueItemResponse,
   WaterEmergencyViewStateItemResponse
@@ -33,6 +35,11 @@ const mockWaterEmergencyDetailResult = {
 
 const mockManualReviewQueueResult = {
   data: mockManualReviewQueue,
+  source: "mock" as const
+};
+
+const mockManualReviewDetailResult = {
+  data: mockManualReviewDetail,
   source: "mock" as const
 };
 
@@ -604,6 +611,83 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Defer review");
     expect(html).not.toContain("Archive review");
     expect(html).not.toContain("Action");
+  });
+
+  it("renders Manual Review detail, linked entity context, and timeline evidence without actions", () => {
+    const waterReviewDetail: ManualReviewDetailResponse = {
+      ...mockManualReviewDetail,
+      review_item: mockManualReviewQueue.items[1],
+      linked_entity_context: {
+        ...mockManualReviewDetail.linked_entity_context,
+        entity_type: "water_emergency",
+        entity_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        job_id: "72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+        work_order_id: null,
+        work_order_status: null,
+        visit_id: "f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+        visit_status: "review_required",
+        route_assignment_id: null,
+        route_assignment_status: null,
+        water_emergency_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        water_emergency_status: "drying_in_progress",
+        water_emergency_stage: "monitoring",
+        is_water_emergency_related: true,
+        is_dispatch_related: false
+      }
+    };
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+        manualReviewQueueResult={mockManualReviewQueueResult}
+        manualReviewDetailResult={{
+          ...mockManualReviewDetailResult,
+          data: waterReviewDetail
+        }}
+      />
+    );
+
+    expect(html).toContain("Manual Review Detail");
+    expect(html).toContain("Read-only detail visibility");
+    expect(html).toContain("Linked Entity Context");
+    expect(html).toContain("Water Emergency review detail");
+    expect(html).toContain("Reason And Evidence Context");
+    expect(html).toContain("Manual Review Evidence Timeline");
+    expect(html).toContain("Manual Review Evidence Attached");
+    expect(html).toContain("Water Emergency");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve review");
+    expect(html).not.toContain("Reject review");
+    expect(html).not.toContain("Defer review");
+    expect(html).not.toContain("Archive review");
+  });
+
+  it("renders Manual Review detail not-selected state without mock success or actions", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "api"
+        }}
+        waterEmergencyResult={{ ...mockWaterEmergencyResult, source: "api" }}
+        waterEmergencyDetailResult={{ data: null, source: "api" }}
+        manualReviewQueueResult={{ ...mockManualReviewQueueResult, source: "api" }}
+        manualReviewDetailResult={{
+          data: null,
+          source: "api",
+          errorMessage: "No Manual Review detail record is selected."
+        }}
+      />
+    );
+
+    expect(html).toContain("No Manual Review detail selected");
+    expect(html).toContain("No Manual Review detail record is selected.");
+    expect(html).not.toContain("Manual Review Evidence Attached");
+    expect(html).not.toMatch(/<button|role="button"/);
   });
 
   it("persists Water Emergency filter and sort preferences in safe local storage", () => {

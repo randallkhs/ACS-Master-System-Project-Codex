@@ -263,6 +263,13 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Review taxonomy labels are shown as a Randall-authorized Phase 0 visibility baseline only. They are not final action authority, legal policy, insurance language, or company-liability policy.
 - The frontend still does not render approve, reject, defer, archive, resolve, dispatch, vendor, or AI controls.
 
+## Module 41 Manual Review Detail Notes
+
+- The dashboard now fetches `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` for a selected Manual Review detail record when one is available.
+- The Manual Review detail panel shows the selected review summary, reason/evidence context, linked entity context, Water Emergency separation when applicable, data-gap indicators, audit references, and backend-ordered timeline evidence.
+- A live 404 for the detail endpoint renders a safe not-found/null detail state instead of substituting mock detail data.
+- The detail panel is read-only and does not add approve, reject, defer, archive, resolve, dispatch, vendor, or AI controls.
+
 ## Module 38 Water Emergency View-State Notes
 
 - The Water Emergency summary now displays a `Water Emergency View State` panel with backend-provided filter options, sort options, selected group counts, active visible records, and closed/resolved visible records.

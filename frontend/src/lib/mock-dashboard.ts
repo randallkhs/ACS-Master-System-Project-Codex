@@ -1,5 +1,6 @@
 import type {
   DashboardOverviewResponse,
+  ManualReviewDetailResponse,
   ManualReviewQueueResponse,
   WaterEmergencyDashboardResponse,
   WaterEmergencyDetailResponse
@@ -527,6 +528,70 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       ]
     }
   ]
+};
+
+export const mockManualReviewDetail: ManualReviewDetailResponse = {
+  generated_at: "2026-05-16T09:36:00Z",
+  review_item: mockManualReviewQueue.items[0],
+  reason_context: {
+    reason_code: "missing_customer_data",
+    status: "open",
+    severity: "high",
+    confidence_score: 64,
+    recommended_action: "Review missing synthetic customer data.",
+    review_reason_codes: ["missing_customer_data"],
+    snapshot_keys: ["validation_snapshot"],
+    blocker_indicator: true,
+    attention_indicator: true,
+    evidence_references: mockManualReviewQueue.items[0].evidence_references
+  },
+  linked_entity_context: {
+    entity_type: "job",
+    entity_id: "42000000-0000-4000-8000-000000000001",
+    job_id: "42000000-0000-4000-8000-000000000001",
+    job_status: "awaiting_dispatch",
+    job_type: "standard",
+    work_order_id: "43000000-0000-4000-8000-000000000001",
+    work_order_status: "generated",
+    visit_id: null,
+    visit_status: null,
+    route_assignment_id: null,
+    route_assignment_status: null,
+    water_emergency_id: null,
+    water_emergency_status: null,
+    water_emergency_stage: null,
+    is_water_emergency_related: false,
+    is_dispatch_related: true,
+    unknown_indicators: [],
+    audit_correlation_ids: ["audit-manual-review-mock-001"]
+  },
+  data_gap_counts: [],
+  audit_correlation_ids: ["audit-manual-review-mock-001"],
+  taxonomy_metadata: mockManualReviewQueue.taxonomy_metadata,
+  timeline_summary: {
+    total_events: 1,
+    returned_events: 1,
+    mutable_event_count: 0,
+    audit_correlation_ids: ["audit-manual-review-mock-001"],
+    entries: [
+      {
+        occurred_at: "2026-05-16T09:00:00Z",
+        event_type: "manual_review.evidence_attached",
+        event_state: "recorded",
+        entity_type: "review_item",
+        entity_id: "41000000-0000-4000-8000-000000000001",
+        route_assignment_id: null,
+        visit_id: null,
+        work_order_id: "43000000-0000-4000-8000-000000000001",
+        job_id: "42000000-0000-4000-8000-000000000001",
+        technician_id: null,
+        audit_correlation_id: "audit-manual-review-mock-001",
+        previous_state: "open",
+        new_state: "evidence_attached",
+        is_immutable: true
+      }
+    ]
+  }
 };
 
 export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {

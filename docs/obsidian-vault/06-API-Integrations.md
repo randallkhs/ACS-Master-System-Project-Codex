@@ -663,6 +663,24 @@ Contract constraints:
 - queue labels are internal software visibility groups only, not final Manual Review workflow action authority
 - no legal, insurance, compliance, or company-liability policy is finalized in this contract
 
+## Phase 0 Module 41 Manual Review Detail Contract Boundary
+
+The dashboard API now includes a read-only Manual Review detail contract.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes one selected Manual Review item.
+- detail responses include the review queue item, reason/evidence context, linked entity context, data-gap counts, audit-correlation IDs, taxonomy metadata, and related operational timeline evidence.
+- linked entity context may include job, work order, visit, route assignment, and Water Emergency references when those references exist in persisted backend data.
+- Water Emergency-related Manual Review details remain separated from standard dispatch review details.
+- missing review items return `404` from the live backend; the frontend does not replace live 404 responses with mock detail data.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review detail calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, or AI calls are added
+- detail visibility is internal Phase 0 investigation context only, not action authority or final business policy
+
 Open API/frontend concerns:
 
 - future authenticated Manual Review action endpoints

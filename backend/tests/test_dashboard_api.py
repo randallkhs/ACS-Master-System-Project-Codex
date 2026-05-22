@@ -12,8 +12,11 @@ from app.domain.dashboard import (
     DispatchLifecycleSummary,
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
+    ManualReviewDetailLinkedEntityContext,
+    ManualReviewDetailReadModel,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
+    ManualReviewReasonEvidenceContext,
     ManualReviewSummary,
     ManualReviewTaxonomyMetadata,
     ManualReviewTaxonomyMetadataItem,
@@ -787,6 +790,74 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
     )
 
 
+def manual_review_detail_contract() -> ManualReviewDetailReadModel:
+    review_item = manual_review_queue_contract().items[0]
+
+    return ManualReviewDetailReadModel(
+        generated_at=datetime(2026, 5, 16, 12, 55, tzinfo=UTC),
+        review_item=review_item,
+        reason_context=ManualReviewReasonEvidenceContext(
+            reason_code="missing_customer_data",
+            status="open",
+            severity="critical",
+            confidence_score=66.0,
+            recommended_action="Review missing synthetic data.",
+            review_reason_codes=("missing_customer_data",),
+            snapshot_keys=("validation_snapshot",),
+            blocker_indicator=True,
+            attention_indicator=True,
+            evidence_references=review_item.evidence_references,
+        ),
+        linked_entity_context=ManualReviewDetailLinkedEntityContext(
+            entity_type="job",
+            entity_id=UUID("00000000-0000-0000-0000-000000000041"),
+            job_id=UUID("00000000-0000-0000-0000-000000000041"),
+            job_status="awaiting_dispatch",
+            job_type="standard",
+            work_order_id=UUID("00000000-0000-0000-0000-000000000042"),
+            work_order_status="generated",
+            visit_id=None,
+            visit_status=None,
+            route_assignment_id=None,
+            route_assignment_status=None,
+            water_emergency_id=None,
+            water_emergency_status=None,
+            water_emergency_stage=None,
+            is_water_emergency_related=False,
+            is_dispatch_related=True,
+            unknown_indicators=(),
+            audit_correlation_ids=("audit-manual-review-api-001",),
+        ),
+        data_gap_counts=(),
+        audit_correlation_ids=("audit-manual-review-api-001",),
+        taxonomy_metadata=manual_review_queue_contract().taxonomy_metadata,
+        timeline_summary=OperationalEventTimelineSummary(
+            total_events=1,
+            returned_events=1,
+            mutable_event_count=0,
+            audit_correlation_ids=("audit-manual-review-api-001",),
+            entries=(
+                OperationalTimelineEntry(
+                    occurred_at=datetime(2026, 5, 16, 12, 10, tzinfo=UTC),
+                    event_type="manual_review.evidence_attached",
+                    event_state="recorded",
+                    entity_type="review_item",
+                    entity_id=review_item.review_item_id,
+                    route_assignment_id=None,
+                    visit_id=None,
+                    work_order_id=review_item.work_order_id,
+                    job_id=review_item.job_id,
+                    technician_id=None,
+                    audit_correlation_id="audit-manual-review-api-001",
+                    previous_state="open",
+                    new_state="evidence_attached",
+                    is_immutable=True,
+                ),
+            ),
+        ),
+    )
+
+
 def test_dashboard_api_routes_return_read_only_contracts(
     monkeypatch,
 ) -> None:
@@ -799,6 +870,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
     water_emergency = water_emergency_contract()
     water_emergency_detail = water_emergency_detail_contract()
     manual_review_queue = manual_review_queue_contract()
+    manual_review_detail = manual_review_detail_contract()
 
     def override_db_session():
         yield object()
@@ -822,6 +894,17 @@ def test_dashboard_api_routes_return_read_only_contracts(
         DashboardReadModelService,
         "build_manual_review_queue_from_session",
         lambda self, session: manual_review_queue,
+    )
+
+    def build_manual_review_detail_from_session(self, session, review_item_id):
+        if review_item_id == manual_review_detail.review_item.review_item_id:
+            return manual_review_detail
+        return None
+
+    monkeypatch.setattr(
+        DashboardReadModelService,
+        "build_manual_review_detail_from_session",
+        build_manual_review_detail_from_session,
     )
     monkeypatch.setattr(
         DashboardReadModelService,
@@ -851,6 +934,12 @@ def test_dashboard_api_routes_return_read_only_contracts(
         lifecycle_response = client.get("/api/v1/dashboard/lifecycle")
         review_response = client.get("/api/v1/dashboard/review")
         manual_review_queue_response = client.get("/api/v1/dashboard/manual-review/queue")
+        manual_review_detail_response = client.get(
+            "/api/v1/dashboard/manual-review/queue/00000000-0000-0000-0000-000000000040",
+        )
+        manual_review_detail_missing_response = client.get(
+            "/api/v1/dashboard/manual-review/queue/00000000-0000-0000-0000-000000009999",
+        )
         dispatch_response = client.get("/api/v1/dashboard/dispatch")
         water_response = client.get("/api/v1/dashboard/water-emergency")
         water_detail_response = client.get(
@@ -861,6 +950,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
         )
         mutation_response = client.post("/api/v1/dashboard/overview")
         review_queue_mutation_response = client.post("/api/v1/dashboard/manual-review/queue")
+        review_detail_mutation_response = client.post(
+            "/api/v1/dashboard/manual-review/queue/00000000-0000-0000-0000-000000000040",
+        )
         water_mutation_response = client.post("/api/v1/dashboard/water-emergency")
         water_detail_mutation_response = client.post(
             "/api/v1/dashboard/water-emergency/00000000-0000-0000-0000-000000000031",
@@ -896,6 +988,21 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][1]["water_emergency_id"] == (
         "00000000-0000-0000-0000-000000000031"
     )
+    assert manual_review_detail_response.status_code == 200
+    assert manual_review_detail_response.json()["review_item"]["review_item_id"] == (
+        "00000000-0000-0000-0000-000000000040"
+    )
+    assert manual_review_detail_response.json()["reason_context"]["reason_code"] == (
+        "missing_customer_data"
+    )
+    assert (
+        manual_review_detail_response.json()["linked_entity_context"]["is_dispatch_related"] is True
+    )
+    assert (
+        manual_review_detail_response.json()["timeline_summary"]["entries"][0]["event_type"]
+        == "manual_review.evidence_attached"
+    )
+    assert manual_review_detail_missing_response.status_code == 404
     assert dispatch_response.status_code == 200
     assert dispatch_response.json()["external_execution"]["execution_failed_count"] == 0
     assert water_response.status_code == 200
@@ -982,5 +1089,6 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert water_detail_missing_response.status_code == 404
     assert mutation_response.status_code == 405
     assert review_queue_mutation_response.status_code == 405
+    assert review_detail_mutation_response.status_code == 405
     assert water_mutation_response.status_code == 405
     assert water_detail_mutation_response.status_code == 405

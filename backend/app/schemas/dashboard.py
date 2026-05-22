@@ -121,6 +121,51 @@ class ManualReviewQueueResponse(DashboardSchema):
     items: tuple[ManualReviewQueueItemResponse, ...]
 
 
+class ManualReviewReasonEvidenceContextResponse(DashboardSchema):
+    reason_code: str
+    status: str
+    severity: str | None
+    confidence_score: float | None
+    recommended_action: str | None
+    review_reason_codes: tuple[str, ...]
+    snapshot_keys: tuple[str, ...]
+    blocker_indicator: bool
+    attention_indicator: bool
+    evidence_references: tuple[str, ...]
+
+
+class ManualReviewDetailLinkedEntityContextResponse(DashboardSchema):
+    entity_type: str | None
+    entity_id: UUID | None
+    job_id: UUID | None
+    job_status: str | None
+    job_type: str | None
+    work_order_id: UUID | None
+    work_order_status: str | None
+    visit_id: UUID | None
+    visit_status: str | None
+    route_assignment_id: UUID | None
+    route_assignment_status: str | None
+    water_emergency_id: UUID | None
+    water_emergency_status: str | None
+    water_emergency_stage: str | None
+    is_water_emergency_related: bool
+    is_dispatch_related: bool
+    unknown_indicators: tuple[str, ...]
+    audit_correlation_ids: tuple[str, ...]
+
+
+class ManualReviewDetailResponse(DashboardSchema):
+    generated_at: datetime
+    review_item: ManualReviewQueueItemResponse
+    reason_context: ManualReviewReasonEvidenceContextResponse
+    linked_entity_context: ManualReviewDetailLinkedEntityContextResponse
+    data_gap_counts: tuple[CountBucketResponse, ...]
+    audit_correlation_ids: tuple[str, ...]
+    taxonomy_metadata: ManualReviewTaxonomyMetadataResponse
+    timeline_summary: "OperationalEventTimelineSummaryResponse"
+
+
 class WaterEmergencyEquipmentSummaryResponse(DashboardSchema):
     equipment_onsite_count: int
     moisture_tracking_required_count: int
