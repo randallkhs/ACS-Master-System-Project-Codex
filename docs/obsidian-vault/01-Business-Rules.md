@@ -263,6 +263,14 @@ These groups are Randall-authorized Phase 0 visibility baselines only. They do n
 
 Frontend saved view preferences are browser-only UI preferences. They may remember the selected Manual Review filter and sort option, but they must not store tokens, secrets, customer data, PII, backend operational state, or Manual Review decisions.
 
+## Phase 0 Module 43 Manual Review Decision-Readiness Visibility
+
+Manual Review now has read-only decision-readiness and resolution-preparation visibility. The queue and detail read models can expose internal labels such as needs operator review, needs missing information, needs entity context, needs Water Emergency review, needs dispatch review, ready for operator decision, ready for resolution review, blocked by conflict, blocked by missing data, resolved or archived, and unknown readiness.
+
+These labels are Randall-authorized Phase 0 visibility baselines only. They explain why a review record needs attention or why it is historical, but they do not approve, reject, defer, archive, resolve, dispatch, escalate, call vendors, call AI, or execute any workflow.
+
+Water Emergency-related readiness must remain visually separated from standard dispatch readiness. Resolved and archived review items must not be shown as active decision needs.
+
 ---
 
 # 10. Confidence Scoring

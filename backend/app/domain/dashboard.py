@@ -100,6 +100,16 @@ class ManualReviewResultWindowMetadata:
 
 
 @dataclass(frozen=True, slots=True)
+class ManualReviewDecisionReadiness:
+    label: str
+    summary: str
+    reason_codes: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    is_active_decision_need: bool
+    is_resolution_candidate: bool
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewQueueItem:
     review_item_id: UUID
     status: str
@@ -126,6 +136,7 @@ class ManualReviewQueueItem:
     confidence_score: float | None
     recommended_action: str | None
     audit_correlation_id: str | None
+    decision_readiness: ManualReviewDecisionReadiness
     evidence_references: tuple[str, ...]
 
 
@@ -145,6 +156,7 @@ class ManualReviewQueueReadModel:
     reason_counts: tuple[CountBucket, ...]
     severity_counts: tuple[CountBucket, ...]
     group_counts: tuple[CountBucket, ...]
+    decision_readiness_counts: tuple[CountBucket, ...]
     age_bucket_counts: tuple[CountBucket, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadata
@@ -195,6 +207,7 @@ class ManualReviewDetailReadModel:
     generated_at: datetime
     review_item: ManualReviewQueueItem
     reason_context: ManualReviewReasonEvidenceContext
+    decision_readiness: ManualReviewDecisionReadiness
     linked_entity_context: ManualReviewDetailLinkedEntityContext
     data_gap_counts: tuple[CountBucket, ...]
     audit_correlation_ids: tuple[str, ...]

@@ -561,6 +561,10 @@ describe("DashboardView", () => {
     expect(html).toContain("Manual Review Queue");
     expect(html).toContain("Read-only Manual Review visibility");
     expect(html).toContain("Randall-authorized Phase 0 review taxonomy baseline");
+    expect(html).toContain("Decision Readiness");
+    expect(html).toContain("Blocked By Missing Data");
+    expect(html).toContain("Needs Water Emergency Review");
+    expect(html).toContain("Active decision need");
     expect(html).toContain("Water Emergency-related reviews");
     expect(html).toContain("Standard dispatch and other reviews");
     expect(html).toContain("Missing Customer Data");
@@ -753,6 +757,7 @@ describe("DashboardView", () => {
     const waterReviewDetail: ManualReviewDetailResponse = {
       ...mockManualReviewDetail,
       review_item: mockManualReviewQueue.items[1],
+      decision_readiness: mockManualReviewQueue.items[1].decision_readiness,
       linked_entity_context: {
         ...mockManualReviewDetail.linked_entity_context,
         entity_type: "water_emergency",
@@ -789,6 +794,10 @@ describe("DashboardView", () => {
 
     expect(html).toContain("Manual Review Detail");
     expect(html).toContain("Read-only detail visibility");
+    expect(html).toContain("Decision Readiness");
+    expect(html).toContain("Needs Water Emergency Review");
+    expect(html).toContain("Water Emergency-related readiness");
+    expect(html).toContain("Water Emergency Related");
     expect(html).toContain("Linked Entity Context");
     expect(html).toContain("Water Emergency review detail");
     expect(html).toContain("Reason And Evidence Context");

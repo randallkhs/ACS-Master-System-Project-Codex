@@ -1,6 +1,7 @@
 from datetime import UTC, date, datetime, timedelta
 from uuid import uuid4
 
+from app.domain.dashboard import CountBucket
 from app.models.intake_processing_record import IntakeProcessingRecord
 from app.models.job import Job
 from app.models.operational_event_record import OperationalEventRecord
@@ -367,6 +368,7 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     )
 
     group_counts = {bucket.label: bucket.count for bucket in queue.group_counts}
+    readiness_counts = {bucket.label: bucket.count for bucket in queue.decision_readiness_counts}
     items_by_reason = {item.reason_code: item for item in queue.items}
 
     assert queue.total_items == 4
@@ -386,10 +388,16 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert group_counts["cancellation_or_status_uncertainty"] == 1
     assert group_counts["water_emergency_related"] == 1
     assert group_counts["dispatch_related"] == 3
+    assert readiness_counts["blocked_by_missing_data"] == 1
+    assert readiness_counts["needs_water_emergency_review"] == 1
+    assert readiness_counts["resolved_or_archived"] == 2
 
     missing_item = items_by_reason["missing_customer_data"]
     assert missing_item.review_item_id == missing_review_id
     assert missing_item.primary_group == "missing_data"
+    assert missing_item.decision_readiness.label == "blocked_by_missing_data"
+    assert missing_item.decision_readiness.is_active_decision_need is True
+    assert "missing_data_evidence" in missing_item.decision_readiness.reason_codes
     assert missing_item.job_id == standard_job.id
     assert missing_item.work_order_id == standard_work_order.id
     assert missing_item.age_bucket == "new"
@@ -398,6 +406,8 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
 
     water_item = items_by_reason["water_emergency_equipment_review"]
     assert water_item.water_emergency_id == water_emergency.id
+    assert water_item.decision_readiness.label == "needs_water_emergency_review"
+    assert "water_emergency_related" in water_item.decision_readiness.reason_codes
     assert "water_emergency_related" in water_item.visibility_groups
     assert "dispatch_related" not in water_item.visibility_groups
     assert water_item.visit_id == water_visit.id
@@ -405,12 +415,16 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert water_item.attention_indicator is True
 
     conflict_item = items_by_reason["duplicate_route_conflict"]
+    assert conflict_item.decision_readiness.label == "resolved_or_archived"
+    assert conflict_item.decision_readiness.is_active_decision_need is False
     assert conflict_item.route_assignment_id == route_assignment.id
     assert conflict_item.work_order_id == standard_work_order.id
     assert conflict_item.age_bucket == "resolved_or_archived"
     assert conflict_item.attention_indicator is False
 
     archived_item = items_by_reason["cancellation_status_uncertainty"]
+    assert archived_item.decision_readiness.label == "resolved_or_archived"
+    assert archived_item.decision_readiness.is_active_decision_need is False
     assert archived_item.age_bucket == "resolved_or_archived"
     assert archived_item.attention_indicator is False
 
@@ -440,6 +454,33 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
         "newest",
         "status",
     }
+
+
+def test_manual_review_decision_readiness_marks_missing_entity_context_safely() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    review_id = uuid4()
+    unknown_entity_id = uuid4()
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        review_items=[
+            ReviewItem(
+                id=review_id,
+                entity_type="external_form",
+                entity_id=unknown_entity_id,
+                reason_code="ambiguous_source_context",
+                status="open",
+                severity="medium",
+                created_at=now - timedelta(hours=2),
+                audit_correlation_id="audit-manual-review-unknown-entity",
+            ),
+        ],
+    )
+
+    assert queue.total_items == 1
+    assert queue.decision_readiness_counts == (CountBucket(label="needs_entity_context", count=1),)
+    assert queue.items[0].decision_readiness.label == "needs_entity_context"
+    assert queue.items[0].decision_readiness.is_active_decision_need is True
+    assert "entity_context_missing" in queue.items[0].decision_readiness.reason_codes
 
 
 def test_manual_review_detail_read_model_includes_entity_context_and_ordered_evidence() -> None:
@@ -559,6 +600,9 @@ def test_manual_review_detail_read_model_includes_entity_context_and_ordered_evi
     assert detail.reason_context.snapshot_keys == ("validation_snapshot",)
     assert detail.reason_context.blocker_indicator is True
     assert detail.reason_context.attention_indicator is True
+    assert detail.decision_readiness.label == "needs_water_emergency_review"
+    assert detail.decision_readiness.is_active_decision_need is True
+    assert "water_emergency_related" in detail.decision_readiness.reason_codes
     assert detail.linked_entity_context.water_emergency_id == water_emergency.id
     assert detail.linked_entity_context.water_emergency_status == "DRYING_IN_PROGRESS"
     assert detail.linked_entity_context.visit_id == water_visit.id

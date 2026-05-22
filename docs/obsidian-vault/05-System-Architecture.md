@@ -840,6 +840,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 43 Manual Review Decision-Readiness Boundary
+
+Module 43 extends Manual Review queue and detail visibility with read-only decision-readiness and resolution-preparation context:
+
+- backend read models expose deterministic readiness labels, summaries, reason codes, evidence references, active-decision flags, and resolution-candidate flags from existing ReviewItem evidence
+- Water Emergency-related readiness is separated from standard dispatch readiness through persisted job, visit, entity, and Water Emergency links
+- missing-data, conflict, unknown entity context, dispatch-related, Water Emergency-related, active decision, resolution review, and resolved/archived states are visible without becoming action authority
+- frontend queue and detail panels display readiness context as read-only evidence and do not add workflow controls
+- resolved and archived review items remain historical visibility rather than active decision needs
+
+The boundary remains projection-only. The endpoint and UI do not execute Manual Review actions, mutate review records, dispatch work, call external integrations, add AI authority, implement auth/RBAC, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review approve/reject/defer/archive/resolve workflows
+- final Manual Review readiness/action taxonomy and role authority
+- whether future action workflows need dedicated review transition history tables
+- production role-scoped visibility and refresh cadence for review detail views
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

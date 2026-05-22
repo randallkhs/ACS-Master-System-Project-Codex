@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 42 keeps the frontend foundation read-only while adding Manual Review queue filtering, sorting, browser-only saved view preferences, and queue result metadata visibility backed by separated backend contracts.
+Phase 0 Module 43 keeps the frontend foundation read-only while adding Manual Review decision-readiness and resolution-preparation visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, and queue result metadata.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -277,6 +277,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Filters can isolate open, deferred, resolved, archived, active-attention, Water Emergency-related, dispatch-related, missing-data, duplicate/conflict, cancellation/status-uncertainty, and needs-operator-review records without changing backend state.
 - The selected Manual Review filter and sort option can persist only in browser localStorage. The preference stores no tokens, secrets, PII, customer data, backend records, or operational workflow state.
 - If localStorage is unavailable, the dashboard falls back to in-memory defaults without blocking Manual Review visibility.
+- The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution controls.
+
+## Module 43 Manual Review Decision-Readiness Notes
+
+- The Manual Review Queue and detail panel now display backend-provided decision-readiness labels, summaries, reason codes, and evidence references.
+- Readiness labels explain whether a review needs missing information, entity context, Water Emergency review, dispatch review, conflict resolution preparation, future operator decision review, or historical visibility.
+- Water Emergency-related readiness remains visibly separated from standard dispatch Manual Review readiness.
+- Resolved and archived review items are shown as historical visibility instead of active decision needs.
 - The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution controls.
 
 ## Module 38 Water Emergency View-State Notes

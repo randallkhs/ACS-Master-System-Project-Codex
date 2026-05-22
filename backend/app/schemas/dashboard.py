@@ -93,6 +93,15 @@ class ManualReviewResultWindowMetadataResponse(DashboardSchema):
     generated_at: datetime
 
 
+class ManualReviewDecisionReadinessResponse(DashboardSchema):
+    label: str
+    summary: str
+    reason_codes: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    is_active_decision_need: bool
+    is_resolution_candidate: bool
+
+
 class ManualReviewQueueItemResponse(DashboardSchema):
     review_item_id: UUID
     status: str
@@ -119,6 +128,7 @@ class ManualReviewQueueItemResponse(DashboardSchema):
     confidence_score: float | None
     recommended_action: str | None
     audit_correlation_id: str | None
+    decision_readiness: ManualReviewDecisionReadinessResponse
     evidence_references: tuple[str, ...]
 
 
@@ -137,6 +147,7 @@ class ManualReviewQueueResponse(DashboardSchema):
     reason_counts: tuple[CountBucketResponse, ...]
     severity_counts: tuple[CountBucketResponse, ...]
     group_counts: tuple[CountBucketResponse, ...]
+    decision_readiness_counts: tuple[CountBucketResponse, ...]
     age_bucket_counts: tuple[CountBucketResponse, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadataResponse
@@ -184,6 +195,7 @@ class ManualReviewDetailResponse(DashboardSchema):
     generated_at: datetime
     review_item: ManualReviewQueueItemResponse
     reason_context: ManualReviewReasonEvidenceContextResponse
+    decision_readiness: ManualReviewDecisionReadinessResponse
     linked_entity_context: ManualReviewDetailLinkedEntityContextResponse
     data_gap_counts: tuple[CountBucketResponse, ...]
     audit_correlation_ids: tuple[str, ...]

@@ -375,6 +375,14 @@ AI is still not used in this module.
 
 AI must not infer final Manual Review filter taxonomy, choose operational priority, approve, reject, defer, archive, resolve, dispatch, escalate, persist backend preferences, implement auth/RBAC, call vendor integrations, or transform frontend view-state into workflow control. Future AI explanations for Manual Review filter/sort evidence must remain advisory and separate from persisted backend read models.
 
+## Phase 0 Module 43 Boundary
+
+Manual Review decision-readiness, blocker, and resolution-preparation visibility is deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer final Manual Review readiness taxonomy, approve, reject, defer, archive, resolve, dispatch, escalate, clear blockers, decide missing information is sufficient, call vendor integrations, implement auth/RBAC, or transform readiness labels into workflow authority. Future AI explanations for Manual Review readiness evidence must remain advisory and separate from persisted backend read models.
+
 ---
 
 ## Confidence And Review

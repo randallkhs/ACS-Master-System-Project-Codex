@@ -713,3 +713,28 @@ Open API/frontend concerns:
 - role-scoped review visibility after auth/RBAC exists
 - future backend-persisted saved preferences if ACS needs account-level saved views
 - production pagination/query parameters once review queue volume requires them
+
+## Phase 0 Module 43 Manual Review Decision-Readiness Contract Boundary
+
+The Manual Review queue and detail API contracts now include read-only decision-readiness metadata for operator-safe investigation context.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes decision-readiness counts and each queue item's readiness label, summary, reason codes, evidence references, active-decision flag, and resolution-candidate flag.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the selected review item's same decision-readiness context alongside reason/evidence, linked entity, and timeline evidence.
+- readiness labels include needs operator review, needs missing information, needs entity context, needs Water Emergency review, needs dispatch review, ready for operator decision, ready for resolution review, blocked by conflict, blocked by missing data, resolved or archived, and unknown readiness where deterministically supported.
+- Water Emergency-related readiness remains separated through persisted entity/job/visit/Water Emergency links.
+- resolved and archived review records return historical readiness instead of active action needs.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, backend preference persistence, or workflow execution calls are added
+- readiness labels are Randall-authorized Phase 0 visibility baselines only and must not imply operational approval, closure, rejection, dispatch, escalation, legal policy, or company-liability policy
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review action endpoints
+- final Manual Review readiness/action taxonomy
+- role-scoped review visibility after auth/RBAC exists
+- future action history, resolution outcome, and audit identity requirements

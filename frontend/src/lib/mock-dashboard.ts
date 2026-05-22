@@ -322,6 +322,12 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
     { label: "aging", count: 1 },
     { label: "resolved_or_archived", count: 2 }
   ],
+  decision_readiness_counts: [
+    { label: "blocked_by_missing_data", count: 1 },
+    { label: "needs_water_emergency_review", count: 1 },
+    { label: "resolved_or_archived", count: 2 },
+    { label: "needs_operator_review", count: 1 }
+  ],
   audit_correlation_count: 5,
   taxonomy_metadata: {
     randall_authorized_phase_0_baseline: true,
@@ -486,7 +492,26 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         "job:42000000-0000-4000-8000-000000000001",
         "work_order:43000000-0000-4000-8000-000000000001",
         "audit:audit-manual-review-mock-001"
-      ]
+      ],
+      decision_readiness: {
+        label: "blocked_by_missing_data",
+        summary:
+          "Missing, invalid, incomplete, or unknown data is present. The review remains read-only and needs operator-safe information gathering before any future action.",
+        reason_codes: [
+          "missing_data_evidence",
+          "active_manual_review",
+          "blocker_indicator",
+          "high_or_critical_severity"
+        ],
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000001",
+          "job:42000000-0000-4000-8000-000000000001",
+          "work_order:43000000-0000-4000-8000-000000000001",
+          "audit:audit-manual-review-mock-001"
+        ],
+        is_active_decision_need: true,
+        is_resolution_candidate: false
+      }
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000002",
@@ -520,7 +545,27 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
         "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
         "audit:audit-manual-review-mock-002"
-      ]
+      ],
+      decision_readiness: {
+        label: "needs_water_emergency_review",
+        summary:
+          "This Manual Review item is specifically tied to Water Emergency evidence and remains separated from standard dispatch review context.",
+        reason_codes: [
+          "water_emergency_related",
+          "active_manual_review",
+          "blocker_indicator",
+          "high_or_critical_severity"
+        ],
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000002",
+          "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+          "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+          "audit:audit-manual-review-mock-002"
+        ],
+        is_active_decision_need: true,
+        is_resolution_candidate: false
+      }
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000003",
@@ -558,7 +603,22 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         "work_order:43000000-0000-4000-8000-000000000003",
         "visit:45000000-0000-4000-8000-000000000003",
         "route_assignment:44000000-0000-4000-8000-000000000003"
-      ]
+      ],
+      decision_readiness: {
+        label: "resolved_or_archived",
+        summary:
+          "Resolved or archived Manual Review evidence is retained as read-only history; it is not an active decision need.",
+        reason_codes: ["resolved_or_archived_status"],
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000003",
+          "job:42000000-0000-4000-8000-000000000003",
+          "work_order:43000000-0000-4000-8000-000000000003",
+          "visit:45000000-0000-4000-8000-000000000003",
+          "route_assignment:44000000-0000-4000-8000-000000000003"
+        ],
+        is_active_decision_need: false,
+        is_resolution_candidate: false
+      }
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000004",
@@ -593,7 +653,19 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       evidence_references: [
         "review:41000000-0000-4000-8000-000000000004",
         "job:42000000-0000-4000-8000-000000000004"
-      ]
+      ],
+      decision_readiness: {
+        label: "resolved_or_archived",
+        summary:
+          "Resolved or archived Manual Review evidence is retained as read-only history; it is not an active decision need.",
+        reason_codes: ["resolved_or_archived_status"],
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000004",
+          "job:42000000-0000-4000-8000-000000000004"
+        ],
+        is_active_decision_need: false,
+        is_resolution_candidate: false
+      }
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000005",
@@ -624,7 +696,24 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       evidence_references: [
         "review:41000000-0000-4000-8000-000000000005",
         "audit:audit-manual-review-mock-005"
-      ]
+      ],
+      decision_readiness: {
+        label: "needs_operator_review",
+        summary:
+          "No more specific deterministic readiness label is available, so this item remains in Manual Review for operator-safe visibility.",
+        reason_codes: [
+          "operator_review_required",
+          "active_manual_review",
+          "blocker_indicator",
+          "high_or_critical_severity"
+        ],
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000005",
+          "audit:audit-manual-review-mock-005"
+        ],
+        is_active_decision_need: true,
+        is_resolution_candidate: false
+      }
     }
   ]
 };
@@ -644,6 +733,7 @@ export const mockManualReviewDetail: ManualReviewDetailResponse = {
     attention_indicator: true,
     evidence_references: mockManualReviewQueue.items[0].evidence_references
   },
+  decision_readiness: mockManualReviewQueue.items[0].decision_readiness,
   linked_entity_context: {
     entity_type: "job",
     entity_id: "42000000-0000-4000-8000-000000000001",

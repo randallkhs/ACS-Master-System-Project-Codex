@@ -15,6 +15,7 @@ from app.domain.dashboard import (
     DispatchLifecycleSummary,
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
+    ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
     ManualReviewFilterOption,
@@ -662,6 +663,10 @@ class DashboardReadModelService:
             group_counts=count_values(
                 group for item in queue_items for group in item.visibility_groups
             ),
+            decision_readiness_counts=count_by_attr(
+                (item.decision_readiness for item in queue_items),
+                "label",
+            ),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
@@ -717,6 +722,7 @@ class DashboardReadModelService:
                 review,
                 queue_item=queue_item,
             ),
+            decision_readiness=queue_item.decision_readiness,
             linked_entity_context=manual_review_detail_linked_entity_context(
                 queue_item,
                 jobs=jobs,
@@ -1454,6 +1460,26 @@ def manual_review_queue_item(
         water_emergency_id=water_emergency_id,
     )
     status = normalized(review.status) or "unknown"
+    evidence_references = manual_review_evidence_references(
+        review,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+    )
+    decision_readiness = manual_review_decision_readiness(
+        review,
+        groups=groups,
+        entity_type=normalized(review.entity_type) or None,
+        entity_id=review.entity_id,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+        evidence_references=evidence_references,
+    )
 
     return ManualReviewQueueItem(
         review_item_id=review.id or NIL_UUID,
@@ -1481,14 +1507,156 @@ def manual_review_queue_item(
         confidence_score=review.confidence_score,
         recommended_action=review.recommended_action,
         audit_correlation_id=review.audit_correlation_id,
-        evidence_references=manual_review_evidence_references(
-            review,
-            job_id=job_id,
-            work_order_id=work_order_id,
-            visit_id=visit_id,
-            route_assignment_id=route_assignment_id,
-            water_emergency_id=water_emergency_id,
-        ),
+        decision_readiness=decision_readiness,
+        evidence_references=evidence_references,
+    )
+
+
+def manual_review_decision_readiness(
+    review: ReviewItem,
+    *,
+    groups: Sequence[str],
+    entity_type: str | None,
+    entity_id: UUID | None,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+    evidence_references: Sequence[str],
+) -> ManualReviewDecisionReadiness:
+    status = normalized(review.status)
+    reason_codes: list[str] = []
+
+    if status in RESOLVED_REVIEW_STATUSES or status == "archived":
+        label = "resolved_or_archived"
+        summary = (
+            "Resolved or archived Manual Review evidence is retained as read-only history; "
+            "it is not an active decision need."
+        )
+        reason_codes.append("resolved_or_archived_status")
+        return ManualReviewDecisionReadiness(
+            label=label,
+            summary=summary,
+            reason_codes=tuple(reason_codes),
+            evidence_references=tuple(evidence_references),
+            is_active_decision_need=False,
+            is_resolution_candidate=False,
+        )
+
+    if water_emergency_id is not None:
+        label = "needs_water_emergency_review"
+        summary = (
+            "This Manual Review item is specifically tied to Water Emergency evidence and "
+            "remains separated from standard dispatch review context."
+        )
+        reason_codes.append("water_emergency_related")
+        if "duplicate_or_conflict" in groups:
+            reason_codes.append("duplicate_or_conflict_evidence")
+        if "missing_data" in groups:
+            reason_codes.append("missing_data_evidence")
+    elif "duplicate_or_conflict" in groups:
+        label = "blocked_by_conflict"
+        summary = (
+            "Duplicate or conflicting evidence is present. Manual Review should keep this "
+            "item blocked until an operator verifies the conflict."
+        )
+        reason_codes.append("duplicate_or_conflict_evidence")
+    elif "missing_data" in groups:
+        label = (
+            "blocked_by_missing_data"
+            if is_blocker_manual_review(review)
+            else "needs_missing_information"
+        )
+        summary = (
+            "Missing, invalid, incomplete, or unknown data is present. The review remains "
+            "read-only and needs operator-safe information gathering before any future action."
+        )
+        reason_codes.append("missing_data_evidence")
+    elif manual_review_needs_entity_context(
+        entity_type=entity_type,
+        entity_id=entity_id,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+    ):
+        label = "needs_entity_context"
+        summary = (
+            "The review points to an entity that is not yet represented by a deterministic "
+            "job, work-order, visit, route, or Water Emergency link."
+        )
+        reason_codes.append("entity_context_missing")
+    elif "dispatch_related" in groups:
+        label = "needs_dispatch_review"
+        summary = (
+            "This Manual Review item is tied to standard dispatch, job, work-order, visit, "
+            "or route evidence and remains visibility-only."
+        )
+        reason_codes.append("dispatch_related")
+    elif status == "deferred":
+        label = "ready_for_resolution_review"
+        summary = (
+            "Deferred Manual Review evidence is ready for a future authenticated resolution "
+            "review, but no resolution is executed here."
+        )
+        reason_codes.append("deferred_resolution_candidate")
+    elif status in UNRESOLVED_REVIEW_STATUSES:
+        label = "ready_for_operator_decision"
+        summary = (
+            "Existing Manual Review evidence is available for future operator decision "
+            "workflow design. This read model does not execute that decision."
+        )
+        reason_codes.append("active_review_evidence_available")
+    else:
+        label = "needs_operator_review"
+        summary = (
+            "No more specific deterministic readiness label is available, so this item "
+            "remains in Manual Review for operator-safe visibility."
+        )
+        reason_codes.append("operator_review_required")
+
+    if status in UNRESOLVED_REVIEW_STATUSES:
+        reason_codes.append("active_manual_review")
+    if is_blocker_manual_review(review):
+        reason_codes.append("blocker_indicator")
+    if normalized(review.severity) in ESCALATION_SEVERITIES:
+        reason_codes.append("high_or_critical_severity")
+
+    return ManualReviewDecisionReadiness(
+        label=label,
+        summary=summary,
+        reason_codes=tuple(dict.fromkeys(reason_codes)),
+        evidence_references=tuple(evidence_references),
+        is_active_decision_need=status in UNRESOLVED_REVIEW_STATUSES,
+        is_resolution_candidate=label
+        in {"ready_for_operator_decision", "ready_for_resolution_review"},
+    )
+
+
+def manual_review_needs_entity_context(
+    *,
+    entity_type: str | None,
+    entity_id: UUID | None,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+) -> bool:
+    if entity_type is None and entity_id is None:
+        return False
+
+    return all(
+        linked_id is None
+        for linked_id in (
+            job_id,
+            work_order_id,
+            visit_id,
+            route_assignment_id,
+            water_emergency_id,
+        )
     )
 
 

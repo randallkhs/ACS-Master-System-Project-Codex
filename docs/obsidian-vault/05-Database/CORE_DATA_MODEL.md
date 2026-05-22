@@ -218,6 +218,8 @@ Prepare for:
 
 Module 42 adds Manual Review filter, sort, saved-view, and queue scalability visibility as read-model metadata only. It does not add persisted user preferences, action states, auth/RBAC tables, or new Manual Review workflow authority. Future production modules may need user preference storage, pagination windows, and role-scoped review visibility after authentication exists.
 
+Module 43 adds Manual Review decision-readiness and resolution-preparation visibility as read-model metadata only. It does not add action states, workflow transitions, approval/rejection outcome tables, auth/RBAC tables, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated Manual Review action history, operator identity, resolution outcomes, and role-scoped visibility after the action workflow is explicitly designed.
+
 ## Audit Logs
 
 Represents durable trace history.

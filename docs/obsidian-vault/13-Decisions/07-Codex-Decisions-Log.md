@@ -1372,3 +1372,36 @@ Use this file for durable decisions that affect future development. Do not recor
   - System architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-22 — Phase 0 Module 43 Manual Review Operator Decision Readiness And Resolution Preparation Visibility
+
+- Decision type: Implementation / Manual Review visibility / read-only decision-readiness contract
+- Status: Implemented
+- Decision:
+  - Extend Manual Review queue and detail read models with deterministic decision-readiness labels, summaries, reason codes, evidence references, active-decision flags, and resolution-candidate flags.
+  - Add queue-level decision-readiness counts for operator scanability.
+  - Keep Water Emergency-related readiness separated from standard dispatch readiness through persisted entity, job, visit, and Water Emergency links.
+  - Treat resolved and archived review items as historical visibility rather than active decision needs.
+  - Add frontend queue and detail readiness visibility without approve/reject/defer/archive/resolve/dispatch controls.
+- Rationale:
+  - Manual Review is the system safety authority, so operators need evidence-based next-step visibility before authenticated action workflows exist.
+  - Readiness labels help explain why a review needs missing information, entity context, Water Emergency review, dispatch review, conflict review, or future operator decision preparation.
+  - The labels must remain read-only Phase 0 baselines so they do not become hidden workflow execution or final action authority.
+- Future implications:
+  - Future authenticated modules still need formal Manual Review approve/reject/defer/archive/resolve workflows.
+  - Future production modules may need action history, operator identity, outcome reason taxonomy, role-scoped visibility, and refresh/stale-data behavior.
+  - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

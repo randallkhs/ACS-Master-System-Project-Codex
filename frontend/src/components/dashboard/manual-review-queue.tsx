@@ -124,11 +124,15 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
         <CountBucketPanel title="Review Status" buckets={data.status_counts} />
         <CountBucketPanel title="Reason Distribution" buckets={data.reason_counts} />
         <CountBucketPanel title="Visibility Groups" buckets={data.group_counts} />
         <CountBucketPanel title="Age Buckets" buckets={data.age_bucket_counts} />
+        <CountBucketPanel
+          title="Decision Readiness"
+          buckets={data.decision_readiness_counts}
+        />
       </div>
 
       <SectionCard
@@ -306,6 +310,10 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
               label={humanizeLabel(item.age_bucket)}
               variant={badgeVariantForLabel(item.age_bucket)}
             />
+            <StatusBadge
+              label={humanizeLabel(item.decision_readiness.label)}
+              variant={badgeVariantForLabel(item.decision_readiness.label)}
+            />
           </div>
           <div className="mt-3 text-sm font-semibold text-[#162033]">
             {humanizeLabel(item.primary_group)}
@@ -333,6 +341,24 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
         ))}
       </div>
 
+      <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Decision Readiness
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {item.decision_readiness.summary}
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {item.decision_readiness.reason_codes.map((reasonCode) => (
+            <StatusBadge
+              key={`${item.review_item_id}-${reasonCode}`}
+              label={humanizeLabel(reasonCode)}
+              variant={badgeVariantForLabel(reasonCode)}
+            />
+          ))}
+        </div>
+      </div>
+
       {entityLabels.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
           {entityLabels.map((label) => (
@@ -346,11 +372,19 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
         </div>
       ) : null}
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         <MiniMetric label="Severity" value={humanizeLabel(item.severity)} />
         <MiniMetric
           label="Attention"
           value={item.attention_indicator ? "Requires review" : "Historical"}
+        />
+        <MiniMetric
+          label="Readiness"
+          value={
+            item.decision_readiness.is_active_decision_need
+              ? "Active decision need"
+              : "Historical visibility"
+          }
         />
         <MiniMetric
           label="Confidence"

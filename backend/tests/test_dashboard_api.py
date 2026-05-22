@@ -12,6 +12,7 @@ from app.domain.dashboard import (
     DispatchLifecycleSummary,
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
+    ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
     ManualReviewFilterOption,
@@ -695,6 +696,10 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
             CountBucket(label="water_emergency_related", count=1),
             CountBucket(label="dispatch_related", count=1),
         ),
+        decision_readiness_counts=(
+            CountBucket(label="blocked_by_missing_data", count=1),
+            CountBucket(label="resolved_or_archived", count=1),
+        ),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
             CountBucket(label="resolved_or_archived", count=1),
@@ -789,6 +794,19 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                 confidence_score=66.0,
                 recommended_action="Review missing synthetic data.",
                 audit_correlation_id="audit-manual-review-api-001",
+                decision_readiness=ManualReviewDecisionReadiness(
+                    label="blocked_by_missing_data",
+                    summary="Missing data evidence needs operator-safe review.",
+                    reason_codes=("missing_data_evidence", "active_manual_review"),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                        "audit:audit-manual-review-api-001",
+                    ),
+                    is_active_decision_need=True,
+                    is_resolution_candidate=False,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000040",
                     "job:00000000-0000-0000-0000-000000000041",
@@ -822,6 +840,19 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                 confidence_score=94.0,
                 recommended_action=None,
                 audit_correlation_id="audit-manual-review-api-002",
+                decision_readiness=ManualReviewDecisionReadiness(
+                    label="resolved_or_archived",
+                    summary="Resolved review evidence is retained as read-only history.",
+                    reason_codes=("resolved_or_archived_status",),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                        "audit:audit-manual-review-api-002",
+                    ),
+                    is_active_decision_need=False,
+                    is_resolution_candidate=False,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000043",
                     "job:00000000-0000-0000-0000-000000000032",
@@ -851,6 +882,7 @@ def manual_review_detail_contract() -> ManualReviewDetailReadModel:
             attention_indicator=True,
             evidence_references=review_item.evidence_references,
         ),
+        decision_readiness=review_item.decision_readiness,
         linked_entity_context=ManualReviewDetailLinkedEntityContext(
             entity_type="job",
             entity_id=UUID("00000000-0000-0000-0000-000000000041"),
@@ -1028,6 +1060,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     assert manual_review_queue_response.json()["available_filters"][1]["count"] == 1
     assert manual_review_queue_response.json()["sort_options"][0]["key"] == "attention"
+    assert manual_review_queue_response.json()["decision_readiness_counts"] == [
+        {"label": "blocked_by_missing_data", "count": 1},
+        {"label": "resolved_or_archived", "count": 1},
+    ]
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"
@@ -1041,8 +1077,20 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][0]["reason_code"] == (
         "missing_customer_data"
     )
+    assert manual_review_queue_response.json()["items"][0]["decision_readiness"]["label"] == (
+        "blocked_by_missing_data"
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["decision_readiness"][
+            "is_active_decision_need"
+        ]
+        is True
+    )
     assert manual_review_queue_response.json()["items"][1]["water_emergency_id"] == (
         "00000000-0000-0000-0000-000000000031"
+    )
+    assert manual_review_queue_response.json()["items"][1]["decision_readiness"]["label"] == (
+        "resolved_or_archived"
     )
     assert manual_review_detail_response.status_code == 200
     assert manual_review_detail_response.json()["review_item"]["review_item_id"] == (
@@ -1050,6 +1098,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     assert manual_review_detail_response.json()["reason_context"]["reason_code"] == (
         "missing_customer_data"
+    )
+    assert manual_review_detail_response.json()["decision_readiness"]["label"] == (
+        "blocked_by_missing_data"
     )
     assert (
         manual_review_detail_response.json()["linked_entity_context"]["is_dispatch_related"] is True

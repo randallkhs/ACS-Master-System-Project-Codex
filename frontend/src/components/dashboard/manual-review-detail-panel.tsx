@@ -109,6 +109,68 @@ function ManualReviewDetailContent({
         </p>
       </SectionCard>
 
+      <SectionCard
+        title="Decision Readiness"
+        description={
+          context.is_water_emergency_related
+            ? "Water Emergency-related readiness is shown separately from standard Manual Review context and remains read-only."
+            : "Readiness labels explain what evidence suggests for future operator review without executing any Manual Review action."
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(detail.decision_readiness.label)}
+            variant={badgeVariantForLabel(detail.decision_readiness.label)}
+          />
+          <StatusBadge
+            label={
+              detail.decision_readiness.is_active_decision_need
+                ? "Active decision need"
+                : "Historical visibility"
+            }
+            variant={
+              detail.decision_readiness.is_active_decision_need
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {detail.decision_readiness.is_resolution_candidate ? (
+            <StatusBadge label="Resolution review candidate" variant="info" />
+          ) : null}
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          {detail.decision_readiness.summary}
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Readiness reasons
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.decision_readiness.reason_codes.map((reasonCode) => (
+                <StatusBadge
+                  key={reasonCode}
+                  label={humanizeLabel(reasonCode)}
+                  variant={badgeVariantForLabel(reasonCode)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Readiness evidence
+            </div>
+            <div className="mt-2">
+              <EvidenceList
+                references={detail.decision_readiness.evidence_references}
+              />
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <SectionCard
           title="Reason And Evidence Context"

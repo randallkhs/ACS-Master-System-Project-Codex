@@ -83,6 +83,15 @@ export type ManualReviewResultWindowMetadataResponse = {
   generated_at: string;
 };
 
+export type ManualReviewDecisionReadinessResponse = {
+  label: string;
+  summary: string;
+  reason_codes: string[];
+  evidence_references: string[];
+  is_active_decision_need: boolean;
+  is_resolution_candidate: boolean;
+};
+
 export type ManualReviewQueueItemResponse = {
   review_item_id: string;
   status: string;
@@ -110,6 +119,7 @@ export type ManualReviewQueueItemResponse = {
   recommended_action: string | null;
   audit_correlation_id: string | null;
   evidence_references: string[];
+  decision_readiness: ManualReviewDecisionReadinessResponse;
 };
 
 export type ManualReviewQueueResponse = {
@@ -128,6 +138,7 @@ export type ManualReviewQueueResponse = {
   severity_counts: CountBucket[];
   group_counts: CountBucket[];
   age_bucket_counts: CountBucket[];
+  decision_readiness_counts: CountBucket[];
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   available_filters: ManualReviewFilterOptionResponse[];
@@ -636,6 +647,7 @@ export type ManualReviewDetailResponse = {
   generated_at: string;
   review_item: ManualReviewQueueItemResponse;
   reason_context: ManualReviewReasonEvidenceContextResponse;
+  decision_readiness: ManualReviewDecisionReadinessResponse;
   linked_entity_context: ManualReviewDetailLinkedEntityContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];

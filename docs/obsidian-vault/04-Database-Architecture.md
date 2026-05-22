@@ -916,3 +916,21 @@ Unresolved:
 - whether production review queues should use cursor-based pagination, result windows, or materialized projections
 - exact role-scoped Manual Review visibility rules after auth exists
 - final Manual Review action taxonomy and operator authority model
+
+## Manual Review Decision-Readiness Projection
+
+Phase 0 Module 43 adds read-only decision-readiness and resolution-preparation metadata to Manual Review queue and detail contracts without adding database tables or columns.
+
+Projection philosophy:
+
+- readiness labels are derived from existing ReviewItem status, reason, severity, blocker, entity-link, Water Emergency-link, dispatch-link, and evidence-reference data
+- labels such as needs-missing-information, needs-entity-context, needs-Water-Emergency-review, needs-dispatch-review, ready-for-operator-decision, ready-for-resolution-review, blocked-by-conflict, blocked-by-missing-data, and resolved-or-archived are Randall-authorized Phase 0 visibility baselines only
+- Water Emergency-related readiness remains separated through persisted linkage instead of generic entity labels
+- resolved and archived review items are projected as historical visibility rather than active decision needs
+- no review action state, operator authority, auth/RBAC table, user-preference table, vendor execution, AI authority, or workflow engine is added in Module 43
+
+Unresolved:
+
+- final Manual Review action taxonomy and authenticated operator authority model
+- whether future resolution workflows need dedicated transition history or decision outcome tables
+- exact role-scoped Manual Review visibility rules after auth exists
