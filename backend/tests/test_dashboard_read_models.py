@@ -1036,6 +1036,79 @@ def test_water_emergency_view_state_filters_sort_and_separate_closed_records() -
     assert view_state.items[-1].water_emergency_id == closed_id
 
 
+def test_water_emergency_governance_metadata_marks_phase_0_baselines() -> None:
+    now = datetime(2026, 5, 22, 12, 0, tzinfo=UTC)
+    water_emergency_id = uuid4()
+    job_id = uuid4()
+
+    summary = DashboardReadModelService(now=lambda: now).build_water_emergency(
+        jobs=[Job(id=job_id, job_type="water_emergency", status="active")],
+        water_emergencies=[
+            WaterEmergency(
+                id=water_emergency_id,
+                job_id=job_id,
+                status="DRYING_IN_PROGRESS",
+                drying_stage="monitoring",
+                opened_at=now,
+            ),
+        ],
+    )
+
+    governance = summary.governance_metadata
+    result_window = summary.result_window_metadata
+    filter_keys = {item.key for item in governance.provisional_filter_groups}
+    attention_keys = {item.key for item in governance.provisional_attention_labels}
+    timing_keys = {item.key for item in governance.provisional_timing_labels}
+    readiness_keys = {item.key for item in governance.provisional_readiness_labels}
+
+    assert governance.randall_authorized_phase_0_baseline is True
+    assert governance.source == "phase_0_visibility_heuristic"
+    assert governance.legal_or_insurance_policy is False
+    assert governance.requires_alfonso_owner_review is False
+    assert "Randall-authorized Phase 0 visibility baseline" in governance.baseline_note
+    assert "not final SLA enforcement" in governance.timing_heuristic_note
+    assert "closed_or_resolved" in filter_keys
+    assert "critical_attention" in attention_keys
+    assert "followup_due" in timing_keys
+    assert "needs_manual_review" in readiness_keys
+    assert all(
+        item.randall_authorized_phase_0_baseline
+        for item in (
+            *governance.provisional_filter_groups,
+            *governance.provisional_attention_labels,
+            *governance.provisional_timing_labels,
+            *governance.provisional_readiness_labels,
+        )
+    )
+    assert not any(
+        item.legal_or_insurance_policy
+        for item in (
+            *governance.provisional_filter_groups,
+            *governance.provisional_attention_labels,
+            *governance.provisional_timing_labels,
+            *governance.provisional_readiness_labels,
+        )
+    )
+    assert any(
+        item.requires_alfonso_owner_review and item.key == "formal_sla_or_insurance_policy"
+        for item in governance.owner_review_required_items
+    )
+    assert governance.future_role_visibility_roles == (
+        "office_admin",
+        "operations_manager",
+        "dispatcher",
+        "reviewer",
+        "technician",
+        "owner",
+    )
+    assert result_window.total_count == 1
+    assert result_window.visible_count == 1
+    assert result_window.result_limit == 1
+    assert result_window.has_more is False
+    assert result_window.sort_key == "attention"
+    assert result_window.generated_at == now
+
+
 def test_water_emergency_detail_read_model_includes_scoped_evidence() -> None:
     records = dashboard_source_records()
     water_emergency = records["water_emergencies"][0]

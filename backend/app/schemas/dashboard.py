@@ -355,6 +355,41 @@ class WaterEmergencyViewStateSummaryResponse(DashboardSchema):
     items: tuple[WaterEmergencyViewStateItemResponse, ...]
 
 
+class WaterEmergencyGovernanceMetadataItemResponse(DashboardSchema):
+    key: str
+    label: str
+    category: str
+    source: str
+    randall_authorized_phase_0_baseline: bool
+    legal_or_insurance_policy: bool
+    requires_alfonso_owner_review: bool
+    reason: str
+
+
+class WaterEmergencyGovernanceMetadataResponse(DashboardSchema):
+    randall_authorized_phase_0_baseline: bool
+    source: str
+    legal_or_insurance_policy: bool
+    requires_alfonso_owner_review: bool
+    baseline_note: str
+    timing_heuristic_note: str
+    provisional_filter_groups: tuple[WaterEmergencyGovernanceMetadataItemResponse, ...]
+    provisional_attention_labels: tuple[WaterEmergencyGovernanceMetadataItemResponse, ...]
+    provisional_timing_labels: tuple[WaterEmergencyGovernanceMetadataItemResponse, ...]
+    provisional_readiness_labels: tuple[WaterEmergencyGovernanceMetadataItemResponse, ...]
+    owner_review_required_items: tuple[WaterEmergencyGovernanceMetadataItemResponse, ...]
+    future_role_visibility_roles: tuple[str, ...]
+
+
+class WaterEmergencyResultWindowMetadataResponse(DashboardSchema):
+    total_count: int
+    visible_count: int
+    result_limit: int
+    has_more: bool
+    sort_key: str
+    generated_at: datetime
+
+
 class RouteAssignmentSummaryResponse(DashboardSchema):
     total_assignments: int
     status_counts: tuple[CountBucketResponse, ...]
@@ -448,6 +483,8 @@ class WaterEmergencyDashboardResponse(DashboardSchema):
     operator_queue_summary: WaterEmergencyOperatorQueueSummaryResponse
     aging_followup_summary: WaterEmergencyAgingFollowUpSummaryResponse
     view_state_summary: WaterEmergencyViewStateSummaryResponse
+    governance_metadata: WaterEmergencyGovernanceMetadataResponse
+    result_window_metadata: WaterEmergencyResultWindowMetadataResponse
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

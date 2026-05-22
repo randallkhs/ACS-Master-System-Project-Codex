@@ -753,6 +753,30 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 39 Water Emergency Governance, View Preferences, And Scalability Boundary
+
+Module 39 converts open Water Emergency taxonomy, saved-view, role-scope, and scalability concerns into explicit read-only architecture boundaries:
+
+- Randall-authorized Phase 0 visibility baseline metadata is exposed through the Water Emergency dashboard read model.
+- provisional filter groups, attention labels, timing labels, and readiness labels remain internal software visibility metadata.
+- timing/follow-up labels remain conservative heuristics, not final SLA enforcement.
+- Alfonso owner review is required for formal legal, insurance, compliance, warranty, drying certification, customer-facing, or company-liability policy.
+- frontend saved view preferences are limited to selected filter and sort order in browser localStorage.
+- saved preferences do not store secrets, tokens, PII, customer data, backend records, or workflow state.
+- result-window metadata prepares future pagination/query scaling without changing current query semantics.
+- future roles are documented as office_admin, operations_manager, dispatcher, reviewer, technician, and owner, but no auth or RBAC is implemented.
+
+The boundary remains visibility-only. The endpoint and UI do not create, edit, close, resolve, approve, reject, archive, dispatch, schedule, escalate, enforce SLA rules, implement auth, implement RBAC, integrate with vendors, or execute Water Emergency workflows. They also do not call AI, define final legal policy, or infer hidden lifecycle transitions.
+
+Unresolved:
+
+- Alfonso owner review for final legal, insurance, warranty, drying certification, SLA, or customer-facing policy
+- future authenticated role-scoped visibility and authority
+- future backend-persisted saved views for named users or roles
+- future production pagination, query optimization, refresh cadence, and stale-data rules
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

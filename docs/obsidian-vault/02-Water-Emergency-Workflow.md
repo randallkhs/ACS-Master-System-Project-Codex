@@ -521,6 +521,46 @@ Unresolved:
 
 ---
 
+# Phase 0 Module 39 — Governance, View Preferences, And Scalability Readiness
+
+Module 39 formalizes the Water Emergency visibility categories created in Modules 35-38 so they are no longer loose notes.
+
+Decision authority baseline:
+
+- Randall Rodriguez is the delegated technical manager, software owner, implementation approver, and Phase 0 software decision authority for ACS-FSM.
+- Internal software-visible labels, filters, readiness groups, timing heuristics, dashboard behavior, and conservative UI defaults are marked as a Randall-authorized Phase 0 visibility baseline.
+- Older notes that say final non-legal Water Emergency taxonomy requires Luis or operations confirmation are now interpreted as: record the assumption, choose a conservative Phase 0 software baseline, document it, and continue.
+- Luis and Alfonso remain business stakeholders and operational reviewers.
+
+Legal and owner-review boundary:
+
+- Phase 0 visibility labels are not final legal, insurance, compliance, warranty, customer-facing, or company-liability policy.
+- Final SLA enforcement, drying certification language, insurance documentation, warranty language, customer promises, or formal company policy require Alfonso owner review.
+- The system may display owner-review boundaries, but it must not silently finalize those policies.
+
+Read-only dashboard behavior:
+
+- backend governance metadata identifies provisional filter groups, attention labels, timing labels, readiness labels, and future role-visibility roles
+- result-window metadata prepares future pagination/query scaling by reporting total count, visible count, result limit, `has_more`, sort key, and generation time
+- frontend saved view preferences may persist selected Water Emergency filter and sort values locally in the browser only
+- saved view preferences do not store secrets, tokens, PII, customer data, backend records, or operational workflow state
+- saved view preferences do not approve, close, dispatch, schedule, escalate, or mutate Water Emergency records
+
+Future role planning:
+
+- provisional future roles include office_admin, operations_manager, dispatcher, reviewer, technician, and owner
+- current Phase 0 does not implement auth, RBAC, fake login, fake role hiding, or role enforcement
+- role-scoped visibility must be designed in a future authenticated module
+
+Unresolved:
+
+- Alfonso owner review for any final SLA, insurance, warranty, drying certification, customer-facing promise, or company-liability policy
+- future authenticated role-scoped visibility and authority
+- future production saved views that synchronize to backend user accounts
+- future backend pagination/query limits once real Water Emergency volume requires them
+
+---
+
 # 12. Critical Architectural Rules
 
 ## Rule 1

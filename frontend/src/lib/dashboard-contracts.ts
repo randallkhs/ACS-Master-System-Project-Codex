@@ -420,6 +420,41 @@ export type WaterEmergencyViewStateSummaryResponse = {
   items: WaterEmergencyViewStateItemResponse[];
 };
 
+export type WaterEmergencyGovernanceMetadataItemResponse = {
+  key: string;
+  label: string;
+  category: string;
+  source: string;
+  randall_authorized_phase_0_baseline: boolean;
+  legal_or_insurance_policy: boolean;
+  requires_alfonso_owner_review: boolean;
+  reason: string;
+};
+
+export type WaterEmergencyGovernanceMetadataResponse = {
+  randall_authorized_phase_0_baseline: boolean;
+  source: string;
+  legal_or_insurance_policy: boolean;
+  requires_alfonso_owner_review: boolean;
+  baseline_note: string;
+  timing_heuristic_note: string;
+  provisional_filter_groups: WaterEmergencyGovernanceMetadataItemResponse[];
+  provisional_attention_labels: WaterEmergencyGovernanceMetadataItemResponse[];
+  provisional_timing_labels: WaterEmergencyGovernanceMetadataItemResponse[];
+  provisional_readiness_labels: WaterEmergencyGovernanceMetadataItemResponse[];
+  owner_review_required_items: WaterEmergencyGovernanceMetadataItemResponse[];
+  future_role_visibility_roles: string[];
+};
+
+export type WaterEmergencyResultWindowMetadataResponse = {
+  total_count: number;
+  visible_count: number;
+  result_limit: number;
+  has_more: boolean;
+  sort_key: string;
+  generated_at: string;
+};
+
 export type WaterEmergencyDashboardResponse = {
   generated_at: string;
   total_records: number;
@@ -438,6 +473,8 @@ export type WaterEmergencyDashboardResponse = {
   operator_queue_summary: WaterEmergencyOperatorQueueSummaryResponse;
   aging_followup_summary: WaterEmergencyAgingFollowUpSummaryResponse;
   view_state_summary: WaterEmergencyViewStateSummaryResponse;
+  governance_metadata: WaterEmergencyGovernanceMetadataResponse;
+  result_window_metadata: WaterEmergencyResultWindowMetadataResponse;
   related_job_count: number;
   related_work_order_count: number;
   related_visit_count: number;

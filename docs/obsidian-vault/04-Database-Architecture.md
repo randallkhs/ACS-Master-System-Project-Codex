@@ -875,3 +875,24 @@ Unresolved:
 - final Luis-confirmed filter, triage, queue, SLA, and Water Emergency operations taxonomy
 - production pagination/query optimization for larger Water Emergency record sets
 - how future authenticated actions should interact with filter state without making the frontend the source of truth
+
+## Water Emergency Governance And Saved-View Readiness
+
+Phase 0 Module 39 adds read-only governance and result-window metadata to the Water Emergency dashboard contract without adding database tables or columns.
+
+Persistence philosophy:
+
+- provisional Water Emergency filters, attention labels, timing labels, and readiness labels remain derived read-model metadata
+- the metadata is marked as a Randall-authorized Phase 0 visibility baseline for internal software behavior
+- timing/follow-up labels remain conservative visibility heuristics and are not final SLA enforcement
+- legal, insurance, compliance, warranty, drying certification, customer-facing, or company-liability policy remains outside the database model until Alfonso owner review
+- frontend saved view preferences are browser-local only and do not become backend operational state
+- no authentication, RBAC, user-preference table, or backend saved-view persistence is added in Module 39
+- result-window metadata reports current counts and sort context only; it does not implement production pagination yet
+
+Unresolved:
+
+- whether future authenticated saved views need a dedicated user-preferences table
+- whether future pagination should use cursor-based read models or materialized dashboard projections
+- exact role-scoped visibility rules after auth exists
+- final owner-reviewed SLA, insurance, drying certification, warranty, and customer-facing policy language

@@ -616,3 +616,30 @@ Open API/frontend concerns:
 - final Water Emergency filter, triage, and saved-view taxonomy
 - whether filter metadata should remain derived read-model projections or become persisted user/role preferences later
 - production pagination, refresh cadence, stale-data handling, role-scoped filter visibility, and saved default views
+
+## Phase 0 Module 39 Water Emergency Governance And View Preference Contract Boundary
+
+The existing Water Emergency dashboard API contract now includes read-only governance and result-window metadata.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/water-emergency` exposes Randall-authorized Phase 0 visibility baseline metadata
+- governance metadata lists provisional filter groups, attention labels, timing labels, readiness labels, owner-review policy boundaries, and future role-visibility role names
+- timing and follow-up labels are explicitly marked as conservative Phase 0 visibility heuristics, not final SLA enforcement
+- legal, insurance, warranty, drying certification, customer-facing, compliance, or company-liability policy boundaries are marked as requiring Alfonso owner review
+- result-window metadata exposes total count, visible count, result limit, `has_more`, sort key, and generated timestamp for future pagination/query scaling readiness
+- frontend saved view preferences are local browser state only and are not sent to this API
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no auth, RBAC, saved-view backend persistence, workflow execution, SLA enforcement, vendor execution, or AI execution is added
+- no final legal, insurance, compliance, warranty, drying certification, or customer-facing policy is finalized in the API contract
+- frontend display must consume backend governance metadata without turning view-state into workflow authority
+
+Open API/frontend concerns:
+
+- future authenticated saved view preference API, if ACS needs account-level preferences
+- production pagination/query parameters once Water Emergency volume requires them
+- role-scoped visibility and evidence restrictions after authentication exists
+- Alfonso owner-review checklist for formal policy language that may create company liability

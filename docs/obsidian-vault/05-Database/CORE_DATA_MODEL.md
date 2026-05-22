@@ -514,6 +514,24 @@ Module 38 adds Water Emergency filter, sort, grouping, and operator view-state v
 
 No database table or column was added for filters, saved views, user preferences, or Water Emergency taxonomy. Filter groups and sort labels are derived from existing persisted Water Emergency, Work Order, Visit, Review, and operational event evidence through the dashboard service. If ACS later needs saved operator views, role-specific filters, or production pagination state, those should be modeled explicitly in a future authenticated module.
 
+## Phase 0 Module 39 Governance And Preference Note
+
+Module 39 adds Water Emergency governance metadata and result-window metadata to the dashboard read model only.
+
+No database table or column was added for:
+
+- Water Emergency taxonomy approvals
+- SLA enforcement
+- legal or insurance policy
+- frontend saved preferences
+- user accounts
+- roles or permissions
+- pagination cursors
+
+The current software-visible labels are recorded as a Randall-authorized Phase 0 visibility baseline. This is internal software metadata only and does not create final legal, insurance, warranty, drying certification, customer-facing, or company-liability policy. Those items require Alfonso owner review before they become formal ACS policy or persisted operational rules.
+
+Frontend saved Water Emergency filter/sort preferences are browser-local only. They do not store tokens, secrets, PII, customer records, or backend operational state, and they are not synchronized to the database.
+
 ---
 
 ## Initial Status Concepts

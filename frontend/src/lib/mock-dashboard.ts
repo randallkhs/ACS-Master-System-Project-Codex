@@ -775,6 +775,104 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       }
     ]
   },
+  governance_metadata: {
+    randall_authorized_phase_0_baseline: true,
+    source: "phase_0_visibility_heuristic",
+    legal_or_insurance_policy: false,
+    requires_alfonso_owner_review: false,
+    baseline_note:
+      "Randall-authorized Phase 0 visibility baseline for internal Water Emergency dashboard labels, filters, readiness groups, and view-state defaults.",
+    timing_heuristic_note:
+      "Water Emergency timing labels are conservative software visibility heuristics, not final SLA enforcement, insurance policy, drying certification language, or customer-facing promise.",
+    provisional_filter_groups: [
+      {
+        key: "all",
+        label: "All records",
+        category: "filter_group",
+        source: "phase_0_visibility_heuristic",
+        randall_authorized_phase_0_baseline: true,
+        legal_or_insurance_policy: false,
+        requires_alfonso_owner_review: false,
+        reason: "Internal read-only filter group for dashboard view state."
+      },
+      {
+        key: "closed_or_resolved",
+        label: "Closed or resolved",
+        category: "filter_group",
+        source: "phase_0_visibility_heuristic",
+        randall_authorized_phase_0_baseline: true,
+        legal_or_insurance_policy: false,
+        requires_alfonso_owner_review: false,
+        reason: "Internal read-only filter group for dashboard view state."
+      }
+    ],
+    provisional_attention_labels: [
+      {
+        key: "critical_attention",
+        label: "Critical attention",
+        category: "attention_label",
+        source: "phase_0_visibility_heuristic",
+        randall_authorized_phase_0_baseline: true,
+        legal_or_insurance_policy: false,
+        requires_alfonso_owner_review: false,
+        reason: "Internal read-only attention label for operator scanability."
+      }
+    ],
+    provisional_timing_labels: [
+      {
+        key: "followup_due",
+        label: "Follow-up due",
+        category: "timing_label",
+        source: "phase_0_visibility_heuristic",
+        randall_authorized_phase_0_baseline: true,
+        legal_or_insurance_policy: false,
+        requires_alfonso_owner_review: false,
+        reason:
+          "Internal read-only timing label for Phase 0 follow-up visibility; not final SLA enforcement."
+      }
+    ],
+    provisional_readiness_labels: [
+      {
+        key: "needs_manual_review",
+        label: "Needs Manual Review",
+        category: "readiness_label",
+        source: "phase_0_visibility_heuristic",
+        randall_authorized_phase_0_baseline: true,
+        legal_or_insurance_policy: false,
+        requires_alfonso_owner_review: false,
+        reason: "Internal read-only readiness label for operator context."
+      }
+    ],
+    owner_review_required_items: [
+      {
+        key: "formal_sla_or_insurance_policy",
+        label: "Formal SLA or insurance policy",
+        category: "owner_review_boundary",
+        source: "owner_review_required",
+        randall_authorized_phase_0_baseline: false,
+        legal_or_insurance_policy: true,
+        requires_alfonso_owner_review: true,
+        reason:
+          "Final SLA commitments, insurance documentation, drying certification, warranty language, or customer-facing policy can create company liability and require Alfonso owner review."
+      }
+    ],
+    future_role_visibility_roles: [
+      "office_admin",
+      "operations_manager",
+      "dispatcher",
+      "reviewer",
+      "technician",
+      "owner"
+    ]
+  },
+  result_window_metadata: {
+    total_count: 2,
+    visible_count: 2,
+    result_limit: 2,
+    has_more: false,
+    sort_key: "attention",
+    generated_at: "2026-05-22T12:00:00Z"
+  },
   related_job_count: 2,
   related_work_order_count: 1,
   related_visit_count: 2,

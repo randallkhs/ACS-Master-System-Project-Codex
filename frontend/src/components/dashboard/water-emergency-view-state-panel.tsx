@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import type {
   WaterEmergencyDashboardResponse,
   WaterEmergencyViewStateItemResponse
@@ -9,6 +9,15 @@ import {
   deriveWaterEmergencyVisibleRecords,
   type WaterEmergencySortKey
 } from "@/lib/water-emergency-view-state";
+import {
+  getBrowserStorage,
+  getWaterEmergencyViewPreferencesServerSnapshot,
+  getWaterEmergencyViewPreferencesSnapshot,
+  notifyWaterEmergencyViewPreferencesChanged,
+  readWaterEmergencyViewPreferencesSnapshot,
+  subscribeWaterEmergencyViewPreferences,
+  writeWaterEmergencyViewPreferences
+} from "@/lib/water-emergency-view-preferences";
 import { compactId, formatCount, formatDateTime, humanizeLabel } from "@/lib/format";
 import { StatusBadge } from "@/components/dashboard/status-badge";
 
@@ -21,9 +30,35 @@ const activeLimit = 8;
 export function WaterEmergencyViewStatePanel({
   data
 }: WaterEmergencyViewStatePanelProps) {
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const [selectedSort, setSelectedSort] =
-    useState<WaterEmergencySortKey>("attention");
+  const [fallbackPreferences, setFallbackPreferences] = useState({
+    selectedFilter: "all",
+    selectedSort: "attention" as WaterEmergencySortKey
+  });
+  const availableFilterKeys = useMemo(
+    () => new Set(data.view_state_summary.available_filters.map((option) => option.key)),
+    [data.view_state_summary.available_filters]
+  );
+  const availableSortKeys = useMemo(
+    () => new Set(data.view_state_summary.sort_options.map((option) => option.key)),
+    [data.view_state_summary.sort_options]
+  );
+  const preferenceSnapshot = useSyncExternalStore(
+    subscribeWaterEmergencyViewPreferences,
+    getWaterEmergencyViewPreferencesSnapshot,
+    getWaterEmergencyViewPreferencesServerSnapshot
+  );
+  const preferenceReadResult = useMemo(
+    () =>
+      readWaterEmergencyViewPreferencesSnapshot(preferenceSnapshot, {
+        availableFilterKeys,
+        availableSortKeys
+      }),
+    [availableFilterKeys, availableSortKeys, preferenceSnapshot]
+  );
+  const selectedFilter =
+    preferenceReadResult.preferences?.selectedFilter ?? fallbackPreferences.selectedFilter;
+  const selectedSort =
+    preferenceReadResult.preferences?.selectedSort ?? fallbackPreferences.selectedSort;
   const viewState = useMemo(
     () =>
       deriveWaterEmergencyVisibleRecords(data, {
@@ -32,10 +67,30 @@ export function WaterEmergencyViewStatePanel({
       }),
     [data, selectedFilter, selectedSort]
   );
+  const ownerReviewItems = data.governance_metadata.owner_review_required_items.filter(
+    (item) => item.requires_alfonso_owner_review
+  );
   const visibleActiveItems = viewState.visibleActiveItems.slice(0, activeLimit);
   const hiddenActiveCount =
     viewState.visibleActiveItems.length - visibleActiveItems.length;
   const hasVisibleItems = viewState.visibleItems.length > 0;
+
+  function savePreferences(nextPreferences: {
+    selectedFilter: string;
+    selectedSort: WaterEmergencySortKey;
+  }) {
+    const writeResult = writeWaterEmergencyViewPreferences(
+      getBrowserStorage(),
+      nextPreferences
+    );
+
+    if (writeResult.available) {
+      notifyWaterEmergencyViewPreferencesChanged();
+      return;
+    }
+
+    setFallbackPreferences(nextPreferences);
+  }
 
   return (
     <div className="rounded-md border border-slate-200 bg-slate-50/70 p-4">
@@ -54,6 +109,36 @@ export function WaterEmergencyViewStatePanel({
             <StatusBadge label="No backend mutation" variant="success" />
             <StatusBadge label="Closed records separated" variant="info" />
           </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <div className="rounded-md border border-slate-200 bg-white p-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Saved view preferences
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Stored on this device only. The selected filter and sort order are
+                saved as browser view preferences, not backend operational state.
+              </p>
+              <p className="mt-1 text-xs font-semibold text-slate-500">
+                {preferenceReadResult.available
+                  ? "No customer data, tokens, secrets, or operational records are stored."
+                  : "Local browser storage is unavailable; defaults are used safely."}
+              </p>
+            </div>
+            <div className="rounded-md border border-slate-200 bg-white p-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Governance baseline
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                {data.governance_metadata.baseline_note}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-slate-500">
+                Not final SLA or insurance policy.{" "}
+                {ownerReviewItems.length > 0
+                  ? "Alfonso owner review remains required for formal legal, insurance, drying certification, warranty, or customer-facing policy."
+                  : "No owner-review legal policy item is active in this read-only view."}
+              </p>
+            </div>
+          </div>
         </div>
         <div className="grid w-full gap-3 sm:grid-cols-2 xl:w-[28rem]">
           <label className="text-sm font-semibold text-slate-700">
@@ -61,7 +146,12 @@ export function WaterEmergencyViewStatePanel({
             <select
               className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-[#162033] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
               value={selectedFilter}
-              onChange={(event) => setSelectedFilter(event.target.value)}
+              onChange={(event) =>
+                savePreferences({
+                  selectedFilter: event.target.value,
+                  selectedSort
+                })
+              }
             >
               {data.view_state_summary.available_filters.map((option) => (
                 <option key={option.key} value={option.key}>
@@ -76,7 +166,10 @@ export function WaterEmergencyViewStatePanel({
               className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-[#162033] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
               value={selectedSort}
               onChange={(event) =>
-                setSelectedSort(event.target.value as WaterEmergencySortKey)
+                savePreferences({
+                  selectedFilter,
+                  selectedSort: event.target.value as WaterEmergencySortKey
+                })
               }
             >
               {data.view_state_summary.sort_options.map((option) => (

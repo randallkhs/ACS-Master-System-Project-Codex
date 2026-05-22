@@ -381,6 +381,44 @@ class WaterEmergencyViewStateSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class WaterEmergencyGovernanceMetadataItem:
+    key: str
+    label: str
+    category: str
+    source: str
+    randall_authorized_phase_0_baseline: bool
+    legal_or_insurance_policy: bool
+    requires_alfonso_owner_review: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyGovernanceMetadata:
+    randall_authorized_phase_0_baseline: bool
+    source: str
+    legal_or_insurance_policy: bool
+    requires_alfonso_owner_review: bool
+    baseline_note: str
+    timing_heuristic_note: str
+    provisional_filter_groups: tuple[WaterEmergencyGovernanceMetadataItem, ...]
+    provisional_attention_labels: tuple[WaterEmergencyGovernanceMetadataItem, ...]
+    provisional_timing_labels: tuple[WaterEmergencyGovernanceMetadataItem, ...]
+    provisional_readiness_labels: tuple[WaterEmergencyGovernanceMetadataItem, ...]
+    owner_review_required_items: tuple[WaterEmergencyGovernanceMetadataItem, ...]
+    future_role_visibility_roles: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WaterEmergencyResultWindowMetadata:
+    total_count: int
+    visible_count: int
+    result_limit: int
+    has_more: bool
+    sort_key: str
+    generated_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
 class WaterEmergencyDetailReadModel:
     generated_at: datetime
     record: WaterEmergencyRecordSummary
@@ -417,6 +455,8 @@ class WaterEmergencyDashboardReadModel:
     operator_queue_summary: WaterEmergencyOperatorQueueSummary
     aging_followup_summary: WaterEmergencyAgingFollowUpSummary
     view_state_summary: WaterEmergencyViewStateSummary
+    governance_metadata: WaterEmergencyGovernanceMetadata
+    result_window_metadata: WaterEmergencyResultWindowMetadata
     related_job_count: int
     related_work_order_count: int
     related_visit_count: int

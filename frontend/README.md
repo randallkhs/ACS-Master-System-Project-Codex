@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 37 keeps the frontend foundation read-only while adding Water Emergency aging, follow-up risk, stale-evidence, and unknown-timing visibility backed by separated backend read-model contracts.
+Phase 0 Module 39 keeps the frontend foundation read-only while adding Water Emergency governance notes, frontend-only saved view preferences, and scalability/read-model metadata visibility backed by separated backend contracts.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -139,6 +139,8 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Water Emergency next-step readiness and evidence panels
 - Water Emergency operator queue and attention triage panel
 - Water Emergency aging and follow-up risk visibility panel
+- Water Emergency filter/sort view-state panel with frontend-only saved preferences
+- Water Emergency Randall-authorized Phase 0 baseline and Alfonso owner-review boundary notes
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -237,6 +239,21 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Closed or resolved Water Emergency records are displayed separately from active timing risks and are not shown as active overdue work.
 - Aging visibility is not an SLA engine. The frontend does not schedule follow-ups, escalate work, approve reviews, close records, dispatch Water Emergency visits, or execute vendor/AI calls.
 - Timing labels are not the final ACS operations taxonomy; future authenticated workflow modules still need Luis-confirmed SLA/follow-up rules and operator authority design.
+
+## Module 38 Water Emergency View-State Notes
+
+- The Water Emergency summary displays backend-provided filter groups, sort options, group counts, and per-record view-state items.
+- Filter and sort controls change only frontend display state. They do not call mutation endpoints, store backend operational state, approve work, close records, dispatch visits, or escalate records.
+- Closed/resolved records remain visually separated from active records even when active lists are limited.
+- Filter labels are Phase 0 visibility categories, not final ACS operating taxonomy.
+
+## Module 39 Water Emergency Governance And Saved-View Notes
+
+- The Water Emergency dashboard now displays a subtle Randall-authorized Phase 0 visibility baseline note for internal labels, filters, timing heuristics, readiness groups, and view-state defaults.
+- The frontend can persist only the selected Water Emergency filter and sort option in browser localStorage. It stores no tokens, secrets, PII, customer data, backend records, or operational workflow state.
+- If localStorage is unavailable, the dashboard falls back to safe defaults without blocking the read-only view.
+- Legal, insurance, warranty, drying certification, SLA enforcement, customer-facing promises, or company-liability policies remain outside the software baseline and require Alfonso owner review before finalization.
+- Future role-scoped visibility is documented only; the frontend does not implement auth, RBAC, fake roles, or hidden authorization behavior.
 
 ## Module 38 Water Emergency View-State Notes
 

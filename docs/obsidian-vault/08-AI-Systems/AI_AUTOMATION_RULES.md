@@ -343,6 +343,14 @@ AI is still not used in this module.
 
 AI must not infer final Water Emergency filter taxonomy, choose operational priority, persist user view preferences, approve Manual Review, close emergency work, schedule follow-up visits, authorize equipment pickup, confirm drying stages, dispatch Water Emergency visits, call vendor integrations, or transform read-only filter/sort context into workflow control. Future AI explanations for Water Emergency view-state evidence must remain advisory and separate from persisted backend read models.
 
+## Phase 0 Module 39 Boundary
+
+Water Emergency governance metadata, saved view preferences, role-visibility planning, and scalability readiness are deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer final Water Emergency legal policy, insurance policy, SLA taxonomy, warranty language, drying certification language, owner-review outcomes, role authorization, saved-view authority, or workflow priority. AI must not approve Manual Review, close emergency work, schedule follow-up visits, authorize equipment pickup, confirm drying stages, dispatch Water Emergency visits, call vendor integrations, persist backend preferences, implement auth/RBAC, or transform governance metadata into workflow control. Future AI explanations for Water Emergency governance evidence must remain advisory and separate from persisted backend read models and Alfonso owner-review policy decisions.
+
 ---
 
 ## Confidence And Review

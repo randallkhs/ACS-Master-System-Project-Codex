@@ -49,6 +49,30 @@ The project must NOT prioritize:
 
 # IMPORTANT ARCHITECTURAL RULES
 
+## Decision Authority
+
+Randall Rodriguez is the technical manager, software owner, implementation approver, and delegated decision authority for ACS-FSM technical implementation.
+
+Randall may approve:
+- technical architecture
+- workflow structure
+- UI behavior
+- Phase 0 taxonomy
+- conservative software defaults
+- implementation decisions
+- Google Calendar / Google Sheets setup decisions
+- FastField technical configuration decisions
+- internal operational software behavior that does not create legal, insurance, compliance, contractual, financial-liability, customer-liability, or formal company-policy risk
+
+Luis and Alfonso remain business stakeholders and operational reviewers. Older documentation that says "confirm with Luis" or "requires operations confirmation" for non-legal software behavior should be interpreted as:
+- record the assumption
+- make a conservative, safe, professional Phase 0 decision
+- mark it as a Randall-authorized Phase 0 baseline
+- document it in the appropriate Obsidian/decision-log files
+- continue implementation
+
+If a decision may create legal, insurance, compliance, contractual, financial-liability, customer-liability, or formal company-policy consequences, do not finalize it silently. Mark it as requiring Alfonso owner review and continue only in a safe non-binding/read-only way if possible.
+
 ## Rule 1
 The database is the operational source of truth.
 

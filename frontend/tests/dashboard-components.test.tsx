@@ -13,6 +13,11 @@ import type {
   WaterEmergencyViewStateItemResponse
 } from "@/lib/dashboard-contracts";
 import { deriveWaterEmergencyVisibleRecords } from "@/lib/water-emergency-view-state";
+import {
+  getBrowserStorage,
+  readWaterEmergencyViewPreferences,
+  writeWaterEmergencyViewPreferences
+} from "@/lib/water-emergency-view-preferences";
 
 const mockWaterEmergencyResult = {
   data: mockWaterEmergencyDashboard,
@@ -497,6 +502,100 @@ describe("DashboardView", () => {
     );
   });
 
+  it("renders Water Emergency governance and saved-view preference notes", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+      />
+    );
+
+    expect(html).toContain("Saved view preferences");
+    expect(html).toContain("Stored on this device only");
+    expect(html).toContain("Randall-authorized Phase 0 visibility baseline");
+    expect(html).toContain("Not final SLA or insurance policy");
+    expect(html).toContain("Alfonso owner review");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve Water Emergency");
+    expect(html).not.toContain("Close Water Emergency");
+    expect(html).not.toContain("Dispatch Water Emergency");
+  });
+
+  it("persists Water Emergency filter and sort preferences in safe local storage", () => {
+    const storage = createMemoryStorage();
+
+    const writeResult = writeWaterEmergencyViewPreferences(storage, {
+      selectedFilter: "followup_due",
+      selectedSort: "last_activity"
+    });
+    const readResult = readWaterEmergencyViewPreferences(storage, {
+      availableFilterKeys: new Set(["all", "followup_due"]),
+      availableSortKeys: new Set(["attention", "last_activity"])
+    });
+
+    expect(writeResult.available).toBe(true);
+    expect(readResult.available).toBe(true);
+    expect(readResult.preferences).toEqual({
+      selectedFilter: "followup_due",
+      selectedSort: "last_activity"
+    });
+  });
+
+  it("fails safely when Water Emergency saved-view storage is unavailable", () => {
+    const storage = createThrowingStorage();
+
+    const writeResult = writeWaterEmergencyViewPreferences(storage, {
+      selectedFilter: "followup_due",
+      selectedSort: "last_activity"
+    });
+    const readResult = readWaterEmergencyViewPreferences(storage, {
+      availableFilterKeys: new Set(["all", "followup_due"]),
+      availableSortKeys: new Set(["attention", "last_activity"])
+    });
+
+    expect(writeResult.available).toBe(false);
+    expect(readResult.available).toBe(false);
+    expect(readResult.preferences).toBeNull();
+  });
+
+  it("returns null when browser localStorage access throws", () => {
+    const originalWindow = globalThis.window;
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: {
+        get localStorage() {
+          throw new Error("localStorage access denied");
+        }
+      }
+    });
+
+    try {
+      const storage = getBrowserStorage();
+      const writeResult = writeWaterEmergencyViewPreferences(storage, {
+        selectedFilter: "followup_due",
+        selectedSort: "last_activity"
+      });
+      const readResult = readWaterEmergencyViewPreferences(storage, {
+        availableFilterKeys: new Set(["all", "followup_due"]),
+        availableSortKeys: new Set(["attention", "last_activity"])
+      });
+
+      expect(storage).toBeNull();
+      expect(writeResult.available).toBe(false);
+      expect(readResult.available).toBe(false);
+      expect(readResult.preferences).toBeNull();
+    } finally {
+      Object.defineProperty(globalThis, "window", {
+        configurable: true,
+        value: originalWindow
+      });
+    }
+  });
+
   it("renders timeline events in stable read-model order", () => {
     const html = renderToStaticMarkup(
       <DashboardView
@@ -587,3 +686,51 @@ describe("DashboardView", () => {
     expect(html).toContain("Separated from standard dispatch");
   });
 });
+
+function createMemoryStorage(): Storage {
+  const values = new Map<string, string>();
+
+  return {
+    get length() {
+      return values.size;
+    },
+    clear() {
+      values.clear();
+    },
+    getItem(key: string) {
+      return values.get(key) ?? null;
+    },
+    key(index: number) {
+      return Array.from(values.keys())[index] ?? null;
+    },
+    removeItem(key: string) {
+      values.delete(key);
+    },
+    setItem(key: string, value: string) {
+      values.set(key, value);
+    }
+  };
+}
+
+function createThrowingStorage(): Storage {
+  return {
+    get length(): number {
+      throw new Error("storage unavailable");
+    },
+    clear() {
+      throw new Error("storage unavailable");
+    },
+    getItem() {
+      throw new Error("storage unavailable");
+    },
+    key() {
+      throw new Error("storage unavailable");
+    },
+    removeItem() {
+      throw new Error("storage unavailable");
+    },
+    setItem() {
+      throw new Error("storage unavailable");
+    }
+  };
+}

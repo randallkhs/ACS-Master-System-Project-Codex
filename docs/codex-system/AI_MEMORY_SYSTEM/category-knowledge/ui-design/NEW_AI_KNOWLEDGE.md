@@ -213,6 +213,35 @@ Module 34 tests verify backend review/exception summaries, per-record review sco
 
 ---
 
+## Water Emergency Governance And Saved View Preferences
+
+Category:
+UI design / operational dashboard / Water Emergency
+Date Added:
+2026-05-22
+Last Verified:
+2026-05-22
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 39 verification
+
+### Discovery
+Water Emergency filter/sort preferences can be saved safely as browser-local view preferences when they store only non-sensitive UI state. The dashboard should pair saved view controls with a governance note that labels provisional Water Emergency filters, attention groups, timing heuristics, and readiness categories as Randall-authorized Phase 0 visibility baselines, not final SLA or legal policy.
+
+### Why It Matters
+Operators benefit from persistent scan settings, but saved view preferences must not become backend workflow state or hidden authority. Governance notes keep Phase 0 labels useful while preserving Alfonso owner review for formal legal, insurance, warranty, drying certification, customer-facing, or company-liability policy.
+
+### Reusability
+Use this pattern for future read-only ACS dashboard controls that improve local operator ergonomics before auth, RBAC, account-level preferences, or workflow actions exist.
+
+### Verification Notes
+Module 39 tests verify localStorage preference helpers persist filter/sort values, fail safely when storage is unavailable, governance notes render without action controls, backend metadata is marked as Randall-authorized Phase 0 baseline, and metadata does not claim final legal or insurance policy.
+
+---
+
 ## Water Emergency Next-Step Readiness Visibility
 
 Category:

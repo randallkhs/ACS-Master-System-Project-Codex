@@ -1235,3 +1235,40 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database/system architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-22 — Phase 0 Module 39 Water Emergency Governance, View Preferences, And Scalability Readiness
+
+- Decision type: Implementation / Water Emergency visibility / governance and view-state boundary
+- Status: Implemented
+- Decision:
+  - Add read-only Water Emergency governance metadata to the dashboard contract.
+  - Mark provisional filter groups, attention labels, timing labels, readiness labels, and view-state defaults as a Randall-authorized Phase 0 visibility baseline.
+  - Mark timing and follow-up labels as conservative internal software heuristics, not final SLA enforcement.
+  - Add explicit owner-review metadata for legal, insurance, warranty, drying certification, customer-facing, compliance, or company-liability policy decisions requiring Alfonso owner review.
+  - Add result-window metadata for future pagination/query scaling readiness without changing current query semantics.
+  - Add frontend-only saved Water Emergency filter/sort preferences through safe localStorage access.
+  - Document provisional future role-visibility roles without implementing authentication or RBAC.
+- Rationale:
+  - Module 38 left saved views, taxonomy approval, role scoping, and pagination as open concerns.
+  - Randall is the delegated software decision authority for Phase 0 internal technical behavior, so non-legal "confirm with operations" blockers should become documented conservative baselines instead of halting implementation.
+  - Legal, insurance, warranty, compliance, drying certification, customer-facing promises, and company-liability policies require owner review and must not be silently finalized in read-model metadata.
+  - Saved view preferences improve operator scanability while staying frontend-only and non-sensitive.
+- Future implications:
+  - Future authenticated modules may add account-level saved views, backend preference storage, and role-scoped visibility.
+  - Future production Water Emergency dashboard contracts may need cursor-based pagination, query optimization, materialized read models, refresh cadence, and stale-data rules.
+  - Alfonso owner review remains required before any formal SLA, insurance, warranty, drying certification, customer-facing, or legal policy language becomes system policy.
+  - Randall-authorized labels may later be refined with stakeholder feedback, but Module 39 treats them as safe internal Phase 0 visibility defaults.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Water Emergency view-state panel
+  - Frontend saved view preference helper
+  - Backend/frontend tests
+  - Water Emergency workflow documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary

@@ -30,12 +30,15 @@ from app.domain.dashboard import (
     WaterEmergencyEquipmentNote,
     WaterEmergencyEquipmentSummary,
     WaterEmergencyFilterOption,
+    WaterEmergencyGovernanceMetadata,
+    WaterEmergencyGovernanceMetadataItem,
     WaterEmergencyJobReference,
     WaterEmergencyNextStepReadiness,
     WaterEmergencyNextStepReadinessSummary,
     WaterEmergencyOperatorQueueSummary,
     WaterEmergencyQueueItem,
     WaterEmergencyRecordSummary,
+    WaterEmergencyResultWindowMetadata,
     WaterEmergencyReviewExceptionContext,
     WaterEmergencyReviewExceptionSummary,
     WaterEmergencyReviewIndicator,
@@ -216,6 +219,49 @@ WATER_EMERGENCY_VIEW_FILTER_PRIORITY = (
 WATER_EMERGENCY_VIEW_SORT_RANKS = {
     label: index * 10 for index, label in enumerate(WATER_EMERGENCY_VIEW_FILTER_PRIORITY, start=1)
 }
+WATER_EMERGENCY_ATTENTION_LABEL_DEFINITIONS = (
+    ("critical_attention", "Critical attention"),
+    ("needs_manual_review", "Needs Manual Review"),
+    ("blocked_missing_data", "Blocked or missing data"),
+    ("needs_followup", "Needs follow-up"),
+    ("equipment_review_needed", "Equipment review needed"),
+    ("drying_stage_review_needed", "Drying-stage review needed"),
+    ("ready_for_close_review", "Ready for close review"),
+    ("monitoring", "Monitoring"),
+    ("closed_or_resolved", "Closed or resolved"),
+    ("needs_operator_review", "Needs operator review"),
+)
+WATER_EMERGENCY_TIMING_LABEL_DEFINITIONS = (
+    ("newly_opened", "Newly opened"),
+    ("active_monitoring", "Active monitoring"),
+    ("followup_due", "Follow-up due"),
+    ("followup_overdue", "Follow-up overdue"),
+    ("stale_evidence", "Stale evidence"),
+    ("waiting_for_review", "Waiting for review"),
+    ("ready_for_close_review", "Ready for close review"),
+    ("closed_or_resolved", "Closed or resolved"),
+    ("unknown_timing", "Unknown timing"),
+)
+WATER_EMERGENCY_READINESS_LABEL_DEFINITIONS = (
+    ("needs_manual_review", "Needs Manual Review"),
+    ("needs_operator_decision", "Needs operator decision"),
+    ("needs_visit_followup", "Needs visit follow-up"),
+    ("needs_equipment_review", "Needs equipment review"),
+    ("needs_drying_stage_confirmation", "Needs drying-stage confirmation"),
+    ("ready_for_close_review", "Ready for close review"),
+    ("blocked_by_missing_data", "Blocked by missing data"),
+    ("awaiting_more_information", "Awaiting more information"),
+    ("closed_no_active_next_step", "Closed with no active next step"),
+    ("needs_operator_review", "Needs operator review"),
+)
+WATER_EMERGENCY_FUTURE_ROLE_VISIBILITY_ROLES = (
+    "office_admin",
+    "operations_manager",
+    "dispatcher",
+    "reviewer",
+    "technician",
+    "owner",
+)
 
 
 class DashboardReadModelService:
@@ -433,6 +479,10 @@ class DashboardReadModelService:
             operator_queue_summary=operator_queue_summary,
             aging_followup_summary=aging_followup_summary,
         )
+        result_window_metadata = water_emergency_result_window_metadata(
+            view_state_summary=view_state_summary,
+            generated_at=generated_at,
+        )
 
         return WaterEmergencyDashboardReadModel(
             generated_at=generated_at,
@@ -471,6 +521,8 @@ class DashboardReadModelService:
             operator_queue_summary=operator_queue_summary,
             aging_followup_summary=aging_followup_summary,
             view_state_summary=view_state_summary,
+            governance_metadata=water_emergency_governance_metadata(),
+            result_window_metadata=result_window_metadata,
             related_job_count=len(related_jobs),
             related_work_order_count=len(water_work_order_ids),
             related_visit_count=len(water_visit_ids),
@@ -1461,6 +1513,116 @@ def water_emergency_view_state_summary(
         sort_options=WATER_EMERGENCY_SORT_OPTIONS,
         group_counts=count_values(item.primary_filter_group for item in items),
         items=items,
+    )
+
+
+def water_emergency_governance_metadata() -> WaterEmergencyGovernanceMetadata:
+    return WaterEmergencyGovernanceMetadata(
+        randall_authorized_phase_0_baseline=True,
+        source="phase_0_visibility_heuristic",
+        legal_or_insurance_policy=False,
+        requires_alfonso_owner_review=False,
+        baseline_note=(
+            "Randall-authorized Phase 0 visibility baseline for internal Water "
+            "Emergency dashboard labels, filters, readiness groups, and view-state "
+            "defaults."
+        ),
+        timing_heuristic_note=(
+            "Water Emergency timing labels are conservative software visibility "
+            "heuristics, not final SLA enforcement, insurance policy, drying "
+            "certification language, or customer-facing promise."
+        ),
+        provisional_filter_groups=tuple(
+            water_emergency_governance_metadata_item(
+                key=key,
+                label=label,
+                category="filter_group",
+                reason="Internal read-only filter group for dashboard view state.",
+            )
+            for key, label, _description in WATER_EMERGENCY_FILTER_DEFINITIONS
+        ),
+        provisional_attention_labels=tuple(
+            water_emergency_governance_metadata_item(
+                key=key,
+                label=label,
+                category="attention_label",
+                reason="Internal read-only attention label for operator scanability.",
+            )
+            for key, label in WATER_EMERGENCY_ATTENTION_LABEL_DEFINITIONS
+        ),
+        provisional_timing_labels=tuple(
+            water_emergency_governance_metadata_item(
+                key=key,
+                label=label,
+                category="timing_label",
+                reason=(
+                    "Internal read-only timing label for Phase 0 follow-up visibility; "
+                    "not final SLA enforcement."
+                ),
+            )
+            for key, label in WATER_EMERGENCY_TIMING_LABEL_DEFINITIONS
+        ),
+        provisional_readiness_labels=tuple(
+            water_emergency_governance_metadata_item(
+                key=key,
+                label=label,
+                category="readiness_label",
+                reason="Internal read-only readiness label for operator context.",
+            )
+            for key, label in WATER_EMERGENCY_READINESS_LABEL_DEFINITIONS
+        ),
+        owner_review_required_items=(
+            WaterEmergencyGovernanceMetadataItem(
+                key="formal_sla_or_insurance_policy",
+                label="Formal SLA or insurance policy",
+                category="owner_review_boundary",
+                source="owner_review_required",
+                randall_authorized_phase_0_baseline=False,
+                legal_or_insurance_policy=True,
+                requires_alfonso_owner_review=True,
+                reason=(
+                    "Final SLA commitments, insurance documentation, drying "
+                    "certification, warranty language, or customer-facing policy "
+                    "can create company liability and require Alfonso owner review."
+                ),
+            ),
+        ),
+        future_role_visibility_roles=WATER_EMERGENCY_FUTURE_ROLE_VISIBILITY_ROLES,
+    )
+
+
+def water_emergency_governance_metadata_item(
+    *,
+    key: str,
+    label: str,
+    category: str,
+    reason: str,
+) -> WaterEmergencyGovernanceMetadataItem:
+    return WaterEmergencyGovernanceMetadataItem(
+        key=key,
+        label=label,
+        category=category,
+        source="phase_0_visibility_heuristic",
+        randall_authorized_phase_0_baseline=True,
+        legal_or_insurance_policy=False,
+        requires_alfonso_owner_review=False,
+        reason=reason,
+    )
+
+
+def water_emergency_result_window_metadata(
+    *,
+    view_state_summary: WaterEmergencyViewStateSummary,
+    generated_at: datetime,
+) -> WaterEmergencyResultWindowMetadata:
+    total_count = view_state_summary.total_records
+    return WaterEmergencyResultWindowMetadata(
+        total_count=total_count,
+        visible_count=len(view_state_summary.items),
+        result_limit=total_count,
+        has_more=False,
+        sort_key="attention",
+        generated_at=generated_at,
     )
 
 

@@ -28,12 +28,15 @@ from app.domain.dashboard import (
     WaterEmergencyEquipmentNote,
     WaterEmergencyEquipmentSummary,
     WaterEmergencyFilterOption,
+    WaterEmergencyGovernanceMetadata,
+    WaterEmergencyGovernanceMetadataItem,
     WaterEmergencyJobReference,
     WaterEmergencyNextStepReadiness,
     WaterEmergencyNextStepReadinessSummary,
     WaterEmergencyOperatorQueueSummary,
     WaterEmergencyQueueItem,
     WaterEmergencyRecordSummary,
+    WaterEmergencyResultWindowMetadata,
     WaterEmergencyReviewExceptionContext,
     WaterEmergencyReviewExceptionSummary,
     WaterEmergencyReviewIndicator,
@@ -369,6 +372,98 @@ def water_emergency_contract() -> WaterEmergencyDashboardReadModel:
                 ),
             ),
         ),
+        governance_metadata=WaterEmergencyGovernanceMetadata(
+            randall_authorized_phase_0_baseline=True,
+            source="phase_0_visibility_heuristic",
+            legal_or_insurance_policy=False,
+            requires_alfonso_owner_review=False,
+            baseline_note=(
+                "Randall-authorized Phase 0 visibility baseline for internal software labels."
+            ),
+            timing_heuristic_note=(
+                "Timing labels are conservative software visibility heuristics, "
+                "not final SLA enforcement."
+            ),
+            provisional_filter_groups=(
+                WaterEmergencyGovernanceMetadataItem(
+                    key="needs_manual_review",
+                    label="Needs Manual Review",
+                    category="filter_group",
+                    source="phase_0_visibility_heuristic",
+                    randall_authorized_phase_0_baseline=True,
+                    legal_or_insurance_policy=False,
+                    requires_alfonso_owner_review=False,
+                    reason="Internal read-only filter label.",
+                ),
+            ),
+            provisional_attention_labels=(
+                WaterEmergencyGovernanceMetadataItem(
+                    key="critical_attention",
+                    label="Critical attention",
+                    category="attention_label",
+                    source="phase_0_visibility_heuristic",
+                    randall_authorized_phase_0_baseline=True,
+                    legal_or_insurance_policy=False,
+                    requires_alfonso_owner_review=False,
+                    reason="Internal read-only attention label.",
+                ),
+            ),
+            provisional_timing_labels=(
+                WaterEmergencyGovernanceMetadataItem(
+                    key="waiting_for_review",
+                    label="Waiting for review",
+                    category="timing_label",
+                    source="phase_0_visibility_heuristic",
+                    randall_authorized_phase_0_baseline=True,
+                    legal_or_insurance_policy=False,
+                    requires_alfonso_owner_review=False,
+                    reason="Internal read-only timing label.",
+                ),
+            ),
+            provisional_readiness_labels=(
+                WaterEmergencyGovernanceMetadataItem(
+                    key="needs_manual_review",
+                    label="Needs Manual Review",
+                    category="readiness_label",
+                    source="phase_0_visibility_heuristic",
+                    randall_authorized_phase_0_baseline=True,
+                    legal_or_insurance_policy=False,
+                    requires_alfonso_owner_review=False,
+                    reason="Internal read-only readiness label.",
+                ),
+            ),
+            owner_review_required_items=(
+                WaterEmergencyGovernanceMetadataItem(
+                    key="formal_sla_or_insurance_policy",
+                    label="Formal SLA or insurance policy",
+                    category="owner_review_boundary",
+                    source="owner_review_required",
+                    randall_authorized_phase_0_baseline=False,
+                    legal_or_insurance_policy=True,
+                    requires_alfonso_owner_review=True,
+                    reason=(
+                        "Final SLA, drying certification, insurance, warranty, "
+                        "or customer-facing policy can create company liability."
+                    ),
+                ),
+            ),
+            future_role_visibility_roles=(
+                "office_admin",
+                "operations_manager",
+                "dispatcher",
+                "reviewer",
+                "technician",
+                "owner",
+            ),
+        ),
+        result_window_metadata=WaterEmergencyResultWindowMetadata(
+            total_count=1,
+            visible_count=1,
+            result_limit=1,
+            has_more=False,
+            sort_key="attention",
+            generated_at=datetime(2026, 5, 16, 12, 45, tzinfo=UTC),
+        ),
         related_job_count=1,
         related_work_order_count=0,
         related_visit_count=2,
@@ -677,6 +772,28 @@ def test_dashboard_api_routes_return_read_only_contracts(
         "active",
         "needs_manual_review",
     ]
+    assert (
+        water_response.json()["governance_metadata"]["randall_authorized_phase_0_baseline"] is True
+    )
+    assert water_response.json()["governance_metadata"]["source"] == (
+        "phase_0_visibility_heuristic"
+    )
+    assert water_response.json()["governance_metadata"]["legal_or_insurance_policy"] is False
+    assert water_response.json()["governance_metadata"]["requires_alfonso_owner_review"] is False
+    assert (
+        water_response.json()["governance_metadata"]["owner_review_required_items"][0][
+            "requires_alfonso_owner_review"
+        ]
+        is True
+    )
+    assert water_response.json()["result_window_metadata"] == {
+        "total_count": 1,
+        "visible_count": 1,
+        "result_limit": 1,
+        "has_more": False,
+        "sort_key": "attention",
+        "generated_at": "2026-05-16T12:45:00Z",
+    }
     assert water_response.json()["records"][0]["related_visit_ids"] == [
         "00000000-0000-0000-0000-000000000033",
     ]
