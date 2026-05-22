@@ -1004,7 +1004,7 @@
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
                 <span class="status-pill"><span class="status-dot"></span>Under Development</span>
-                <strong>Last updated: May 21, 2026 at 1:10 PM EDT</strong>
+                <strong>Last updated: May 22, 2026 at 11:04 AM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1014,12 +1014,12 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>34</strong>
+                <strong>39</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
-                <strong>33</strong>
-                <span>Modules committed before the current Module 34 review-ready work</span>
+                <strong>4</strong>
+                <span>New Water Emergency visibility updates added since the last public report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
@@ -1826,6 +1826,125 @@
                 context.
               </div>
             </article>
+
+            <article class="module-card" data-group="water" data-search="module 35 water emergency next step readiness operator decision context blockers missing data">
+              <div class="module-top">
+                <span class="module-number">35</span>
+                <div>
+                  <h3>Water Emergency Next-Step Readiness</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module adds a read-only way to show what a Water Emergency record appears to
+                need next, based only on information already saved in the system. It can show when
+                a record needs Manual Review, operator decision context, visit follow-up,
+                equipment review, drying-stage confirmation, missing information, or close-review
+                visibility.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A Water Emergency panel may say that one emergency needs Manual Review because a
+                critical review item is open, another needs more information because visit or
+                drying details are missing, and another is ready for close-review visibility. None
+                of those labels close, approve, dispatch, or change the job.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="water" data-search="module 36 water emergency operator queue attention priority triage critical blocked closed resolved">
+              <div class="module-top">
+                <span class="module-number">36</span>
+                <div>
+                  <h3>Water Emergency Operator Queue and Attention View</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module organizes Water Emergency records into a read-only operator queue so
+                office staff can quickly see which emergency records need attention. The queue uses
+                existing evidence only, such as open reviews, critical indicators, blocker counts,
+                missing information, equipment follow-up, visit follow-up, and closed or resolved
+                status.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A Water Emergency queue may group one record under critical attention, another
+                under missing information, another under equipment review, and closed records in a
+                separate area. The screen helps the office scan the work, but it does not prioritize
+                work as final authority or perform any action.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="water" data-search="module 37 water emergency aging follow up risk time sensitive stale evidence overdue unknown timing">
+              <div class="module-top">
+                <span class="module-number">37</span>
+                <div>
+                  <h3>Water Emergency Aging and Follow-Up Risk</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module adds read-only time awareness for Water Emergency records. It helps
+                show whether an emergency is newly opened, being monitored, waiting for review,
+                approaching follow-up, overdue for follow-up, missing timing evidence, or already
+                closed or resolved.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                An emergency record may show as follow-up due because the last related evidence is
+                old, another may show as waiting for review because a Manual Review item is open,
+                and a closed record stays separated so it is not confused with active overdue work.
+                These timing labels are visibility only, not final SLA enforcement.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="water" data-search="module 38 water emergency filtering sorting operator view state active review blocked followup closed resolved">
+              <div class="module-top">
+                <span class="module-number">38</span>
+                <div>
+                  <h3>Water Emergency Filtering, Sorting, and View State</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module makes the Water Emergency dashboard easier to scan by adding read-only
+                filter and sort visibility. Operators can view existing records by categories such
+                as active, critical attention, Manual Review, blocked or missing data, follow-up
+                due, follow-up overdue, stale evidence, ready for close review, and closed or
+                resolved.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                If Luis wants to quickly look at only Water Emergency records needing Manual
+                Review, the dashboard can show that view. If the office wants to see closed or
+                resolved records, those remain separated from active records. Filtering changes
+                only what is visible on the screen; it does not change backend records.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="water" data-search="module 39 water emergency governance saved view preferences scalability randall authorized alfonso owner review">
+              <div class="module-top">
+                <span class="module-number">39</span>
+                <div>
+                  <h3>Water Emergency Governance and Saved Views</h3>
+                  <span class="module-group">Water Emergency</span>
+                </div>
+              </div>
+              <p>
+                This module documents which Water Emergency labels and dashboard categories are
+                safe Phase 0 software baselines and which future policies still need owner review.
+                It also adds frontend-only saved view preferences, so a browser can remember a
+                selected Water Emergency filter or sort option without storing customer data,
+                secrets, backend state, or workflow authority.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A dashboard note can explain that current timing and triage labels are
+                Randall-authorized Phase 0 visibility baselines, not final legal, insurance, or SLA
+                policy. A user's browser can remember a preferred Water Emergency filter, but the
+                saved view does not approve, close, dispatch, or modify any emergency record.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -1853,6 +1972,10 @@
             <div class="check-item"><span class="check">✓</span><span>Synthetic development data for realistic testing</span></div>
             <div class="check-item"><span class="check">✓</span><span>Dedicated Water Emergency dashboard visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Water Emergency review, blocker, exception, and alert visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Water Emergency next-step readiness visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Water Emergency operator queue and attention visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Water Emergency aging and follow-up risk visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Water Emergency filtering, sorting, and saved-view preference foundation</span></div>
           </div>
         </div>
       </section>
@@ -1872,6 +1995,7 @@
             <div>It does not close or resolve Water Emergency records.</div>
             <div>It does not call Google Calendar, Google Sheets, FastField, Verizon Connect, or AI services.</div>
             <div>It does not use AI as operational authority.</div>
+            <div>It does not enforce final Water Emergency SLA, insurance, warranty, or legal policy.</div>
             <div>It does not manage real customer production data from this report page.</div>
           </div>
         </div>

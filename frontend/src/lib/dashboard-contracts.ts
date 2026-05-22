@@ -41,6 +41,76 @@ export type ManualReviewSummaryResponse = {
   audit_correlation_count: number;
 };
 
+export type ManualReviewTaxonomyMetadataItemResponse = {
+  key: string;
+  label: string;
+  category: string;
+  source: string;
+  randall_authorized_phase_0_baseline: boolean;
+  legal_or_insurance_policy: boolean;
+  requires_alfonso_owner_review: boolean;
+  reason: string;
+};
+
+export type ManualReviewTaxonomyMetadataResponse = {
+  randall_authorized_phase_0_baseline: boolean;
+  source: string;
+  legal_or_insurance_policy: boolean;
+  requires_alfonso_owner_review: boolean;
+  baseline_note: string;
+  group_definitions: ManualReviewTaxonomyMetadataItemResponse[];
+};
+
+export type ManualReviewQueueItemResponse = {
+  review_item_id: string;
+  status: string;
+  severity: string | null;
+  reason_code: string;
+  visibility_groups: string[];
+  primary_group: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  job_id: string | null;
+  work_order_id: string | null;
+  visit_id: string | null;
+  route_assignment_id: string | null;
+  water_emergency_id: string | null;
+  created_at: string;
+  updated_at: string;
+  reviewed_at: string | null;
+  deferred_until: string | null;
+  resolved_at: string | null;
+  age_bucket: string;
+  age_hours: number | null;
+  blocker_indicator: boolean;
+  attention_indicator: boolean;
+  confidence_score: number | null;
+  recommended_action: string | null;
+  audit_correlation_id: string | null;
+  evidence_references: string[];
+};
+
+export type ManualReviewQueueResponse = {
+  generated_at: string;
+  total_items: number;
+  open_items: number;
+  deferred_items: number;
+  resolved_items: number;
+  archived_items: number;
+  active_attention_count: number;
+  water_emergency_related_count: number;
+  dispatch_related_count: number;
+  blocked_count: number;
+  status_counts: CountBucket[];
+  reason_counts: CountBucket[];
+  severity_counts: CountBucket[];
+  group_counts: CountBucket[];
+  age_bucket_counts: CountBucket[];
+  audit_correlation_count: number;
+  taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
+  items: ManualReviewQueueItemResponse[];
+};
+
 export type RouteAssignmentSummaryResponse = {
   total_assignments: number;
   status_counts: CountBucket[];

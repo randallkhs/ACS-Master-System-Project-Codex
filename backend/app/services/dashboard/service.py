@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,7 +15,11 @@ from app.domain.dashboard import (
     DispatchLifecycleSummary,
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
+    ManualReviewQueueItem,
+    ManualReviewQueueReadModel,
     ManualReviewSummary,
+    ManualReviewTaxonomyMetadata,
+    ManualReviewTaxonomyMetadataItem,
     OperationalDashboardSummary,
     OperationalEventTimelineSummary,
     OperationalTimelineEntry,
@@ -102,6 +107,7 @@ WATER_EMERGENCY_BLOCKER_REASON_KEYWORDS = {
     "unknown",
 }
 MAX_SORTABLE_DATETIME = datetime.max.replace(tzinfo=UTC)
+NIL_UUID = UUID("00000000-0000-0000-0000-000000000000")
 NEWLY_OPENED_HOURS = 24
 FOLLOWUP_DUE_HOURS = 24
 FOLLOWUP_OVERDUE_HOURS = 72
@@ -262,6 +268,99 @@ WATER_EMERGENCY_FUTURE_ROLE_VISIBILITY_ROLES = (
     "technician",
     "owner",
 )
+MANUAL_REVIEW_NEW_HOURS = 24
+MANUAL_REVIEW_AGING_HOURS = 72
+MANUAL_REVIEW_STALE_HOURS = 168
+MANUAL_REVIEW_BLOCKER_KEYWORDS = {
+    "block",
+    "blocked",
+    "critical",
+    "invalid",
+    "missing",
+    "unsafe",
+    "unknown",
+}
+MANUAL_REVIEW_MISSING_DATA_KEYWORDS = {
+    "address",
+    "incomplete",
+    "invalid",
+    "missing",
+    "unknown",
+}
+MANUAL_REVIEW_DUPLICATE_CONFLICT_KEYWORDS = {"conflict", "duplicate"}
+MANUAL_REVIEW_CANCELLATION_STATUS_KEYWORDS = {
+    "cancel",
+    "canceled",
+    "cancelled",
+    "cancellation",
+    "status",
+    "uncertain",
+    "uncertainty",
+}
+MANUAL_REVIEW_DISPATCH_ENTITY_TYPES = {
+    "job",
+    "route_assignment",
+    "standard_job",
+    "visit",
+    "work_order",
+}
+MANUAL_REVIEW_GROUP_DEFINITIONS = (
+    (
+        "open",
+        "Open",
+        "Review items still requiring human attention.",
+    ),
+    (
+        "deferred",
+        "Deferred",
+        "Review items intentionally held for later human follow-up.",
+    ),
+    (
+        "resolved",
+        "Resolved",
+        "Review items already resolved, approved, rejected, or closed.",
+    ),
+    (
+        "archived",
+        "Archived",
+        "Review items kept as read-only history.",
+    ),
+    (
+        "blocked",
+        "Blocked",
+        "Review items with blocker, critical, missing, invalid, unsafe, or unknown evidence.",
+    ),
+    (
+        "water_emergency_related",
+        "Water Emergency related",
+        "Review items specifically tied to a Water Emergency record, job, or visit.",
+    ),
+    (
+        "dispatch_related",
+        "Dispatch related",
+        "Review items tied to standard job, work-order, visit, or route assignment context.",
+    ),
+    (
+        "missing_data",
+        "Missing data",
+        "Review items whose reason indicates missing, invalid, incomplete, or unknown data.",
+    ),
+    (
+        "duplicate_or_conflict",
+        "Duplicate or conflict",
+        "Review items whose reason indicates duplicate or conflicting operational evidence.",
+    ),
+    (
+        "cancellation_or_status_uncertainty",
+        "Cancellation or status uncertainty",
+        "Review items whose reason indicates cancellation or status uncertainty.",
+    ),
+    (
+        "needs_operator_review",
+        "Needs operator review",
+        "Fallback visibility group when no more specific Phase 0 group is deterministic.",
+    ),
+)
 
 
 class DashboardReadModelService:
@@ -409,6 +508,79 @@ class DashboardReadModelService:
                 ),
             ),
             audit_correlation_count=count_audit_correlation_ids(review_items),
+        )
+
+    def build_manual_review_queue(
+        self,
+        *,
+        jobs: Sequence[Job] = (),
+        work_orders: Sequence[WorkOrder] = (),
+        visits: Sequence[Visit] = (),
+        route_assignments: Sequence[RouteAssignment] = (),
+        review_items: Sequence[ReviewItem] = (),
+        water_emergencies: Sequence[WaterEmergency] = (),
+    ) -> ManualReviewQueueReadModel:
+        generated_at = self.now()
+        queue_items = tuple(
+            sorted(
+                (
+                    manual_review_queue_item(
+                        review,
+                        jobs=jobs,
+                        work_orders=work_orders,
+                        visits=visits,
+                        route_assignments=route_assignments,
+                        water_emergencies=water_emergencies,
+                        now=generated_at,
+                    )
+                    for review in review_items
+                ),
+                key=manual_review_queue_sort_key,
+            ),
+        )
+
+        return ManualReviewQueueReadModel(
+            generated_at=generated_at,
+            total_items=len(review_items),
+            open_items=count_where(
+                review_items,
+                lambda item: normalized(item.status) == "open",
+            ),
+            deferred_items=count_where(
+                review_items,
+                lambda item: normalized(item.status) == "deferred",
+            ),
+            resolved_items=count_where(review_items, is_resolved_manual_review),
+            archived_items=count_where(
+                review_items,
+                lambda item: normalized(item.status) == "archived",
+            ),
+            active_attention_count=count_where(
+                queue_items,
+                lambda item: item.attention_indicator,
+            ),
+            water_emergency_related_count=count_where(
+                queue_items,
+                lambda item: "water_emergency_related" in item.visibility_groups,
+            ),
+            dispatch_related_count=count_where(
+                queue_items,
+                lambda item: "dispatch_related" in item.visibility_groups,
+            ),
+            blocked_count=count_where(
+                queue_items,
+                lambda item: item.blocker_indicator,
+            ),
+            status_counts=count_by_attr(review_items, "status"),
+            reason_counts=count_by_attr(review_items, "reason_code"),
+            severity_counts=count_by_attr(review_items, "severity"),
+            group_counts=count_values(
+                group for item in queue_items for group in item.visibility_groups
+            ),
+            age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
+            audit_correlation_count=count_audit_correlation_ids(review_items),
+            taxonomy_metadata=manual_review_taxonomy_metadata(),
+            items=queue_items,
         )
 
     def build_water_emergency(
@@ -888,6 +1060,20 @@ class DashboardReadModelService:
         source = load_dashboard_source(session)
         return self.build_review(review_items=source["review_items"])
 
+    def build_manual_review_queue_from_session(
+        self,
+        session: Session,
+    ) -> ManualReviewQueueReadModel:
+        source = load_dashboard_source(session)
+        return self.build_manual_review_queue(
+            jobs=source["jobs"],
+            work_orders=source["work_orders"],
+            visits=source["visits"],
+            route_assignments=source["route_assignments"],
+            review_items=source["review_items"],
+            water_emergencies=source["water_emergencies"],
+        )
+
     def build_dispatch_from_session(self, session: Session) -> DashboardDispatchSummary:
         source = load_dashboard_source(session)
         return self.build_dispatch(route_assignments=source["route_assignments"])
@@ -985,6 +1171,377 @@ def count_route_blockers(route_assignments: Sequence[RouteAssignment]) -> int:
             or bool(route.escalation_blocker_snapshot)
         ),
     )
+
+
+def manual_review_taxonomy_metadata() -> ManualReviewTaxonomyMetadata:
+    return ManualReviewTaxonomyMetadata(
+        randall_authorized_phase_0_baseline=True,
+        source="phase_0_visibility_heuristic",
+        legal_or_insurance_policy=False,
+        requires_alfonso_owner_review=False,
+        baseline_note=(
+            "Manual Review queue groups are Randall-authorized Phase 0 "
+            "visibility baselines only. They do not approve, reject, defer, "
+            "archive, dispatch, or establish final legal or insurance policy."
+        ),
+        group_definitions=tuple(
+            ManualReviewTaxonomyMetadataItem(
+                key=key,
+                label=label,
+                category="manual_review_visibility",
+                source="phase_0_visibility_heuristic",
+                randall_authorized_phase_0_baseline=True,
+                legal_or_insurance_policy=False,
+                requires_alfonso_owner_review=False,
+                reason=reason,
+            )
+            for key, label, reason in MANUAL_REVIEW_GROUP_DEFINITIONS
+        ),
+    )
+
+
+def manual_review_queue_item(
+    review: ReviewItem,
+    *,
+    jobs: Sequence[Job],
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    route_assignments: Sequence[RouteAssignment],
+    water_emergencies: Sequence[WaterEmergency],
+    now: datetime,
+) -> ManualReviewQueueItem:
+    created_at = getattr(review, "created_at", None) or now
+    updated_at = getattr(review, "updated_at", None) or created_at
+    job_id = manual_review_job_id(
+        review,
+        work_orders=work_orders,
+        visits=visits,
+        route_assignments=route_assignments,
+    )
+    visit_id = manual_review_visit_id(review, route_assignments=route_assignments)
+    work_order_id = manual_review_work_order_id(
+        review,
+        job_id=job_id,
+        visit_id=visit_id,
+        work_orders=work_orders,
+        visits=visits,
+    )
+    route_assignment_id = manual_review_route_assignment_id(review)
+    water_emergency_id = manual_review_water_emergency_id(
+        review,
+        job_id=job_id,
+        visit_id=visit_id,
+        water_emergencies=water_emergencies,
+        visits=visits,
+    )
+    groups = manual_review_visibility_groups(
+        review,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+    )
+    status = normalized(review.status) or "unknown"
+
+    return ManualReviewQueueItem(
+        review_item_id=review.id or NIL_UUID,
+        status=status,
+        severity=normalized(review.severity) or None,
+        reason_code=normalized(review.reason_code) or "unspecified",
+        visibility_groups=groups,
+        primary_group=manual_review_primary_group(groups),
+        entity_type=normalized(review.entity_type) or None,
+        entity_id=review.entity_id,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+        created_at=created_at,
+        updated_at=updated_at,
+        reviewed_at=review.reviewed_at,
+        deferred_until=review.deferred_until,
+        resolved_at=review.resolved_at,
+        age_bucket=manual_review_age_bucket(review, now=now),
+        age_hours=hours_between(created_at, now),
+        blocker_indicator=is_blocker_manual_review(review),
+        attention_indicator=is_active_manual_review(review),
+        confidence_score=review.confidence_score,
+        recommended_action=review.recommended_action,
+        audit_correlation_id=review.audit_correlation_id,
+        evidence_references=manual_review_evidence_references(
+            review,
+            job_id=job_id,
+            work_order_id=work_order_id,
+            visit_id=visit_id,
+            route_assignment_id=route_assignment_id,
+            water_emergency_id=water_emergency_id,
+        ),
+    )
+
+
+def manual_review_queue_sort_key(item: ManualReviewQueueItem) -> tuple[object, ...]:
+    status_rank = {
+        "open": 0,
+        "pending": 0,
+        "flagged_for_review": 0,
+        "review_required": 0,
+        "deferred": 1,
+        "resolved": 3,
+        "approved": 3,
+        "rejected": 3,
+        "closed": 3,
+        "archived": 4,
+    }.get(item.status, 2)
+    severity_rank = {"critical": 0, "high": 1, "medium": 2, "low": 3}.get(
+        item.severity or "",
+        4,
+    )
+    blocker_rank = 0 if item.blocker_indicator else 1
+    return (status_rank, blocker_rank, severity_rank, item.created_at, str(item.review_item_id))
+
+
+def manual_review_job_id(
+    review: ReviewItem,
+    *,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+    route_assignments: Sequence[RouteAssignment],
+) -> UUID | None:
+    if review.job_id is not None:
+        return review.job_id
+
+    entity_type = normalized(review.entity_type)
+    if entity_type == "job" and review.entity_id is not None:
+        return review.entity_id
+
+    visit_id = manual_review_visit_id(review, route_assignments=route_assignments)
+    for visit in visits:
+        if visit.id == visit_id:
+            return visit.job_id
+
+    work_order_id = review.entity_id if entity_type == "work_order" else None
+    for work_order in work_orders:
+        if work_order.id == work_order_id:
+            return work_order.job_id
+
+    return None
+
+
+def manual_review_work_order_id(
+    review: ReviewItem,
+    *,
+    job_id: UUID | None,
+    visit_id: UUID | None,
+    work_orders: Sequence[WorkOrder],
+    visits: Sequence[Visit],
+) -> UUID | None:
+    if normalized(review.entity_type) == "work_order" and review.entity_id is not None:
+        return review.entity_id
+
+    for visit in visits:
+        if visit.id == visit_id and visit.work_order_id is not None:
+            return visit.work_order_id
+
+    related_work_order_ids = sorted(
+        (work_order.id for work_order in work_orders if work_order.job_id == job_id),
+        key=str,
+    )
+    return related_work_order_ids[0] if related_work_order_ids else None
+
+
+def manual_review_visit_id(
+    review: ReviewItem,
+    *,
+    route_assignments: Sequence[RouteAssignment],
+) -> UUID | None:
+    if review.visit_id is not None:
+        return review.visit_id
+
+    if normalized(review.entity_type) == "visit" and review.entity_id is not None:
+        return review.entity_id
+
+    route_assignment_id = manual_review_route_assignment_id(review)
+    for route_assignment in route_assignments:
+        if route_assignment.id == route_assignment_id:
+            return route_assignment.visit_id
+
+    return None
+
+
+def manual_review_route_assignment_id(review: ReviewItem) -> UUID | None:
+    if review.route_assignment_id is not None:
+        return review.route_assignment_id
+    if normalized(review.entity_type) == "route_assignment" and review.entity_id is not None:
+        return review.entity_id
+    return None
+
+
+def manual_review_water_emergency_id(
+    review: ReviewItem,
+    *,
+    job_id: UUID | None,
+    visit_id: UUID | None,
+    water_emergencies: Sequence[WaterEmergency],
+    visits: Sequence[Visit],
+) -> UUID | None:
+    if normalized(review.entity_type) == "water_emergency" and review.entity_id is not None:
+        return review.entity_id
+
+    water_job_ids = {record.job_id: record.id for record in water_emergencies}
+    if job_id in water_job_ids:
+        return water_job_ids[job_id]
+
+    for visit in visits:
+        if visit.id == visit_id and visit.job_id in water_job_ids:
+            return water_job_ids[visit.job_id]
+
+    return None
+
+
+def manual_review_visibility_groups(
+    review: ReviewItem,
+    *,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+) -> tuple[str, ...]:
+    groups: list[str] = [manual_review_status_group(review)]
+
+    if is_blocker_manual_review(review):
+        groups.append("blocked")
+
+    if water_emergency_id is not None:
+        groups.append("water_emergency_related")
+    elif (
+        normalized(review.entity_type) in MANUAL_REVIEW_DISPATCH_ENTITY_TYPES
+        or job_id is not None
+        or work_order_id is not None
+        or visit_id is not None
+        or route_assignment_id is not None
+    ):
+        groups.append("dispatch_related")
+
+    if manual_review_contains_keyword(review, MANUAL_REVIEW_MISSING_DATA_KEYWORDS):
+        groups.append("missing_data")
+
+    if manual_review_contains_keyword(review, MANUAL_REVIEW_DUPLICATE_CONFLICT_KEYWORDS):
+        groups.append("duplicate_or_conflict")
+
+    if manual_review_contains_keyword(review, MANUAL_REVIEW_CANCELLATION_STATUS_KEYWORDS):
+        groups.append("cancellation_or_status_uncertainty")
+
+    if len(groups) == 1:
+        groups.append("needs_operator_review")
+
+    return tuple(dict.fromkeys(groups))
+
+
+def manual_review_status_group(review: ReviewItem) -> str:
+    status = normalized(review.status)
+    if status == "archived":
+        return "archived"
+    if status == "deferred":
+        return "deferred"
+    if status in RESOLVED_REVIEW_STATUSES:
+        return "resolved"
+    if status in UNRESOLVED_REVIEW_STATUSES:
+        return "open"
+    return "needs_operator_review"
+
+
+def manual_review_primary_group(groups: Sequence[str]) -> str:
+    for group in (
+        "water_emergency_related",
+        "missing_data",
+        "duplicate_or_conflict",
+        "cancellation_or_status_uncertainty",
+        "blocked",
+        "dispatch_related",
+        "open",
+        "deferred",
+        "resolved",
+        "archived",
+    ):
+        if group in groups:
+            return group
+    return "needs_operator_review"
+
+
+def manual_review_age_bucket(review: ReviewItem, *, now: datetime) -> str:
+    if normalized(review.status) == "archived" or is_resolved_manual_review(review):
+        return "resolved_or_archived"
+
+    created_at = getattr(review, "created_at", None)
+    if created_at is None:
+        return "unknown_timing"
+
+    age_hours = hours_between(created_at, now)
+    if age_hours is None:
+        return "unknown_timing"
+    if age_hours <= MANUAL_REVIEW_NEW_HOURS:
+        return "new"
+    if age_hours <= MANUAL_REVIEW_AGING_HOURS:
+        return "active"
+    if age_hours <= MANUAL_REVIEW_STALE_HOURS:
+        return "aging"
+    return "stale"
+
+
+def is_active_manual_review(review: ReviewItem) -> bool:
+    return normalized(review.status) in UNRESOLVED_REVIEW_STATUSES
+
+
+def is_resolved_manual_review(review: ReviewItem) -> bool:
+    status = normalized(review.status)
+    return status in RESOLVED_REVIEW_STATUSES and status != "archived"
+
+
+def is_blocker_manual_review(review: ReviewItem) -> bool:
+    return normalized(review.severity) in ESCALATION_SEVERITIES or manual_review_contains_keyword(
+        review,
+        MANUAL_REVIEW_BLOCKER_KEYWORDS,
+    )
+
+
+def manual_review_contains_keyword(review: ReviewItem, keywords: set[str]) -> bool:
+    searchable_values = (
+        review.reason_code,
+        review.status,
+        review.severity,
+        review.entity_type,
+        review.recommended_action,
+    )
+    searchable = " ".join(normalized(value) for value in searchable_values)
+    return any(keyword in searchable for keyword in keywords)
+
+
+def manual_review_evidence_references(
+    review: ReviewItem,
+    *,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+) -> tuple[str, ...]:
+    references: list[str] = [f"review:{review.id or NIL_UUID}"]
+    if job_id is not None:
+        references.append(f"job:{job_id}")
+    if work_order_id is not None:
+        references.append(f"work_order:{work_order_id}")
+    if visit_id is not None:
+        references.append(f"visit:{visit_id}")
+    if route_assignment_id is not None:
+        references.append(f"route_assignment:{route_assignment_id}")
+    if water_emergency_id is not None:
+        references.append(f"water_emergency:{water_emergency_id}")
+    if review.audit_correlation_id:
+        references.append(f"audit:{review.audit_correlation_id}")
+    return tuple(references)
 
 
 def count_authorization_states(

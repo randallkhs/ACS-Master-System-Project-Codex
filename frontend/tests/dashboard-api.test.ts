@@ -4,6 +4,7 @@ import {
   dashboardEndpointUrl,
   getDashboardDispatch,
   getDashboardLifecycle,
+  getDashboardManualReviewQueue,
   getDashboardOverview,
   getDashboardReview,
   getDashboardWaterEmergencyDetail,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/dashboard-api";
 import {
   mockDashboardOverview,
+  mockManualReviewQueue,
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
 } from "@/lib/mock-dashboard";
@@ -43,6 +45,9 @@ describe("dashboard API client", () => {
     );
     expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.waterEmergency)).toBe(
       "http://127.0.0.1:8000/api/v1/dashboard/water-emergency"
+    );
+    expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.manualReviewQueue)).toBe(
+      "http://127.0.0.1:8000/api/v1/dashboard/manual-review/queue"
     );
     expect(
       dashboardEndpointUrl(
@@ -109,6 +114,7 @@ describe("dashboard API client", () => {
     await getDashboardOverview();
     await getDashboardLifecycle();
     await getDashboardReview();
+    await getDashboardManualReviewQueue();
     await getDashboardDispatch();
     await getDashboardWaterEmergency();
     await getDashboardWaterEmergencyDetail(
@@ -134,6 +140,10 @@ describe("dashboard API client", () => {
         method: "GET"
       },
       {
+        url: "https://api.acs.example.com/api/v1/dashboard/manual-review/queue",
+        method: "GET"
+      },
+      {
         url: "https://api.acs.example.com/api/v1/dashboard/dispatch",
         method: "GET"
       },
@@ -156,6 +166,19 @@ describe("dashboard API client", () => {
     expect(result.source).toBe("mock");
     expect(result.data.open_count).toBe(mockWaterEmergencyDashboard.open_count);
     expect(result.data.records[0].status).toBe("drying_in_progress");
+  });
+
+  it("returns the typed Manual Review queue fallback when the queue read model is unavailable", async () => {
+    delete process.env.ACS_DASHBOARD_API_BASE_URL;
+
+    const result = await getDashboardManualReviewQueue();
+
+    expect(result.source).toBe("mock");
+    expect(result.data.total_items).toBe(mockManualReviewQueue.total_items);
+    expect(result.data.items[0].reason_code).toBe("missing_customer_data");
+    expect(result.data.taxonomy_metadata.randall_authorized_phase_0_baseline).toBe(
+      true
+    );
   });
 
   it("returns typed Water Emergency detail fallback when the detail read model is unavailable", async () => {

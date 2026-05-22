@@ -53,6 +53,80 @@ class ManualReviewSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class ManualReviewTaxonomyMetadataItem:
+    key: str
+    label: str
+    category: str
+    source: str
+    randall_authorized_phase_0_baseline: bool
+    legal_or_insurance_policy: bool
+    requires_alfonso_owner_review: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewTaxonomyMetadata:
+    randall_authorized_phase_0_baseline: bool
+    source: str
+    legal_or_insurance_policy: bool
+    requires_alfonso_owner_review: bool
+    baseline_note: str
+    group_definitions: tuple[ManualReviewTaxonomyMetadataItem, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewQueueItem:
+    review_item_id: UUID
+    status: str
+    severity: str | None
+    reason_code: str
+    visibility_groups: tuple[str, ...]
+    primary_group: str
+    entity_type: str | None
+    entity_id: UUID | None
+    job_id: UUID | None
+    work_order_id: UUID | None
+    visit_id: UUID | None
+    route_assignment_id: UUID | None
+    water_emergency_id: UUID | None
+    created_at: datetime
+    updated_at: datetime
+    reviewed_at: datetime | None
+    deferred_until: datetime | None
+    resolved_at: datetime | None
+    age_bucket: str
+    age_hours: int | None
+    blocker_indicator: bool
+    attention_indicator: bool
+    confidence_score: float | None
+    recommended_action: str | None
+    audit_correlation_id: str | None
+    evidence_references: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewQueueReadModel:
+    generated_at: datetime
+    total_items: int
+    open_items: int
+    deferred_items: int
+    resolved_items: int
+    archived_items: int
+    active_attention_count: int
+    water_emergency_related_count: int
+    dispatch_related_count: int
+    blocked_count: int
+    status_counts: tuple[CountBucket, ...]
+    reason_counts: tuple[CountBucket, ...]
+    severity_counts: tuple[CountBucket, ...]
+    group_counts: tuple[CountBucket, ...]
+    age_bucket_counts: tuple[CountBucket, ...]
+    audit_correlation_count: int
+    taxonomy_metadata: ManualReviewTaxonomyMetadata
+    items: tuple[ManualReviewQueueItem, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class WaterEmergencyEquipmentSummary:
     equipment_onsite_count: int
     moisture_tracking_required_count: int

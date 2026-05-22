@@ -1,5 +1,6 @@
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import {
+  getDashboardManualReviewQueue,
   getDashboardOverview,
   getDashboardWaterEmergencyDetail,
   getDashboardWaterEmergency
@@ -9,10 +10,12 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function DashboardPage() {
-  const [dashboardResult, waterEmergencyResult] = await Promise.all([
-    getDashboardOverview(),
-    getDashboardWaterEmergency()
-  ]);
+  const [dashboardResult, waterEmergencyResult, manualReviewQueueResult] =
+    await Promise.all([
+      getDashboardOverview(),
+      getDashboardWaterEmergency(),
+      getDashboardManualReviewQueue()
+    ]);
   const selectedWaterEmergencyId =
     waterEmergencyResult.data.records.find((record) => record.is_open)
       ?.water_emergency_id ??
@@ -27,6 +30,7 @@ export default async function DashboardPage() {
       result={dashboardResult}
       waterEmergencyResult={waterEmergencyResult}
       waterEmergencyDetailResult={waterEmergencyDetailResult}
+      manualReviewQueueResult={manualReviewQueueResult}
     />
   );
 }

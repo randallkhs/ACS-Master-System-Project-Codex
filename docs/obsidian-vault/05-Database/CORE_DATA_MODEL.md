@@ -532,6 +532,21 @@ The current software-visible labels are recorded as a Randall-authorized Phase 0
 
 Frontend saved Water Emergency filter/sort preferences are browser-local only. They do not store tokens, secrets, PII, customer records, or backend operational state, and they are not synchronized to the database.
 
+## Phase 0 Module 40 Manual Review Queue Read-Model Note
+
+Module 40 adds Manual Review queue detail visibility as dashboard read-model projections only.
+
+No database table or column was added for:
+
+- Manual Review action authority
+- final review reason taxonomy
+- review queue preferences
+- user accounts
+- roles or permissions
+- review queue pagination cursors
+
+The read model uses existing `ReviewItem` fields plus related job, work-order, visit, route-assignment, and Water Emergency references where they already exist. Visibility groups such as open, deferred, resolved, archived, blocked, Water Emergency-related, dispatch-related, missing data, duplicate/conflict, cancellation/status uncertainty, and needs-operator-review are Randall-authorized Phase 0 baseline labels only. They do not mutate review records, resolve reviews, or define final company policy.
+
 ---
 
 ## Initial Status Concepts

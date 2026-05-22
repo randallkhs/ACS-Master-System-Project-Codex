@@ -243,6 +243,12 @@ Examples:
 - duplicate jobs
 - uncertain AI classification
 
+## Phase 0 Module 40 Manual Review Visibility
+
+The Manual Review Queue now has a read-only dashboard detail view. It groups review items by persisted status, reason, severity, entity links, Water Emergency relation, age bucket, blocker/attention signals, and audit evidence.
+
+This visibility does not approve, reject, defer, archive, resolve, dispatch, or otherwise execute review actions. Manual Review remains authoritative until future authenticated action workflows are explicitly designed.
+
 ---
 
 # 10. Confidence Scoring

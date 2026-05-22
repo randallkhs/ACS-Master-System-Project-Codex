@@ -285,6 +285,140 @@ def test_manual_review_summary_counts_blockers_and_escalation_indicators() -> No
     assert bucket_count(review.reason_counts, "water_emergency_review") == 1
 
 
+def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
+    records = dashboard_source_records()
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    standard_job = records["jobs"][0]
+    water_emergency = records["water_emergencies"][0]
+    standard_work_order = records["work_orders"][0]
+    standard_visit = records["visits"][0]
+    water_visit = next(
+        visit
+        for visit in records["visits"]
+        if getattr(visit, "job_id", None) == water_emergency.job_id
+    )
+    route_assignment = records["route_assignments"][0]
+    missing_review_id = uuid4()
+    water_review_id = uuid4()
+    conflict_review_id = uuid4()
+    archived_review_id = uuid4()
+
+    records["review_items"] = [
+        ReviewItem(
+            id=missing_review_id,
+            job_id=standard_job.id,
+            entity_type="job",
+            entity_id=standard_job.id,
+            reason_code="missing_customer_data",
+            status="open",
+            severity="high",
+            created_at=now - timedelta(hours=6),
+            audit_correlation_id="audit-manual-review-missing",
+            recommended_action="Review missing synthetic customer data.",
+        ),
+        ReviewItem(
+            id=water_review_id,
+            job_id=water_emergency.job_id,
+            visit_id=water_visit.id,
+            entity_type="water_emergency",
+            entity_id=water_emergency.id,
+            reason_code="water_emergency_equipment_review",
+            status="deferred",
+            severity="critical",
+            created_at=now - timedelta(days=2),
+            deferred_until=now + timedelta(hours=4),
+            audit_correlation_id="audit-manual-review-water",
+            recommended_action="Keep Water Emergency review separated.",
+        ),
+        ReviewItem(
+            id=conflict_review_id,
+            job_id=standard_job.id,
+            visit_id=standard_visit.id,
+            route_assignment_id=route_assignment.id,
+            entity_type="route_assignment",
+            entity_id=route_assignment.id,
+            reason_code="duplicate_route_conflict",
+            status="resolved",
+            severity="medium",
+            created_at=now - timedelta(days=5),
+            resolved_at=now - timedelta(days=1),
+            audit_correlation_id="audit-manual-review-conflict",
+        ),
+        ReviewItem(
+            id=archived_review_id,
+            job_id=standard_job.id,
+            entity_type="job",
+            entity_id=standard_job.id,
+            reason_code="cancellation_status_uncertainty",
+            status="archived",
+            severity="low",
+            created_at=now - timedelta(days=8),
+            audit_correlation_id="audit-manual-review-archived",
+        ),
+    ]
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=records["jobs"],
+        work_orders=records["work_orders"],
+        visits=records["visits"],
+        route_assignments=records["route_assignments"],
+        review_items=records["review_items"],
+        water_emergencies=records["water_emergencies"],
+    )
+
+    group_counts = {bucket.label: bucket.count for bucket in queue.group_counts}
+    items_by_reason = {item.reason_code: item for item in queue.items}
+
+    assert queue.total_items == 4
+    assert queue.open_items == 1
+    assert queue.deferred_items == 1
+    assert queue.resolved_items == 1
+    assert queue.archived_items == 1
+    assert queue.active_attention_count == 2
+    assert queue.water_emergency_related_count == 1
+    assert queue.dispatch_related_count == 3
+    assert group_counts["open"] == 1
+    assert group_counts["deferred"] == 1
+    assert group_counts["resolved"] == 1
+    assert group_counts["archived"] == 1
+    assert group_counts["missing_data"] == 1
+    assert group_counts["duplicate_or_conflict"] == 1
+    assert group_counts["cancellation_or_status_uncertainty"] == 1
+    assert group_counts["water_emergency_related"] == 1
+    assert group_counts["dispatch_related"] == 3
+
+    missing_item = items_by_reason["missing_customer_data"]
+    assert missing_item.review_item_id == missing_review_id
+    assert missing_item.primary_group == "missing_data"
+    assert missing_item.job_id == standard_job.id
+    assert missing_item.work_order_id == standard_work_order.id
+    assert missing_item.age_bucket == "new"
+    assert missing_item.blocker_indicator is True
+    assert missing_item.attention_indicator is True
+
+    water_item = items_by_reason["water_emergency_equipment_review"]
+    assert water_item.water_emergency_id == water_emergency.id
+    assert "water_emergency_related" in water_item.visibility_groups
+    assert "dispatch_related" not in water_item.visibility_groups
+    assert water_item.visit_id == water_visit.id
+    assert water_item.age_bucket == "active"
+    assert water_item.attention_indicator is True
+
+    conflict_item = items_by_reason["duplicate_route_conflict"]
+    assert conflict_item.route_assignment_id == route_assignment.id
+    assert conflict_item.work_order_id == standard_work_order.id
+    assert conflict_item.age_bucket == "resolved_or_archived"
+    assert conflict_item.attention_indicator is False
+
+    archived_item = items_by_reason["cancellation_status_uncertainty"]
+    assert archived_item.age_bucket == "resolved_or_archived"
+    assert archived_item.attention_indicator is False
+
+    assert queue.taxonomy_metadata.randall_authorized_phase_0_baseline is True
+    assert queue.taxonomy_metadata.legal_or_insurance_policy is False
+    assert queue.taxonomy_metadata.requires_alfonso_owner_review is False
+
+
 def test_dispatch_lifecycle_summary_counts_persisted_lifecycle_state() -> None:
     lifecycle = build_overview().lifecycle_summary
 

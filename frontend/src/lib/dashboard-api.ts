@@ -3,12 +3,14 @@ import type {
   DashboardFetchResult,
   DashboardOverviewResponse,
   DispatchLifecycleSummaryResponse,
+  ManualReviewQueueResponse,
   ManualReviewSummaryResponse,
   WaterEmergencyDashboardResponse,
   WaterEmergencyDetailResponse
 } from "@/lib/dashboard-contracts";
 import {
   mockDashboardOverview,
+  mockManualReviewQueue,
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
 } from "@/lib/mock-dashboard";
@@ -17,6 +19,7 @@ export const DASHBOARD_ENDPOINTS = {
   overview: "/api/v1/dashboard/overview",
   lifecycle: "/api/v1/dashboard/lifecycle",
   review: "/api/v1/dashboard/review",
+  manualReviewQueue: "/api/v1/dashboard/manual-review/queue",
   dispatch: "/api/v1/dashboard/dispatch",
   waterEmergency: "/api/v1/dashboard/water-emergency",
   waterEmergencyDetail: (waterEmergencyId: string) =>
@@ -67,6 +70,15 @@ export async function getDashboardReview(): Promise<
   return fetchDashboardReadModel(
     DASHBOARD_ENDPOINTS.review,
     mockDashboardOverview.manual_review_summary
+  );
+}
+
+export async function getDashboardManualReviewQueue(): Promise<
+  DashboardFetchResult<ManualReviewQueueResponse>
+> {
+  return fetchDashboardReadModel(
+    DASHBOARD_ENDPOINTS.manualReviewQueue,
+    mockManualReviewQueue
   );
 }
 

@@ -255,6 +255,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Legal, insurance, warranty, drying certification, SLA enforcement, customer-facing promises, or company-liability policies remain outside the software baseline and require Alfonso owner review before finalization.
 - Future role-scoped visibility is documented only; the frontend does not implement auth, RBAC, fake roles, or hidden authorization behavior.
 
+## Module 40 Manual Review Queue Notes
+
+- The dashboard now fetches `GET /api/v1/dashboard/manual-review/queue` for detailed read-only Manual Review visibility.
+- The Manual Review Queue panel shows status, reason, severity, visibility group, age bucket, attention, blocker, entity-context, audit, and evidence-reference data from the backend read model.
+- Water Emergency-related review items are visually separated from standard dispatch and other review items.
+- Review taxonomy labels are shown as a Randall-authorized Phase 0 visibility baseline only. They are not final action authority, legal policy, insurance language, or company-liability policy.
+- The frontend still does not render approve, reject, defer, archive, resolve, dispatch, vendor, or AI controls.
+
 ## Module 38 Water Emergency View-State Notes
 
 - The Water Emergency summary now displays a `Water Emergency View State` panel with backend-provided filter options, sort options, selected group counts, active visible records, and closed/resolved visible records.

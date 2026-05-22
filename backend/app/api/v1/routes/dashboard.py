@@ -7,6 +7,7 @@ from app.schemas.dashboard import (
     DashboardDispatchSummaryResponse,
     DashboardOverviewResponse,
     DispatchLifecycleSummaryResponse,
+    ManualReviewQueueResponse,
     ManualReviewSummaryResponse,
     WaterEmergencyDashboardResponse,
     WaterEmergencyDetailResponse,
@@ -32,6 +33,12 @@ def read_dashboard_lifecycle(db_session: DBSession) -> DispatchLifecycleSummaryR
 def read_dashboard_review(db_session: DBSession) -> ManualReviewSummaryResponse:
     read_model = DashboardReadModelService().build_review_from_session(db_session)
     return ManualReviewSummaryResponse.model_validate(read_model)
+
+
+@router.get("/manual-review/queue", response_model=ManualReviewQueueResponse)
+def read_dashboard_manual_review_queue(db_session: DBSession) -> ManualReviewQueueResponse:
+    read_model = DashboardReadModelService().build_manual_review_queue_from_session(db_session)
+    return ManualReviewQueueResponse.model_validate(read_model)
 
 
 @router.get("/dispatch", response_model=DashboardDispatchSummaryResponse)

@@ -119,9 +119,8 @@ export function WaterEmergencyViewStatePanel({
                 saved as browser view preferences, not backend operational state.
               </p>
               <p className="mt-1 text-xs font-semibold text-slate-500">
-                {preferenceReadResult.available
-                  ? "No customer data, tokens, secrets, or operational records are stored."
-                  : "Local browser storage is unavailable; defaults are used safely."}
+                No customer data, tokens, secrets, or operational records are stored.
+                If local browser storage is unavailable, defaults are used safely.
               </p>
             </div>
             <div className="rounded-md border border-slate-200 bg-white p-3">

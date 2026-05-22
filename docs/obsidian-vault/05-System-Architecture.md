@@ -777,6 +777,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 40 Manual Review Queue Visibility Boundary
+
+Module 40 extends dashboard visibility with a dedicated read-only Manual Review queue detail contract:
+
+- backend read models expose queue items, status counts, reason counts, severity counts, visibility group counts, age buckets, active-attention counts, blocker counts, entity links, Water Emergency links when specifically tied to the item, audit-correlation IDs, and evidence references from existing persisted ReviewItem evidence
+- queue groups are Randall-authorized Phase 0 visibility labels only
+- Water Emergency-related review items are separated from standard dispatch and other review items
+- resolved and archived review items remain historical visibility and are not counted as active attention records
+- frontend panels display Manual Review queue context without creating approve, reject, defer, archive, resolve, dispatch, vendor, or AI controls
+
+The boundary remains projection-only. The endpoint and UI do not execute Manual Review actions, mutate review records, dispatch work, call external integrations, add AI authority, implement auth/RBAC, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review action workflow
+- final Manual Review reason/action taxonomy
+- role-scoped review visibility and authority after authentication exists
+- production pagination, query optimization, refresh cadence, and stale-data rules for large review queues
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

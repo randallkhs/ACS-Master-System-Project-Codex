@@ -643,3 +643,29 @@ Open API/frontend concerns:
 - production pagination/query parameters once Water Emergency volume requires them
 - role-scoped visibility and evidence restrictions after authentication exists
 - Alfonso owner-review checklist for formal policy language that may create company liability
+
+## Phase 0 Module 40 Manual Review Queue Contract Boundary
+
+The dashboard API now includes a dedicated read-only Manual Review queue detail contract.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes detailed Manual Review queue visibility.
+- queue items include Review Item ID, status, severity, reason code, visibility groups, primary group, entity type/ID, job/work-order/visit/route-assignment IDs, Water Emergency ID when specifically linked, timestamps, age bucket, blocker/attention indicators, confidence score, recommended action, audit-correlation ID, and evidence references.
+- summary fields include status, reason, severity, visibility group, and age-bucket counts.
+- Water Emergency-related reviews are separated from standard dispatch and other review items through concrete persisted linkage, not generic attachment.
+- taxonomy metadata marks Manual Review queue groups as a Randall-authorized Phase 0 visibility baseline.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review queue calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, or AI calls are added
+- queue labels are internal software visibility groups only, not final Manual Review workflow action authority
+- no legal, insurance, compliance, or company-liability policy is finalized in this contract
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review action endpoints
+- final Manual Review reason/action taxonomy
+- role-scoped review visibility after auth/RBAC exists
+- production pagination/query parameters once review queue volume requires them

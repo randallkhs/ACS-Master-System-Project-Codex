@@ -355,3 +355,32 @@ Use this pattern for future read-only dashboards where user controls should filt
 
 ### Verification Notes
 Module 38 tests verify backend filter metadata, deterministic group membership, closed/resolved separation, frontend view-state filtering, empty-state rendering, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.
+
+---
+
+## Manual Review Queue Detail Visibility
+
+Category:
+UI design / operational dashboard / Manual Review
+Date Added:
+2026-05-22
+Last Verified:
+2026-05-22
+Expiration Window:
+90 days
+Framework/Library Version:
+Next.js 16.2.6 / React 19.2.6 / Tailwind CSS 4.3.0
+Source Links:
+Internal ACS-FSM Phase 0 Module 40 verification
+
+### Discovery
+Manual Review queue panels should display backend-provided queue items, status/reason/severity counts, visibility groups, age buckets, entity links, Water Emergency separation, blocker/attention indicators, audit IDs, and evidence references only. Labels such as blocked, missing data, duplicate/conflict, cancellation/status uncertainty, dispatch-related, Water Emergency-related, and needs-operator-review must remain visibility groups, not action authority.
+
+### Why It Matters
+Manual Review is the safety authority for uncertain ACS work. A detailed queue view improves operator scanability before action workflows exist while preserving backend ownership, Water Emergency separation, and the rule that the frontend cannot approve, reject, defer, archive, resolve, or dispatch anything.
+
+### Reusability
+Use this pattern for future Manual Review and safety-queue dashboards where the UI needs richer queue context but must remain read-only until authenticated action services are designed.
+
+### Verification Notes
+Module 40 tests verify backend Manual Review queue grouping, entity context, Water Emergency-related separation, resolved/archived historical visibility, frontend queue rendering, no mutation controls, and GET-only dashboard API behavior. Browser QA should continue to verify live backend source labeling, responsive layout, no console errors, no horizontal overflow, and no action controls.

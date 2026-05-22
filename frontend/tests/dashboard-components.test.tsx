@@ -4,10 +4,12 @@ import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { ScenarioStoryboard } from "@/components/dashboard/scenario-storyboard";
 import {
   mockDashboardOverview,
+  mockManualReviewQueue,
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
 } from "@/lib/mock-dashboard";
 import type {
+  ManualReviewQueueResponse,
   WaterEmergencyAgingFollowUpItemResponse,
   WaterEmergencyQueueItemResponse,
   WaterEmergencyViewStateItemResponse
@@ -26,6 +28,11 @@ const mockWaterEmergencyResult = {
 
 const mockWaterEmergencyDetailResult = {
   data: mockWaterEmergencyDetail,
+  source: "mock" as const
+};
+
+const mockManualReviewQueueResult = {
+  data: mockManualReviewQueue,
   source: "mock" as const
 };
 
@@ -523,6 +530,80 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Approve Water Emergency");
     expect(html).not.toContain("Close Water Emergency");
     expect(html).not.toContain("Dispatch Water Emergency");
+  });
+
+  it("renders Manual Review queue detail, reason groups, and separated Water Emergency reviews", () => {
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+        manualReviewQueueResult={mockManualReviewQueueResult}
+      />
+    );
+
+    expect(html).toContain("Manual Review Queue");
+    expect(html).toContain("Read-only Manual Review visibility");
+    expect(html).toContain("Randall-authorized Phase 0 review taxonomy baseline");
+    expect(html).toContain("Water Emergency-related reviews");
+    expect(html).toContain("Standard dispatch and other reviews");
+    expect(html).toContain("Missing Customer Data");
+    expect(html).toContain("Water Emergency Equipment Review");
+    expect(html).toContain("Duplicate Or Conflict");
+    expect(html).toContain("Cancellation Or Status Uncertainty");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve review");
+    expect(html).not.toContain("Reject review");
+    expect(html).not.toContain("Defer review");
+    expect(html).not.toContain("Archive review");
+    expect(html).not.toContain("Dispatch now");
+  });
+
+  it("renders every active standard Manual Review item without hiding safety records", () => {
+    const activeStandardItems = Array.from({ length: 7 }, (_, index) => ({
+      ...mockManualReviewQueue.items[0],
+      review_item_id: `41000000-0000-4000-8000-0000000001${index}`,
+      reason_code: `active_standard_review_${index + 1}`,
+      recommended_action: `Synthetic active standard review item ${index + 1}.`,
+      attention_indicator: true,
+      visibility_groups: ["open", "blocked", "dispatch_related", "missing_data"],
+      water_emergency_id: null
+    }));
+    const reviewQueueWithManyActiveItems: ManualReviewQueueResponse = {
+      ...mockManualReviewQueue,
+      total_items: activeStandardItems.length,
+      active_attention_count: activeStandardItems.length,
+      water_emergency_related_count: 0,
+      items: activeStandardItems
+    };
+    const html = renderToStaticMarkup(
+      <DashboardView
+        result={{
+          data: mockDashboardOverview,
+          source: "mock"
+        }}
+        waterEmergencyResult={mockWaterEmergencyResult}
+        waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
+        manualReviewQueueResult={{
+          data: reviewQueueWithManyActiveItems,
+          source: "mock"
+        }}
+      />
+    );
+
+    for (const index of Array.from({ length: 7 }, (_, itemIndex) => itemIndex + 1)) {
+      expect(html).toContain(`Synthetic active standard review item ${index}.`);
+    }
+    expect(html).not.toContain("Showing first");
+    expect(html).not.toMatch(/<button|role="button"/);
+    expect(html).not.toContain("Approve review");
+    expect(html).not.toContain("Reject review");
+    expect(html).not.toContain("Defer review");
+    expect(html).not.toContain("Archive review");
+    expect(html).not.toContain("Action");
   });
 
   it("persists Water Emergency filter and sort preferences in safe local storage", () => {

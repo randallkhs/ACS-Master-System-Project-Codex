@@ -1,5 +1,6 @@
 import type {
   DashboardOverviewResponse,
+  ManualReviewQueueResponse,
   WaterEmergencyDashboardResponse,
   WaterEmergencyDetailResponse
 } from "@/lib/dashboard-contracts";
@@ -269,6 +270,263 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
       }
     ]
   }
+};
+
+export const mockManualReviewQueue: ManualReviewQueueResponse = {
+  generated_at: "2026-05-16T09:35:00Z",
+  total_items: 5,
+  open_items: 2,
+  deferred_items: 1,
+  resolved_items: 1,
+  archived_items: 1,
+  active_attention_count: 3,
+  water_emergency_related_count: 1,
+  dispatch_related_count: 3,
+  blocked_count: 3,
+  status_counts: [
+    { label: "archived", count: 1 },
+    { label: "deferred", count: 1 },
+    { label: "open", count: 2 },
+    { label: "resolved", count: 1 }
+  ],
+  reason_counts: [
+    { label: "missing_customer_data", count: 1 },
+    { label: "water_emergency_equipment_review", count: 1 },
+    { label: "duplicate_route_conflict", count: 1 },
+    { label: "cancellation_status_uncertainty", count: 1 },
+    { label: "needs_operator_review", count: 1 }
+  ],
+  severity_counts: [
+    { label: "critical", count: 1 },
+    { label: "high", count: 2 },
+    { label: "medium", count: 1 },
+    { label: "low", count: 1 }
+  ],
+  group_counts: [
+    { label: "open", count: 2 },
+    { label: "deferred", count: 1 },
+    { label: "resolved", count: 1 },
+    { label: "archived", count: 1 },
+    { label: "blocked", count: 3 },
+    { label: "water_emergency_related", count: 1 },
+    { label: "dispatch_related", count: 3 },
+    { label: "missing_data", count: 1 },
+    { label: "duplicate_or_conflict", count: 1 },
+    { label: "cancellation_or_status_uncertainty", count: 1 },
+    { label: "needs_operator_review", count: 1 }
+  ],
+  age_bucket_counts: [
+    { label: "new", count: 1 },
+    { label: "active", count: 1 },
+    { label: "aging", count: 1 },
+    { label: "resolved_or_archived", count: 2 }
+  ],
+  audit_correlation_count: 5,
+  taxonomy_metadata: {
+    randall_authorized_phase_0_baseline: true,
+    source: "phase_0_visibility_heuristic",
+    legal_or_insurance_policy: false,
+    requires_alfonso_owner_review: false,
+    baseline_note:
+      "Manual Review queue groups are Randall-authorized Phase 0 visibility baselines only.",
+    group_definitions: [
+      {
+        key: "water_emergency_related",
+        label: "Water Emergency related",
+        category: "manual_review_visibility",
+        source: "phase_0_visibility_heuristic",
+        randall_authorized_phase_0_baseline: true,
+        legal_or_insurance_policy: false,
+        requires_alfonso_owner_review: false,
+        reason:
+          "Separates Water Emergency review visibility from standard dispatch review context."
+      },
+      {
+        key: "dispatch_related",
+        label: "Dispatch related",
+        category: "manual_review_visibility",
+        source: "phase_0_visibility_heuristic",
+        randall_authorized_phase_0_baseline: true,
+        legal_or_insurance_policy: false,
+        requires_alfonso_owner_review: false,
+        reason:
+          "Identifies review records tied to standard job, visit, work-order, or route evidence."
+      }
+    ]
+  },
+  items: [
+    {
+      review_item_id: "41000000-0000-4000-8000-000000000001",
+      status: "open",
+      severity: "high",
+      reason_code: "missing_customer_data",
+      visibility_groups: ["open", "blocked", "dispatch_related", "missing_data"],
+      primary_group: "missing_data",
+      entity_type: "job",
+      entity_id: "42000000-0000-4000-8000-000000000001",
+      job_id: "42000000-0000-4000-8000-000000000001",
+      work_order_id: "43000000-0000-4000-8000-000000000001",
+      visit_id: null,
+      route_assignment_id: null,
+      water_emergency_id: null,
+      created_at: "2026-05-16T06:30:00Z",
+      updated_at: "2026-05-16T06:30:00Z",
+      reviewed_at: null,
+      deferred_until: null,
+      resolved_at: null,
+      age_bucket: "new",
+      age_hours: 3,
+      blocker_indicator: true,
+      attention_indicator: true,
+      confidence_score: 64,
+      recommended_action: "Review missing synthetic customer data.",
+      audit_correlation_id: "audit-manual-review-mock-001",
+      evidence_references: [
+        "review:41000000-0000-4000-8000-000000000001",
+        "job:42000000-0000-4000-8000-000000000001",
+        "work_order:43000000-0000-4000-8000-000000000001",
+        "audit:audit-manual-review-mock-001"
+      ]
+    },
+    {
+      review_item_id: "41000000-0000-4000-8000-000000000002",
+      status: "deferred",
+      severity: "critical",
+      reason_code: "water_emergency_equipment_review",
+      visibility_groups: ["deferred", "blocked", "water_emergency_related"],
+      primary_group: "water_emergency_related",
+      entity_type: "water_emergency",
+      entity_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+      job_id: "72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+      work_order_id: null,
+      visit_id: "f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+      route_assignment_id: null,
+      water_emergency_id: "e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+      created_at: "2026-05-15T06:30:00Z",
+      updated_at: "2026-05-16T07:30:00Z",
+      reviewed_at: null,
+      deferred_until: "2026-05-16T15:30:00Z",
+      resolved_at: null,
+      age_bucket: "active",
+      age_hours: 27,
+      blocker_indicator: true,
+      attention_indicator: true,
+      confidence_score: 72,
+      recommended_action: "Review synthetic Water Emergency equipment context.",
+      audit_correlation_id: "audit-manual-review-mock-002",
+      evidence_references: [
+        "review:41000000-0000-4000-8000-000000000002",
+        "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+        "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+        "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        "audit:audit-manual-review-mock-002"
+      ]
+    },
+    {
+      review_item_id: "41000000-0000-4000-8000-000000000003",
+      status: "resolved",
+      severity: "medium",
+      reason_code: "duplicate_route_conflict",
+      visibility_groups: [
+        "resolved",
+        "dispatch_related",
+        "duplicate_or_conflict"
+      ],
+      primary_group: "duplicate_or_conflict",
+      entity_type: "route_assignment",
+      entity_id: "44000000-0000-4000-8000-000000000003",
+      job_id: "42000000-0000-4000-8000-000000000003",
+      work_order_id: "43000000-0000-4000-8000-000000000003",
+      visit_id: "45000000-0000-4000-8000-000000000003",
+      route_assignment_id: "44000000-0000-4000-8000-000000000003",
+      water_emergency_id: null,
+      created_at: "2026-05-12T09:30:00Z",
+      updated_at: "2026-05-15T09:30:00Z",
+      reviewed_at: null,
+      deferred_until: null,
+      resolved_at: "2026-05-15T09:30:00Z",
+      age_bucket: "resolved_or_archived",
+      age_hours: 72,
+      blocker_indicator: false,
+      attention_indicator: false,
+      confidence_score: 91,
+      recommended_action: null,
+      audit_correlation_id: "audit-manual-review-mock-003",
+      evidence_references: [
+        "review:41000000-0000-4000-8000-000000000003",
+        "job:42000000-0000-4000-8000-000000000003",
+        "work_order:43000000-0000-4000-8000-000000000003",
+        "visit:45000000-0000-4000-8000-000000000003",
+        "route_assignment:44000000-0000-4000-8000-000000000003"
+      ]
+    },
+    {
+      review_item_id: "41000000-0000-4000-8000-000000000004",
+      status: "archived",
+      severity: "low",
+      reason_code: "cancellation_status_uncertainty",
+      visibility_groups: [
+        "archived",
+        "dispatch_related",
+        "cancellation_or_status_uncertainty"
+      ],
+      primary_group: "cancellation_or_status_uncertainty",
+      entity_type: "job",
+      entity_id: "42000000-0000-4000-8000-000000000004",
+      job_id: "42000000-0000-4000-8000-000000000004",
+      work_order_id: null,
+      visit_id: null,
+      route_assignment_id: null,
+      water_emergency_id: null,
+      created_at: "2026-05-11T09:30:00Z",
+      updated_at: "2026-05-15T09:30:00Z",
+      reviewed_at: null,
+      deferred_until: null,
+      resolved_at: null,
+      age_bucket: "resolved_or_archived",
+      age_hours: 96,
+      blocker_indicator: false,
+      attention_indicator: false,
+      confidence_score: 98,
+      recommended_action: null,
+      audit_correlation_id: "audit-manual-review-mock-004",
+      evidence_references: [
+        "review:41000000-0000-4000-8000-000000000004",
+        "job:42000000-0000-4000-8000-000000000004"
+      ]
+    },
+    {
+      review_item_id: "41000000-0000-4000-8000-000000000005",
+      status: "open",
+      severity: "high",
+      reason_code: "needs_operator_review",
+      visibility_groups: ["open", "blocked", "needs_operator_review"],
+      primary_group: "blocked",
+      entity_type: null,
+      entity_id: null,
+      job_id: null,
+      work_order_id: null,
+      visit_id: null,
+      route_assignment_id: null,
+      water_emergency_id: null,
+      created_at: "2026-05-13T09:30:00Z",
+      updated_at: "2026-05-13T09:30:00Z",
+      reviewed_at: null,
+      deferred_until: null,
+      resolved_at: null,
+      age_bucket: "aging",
+      age_hours: 48,
+      blocker_indicator: true,
+      attention_indicator: true,
+      confidence_score: 58,
+      recommended_action: "Route to operator review.",
+      audit_correlation_id: "audit-manual-review-mock-005",
+      evidence_references: [
+        "review:41000000-0000-4000-8000-000000000005",
+        "audit:audit-manual-review-mock-005"
+      ]
+    }
+  ]
 };
 
 export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {

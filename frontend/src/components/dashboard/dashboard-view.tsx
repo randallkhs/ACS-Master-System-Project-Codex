@@ -2,12 +2,14 @@ import type {
   DashboardFetchResult,
   DashboardOverviewResponse,
   DashboardSource,
+  ManualReviewQueueResponse,
   WaterEmergencyDashboardResponse,
   WaterEmergencyDetailResponse
 } from "@/lib/dashboard-contracts";
 import { AppShell } from "@/components/layout/app-shell";
 import { AlertStrip } from "@/components/dashboard/alert-strip";
 import { CountBucketPanel } from "@/components/dashboard/count-bucket-panel";
+import { ManualReviewQueue } from "@/components/dashboard/manual-review-queue";
 import { OperationalHealthPanel } from "@/components/dashboard/operational-health-panel";
 import { ScenarioStoryboard } from "@/components/dashboard/scenario-storyboard";
 import { SectionCard } from "@/components/dashboard/section-card";
@@ -21,12 +23,14 @@ type DashboardViewProps = {
   result: DashboardFetchResult<DashboardOverviewResponse>;
   waterEmergencyResult: DashboardFetchResult<WaterEmergencyDashboardResponse>;
   waterEmergencyDetailResult: DashboardFetchResult<WaterEmergencyDetailResponse | null>;
+  manualReviewQueueResult?: DashboardFetchResult<ManualReviewQueueResponse>;
 };
 
 export function DashboardView({
   result,
   waterEmergencyResult,
-  waterEmergencyDetailResult
+  waterEmergencyDetailResult,
+  manualReviewQueueResult
 }: DashboardViewProps) {
   const { data, source, errorMessage } = result;
   const { operational_summary: summary } = data;
@@ -36,14 +40,16 @@ export function DashboardView({
   const dashboardSource: DashboardSource =
     source === "api" &&
     waterEmergencyResult.source === "api" &&
-    waterEmergencyDetailResult.source === "api"
+    waterEmergencyDetailResult.source === "api" &&
+    (!manualReviewQueueResult || manualReviewQueueResult.source === "api")
       ? "api"
       : "mock";
   const fallbackMessage =
     [
       errorMessage,
       waterEmergencyResult.errorMessage,
-      waterEmergencyDetailResult.errorMessage
+      waterEmergencyDetailResult.errorMessage,
+      manualReviewQueueResult?.errorMessage
     ]
       .filter(Boolean)
       .join(" ") || undefined;
@@ -189,6 +195,10 @@ export function DashboardView({
             <CountBucketPanel title="Reason Counts" buckets={review.reason_counts} />
           </div>
         </section>
+
+        {manualReviewQueueResult ? (
+          <ManualReviewQueue result={manualReviewQueueResult} />
+        ) : null}
 
         <section className="space-y-4">
           <SectionHeading

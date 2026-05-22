@@ -12,7 +12,11 @@ from app.domain.dashboard import (
     DispatchLifecycleSummary,
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
+    ManualReviewQueueItem,
+    ManualReviewQueueReadModel,
     ManualReviewSummary,
+    ManualReviewTaxonomyMetadata,
+    ManualReviewTaxonomyMetadataItem,
     OperationalDashboardSummary,
     OperationalEventTimelineSummary,
     OperationalTimelineEntry,
@@ -655,6 +659,134 @@ def water_emergency_detail_contract() -> WaterEmergencyDetailReadModel:
     )
 
 
+def manual_review_queue_contract() -> ManualReviewQueueReadModel:
+    return ManualReviewQueueReadModel(
+        generated_at=datetime(2026, 5, 16, 12, 50, tzinfo=UTC),
+        total_items=2,
+        open_items=1,
+        deferred_items=0,
+        resolved_items=1,
+        archived_items=0,
+        active_attention_count=1,
+        water_emergency_related_count=1,
+        dispatch_related_count=1,
+        blocked_count=1,
+        status_counts=(
+            CountBucket(label="open", count=1),
+            CountBucket(label="resolved", count=1),
+        ),
+        reason_counts=(
+            CountBucket(label="missing_customer_data", count=1),
+            CountBucket(label="water_emergency_review", count=1),
+        ),
+        severity_counts=(
+            CountBucket(label="critical", count=1),
+            CountBucket(label="low", count=1),
+        ),
+        group_counts=(
+            CountBucket(label="open", count=1),
+            CountBucket(label="resolved", count=1),
+            CountBucket(label="water_emergency_related", count=1),
+            CountBucket(label="dispatch_related", count=1),
+        ),
+        age_bucket_counts=(
+            CountBucket(label="new", count=1),
+            CountBucket(label="resolved_or_archived", count=1),
+        ),
+        audit_correlation_count=2,
+        taxonomy_metadata=ManualReviewTaxonomyMetadata(
+            randall_authorized_phase_0_baseline=True,
+            source="phase_0_visibility_heuristic",
+            legal_or_insurance_policy=False,
+            requires_alfonso_owner_review=False,
+            baseline_note=(
+                "Manual Review queue labels are Randall-authorized Phase 0 "
+                "visibility baselines only."
+            ),
+            group_definitions=(
+                ManualReviewTaxonomyMetadataItem(
+                    key="water_emergency_related",
+                    label="Water Emergency related",
+                    category="manual_review_visibility",
+                    source="phase_0_visibility_heuristic",
+                    randall_authorized_phase_0_baseline=True,
+                    legal_or_insurance_policy=False,
+                    requires_alfonso_owner_review=False,
+                    reason="Separates Water Emergency review visibility from standard dispatch.",
+                ),
+            ),
+        ),
+        items=(
+            ManualReviewQueueItem(
+                review_item_id=UUID("00000000-0000-0000-0000-000000000040"),
+                status="open",
+                severity="critical",
+                reason_code="missing_customer_data",
+                visibility_groups=("open", "missing_data", "dispatch_related"),
+                primary_group="missing_data",
+                entity_type="job",
+                entity_id=UUID("00000000-0000-0000-0000-000000000041"),
+                job_id=UUID("00000000-0000-0000-0000-000000000041"),
+                work_order_id=UUID("00000000-0000-0000-0000-000000000042"),
+                visit_id=None,
+                route_assignment_id=None,
+                water_emergency_id=None,
+                created_at=datetime(2026, 5, 16, 11, 0, tzinfo=UTC),
+                updated_at=datetime(2026, 5, 16, 11, 0, tzinfo=UTC),
+                reviewed_at=None,
+                deferred_until=None,
+                resolved_at=None,
+                age_bucket="new",
+                age_hours=1,
+                blocker_indicator=True,
+                attention_indicator=True,
+                confidence_score=66.0,
+                recommended_action="Review missing synthetic data.",
+                audit_correlation_id="audit-manual-review-api-001",
+                evidence_references=(
+                    "review:00000000-0000-0000-0000-000000000040",
+                    "job:00000000-0000-0000-0000-000000000041",
+                    "work_order:00000000-0000-0000-0000-000000000042",
+                    "audit:audit-manual-review-api-001",
+                ),
+            ),
+            ManualReviewQueueItem(
+                review_item_id=UUID("00000000-0000-0000-0000-000000000043"),
+                status="resolved",
+                severity="low",
+                reason_code="water_emergency_review",
+                visibility_groups=("resolved", "water_emergency_related"),
+                primary_group="water_emergency_related",
+                entity_type="water_emergency",
+                entity_id=UUID("00000000-0000-0000-0000-000000000031"),
+                job_id=UUID("00000000-0000-0000-0000-000000000032"),
+                work_order_id=None,
+                visit_id=None,
+                route_assignment_id=None,
+                water_emergency_id=UUID("00000000-0000-0000-0000-000000000031"),
+                created_at=datetime(2026, 5, 15, 11, 0, tzinfo=UTC),
+                updated_at=datetime(2026, 5, 16, 10, 0, tzinfo=UTC),
+                reviewed_at=None,
+                deferred_until=None,
+                resolved_at=datetime(2026, 5, 16, 10, 0, tzinfo=UTC),
+                age_bucket="resolved_or_archived",
+                age_hours=25,
+                blocker_indicator=False,
+                attention_indicator=False,
+                confidence_score=94.0,
+                recommended_action=None,
+                audit_correlation_id="audit-manual-review-api-002",
+                evidence_references=(
+                    "review:00000000-0000-0000-0000-000000000043",
+                    "job:00000000-0000-0000-0000-000000000032",
+                    "water_emergency:00000000-0000-0000-0000-000000000031",
+                    "audit:audit-manual-review-api-002",
+                ),
+            ),
+        ),
+    )
+
+
 def test_dashboard_api_routes_return_read_only_contracts(
     monkeypatch,
 ) -> None:
@@ -666,6 +798,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
     overview = dashboard_overview_contract()
     water_emergency = water_emergency_contract()
     water_emergency_detail = water_emergency_detail_contract()
+    manual_review_queue = manual_review_queue_contract()
 
     def override_db_session():
         yield object()
@@ -684,6 +817,11 @@ def test_dashboard_api_routes_return_read_only_contracts(
         DashboardReadModelService,
         "build_review_from_session",
         lambda self, session: overview.manual_review_summary,
+    )
+    monkeypatch.setattr(
+        DashboardReadModelService,
+        "build_manual_review_queue_from_session",
+        lambda self, session: manual_review_queue,
     )
     monkeypatch.setattr(
         DashboardReadModelService,
@@ -712,6 +850,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
         overview_response = client.get("/api/v1/dashboard/overview")
         lifecycle_response = client.get("/api/v1/dashboard/lifecycle")
         review_response = client.get("/api/v1/dashboard/review")
+        manual_review_queue_response = client.get("/api/v1/dashboard/manual-review/queue")
         dispatch_response = client.get("/api/v1/dashboard/dispatch")
         water_response = client.get("/api/v1/dashboard/water-emergency")
         water_detail_response = client.get(
@@ -721,6 +860,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
             "/api/v1/dashboard/water-emergency/00000000-0000-0000-0000-000000009999",
         )
         mutation_response = client.post("/api/v1/dashboard/overview")
+        review_queue_mutation_response = client.post("/api/v1/dashboard/manual-review/queue")
         water_mutation_response = client.post("/api/v1/dashboard/water-emergency")
         water_detail_mutation_response = client.post(
             "/api/v1/dashboard/water-emergency/00000000-0000-0000-0000-000000000031",
@@ -735,6 +875,27 @@ def test_dashboard_api_routes_return_read_only_contracts(
     ]
     assert review_response.status_code == 200
     assert review_response.json()["open_items"] == 0
+    assert manual_review_queue_response.status_code == 200
+    assert manual_review_queue_response.json()["total_items"] == 2
+    assert manual_review_queue_response.json()["active_attention_count"] == 1
+    assert manual_review_queue_response.json()["water_emergency_related_count"] == 1
+    assert manual_review_queue_response.json()["dispatch_related_count"] == 1
+    assert (
+        manual_review_queue_response.json()["taxonomy_metadata"][
+            "randall_authorized_phase_0_baseline"
+        ]
+        is True
+    )
+    assert (
+        manual_review_queue_response.json()["taxonomy_metadata"]["legal_or_insurance_policy"]
+        is False
+    )
+    assert manual_review_queue_response.json()["items"][0]["reason_code"] == (
+        "missing_customer_data"
+    )
+    assert manual_review_queue_response.json()["items"][1]["water_emergency_id"] == (
+        "00000000-0000-0000-0000-000000000031"
+    )
     assert dispatch_response.status_code == 200
     assert dispatch_response.json()["external_execution"]["execution_failed_count"] == 0
     assert water_response.status_code == 200
@@ -820,5 +981,6 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     assert water_detail_missing_response.status_code == 404
     assert mutation_response.status_code == 405
+    assert review_queue_mutation_response.status_code == 405
     assert water_mutation_response.status_code == 405
     assert water_detail_mutation_response.status_code == 405

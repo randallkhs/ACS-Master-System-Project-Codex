@@ -1272,3 +1272,38 @@ Use this file for durable decisions that affect future development. Do not recor
   - Database/system architecture notes
   - API/frontend contract notes
   - AI/dashboard safety boundary
+
+---
+
+## 2026-05-22 — Phase 0 Module 40 Manual Review Queue Detail, Reason Taxonomy, And Operator Visibility
+
+- Decision type: Implementation / Manual Review visibility / read-only queue contract
+- Status: Implemented
+- Decision:
+  - Add a dedicated read-only Manual Review queue detail read model and API endpoint at `GET /api/v1/dashboard/manual-review/queue`.
+  - Expose queue item context from existing persisted ReviewItem evidence, including status, severity, reason code, visibility groups, entity links, job/work-order/visit/route-assignment IDs, Water Emergency ID when specifically linked, timestamps, age bucket, blocker/attention indicators, audit references, and evidence references.
+  - Add deterministic Manual Review visibility groups for open, deferred, resolved, archived, blocked, Water Emergency-related, dispatch-related, missing data, duplicate/conflict, cancellation/status uncertainty, and needs-operator-review.
+  - Mark Manual Review queue group labels as a Randall-authorized Phase 0 visibility baseline.
+  - Keep resolved and archived review items out of active attention counts.
+  - Add a frontend Manual Review Queue panel that separates Water Emergency-related reviews from standard dispatch and other review items.
+- Rationale:
+  - Manual Review is the core safety authority, so operators need richer queue visibility before action workflows exist.
+  - Review queue visibility should help operators understand why items need attention without creating approve/reject/defer/archive controls or backend mutations.
+  - Water Emergency-related reviews must remain visibly separated from standard dispatch review context.
+- Future implications:
+  - Future modules still need authenticated Manual Review action workflows.
+  - Review group labels may later be refined into a formal taxonomy, but Module 40 keeps them internal Phase 0 visibility labels.
+  - Production review queues may need pagination, query optimization, stale-data handling, refresh cadence, and role-scoped visibility.
+  - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas/routes
+  - Dashboard endpoint verification script
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Backend/frontend tests
+  - Manual Review workflow documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary
