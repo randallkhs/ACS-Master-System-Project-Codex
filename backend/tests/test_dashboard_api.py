@@ -17,6 +17,7 @@ from app.domain.dashboard import (
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
     ManualReviewFilterOption,
+    ManualReviewFutureActionPreview,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
@@ -705,6 +706,10 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
             CountBucket(label="blocked_by_missing_data", count=1),
             CountBucket(label="blocked_by_resolved_or_archived_status", count=1),
         ),
+        future_action_preview_counts=(
+            CountBucket(label="future_request_information_preview", count=1),
+            CountBucket(label="no_action_available_resolved_or_archived", count=1),
+        ),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
             CountBucket(label="resolved_or_archived", count=1),
@@ -835,6 +840,43 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     requires_operator_identity=True,
                     requires_audit_reason=True,
                 ),
+                future_action_preview=ManualReviewFutureActionPreview(
+                    label="future_request_information_preview",
+                    description=(
+                        "A future authenticated workflow may request missing information, "
+                        "but this Phase 0 preview is not executable."
+                    ),
+                    expected_outcome_summary=(
+                        "Expected outcome preview: operator gathers missing information before "
+                        "any resolution action is designed."
+                    ),
+                    impacted_entity_summary=(
+                        "Impacted entities: review:00000000-0000-0000-0000-000000000040, "
+                        "job:00000000-0000-0000-0000-000000000041, "
+                        "work_order:00000000-0000-0000-0000-000000000042"
+                    ),
+                    impacted_entity_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                    ),
+                    blocker_codes=("missing_data_context_required",),
+                    required_future_controls=(
+                        "preview_not_executable_read_only_phase",
+                        "requires_future_auth",
+                        "requires_operator_identity",
+                        "requires_audit_reason",
+                    ),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                        "audit:audit-manual-review-api-001",
+                    ),
+                    is_currently_executable=False,
+                    requires_operator_identity=True,
+                    requires_audit_reason=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000040",
                     "job:00000000-0000-0000-0000-000000000041",
@@ -904,6 +946,41 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     requires_operator_identity=True,
                     requires_audit_reason=True,
                 ),
+                future_action_preview=ManualReviewFutureActionPreview(
+                    label="no_action_available_resolved_or_archived",
+                    description=(
+                        "Resolved or archived review history has no active future action preview."
+                    ),
+                    expected_outcome_summary=(
+                        "Expected outcome preview: retain historical visibility without "
+                        "opening an active action."
+                    ),
+                    impacted_entity_summary=(
+                        "Impacted entities: review:00000000-0000-0000-0000-000000000043, "
+                        "water_emergency:00000000-0000-0000-0000-000000000031"
+                    ),
+                    impacted_entity_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                    ),
+                    blocker_codes=("resolved_or_archived_status",),
+                    required_future_controls=(
+                        "preview_not_executable_read_only_phase",
+                        "requires_future_auth",
+                        "requires_operator_identity",
+                        "requires_audit_reason",
+                    ),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                        "audit:audit-manual-review-api-002",
+                    ),
+                    is_currently_executable=False,
+                    requires_operator_identity=True,
+                    requires_audit_reason=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000043",
                     "job:00000000-0000-0000-0000-000000000032",
@@ -935,6 +1012,7 @@ def manual_review_detail_contract() -> ManualReviewDetailReadModel:
         ),
         decision_readiness=review_item.decision_readiness,
         action_preflight=review_item.action_preflight,
+        future_action_preview=review_item.future_action_preview,
         linked_entity_context=ManualReviewDetailLinkedEntityContext(
             entity_type="job",
             entity_id=UUID("00000000-0000-0000-0000-000000000041"),
@@ -1120,6 +1198,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
         {"label": "blocked_by_missing_data", "count": 1},
         {"label": "blocked_by_resolved_or_archived_status", "count": 1},
     ]
+    assert manual_review_queue_response.json()["future_action_preview_counts"] == [
+        {"label": "future_request_information_preview", "count": 1},
+        {"label": "no_action_available_resolved_or_archived", "count": 1},
+    ]
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"
@@ -1139,11 +1221,32 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][0]["action_preflight"]["label"] == (
         "blocked_by_missing_data"
     )
+    assert manual_review_queue_response.json()["items"][0]["future_action_preview"]["label"] == (
+        "future_request_information_preview"
+    )
     assert (
         manual_review_queue_response.json()["items"][0]["action_preflight"][
             "is_currently_executable"
         ]
         is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["future_action_preview"][
+            "is_currently_executable"
+        ]
+        is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["future_action_preview"][
+            "requires_operator_identity"
+        ]
+        is True
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["future_action_preview"][
+            "requires_audit_reason"
+        ]
+        is True
     )
     assert (
         "requires_future_auth"
@@ -1168,6 +1271,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][1]["action_preflight"]["label"] == (
         "blocked_by_resolved_or_archived_status"
     )
+    assert manual_review_queue_response.json()["items"][1]["future_action_preview"]["label"] == (
+        "no_action_available_resolved_or_archived"
+    )
     assert manual_review_detail_response.status_code == 200
     assert manual_review_detail_response.json()["review_item"]["review_item_id"] == (
         "00000000-0000-0000-0000-000000000040"
@@ -1180,6 +1286,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     assert manual_review_detail_response.json()["action_preflight"]["label"] == (
         "blocked_by_missing_data"
+    )
+    assert manual_review_detail_response.json()["future_action_preview"]["label"] == (
+        "future_request_information_preview"
     )
     assert (
         manual_review_detail_response.json()["linked_entity_context"]["is_dispatch_related"] is True

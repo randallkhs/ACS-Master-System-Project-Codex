@@ -882,6 +882,28 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 45 Manual Review Future-Action Preview Boundary
+
+Module 45 extends Manual Review queue and detail visibility with read-only future-action preview and expected outcome preparation context:
+
+- backend read models expose deterministic future-action preview labels, descriptions, expected non-binding outcome summaries, impacted entity references, blocker codes, future requirement labels, evidence references, and explicit non-executable flags from existing ReviewItem evidence
+- every future-action preview remains `is_currently_executable = false`
+- future-only requirements continue to identify that real actions will need auth, operator identity, and audit reason capture later
+- Water Emergency-related future-action preview is separated from standard dispatch review preparation through persisted job, visit, entity, and Water Emergency links
+- missing entity context, missing data, duplicate/conflict evidence, Water Emergency context, resolved/archived status, and unknown preview evidence remain blockers or visibility states instead of executable actions
+- frontend queue and detail panels display preview context as read-only evidence and do not add workflow controls or button-styled preview labels
+
+The boundary remains projection-only. The endpoint and UI do not execute Manual Review actions, mutate review records, implement auth/RBAC, dispatch work, call external integrations, add AI authority, create audit/action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review approve/reject/defer/archive/resolve workflows
+- final Manual Review future-action preview taxonomy and role authority
+- operator identity capture, audit reason requirements, action-history persistence, and impacted-entity audit writes
+- production role-scoped action visibility and permission design
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

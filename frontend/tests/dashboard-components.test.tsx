@@ -7,46 +7,46 @@ import {
   mockManualReviewDetail,
   mockManualReviewQueue,
   mockWaterEmergencyDetail,
-  mockWaterEmergencyDashboard
+  mockWaterEmergencyDashboard,
 } from "@/lib/mock-dashboard";
 import type {
   ManualReviewQueueResponse,
   ManualReviewDetailResponse,
   WaterEmergencyAgingFollowUpItemResponse,
   WaterEmergencyQueueItemResponse,
-  WaterEmergencyViewStateItemResponse
+  WaterEmergencyViewStateItemResponse,
 } from "@/lib/dashboard-contracts";
 import { deriveWaterEmergencyVisibleRecords } from "@/lib/water-emergency-view-state";
 import { deriveManualReviewVisibleRecords } from "@/lib/manual-review-view-state";
 import {
   getBrowserStorage,
   readWaterEmergencyViewPreferences,
-  writeWaterEmergencyViewPreferences
+  writeWaterEmergencyViewPreferences,
 } from "@/lib/water-emergency-view-preferences";
 import {
   getManualReviewBrowserStorage,
   readManualReviewViewPreferences,
-  writeManualReviewViewPreferences
+  writeManualReviewViewPreferences,
 } from "@/lib/manual-review-view-preferences";
 
 const mockWaterEmergencyResult = {
   data: mockWaterEmergencyDashboard,
-  source: "mock" as const
+  source: "mock" as const,
 };
 
 const mockWaterEmergencyDetailResult = {
   data: mockWaterEmergencyDetail,
-  source: "mock" as const
+  source: "mock" as const,
 };
 
 const mockManualReviewQueueResult = {
   data: mockManualReviewQueue,
-  source: "mock" as const
+  source: "mock" as const,
 };
 
 const mockManualReviewDetailResult = {
   data: mockManualReviewDetail,
-  source: "mock" as const
+  source: "mock" as const,
 };
 
 describe("DashboardView", () => {
@@ -56,11 +56,11 @@ describe("DashboardView", () => {
         result={{
           data: mockDashboardOverview,
           source: "mock",
-          errorMessage: "Fallback state for component smoke testing."
+          errorMessage: "Fallback state for component smoke testing.",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Operational Control View");
@@ -81,11 +81,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).not.toMatch(/<button|role="button"/);
@@ -103,21 +103,21 @@ describe("DashboardView", () => {
         result={{
           data: mockDashboardOverview,
           source: "api",
-          requestedUrl: "http://127.0.0.1:8000/api/v1/dashboard/overview"
+          requestedUrl: "http://127.0.0.1:8000/api/v1/dashboard/overview",
         }}
         waterEmergencyResult={{
           data: mockWaterEmergencyDashboard,
           source: "api",
           requestedUrl:
-            "http://127.0.0.1:8000/api/v1/dashboard/water-emergency"
+            "http://127.0.0.1:8000/api/v1/dashboard/water-emergency",
         }}
         waterEmergencyDetailResult={{
           data: mockWaterEmergencyDetail,
           source: "api",
           requestedUrl:
-            "http://127.0.0.1:8000/api/v1/dashboard/water-emergency/e9acb112-409f-4d4f-b98f-4b61a437c4c7"
+            "http://127.0.0.1:8000/api/v1/dashboard/water-emergency/e9acb112-409f-4d4f-b98f-4b61a437c4c7",
         }}
-      />
+      />,
     );
 
     expect(html).toContain("Live backend");
@@ -131,25 +131,26 @@ describe("DashboardView", () => {
         result={{
           data: mockDashboardOverview,
           source: "api",
-          requestedUrl: "http://127.0.0.1:8000/api/v1/dashboard/overview"
+          requestedUrl: "http://127.0.0.1:8000/api/v1/dashboard/overview",
         }}
         waterEmergencyResult={{
           data: {
             ...mockWaterEmergencyDashboard,
             open_count: 0,
             total_records: 0,
-            records: []
+            records: [],
           },
           source: "api",
           requestedUrl:
-            "http://127.0.0.1:8000/api/v1/dashboard/water-emergency"
+            "http://127.0.0.1:8000/api/v1/dashboard/water-emergency",
         }}
         waterEmergencyDetailResult={{
           data: null,
           source: "api",
-          errorMessage: "No Water Emergency record is available for detail display."
+          errorMessage:
+            "No Water Emergency record is available for detail display.",
         }}
-      />
+      />,
     );
 
     expect(html).toContain("Live backend");
@@ -167,11 +168,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Water Emergency separated path");
@@ -186,11 +187,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Equipment Context");
@@ -208,11 +209,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Review Exception Visibility");
@@ -230,11 +231,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Next-Step Readiness");
@@ -254,11 +255,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Operator Queue");
@@ -277,11 +278,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Aging &amp; Follow-Up Risk");
@@ -300,21 +301,22 @@ describe("DashboardView", () => {
       mockWaterEmergencyDashboard.operator_queue_summary.items[0];
     const closedBase =
       mockWaterEmergencyDashboard.operator_queue_summary.items.find(
-        (item) => item.queue_group === "closed_or_resolved"
+        (item) => item.queue_group === "closed_or_resolved",
       ) ?? activeBase;
     const activeItems: WaterEmergencyQueueItemResponse[] = Array.from(
       { length: 7 },
       (_, index) => ({
         ...activeBase,
         water_emergency_id: `1000000${index}-0000-4000-8000-00000000000${index}`,
-        attention_label: index === 0 ? "critical_attention" : "needs_manual_review",
+        attention_label:
+          index === 0 ? "critical_attention" : "needs_manual_review",
         queue_group: "active_attention",
         attention_rank: index === 0 ? 10 : 20,
         summary: `Active queue test record ${index + 1}.`,
         related_job_id: `2000000${index}-0000-4000-8000-00000000000${index}`,
         related_visit_ids: [],
-        evidence_references: [`water_emergency:active-${index}`]
-      })
+        evidence_references: [`water_emergency:active-${index}`],
+      }),
     );
     const closedTailItem: WaterEmergencyQueueItemResponse = {
       ...closedBase,
@@ -335,14 +337,14 @@ describe("DashboardView", () => {
       related_job_id: "99999998-0000-4000-8000-000000000098",
       related_work_order_ids: [],
       related_visit_ids: [],
-      audit_correlation_ids: []
+      audit_correlation_ids: [],
     };
 
     const html = renderToStaticMarkup(
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={{
           data: {
@@ -355,27 +357,27 @@ describe("DashboardView", () => {
               critical_attention_count: 1,
               queue_group_counts: [
                 { label: "active_attention", count: activeItems.length },
-                { label: "closed_or_resolved", count: 1 }
+                { label: "closed_or_resolved", count: 1 },
               ],
               attention_label_counts: [
                 { label: "critical_attention", count: 1 },
                 { label: "needs_manual_review", count: activeItems.length - 1 },
-                { label: "closed_or_resolved", count: 1 }
+                { label: "closed_or_resolved", count: 1 },
               ],
-              items: [...activeItems, closedTailItem]
-            }
+              items: [...activeItems, closedTailItem],
+            },
           },
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Operator Queue");
     expect(html).toContain("Showing first 6 active attention records.");
     expect(html).toContain("Closed Or Resolved");
     expect(html).toContain(
-      "Closed tail Water Emergency record remains visible outside active attention limits."
+      "Closed tail Water Emergency record remains visible outside active attention limits.",
     );
     expect(html).not.toMatch(/<button|role="button"/);
     expect(html).not.toContain("Approve Water Emergency");
@@ -388,21 +390,22 @@ describe("DashboardView", () => {
       mockWaterEmergencyDashboard.aging_followup_summary.items[0];
     const closedBase =
       mockWaterEmergencyDashboard.aging_followup_summary.items.find(
-        (item) => item.timing_group === "closed_or_resolved"
+        (item) => item.timing_group === "closed_or_resolved",
       ) ?? activeBase;
     const activeItems: WaterEmergencyAgingFollowUpItemResponse[] = Array.from(
       { length: 7 },
       (_, index) => ({
         ...activeBase,
         water_emergency_id: `3000000${index}-0000-4000-8000-00000000000${index}`,
-        time_sensitivity_label: index === 0 ? "followup_overdue" : "followup_due",
+        time_sensitivity_label:
+          index === 0 ? "followup_overdue" : "followup_due",
         timing_group: "followup_attention",
         timing_rank: index === 0 ? 10 : 40,
         summary: `Active timing test record ${index + 1}.`,
         related_job_id: `4000000${index}-0000-4000-8000-00000000000${index}`,
         related_visit_ids: [],
-        evidence_references: [`water_emergency:timing-active-${index}`]
-      })
+        evidence_references: [`water_emergency:timing-active-${index}`],
+      }),
     );
     const closedTailItem: WaterEmergencyAgingFollowUpItemResponse = {
       ...closedBase,
@@ -418,14 +421,14 @@ describe("DashboardView", () => {
       related_work_order_ids: [],
       related_visit_ids: [],
       audit_correlation_ids: [],
-      evidence_references: ["water_emergency:timing-closed-tail"]
+      evidence_references: ["water_emergency:timing-closed-tail"],
     };
 
     const html = renderToStaticMarkup(
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={{
           data: {
@@ -442,22 +445,22 @@ describe("DashboardView", () => {
               label_counts: [
                 { label: "followup_overdue", count: 1 },
                 { label: "followup_due", count: activeItems.length - 1 },
-                { label: "closed_or_resolved", count: 1 }
+                { label: "closed_or_resolved", count: 1 },
               ],
-              items: [...activeItems, closedTailItem]
-            }
+              items: [...activeItems, closedTailItem],
+            },
           },
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Aging &amp; Follow-Up Risk");
     expect(html).toContain("Showing first 6 active timing records.");
     expect(html).toContain("Closed Or Resolved");
     expect(html).toContain(
-      "Closed tail Water Emergency timing record remains visible outside active timing limits."
+      "Closed tail Water Emergency timing record remains visible outside active timing limits.",
     );
     expect(html).not.toMatch(/<button|role="button"/);
     expect(html).not.toContain("Approve Water Emergency");
@@ -466,10 +469,11 @@ describe("DashboardView", () => {
   });
 
   it("filters Water Emergency view-state records without hiding closed records", () => {
-    const criticalItem = mockWaterEmergencyDashboard.view_state_summary.items[0];
+    const criticalItem =
+      mockWaterEmergencyDashboard.view_state_summary.items[0];
     const closedItem =
       mockWaterEmergencyDashboard.view_state_summary.items.find(
-        (item) => item.primary_filter_group === "closed_or_resolved"
+        (item) => item.primary_filter_group === "closed_or_resolved",
       ) ?? criticalItem;
     const overdueItem: WaterEmergencyViewStateItemResponse = {
       ...criticalItem,
@@ -491,34 +495,34 @@ describe("DashboardView", () => {
       related_work_order_ids: [],
       related_visit_ids: [],
       audit_correlation_ids: [],
-      evidence_references: ["water_emergency:followup-overdue-test"]
+      evidence_references: ["water_emergency:followup-overdue-test"],
     };
     const data = {
       ...mockWaterEmergencyDashboard,
       view_state_summary: {
         ...mockWaterEmergencyDashboard.view_state_summary,
-        items: [criticalItem, overdueItem, closedItem]
-      }
+        items: [criticalItem, overdueItem, closedItem],
+      },
     };
 
     const overdueView = deriveWaterEmergencyVisibleRecords(data, {
       selectedFilter: "followup_overdue",
-      selectedSort: "attention"
+      selectedSort: "attention",
     });
     const closedView = deriveWaterEmergencyVisibleRecords(data, {
       selectedFilter: "closed_or_resolved",
-      selectedSort: "attention"
+      selectedSort: "attention",
     });
 
     expect(overdueView.visibleActiveItems).toHaveLength(1);
     expect(overdueView.visibleActiveItems[0].water_emergency_id).toBe(
-      overdueItem.water_emergency_id
+      overdueItem.water_emergency_id,
     );
     expect(overdueView.visibleClosedItems).toHaveLength(0);
     expect(closedView.visibleActiveItems).toHaveLength(0);
     expect(closedView.visibleClosedItems).toHaveLength(1);
     expect(closedView.visibleClosedItems[0].primary_filter_group).toBe(
-      "closed_or_resolved"
+      "closed_or_resolved",
     );
   });
 
@@ -527,11 +531,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Saved view preferences");
@@ -550,25 +554,32 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
         manualReviewQueueResult={mockManualReviewQueueResult}
-      />
+      />,
     );
 
     expect(html).toContain("Manual Review Queue");
     expect(html).toContain("Read-only Manual Review visibility");
-    expect(html).toContain("Randall-authorized Phase 0 review taxonomy baseline");
+    expect(html).toContain(
+      "Randall-authorized Phase 0 review taxonomy baseline",
+    );
     expect(html).toContain("Decision Readiness");
     expect(html).toContain("Future Action Preflight");
+    expect(html).toContain("Future Action Preview");
+    expect(html).toContain("Future Request Information Preview");
+    expect(html).toContain("Expected Outcome");
+    expect(html).toContain("Impacted Entities");
     expect(html).toContain("Blocked By Missing Data");
     expect(html).toContain("Requires Future Auth");
     expect(html).toContain("Requires Operator Identity");
     expect(html).toContain("Requires Audit Reason");
     expect(html).toContain("Needs Water Emergency Review");
     expect(html).toContain("Blocked By Water Emergency Context");
+    expect(html).toContain("No Action Available Water Emergency Context");
     expect(html).toContain("Active decision need");
     expect(html).toContain("Water Emergency-related reviews");
     expect(html).toContain("Standard dispatch and other reviews");
@@ -591,32 +602,40 @@ describe("DashboardView", () => {
       reason_code: `active_standard_review_${index + 1}`,
       recommended_action: `Synthetic active standard review item ${index + 1}.`,
       attention_indicator: true,
-      visibility_groups: ["open", "blocked", "dispatch_related", "missing_data"],
-      water_emergency_id: null
+      visibility_groups: [
+        "open",
+        "blocked",
+        "dispatch_related",
+        "missing_data",
+      ],
+      water_emergency_id: null,
     }));
     const reviewQueueWithManyActiveItems: ManualReviewQueueResponse = {
       ...mockManualReviewQueue,
       total_items: activeStandardItems.length,
       active_attention_count: activeStandardItems.length,
       water_emergency_related_count: 0,
-      items: activeStandardItems
+      items: activeStandardItems,
     };
     const html = renderToStaticMarkup(
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
         manualReviewQueueResult={{
           data: reviewQueueWithManyActiveItems,
-          source: "mock"
+          source: "mock",
         }}
-      />
+      />,
     );
 
-    for (const index of Array.from({ length: 7 }, (_, itemIndex) => itemIndex + 1)) {
+    for (const index of Array.from(
+      { length: 7 },
+      (_, itemIndex) => itemIndex + 1,
+    )) {
       expect(html).toContain(`Synthetic active standard review item ${index}.`);
     }
     expect(html).not.toContain("Showing first");
@@ -634,17 +653,20 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
         manualReviewQueueResult={mockManualReviewQueueResult}
-      />
+      />,
     );
-    const visibleRecords = deriveManualReviewVisibleRecords(mockManualReviewQueue, {
-      selectedFilter: "water_emergency_related",
-      selectedSort: "attention"
-    });
+    const visibleRecords = deriveManualReviewVisibleRecords(
+      mockManualReviewQueue,
+      {
+        selectedFilter: "water_emergency_related",
+        selectedSort: "attention",
+      },
+    );
 
     expect(html).toContain("Manual Review View State");
     expect(html).toContain("Filter review items");
@@ -662,26 +684,30 @@ describe("DashboardView", () => {
   });
 
   it("renders a safe empty state when a Manual Review filter has no records", () => {
-    const visibleRecords = deriveManualReviewVisibleRecords(mockManualReviewQueue, {
-      selectedFilter: "active_attention",
-      selectedSort: "attention"
-    });
+    const visibleRecords = deriveManualReviewVisibleRecords(
+      mockManualReviewQueue,
+      {
+        selectedFilter: "active_attention",
+        selectedSort: "attention",
+      },
+    );
     const emptyQueue: ManualReviewQueueResponse = {
       ...mockManualReviewQueue,
-      available_filters: mockManualReviewQueue.available_filters.map((filter) =>
-        filter.key === "active_attention" ? { ...filter, count: 0 } : filter
+      available_filters: mockManualReviewQueue.available_filters.map(
+        (filter) =>
+          filter.key === "active_attention" ? { ...filter, count: 0 } : filter,
       ),
       items: mockManualReviewQueue.items.map((item) => ({
         ...item,
         attention_indicator: false,
         visibility_groups: item.visibility_groups.filter(
-          (group) => group !== "active_attention"
-        )
-      }))
+          (group) => group !== "active_attention",
+        ),
+      })),
     };
     const emptyVisibleRecords = deriveManualReviewVisibleRecords(emptyQueue, {
       selectedFilter: "active_attention",
-      selectedSort: "attention"
+      selectedSort: "attention",
     });
 
     expect(visibleRecords.visibleItems.length).toBeGreaterThan(0);
@@ -693,18 +719,18 @@ describe("DashboardView", () => {
 
     const writeResult = writeManualReviewViewPreferences(storage, {
       selectedFilter: "water_emergency_related",
-      selectedSort: "newest"
+      selectedSort: "newest",
     });
     const readResult = readManualReviewViewPreferences(storage, {
       availableFilterKeys: new Set(["all", "water_emergency_related"]),
-      availableSortKeys: new Set(["attention", "newest"])
+      availableSortKeys: new Set(["attention", "newest"]),
     });
 
     expect(writeResult.available).toBe(true);
     expect(readResult.available).toBe(true);
     expect(readResult.preferences).toEqual({
       selectedFilter: "water_emergency_related",
-      selectedSort: "newest"
+      selectedSort: "newest",
     });
   });
 
@@ -713,11 +739,11 @@ describe("DashboardView", () => {
 
     const writeResult = writeManualReviewViewPreferences(storage, {
       selectedFilter: "water_emergency_related",
-      selectedSort: "newest"
+      selectedSort: "newest",
     });
     const readResult = readManualReviewViewPreferences(storage, {
       availableFilterKeys: new Set(["all", "water_emergency_related"]),
-      availableSortKeys: new Set(["attention", "newest"])
+      availableSortKeys: new Set(["attention", "newest"]),
     });
 
     expect(writeResult.available).toBe(false);
@@ -732,19 +758,19 @@ describe("DashboardView", () => {
       value: {
         get localStorage() {
           throw new Error("localStorage access denied");
-        }
-      }
+        },
+      },
     });
 
     try {
       const storage = getManualReviewBrowserStorage();
       const writeResult = writeManualReviewViewPreferences(storage, {
         selectedFilter: "water_emergency_related",
-        selectedSort: "newest"
+        selectedSort: "newest",
       });
       const readResult = readManualReviewViewPreferences(storage, {
         availableFilterKeys: new Set(["all", "water_emergency_related"]),
-        availableSortKeys: new Set(["attention", "newest"])
+        availableSortKeys: new Set(["attention", "newest"]),
       });
 
       expect(storage).toBeNull();
@@ -754,7 +780,7 @@ describe("DashboardView", () => {
     } finally {
       Object.defineProperty(globalThis, "window", {
         configurable: true,
-        value: originalWindow
+        value: originalWindow,
       });
     }
   });
@@ -764,6 +790,9 @@ describe("DashboardView", () => {
       ...mockManualReviewDetail,
       review_item: mockManualReviewQueue.items[1],
       decision_readiness: mockManualReviewQueue.items[1].decision_readiness,
+      action_preflight: mockManualReviewQueue.items[1].action_preflight,
+      future_action_preview:
+        mockManualReviewQueue.items[1].future_action_preview,
       linked_entity_context: {
         ...mockManualReviewDetail.linked_entity_context,
         entity_type: "water_emergency",
@@ -779,23 +808,23 @@ describe("DashboardView", () => {
         water_emergency_status: "drying_in_progress",
         water_emergency_stage: "monitoring",
         is_water_emergency_related: true,
-        is_dispatch_related: false
-      }
+        is_dispatch_related: false,
+      },
     };
     const html = renderToStaticMarkup(
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
         manualReviewQueueResult={mockManualReviewQueueResult}
         manualReviewDetailResult={{
           ...mockManualReviewDetailResult,
-          data: waterReviewDetail
+          data: waterReviewDetail,
         }}
-      />
+      />,
     );
 
     expect(html).toContain("Manual Review Detail");
@@ -806,6 +835,11 @@ describe("DashboardView", () => {
     expect(html).toContain("Future Action Preflight");
     expect(html).toContain("Blocked By Water Emergency Context");
     expect(html).toContain("Water Emergency-related action preflight");
+    expect(html).toContain("Future Action Preview");
+    expect(html).toContain("No Action Available Water Emergency Context");
+    expect(html).toContain("Water Emergency-related future-action preview");
+    expect(html).toContain("Expected Outcome");
+    expect(html).toContain("Impacted Entities");
     expect(html).toContain("Requires Future Auth");
     expect(html).toContain("Requires Operator Identity");
     expect(html).toContain("Requires Audit Reason");
@@ -823,6 +857,7 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Archive review");
     expect(html).not.toContain("Execute action");
     expect(html).not.toContain("Run preflight");
+    expect(html).not.toContain("Run preview");
   });
 
   it("renders Manual Review detail not-selected state without mock success or actions", () => {
@@ -830,17 +865,20 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "api"
+          source: "api",
         }}
         waterEmergencyResult={{ ...mockWaterEmergencyResult, source: "api" }}
         waterEmergencyDetailResult={{ data: null, source: "api" }}
-        manualReviewQueueResult={{ ...mockManualReviewQueueResult, source: "api" }}
+        manualReviewQueueResult={{
+          ...mockManualReviewQueueResult,
+          source: "api",
+        }}
         manualReviewDetailResult={{
           data: null,
           source: "api",
-          errorMessage: "No Manual Review detail record is selected."
+          errorMessage: "No Manual Review detail record is selected.",
         }}
-      />
+      />,
     );
 
     expect(html).toContain("No Manual Review detail selected");
@@ -854,18 +892,18 @@ describe("DashboardView", () => {
 
     const writeResult = writeWaterEmergencyViewPreferences(storage, {
       selectedFilter: "followup_due",
-      selectedSort: "last_activity"
+      selectedSort: "last_activity",
     });
     const readResult = readWaterEmergencyViewPreferences(storage, {
       availableFilterKeys: new Set(["all", "followup_due"]),
-      availableSortKeys: new Set(["attention", "last_activity"])
+      availableSortKeys: new Set(["attention", "last_activity"]),
     });
 
     expect(writeResult.available).toBe(true);
     expect(readResult.available).toBe(true);
     expect(readResult.preferences).toEqual({
       selectedFilter: "followup_due",
-      selectedSort: "last_activity"
+      selectedSort: "last_activity",
     });
   });
 
@@ -874,11 +912,11 @@ describe("DashboardView", () => {
 
     const writeResult = writeWaterEmergencyViewPreferences(storage, {
       selectedFilter: "followup_due",
-      selectedSort: "last_activity"
+      selectedSort: "last_activity",
     });
     const readResult = readWaterEmergencyViewPreferences(storage, {
       availableFilterKeys: new Set(["all", "followup_due"]),
-      availableSortKeys: new Set(["attention", "last_activity"])
+      availableSortKeys: new Set(["attention", "last_activity"]),
     });
 
     expect(writeResult.available).toBe(false);
@@ -893,19 +931,19 @@ describe("DashboardView", () => {
       value: {
         get localStorage() {
           throw new Error("localStorage access denied");
-        }
-      }
+        },
+      },
     });
 
     try {
       const storage = getBrowserStorage();
       const writeResult = writeWaterEmergencyViewPreferences(storage, {
         selectedFilter: "followup_due",
-        selectedSort: "last_activity"
+        selectedSort: "last_activity",
       });
       const readResult = readWaterEmergencyViewPreferences(storage, {
         availableFilterKeys: new Set(["all", "followup_due"]),
-        availableSortKeys: new Set(["attention", "last_activity"])
+        availableSortKeys: new Set(["attention", "last_activity"]),
       });
 
       expect(storage).toBeNull();
@@ -915,7 +953,7 @@ describe("DashboardView", () => {
     } finally {
       Object.defineProperty(globalThis, "window", {
         configurable: true,
-        value: originalWindow
+        value: originalWindow,
       });
     }
   });
@@ -925,20 +963,20 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
     const timelineStart = html.indexOf("Operational Event Timeline");
     const firstEvent = html.indexOf(
       "Operational Accountability Escalation Required",
-      timelineStart
+      timelineStart,
     );
     const laterEvent = html.indexOf(
       "Operational Intake Water Emergency Separated",
-      timelineStart
+      timelineStart,
     );
 
     expect(timelineStart).toBeGreaterThan(-1);
@@ -955,12 +993,12 @@ describe("DashboardView", () => {
             ...mockDashboardOverview.manual_review_summary,
             reason_counts: [
               { label: "Water Emergency", count: 7 },
-              { label: "Address Validation", count: 3 }
-            ]
-          }
+              { label: "Address Validation", count: 3 },
+            ],
+          },
         }}
         source="mock"
-      />
+      />,
     );
 
     expect(html).toContain("Water Emergency separated path");
@@ -972,11 +1010,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Read-only Water Emergency visibility");
@@ -994,11 +1032,11 @@ describe("DashboardView", () => {
       <DashboardView
         result={{
           data: mockDashboardOverview,
-          source: "mock"
+          source: "mock",
         }}
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
-      />
+      />,
     );
 
     expect(html).toContain("Water Emergency Detail");
@@ -1032,7 +1070,7 @@ function createMemoryStorage(): Storage {
     },
     setItem(key: string, value: string) {
       values.set(key, value);
-    }
+    },
   };
 }
 
@@ -1055,6 +1093,6 @@ function createThrowingStorage(): Storage {
     },
     setItem() {
       throw new Error("storage unavailable");
-    }
+    },
   };
 }

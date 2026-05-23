@@ -20,6 +20,7 @@ from app.domain.dashboard import (
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
     ManualReviewFilterOption,
+    ManualReviewFutureActionPreview,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
@@ -672,6 +673,10 @@ class DashboardReadModelService:
                 (item.action_preflight for item in queue_items),
                 "label",
             ),
+            future_action_preview_counts=count_by_attr(
+                (item.future_action_preview for item in queue_items),
+                "label",
+            ),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
@@ -729,6 +734,7 @@ class DashboardReadModelService:
             ),
             decision_readiness=queue_item.decision_readiness,
             action_preflight=queue_item.action_preflight,
+            future_action_preview=queue_item.future_action_preview,
             linked_entity_context=manual_review_detail_linked_entity_context(
                 queue_item,
                 jobs=jobs,
@@ -1499,6 +1505,18 @@ def manual_review_queue_item(
         water_emergency_id=water_emergency_id,
         evidence_references=evidence_references,
     )
+    future_action_preview = manual_review_future_action_preview(
+        review,
+        groups=groups,
+        decision_readiness=decision_readiness,
+        action_preflight=action_preflight,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+        evidence_references=evidence_references,
+    )
 
     return ManualReviewQueueItem(
         review_item_id=review.id or NIL_UUID,
@@ -1528,6 +1546,7 @@ def manual_review_queue_item(
         audit_correlation_id=review.audit_correlation_id,
         decision_readiness=decision_readiness,
         action_preflight=action_preflight,
+        future_action_preview=future_action_preview,
         evidence_references=evidence_references,
     )
 
@@ -1758,6 +1777,253 @@ def manual_review_action_preflight(
         requires_operator_identity=True,
         requires_audit_reason=True,
     )
+
+
+def manual_review_future_action_preview(
+    review: ReviewItem,
+    *,
+    groups: Sequence[str],
+    decision_readiness: ManualReviewDecisionReadiness,
+    action_preflight: ManualReviewActionPreflight,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+    evidence_references: Sequence[str],
+) -> ManualReviewFutureActionPreview:
+    status = normalized(review.status)
+    impacted_entity_references = manual_review_impacted_entity_references(
+        review,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+    )
+    required_future_controls = (
+        "preview_not_executable_read_only_phase",
+        "requires_future_auth",
+        "requires_operator_identity",
+        "requires_audit_reason",
+    )
+
+    if status in RESOLVED_REVIEW_STATUSES or status == "archived":
+        label = "no_action_available_resolved_or_archived"
+        description = (
+            "Resolved or archived Manual Review evidence is retained for history; "
+            "no active future action preview is selected."
+        )
+        expected_outcome_summary = (
+            "Future modules should keep this item separated from active action queues "
+            "unless a new reviewed workflow explicitly reopens it."
+        )
+        blocker_codes = ("resolved_or_archived_status",)
+    elif action_preflight.label == "blocked_by_missing_entity_context":
+        label = "no_action_available_missing_entity_context"
+        description = (
+            "No future action preview is available until the review has deterministic "
+            "linked entity context."
+        )
+        expected_outcome_summary = (
+            "Future modules would need to connect this review to a known job, "
+            "work order, visit, route assignment, or Water Emergency before action."
+        )
+        blocker_codes = ("missing_entity_context",)
+    elif action_preflight.label == "blocked_by_water_emergency_context":
+        label = "no_action_available_water_emergency_context"
+        description = (
+            "Water Emergency-related Manual Review requires separated future action "
+            "design before any preview can become executable."
+        )
+        expected_outcome_summary = (
+            "Future modules should route this item through Water Emergency-specific "
+            "review preparation instead of standard dispatch action flow."
+        )
+        blocker_codes = ("water_emergency_context_required",)
+    elif action_preflight.label == "blocked_by_conflict" or "duplicate_or_conflict" in groups:
+        label = "no_action_available_conflict_blocked"
+        description = (
+            "Duplicate or conflicting evidence blocks future action preview until an "
+            "operator-decision workflow is implemented."
+        )
+        expected_outcome_summary = (
+            "Future modules should preserve the conflict for operator review and avoid "
+            "automatic approval, rejection, or resolution."
+        )
+        blocker_codes = ("conflict_context_required",)
+    elif action_preflight.label == "blocked_by_missing_data" or "missing_data" in groups:
+        label = "future_request_information_preview"
+        description = (
+            "A future authenticated workflow may request or collect missing information; "
+            "this read model does not resolve the review."
+        )
+        expected_outcome_summary = (
+            "Expected non-binding outcome: gather missing information and keep Manual "
+            "Review authoritative until an operator verifies the evidence."
+        )
+        blocker_codes = ("missing_data_context_required",)
+    else:
+        recommended_label = manual_review_future_action_label_for_recommendation(
+            review.recommended_action,
+        )
+        if recommended_label is not None:
+            label = recommended_label
+        elif decision_readiness.label == "ready_for_resolution_review":
+            label = "future_resolve_preview"
+        elif decision_readiness.label == "ready_for_operator_decision":
+            label = "future_operator_decision_preview"
+        else:
+            label = "unknown_action_preview"
+
+        description = manual_review_future_action_description(label)
+        expected_outcome_summary = manual_review_future_action_outcome(label)
+        blocker_codes = ("unknown_action_preview",) if label == "unknown_action_preview" else ()
+
+    blocker_codes = tuple(
+        dict.fromkeys((*blocker_codes, *action_preflight.blocker_codes)),
+    )
+
+    return ManualReviewFutureActionPreview(
+        label=label,
+        description=description,
+        expected_outcome_summary=expected_outcome_summary,
+        impacted_entity_summary=manual_review_impacted_entity_summary(
+            impacted_entity_references,
+        ),
+        impacted_entity_references=impacted_entity_references,
+        blocker_codes=blocker_codes,
+        required_future_controls=required_future_controls,
+        evidence_references=tuple(evidence_references),
+        is_currently_executable=False,
+        requires_operator_identity=True,
+        requires_audit_reason=True,
+    )
+
+
+def manual_review_future_action_label_for_recommendation(
+    recommended_action: str | None,
+) -> str | None:
+    recommended = normalized(recommended_action)
+    if not recommended:
+        return None
+    if "request" in recommended and ("information" in recommended or "info" in recommended):
+        return "future_request_information_preview"
+    if "approve" in recommended:
+        return "future_approve_preview"
+    if "reject" in recommended:
+        return "future_reject_preview"
+    if "defer" in recommended:
+        return "future_defer_preview"
+    if "archive" in recommended:
+        return "future_archive_preview"
+    if "resolve" in recommended:
+        return "future_resolve_preview"
+    return None
+
+
+def manual_review_future_action_description(label: str) -> str:
+    descriptions = {
+        "future_approve_preview": (
+            "Future authenticated review action may approve the reviewed outcome after "
+            "operator identity and audit reason are captured."
+        ),
+        "future_reject_preview": (
+            "Future authenticated review action may reject the reviewed outcome after "
+            "operator identity and audit reason are captured."
+        ),
+        "future_defer_preview": (
+            "Future authenticated review action may defer the review for later operator "
+            "follow-up after audit context is captured."
+        ),
+        "future_archive_preview": (
+            "Future authenticated review action may archive the review only after "
+            "operator identity, audit reason, and final workflow rules exist."
+        ),
+        "future_resolve_preview": (
+            "Future authenticated review action may resolve the review after the "
+            "operator verifies evidence and records an audit reason."
+        ),
+        "future_operator_decision_preview": (
+            "Future authenticated workflow may present an operator decision step, but "
+            "Phase 0 keeps this as read-only preview context."
+        ),
+        "unknown_action_preview": (
+            "No deterministic future action preview can be selected safely from the "
+            "available evidence."
+        ),
+    }
+    return descriptions.get(
+        label,
+        "Future action preview is displayed as read-only Phase 0 preparation only.",
+    )
+
+
+def manual_review_future_action_outcome(label: str) -> str:
+    outcomes = {
+        "future_approve_preview": (
+            "Expected non-binding outcome: a future operator could approve the review "
+            "result without bypassing Manual Review authority."
+        ),
+        "future_reject_preview": (
+            "Expected non-binding outcome: a future operator could reject the review "
+            "result while preserving audit evidence."
+        ),
+        "future_defer_preview": (
+            "Expected non-binding outcome: a future operator could defer the review "
+            "for later follow-up without changing it in Phase 0."
+        ),
+        "future_archive_preview": (
+            "Expected non-binding outcome: a future operator could archive the review "
+            "after final authority and audit rules are implemented."
+        ),
+        "future_resolve_preview": (
+            "Expected non-binding outcome: a future operator could resolve the review "
+            "after validating evidence and recording required audit context."
+        ),
+        "future_operator_decision_preview": (
+            "Expected non-binding outcome: a future operator could choose the next "
+            "review action from an authenticated workflow."
+        ),
+        "unknown_action_preview": (
+            "Expected non-binding outcome: keep the item in Manual Review until more "
+            "deterministic context exists."
+        ),
+    }
+    return outcomes.get(
+        label,
+        "Expected non-binding outcome: preserve read-only visibility until a future "
+        "Manual Review action module is implemented.",
+    )
+
+
+def manual_review_impacted_entity_references(
+    review: ReviewItem,
+    *,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+) -> tuple[str, ...]:
+    references: list[str] = [f"review:{review.id or NIL_UUID}"]
+    if job_id is not None:
+        references.append(f"job:{job_id}")
+    if work_order_id is not None:
+        references.append(f"work_order:{work_order_id}")
+    if visit_id is not None:
+        references.append(f"visit:{visit_id}")
+    if route_assignment_id is not None:
+        references.append(f"route_assignment:{route_assignment_id}")
+    if water_emergency_id is not None:
+        references.append(f"water_emergency:{water_emergency_id}")
+    return tuple(dict.fromkeys(references))
+
+
+def manual_review_impacted_entity_summary(references: Sequence[str]) -> str:
+    if len(references) <= 1:
+        return "Impacted entities: no deterministic linked entity context."
+    return "Impacted entities: " + ", ".join(references)
 
 
 def manual_review_needs_entity_context(

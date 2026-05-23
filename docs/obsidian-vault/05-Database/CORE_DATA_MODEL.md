@@ -222,6 +222,8 @@ Module 43 adds Manual Review decision-readiness and resolution-preparation visib
 
 Module 44 adds Manual Review action-preflight and future authorization-readiness visibility as read-model metadata only. It does not add action states, workflow transitions, approval/rejection/defer/archive outcome tables, auth/RBAC tables, operator identity tables, audit-reason persistence, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated Manual Review action history, operator identity capture, required audit reasons, outcome reason taxonomy, and role-scoped action authority after the action workflow is explicitly designed.
 
+Module 45 adds Manual Review future-action preview and expected-outcome preparedness visibility as read-model metadata only. It does not add action states, workflow transitions, approval/rejection/defer/archive/resolve outcome tables, auth/RBAC tables, operator identity tables, audit-reason persistence, impacted-entity audit tables, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated action execution, operator identity capture, required audit reasons, impacted-entity audit history, outcome reason taxonomy, and role-scoped action authority after the action workflow is explicitly designed.
+
 ## Audit Logs
 
 Represents durable trace history.
@@ -568,6 +570,23 @@ No database table or column was added for:
 - workflow engine state
 
 The read model derives action-preflight labels from existing `ReviewItem` status, reason, entity links, Water Emergency links, decision-readiness labels, and evidence references. Labels such as blocked by missing data, blocked by conflict, blocked by Water Emergency context, blocked by resolved/archived status, eligible for future operator decision, and unknown action eligibility are Randall-authorized Phase 0 visibility baselines only. They do not make actions executable, mutate review records, or define final company policy.
+
+## Phase 0 Module 45 Manual Review Future-Action Preview Read-Model Note
+
+Module 45 adds Manual Review future-action preview visibility as dashboard read-model projections only.
+
+No database table or column was added for:
+
+- Manual Review action execution
+- approval/rejection/defer/archive/resolve outcomes
+- operator identity capture
+- audit reason persistence
+- impacted entity write history
+- auth or RBAC
+- action history
+- workflow engine state
+
+The read model derives future-action preview labels from existing `ReviewItem` status, reason, recommended action text, entity links, Water Emergency links, decision-readiness labels, action-preflight labels, and evidence references. Labels such as future approve preview, future reject preview, future defer preview, future archive preview, future resolve preview, future request information preview, no action available for missing entity context, no action available for Water Emergency context, no action available for resolved/archived history, and unknown action preview are Randall-authorized Phase 0 visibility baselines only. Every preview remains currently non-executable and does not mutate review records, create audit/action records, or define final company policy.
 
 ---
 

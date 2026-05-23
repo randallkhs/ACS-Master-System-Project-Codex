@@ -1,6 +1,6 @@
 import type {
   DashboardFetchResult,
-  ManualReviewDetailResponse
+  ManualReviewDetailResponse,
 } from "@/lib/dashboard-contracts";
 import { compactId, formatDateTime, humanizeLabel } from "@/lib/format";
 import { CountBucketPanel } from "@/components/dashboard/count-bucket-panel";
@@ -8,7 +8,7 @@ import { SectionCard } from "@/components/dashboard/section-card";
 import { SectionHeading } from "@/components/dashboard/section-heading";
 import {
   badgeVariantForLabel,
-  StatusBadge
+  StatusBadge,
 } from "@/components/dashboard/status-badge";
 import { TimelineList } from "@/components/dashboard/timeline-list";
 
@@ -16,7 +16,9 @@ type ManualReviewDetailPanelProps = {
   result?: DashboardFetchResult<ManualReviewDetailResponse | null>;
 };
 
-export function ManualReviewDetailPanel({ result }: ManualReviewDetailPanelProps) {
+export function ManualReviewDetailPanel({
+  result,
+}: ManualReviewDetailPanelProps) {
   if (!result) {
     return null;
   }
@@ -44,7 +46,8 @@ export function ManualReviewDetailPanel({ result }: ManualReviewDetailPanelProps
         >
           <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 px-3 py-4 text-sm text-slate-600">
             Selectable workflow controls are intentionally absent in this Phase
-            0 foundation. Detail visibility remains read-only and backend-driven.
+            0 foundation. Detail visibility remains read-only and
+            backend-driven.
           </div>
         </SectionCard>
       )}
@@ -53,7 +56,7 @@ export function ManualReviewDetailPanel({ result }: ManualReviewDetailPanelProps
 }
 
 function ManualReviewDetailContent({
-  detail
+  detail,
 }: {
   detail: ManualReviewDetailResponse;
 }) {
@@ -228,13 +231,15 @@ function ManualReviewDetailContent({
               Future requirements
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-              {detail.action_preflight.required_future_controls.map((control) => (
-                <StatusBadge
-                  key={control}
-                  label={humanizeLabel(control)}
-                  variant={badgeVariantForLabel(control)}
-                />
-              ))}
+              {detail.action_preflight.required_future_controls.map(
+                (control) => (
+                  <StatusBadge
+                    key={control}
+                    label={humanizeLabel(control)}
+                    variant={badgeVariantForLabel(control)}
+                  />
+                ),
+              )}
             </div>
           </div>
           <div>
@@ -244,6 +249,109 @@ function ManualReviewDetailContent({
             <div className="mt-2">
               <EvidenceList
                 references={detail.action_preflight.evidence_references}
+              />
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Future Action Preview"
+        description={
+          context.is_water_emergency_related
+            ? "Water Emergency-related future-action preview is separated from standard Manual Review action preparation and remains read-only."
+            : "Future action preview explains expected non-binding outcomes for later authenticated action modules without executing anything now."
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(detail.future_action_preview.label)}
+            variant={badgeVariantForLabel(detail.future_action_preview.label)}
+          />
+          <StatusBadge
+            label={
+              detail.future_action_preview.is_currently_executable
+                ? "Currently executable"
+                : "Not executable in Phase 0"
+            }
+            variant={
+              detail.future_action_preview.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {detail.future_action_preview.requires_operator_identity ? (
+            <StatusBadge
+              label="Requires future operator identity"
+              variant="info"
+            />
+          ) : null}
+          {detail.future_action_preview.requires_audit_reason ? (
+            <StatusBadge label="Requires future audit reason" variant="info" />
+          ) : null}
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          {detail.future_action_preview.description}
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Expected Outcome
+            </div>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {detail.future_action_preview.expected_outcome_summary}
+            </p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Impacted Entities
+            </div>
+            <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+              {detail.future_action_preview.impacted_entity_summary}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Preview blockers
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.future_action_preview.blocker_codes.map((blockerCode) => (
+                <StatusBadge
+                  key={blockerCode}
+                  label={humanizeLabel(blockerCode)}
+                  variant={badgeVariantForLabel(blockerCode)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future requirements
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.future_action_preview.required_future_controls.map(
+                (control) => (
+                  <StatusBadge
+                    key={control}
+                    label={humanizeLabel(control)}
+                    variant={badgeVariantForLabel(control)}
+                  />
+                ),
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Preview evidence
+            </div>
+            <div className="mt-2">
+              <EvidenceList
+                references={detail.future_action_preview.evidence_references}
               />
             </div>
           </div>
@@ -274,11 +382,15 @@ function ManualReviewDetailContent({
               label="Snapshot evidence"
               value={
                 detail.reason_context.snapshot_keys.length > 0
-                  ? detail.reason_context.snapshot_keys.map(humanizeLabel).join(", ")
+                  ? detail.reason_context.snapshot_keys
+                      .map(humanizeLabel)
+                      .join(", ")
                   : "No snapshot evidence returned"
               }
             />
-            <EvidenceList references={detail.reason_context.evidence_references} />
+            <EvidenceList
+              references={detail.reason_context.evidence_references}
+            />
           </div>
         </SectionCard>
 
@@ -294,37 +406,37 @@ function ManualReviewDetailContent({
             <DetailMetric
               label="Entity"
               value={`${humanizeLabel(context.entity_type)} ${compactNullableId(
-                context.entity_id
+                context.entity_id,
               )}`}
             />
             <DetailMetric
               label="Job"
               value={`${humanizeLabel(context.job_status)} ${compactNullableId(
-                context.job_id
+                context.job_id,
               )}`}
             />
             <DetailMetric
               label="Work order"
               value={`${humanizeLabel(context.work_order_status)} ${compactNullableId(
-                context.work_order_id
+                context.work_order_id,
               )}`}
             />
             <DetailMetric
               label="Visit"
               value={`${humanizeLabel(context.visit_status)} ${compactNullableId(
-                context.visit_id
+                context.visit_id,
               )}`}
             />
             <DetailMetric
               label="Route"
               value={`${humanizeLabel(
-                context.route_assignment_status
+                context.route_assignment_status,
               )} ${compactNullableId(context.route_assignment_id)}`}
             />
             <DetailMetric
               label="Water Emergency"
               value={`${humanizeLabel(
-                context.water_emergency_status
+                context.water_emergency_status,
               )} ${compactNullableId(context.water_emergency_id)}`}
             />
           </div>
@@ -344,7 +456,10 @@ function ManualReviewDetailContent({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-        <CountBucketPanel title="Detail Data Gaps" buckets={detail.data_gap_counts} />
+        <CountBucketPanel
+          title="Detail Data Gaps"
+          buckets={detail.data_gap_counts}
+        />
         <SectionCard
           title="Manual Review Evidence Timeline"
           description="Timeline entries are ordered by backend read models and preserve audit correlation references."

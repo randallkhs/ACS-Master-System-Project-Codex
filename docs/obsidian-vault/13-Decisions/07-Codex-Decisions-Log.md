@@ -1406,6 +1406,41 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-23 — Phase 0 Module 45 Manual Review Action Preview, Outcome Impact, And Audit Reason Preparedness
+
+- Decision type: Implementation / Manual Review visibility / read-only future-action preview contract
+- Status: Implemented
+- Decision:
+  - Extend Manual Review queue and detail read models with deterministic future-action preview labels, descriptions, expected non-binding outcome summaries, impacted entity summaries/references, blocker codes, future requirement labels, evidence references, non-executable flags, operator-identity requirement flags, and audit-reason requirement flags.
+  - Add queue-level future-action preview counts for operator scanability.
+  - Keep Water Emergency-related future-action preview separated from standard dispatch review preparation through persisted entity, job, visit, and Water Emergency links.
+  - Treat resolved and archived review items as historical visibility with no active future action preview.
+  - Treat missing entity context, conflict evidence, and Water Emergency context as no-action or blocked preview states until future authenticated workflows are explicitly designed.
+  - Display future operator identity and audit reason requirements as read-only preparation notes only.
+  - Add frontend queue and detail future-action preview visibility without approve/reject/defer/archive/resolve/dispatch controls or button-styled preview labels.
+- Rationale:
+  - Manual Review is the system safety authority, so future action modules need visible expected-outcome and impacted-entity context before any mutation endpoints or authenticated controls are added.
+  - Future-action preview labels help explain what a later authenticated workflow might prepare for without making any action currently executable.
+  - The labels must remain read-only Phase 0 baselines so they do not become hidden workflow execution, action authority, auth/RBAC, final business policy, legal policy, or company-liability policy.
+- Future implications:
+  - Future authenticated modules still need formal Manual Review approve/reject/defer/archive/resolve workflows.
+  - Future production modules may need action history, operator identity capture, required audit reasons, impacted-entity audit writes, outcome reason taxonomy, permission checks, and role-scoped action visibility.
+  - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary
+
+---
+
 ## 2026-05-22 — Phase 0 Module 44 Manual Review Action Authorization, Preflight Validation, And Safe Execution Preparation
 
 - Decision type: Implementation / Manual Review visibility / read-only action-preflight contract

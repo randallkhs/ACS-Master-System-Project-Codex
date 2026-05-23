@@ -143,6 +143,8 @@ export function WaterEmergencyViewStatePanel({
           <label className="text-sm font-semibold text-slate-700">
             Filter group
             <select
+              id="water-emergency-filter"
+              name="water-emergency-filter"
               className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-[#162033] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
               value={selectedFilter}
               onChange={(event) =>
@@ -162,6 +164,8 @@ export function WaterEmergencyViewStatePanel({
           <label className="text-sm font-semibold text-slate-700">
             Sort order
             <select
+              id="water-emergency-sort"
+              name="water-emergency-sort"
               className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-[#162033] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
               value={selectedSort}
               onChange={(event) =>

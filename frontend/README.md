@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 44 keeps the frontend foundation read-only while adding Manual Review action-preflight and future authorization-readiness visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, and decision-readiness context.
+Phase 0 Module 45 keeps the frontend foundation read-only while adding Manual Review future-action preview, expected outcome, impacted entity, audit-reason, and operator-identity preparedness visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, and action-preflight context.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -143,6 +143,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Water Emergency Randall-authorized Phase 0 baseline and Alfonso owner-review boundary notes
 - Manual Review queue filter/sort view-state panel with frontend-only saved preferences
 - Manual Review action-preflight visibility for future operator identity, audit reason, auth, and blocker preparation
+- Manual Review future-action preview visibility for expected non-binding outcomes, impacted entities, and future operator identity/audit reason requirements
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -294,6 +295,15 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Preflight labels explain whether a future Manual Review action is blocked by missing entity context, missing data, duplicate/conflict evidence, Water Emergency context, resolved/archived status, or unknown action eligibility.
 - Future authorization requirements are displayed as read-only text only: future auth, operator identity, and audit reason capture are not implemented as controls.
 - Water Emergency-related action preflight remains visibly separated from standard Manual Review action-preparation context.
+- The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution controls.
+
+## Module 45 Manual Review Future-Action Preview Notes
+
+- The Manual Review Queue and detail panel now display backend-provided future-action preview labels, expected non-binding outcome summaries, impacted entity summaries, blocker labels, future requirement labels, and evidence references.
+- Preview labels explain whether future action preparation points toward approve, reject, defer, archive, resolve, request-information, operator-decision, or no-action states because of missing entity context, conflict, Water Emergency context, resolved/archived status, or unknown evidence.
+- Future operator identity and audit reason requirements are displayed as read-only text only. They are not authentication controls, RBAC controls, forms, buttons, or mutation triggers.
+- Water Emergency-related future-action preview remains visibly separated from standard Manual Review action-preparation context.
+- Preview labels are not styled as buttons and are never currently executable in Phase 0.
 - The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution controls.
 
 ## Module 38 Water Emergency View-State Notes

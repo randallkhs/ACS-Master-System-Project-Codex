@@ -763,3 +763,28 @@ Open API/frontend concerns:
 - final Manual Review action-preflight/action eligibility taxonomy
 - operator identity, audit reason, action history, and outcome reason contracts
 - role-scoped action visibility after auth/RBAC exists
+
+## Phase 0 Module 45 Manual Review Future-Action Preview Contract Boundary
+
+The Manual Review queue and detail API contracts now include read-only future-action preview metadata for later action module preparation.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes future-action preview counts and each queue item's preview label, description, expected non-binding outcome summary, impacted entity references, blocker codes, future requirement labels, evidence references, non-executable flag, operator-identity requirement flag, and audit-reason requirement flag.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the selected review item's same future-action preview context alongside decision-readiness, action-preflight, reason/evidence, linked entity, and timeline evidence.
+- preview labels include future approve, reject, defer, archive, resolve, request-information, operator-decision, missing-entity no-action, conflict-blocked no-action, Water Emergency no-action, resolved/archived no-action, and unknown preview states where deterministically supported.
+- every preview is informational only and remains `is_currently_executable = false`.
+- Water Emergency-related future-action preview remains separated through persisted entity/job/visit/Water Emergency links.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, backend preference persistence, audit-action persistence, or workflow execution calls are added
+- future-action preview labels are Randall-authorized Phase 0 visibility baselines only and must not imply current action authority, legal policy, company-liability policy, or executable workflow state
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review action endpoints
+- final Manual Review future-action preview/action taxonomy
+- operator identity, audit reason, action history, impacted-entity audit, and outcome reason contracts
+- role-scoped action visibility after auth/RBAC exists

@@ -122,6 +122,21 @@ class ManualReviewActionPreflight:
 
 
 @dataclass(frozen=True, slots=True)
+class ManualReviewFutureActionPreview:
+    label: str
+    description: str
+    expected_outcome_summary: str
+    impacted_entity_summary: str
+    impacted_entity_references: tuple[str, ...]
+    blocker_codes: tuple[str, ...]
+    required_future_controls: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    is_currently_executable: bool
+    requires_operator_identity: bool
+    requires_audit_reason: bool
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewQueueItem:
     review_item_id: UUID
     status: str
@@ -150,6 +165,7 @@ class ManualReviewQueueItem:
     audit_correlation_id: str | None
     decision_readiness: ManualReviewDecisionReadiness
     action_preflight: ManualReviewActionPreflight
+    future_action_preview: ManualReviewFutureActionPreview
     evidence_references: tuple[str, ...]
 
 
@@ -171,6 +187,7 @@ class ManualReviewQueueReadModel:
     group_counts: tuple[CountBucket, ...]
     decision_readiness_counts: tuple[CountBucket, ...]
     action_preflight_counts: tuple[CountBucket, ...]
+    future_action_preview_counts: tuple[CountBucket, ...]
     age_bucket_counts: tuple[CountBucket, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadata
@@ -223,6 +240,7 @@ class ManualReviewDetailReadModel:
     reason_context: ManualReviewReasonEvidenceContext
     decision_readiness: ManualReviewDecisionReadiness
     action_preflight: ManualReviewActionPreflight
+    future_action_preview: ManualReviewFutureActionPreview
     linked_entity_context: ManualReviewDetailLinkedEntityContext
     data_gap_counts: tuple[CountBucket, ...]
     audit_correlation_ids: tuple[str, ...]

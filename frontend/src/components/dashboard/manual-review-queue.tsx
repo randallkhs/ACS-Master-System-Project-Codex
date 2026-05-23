@@ -4,11 +4,11 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import type {
   DashboardFetchResult,
   ManualReviewQueueItemResponse,
-  ManualReviewQueueResponse
+  ManualReviewQueueResponse,
 } from "@/lib/dashboard-contracts";
 import {
   deriveManualReviewVisibleRecords,
-  type ManualReviewSortKey
+  type ManualReviewSortKey,
 } from "@/lib/manual-review-view-state";
 import {
   getManualReviewBrowserStorage,
@@ -17,16 +17,21 @@ import {
   notifyManualReviewViewPreferencesChanged,
   readManualReviewViewPreferencesSnapshot,
   subscribeManualReviewViewPreferences,
-  writeManualReviewViewPreferences
+  writeManualReviewViewPreferences,
 } from "@/lib/manual-review-view-preferences";
-import { compactId, formatCount, formatDateTime, humanizeLabel } from "@/lib/format";
+import {
+  compactId,
+  formatCount,
+  formatDateTime,
+  humanizeLabel,
+} from "@/lib/format";
 import { CountBucketPanel } from "@/components/dashboard/count-bucket-panel";
 import { SectionCard } from "@/components/dashboard/section-card";
 import { SectionHeading } from "@/components/dashboard/section-heading";
 import { StatCard } from "@/components/dashboard/stat-card";
 import {
   badgeVariantForLabel,
-  StatusBadge
+  StatusBadge,
 } from "@/components/dashboard/status-badge";
 
 type ManualReviewQueueProps = {
@@ -37,46 +42,48 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
   const { data } = result;
   const [fallbackPreferences, setFallbackPreferences] = useState({
     selectedFilter: "all",
-    selectedSort: "attention" as ManualReviewSortKey
+    selectedSort: "attention" as ManualReviewSortKey,
   });
   const availableFilterKeys = useMemo(
     () => new Set(data.available_filters.map((option) => option.key)),
-    [data.available_filters]
+    [data.available_filters],
   );
   const availableSortKeys = useMemo(
     () => new Set(data.sort_options.map((option) => option.key)),
-    [data.sort_options]
+    [data.sort_options],
   );
   const preferenceSnapshot = useSyncExternalStore(
     subscribeManualReviewViewPreferences,
     getManualReviewViewPreferencesSnapshot,
-    getManualReviewViewPreferencesServerSnapshot
+    getManualReviewViewPreferencesServerSnapshot,
   );
   const preferenceReadResult = useMemo(
     () =>
       readManualReviewViewPreferencesSnapshot(preferenceSnapshot, {
         availableFilterKeys,
-        availableSortKeys
+        availableSortKeys,
       }),
-    [availableFilterKeys, availableSortKeys, preferenceSnapshot]
+    [availableFilterKeys, availableSortKeys, preferenceSnapshot],
   );
   const selectedFilter =
-    preferenceReadResult.preferences?.selectedFilter ?? fallbackPreferences.selectedFilter;
+    preferenceReadResult.preferences?.selectedFilter ??
+    fallbackPreferences.selectedFilter;
   const selectedSort =
-    preferenceReadResult.preferences?.selectedSort ?? fallbackPreferences.selectedSort;
+    preferenceReadResult.preferences?.selectedSort ??
+    fallbackPreferences.selectedSort;
   const viewState = useMemo(
     () =>
       deriveManualReviewVisibleRecords(data, {
         selectedFilter,
-        selectedSort
+        selectedSort,
       }),
-    [data, selectedFilter, selectedSort]
+    [data, selectedFilter, selectedSort],
   );
   const activeStandardItems = viewState.visibleStandardItems.filter(
-    (item) => item.attention_indicator
+    (item) => item.attention_indicator,
   );
   const inactiveStandardItems = viewState.visibleStandardItems.filter(
-    (item) => !item.attention_indicator
+    (item) => !item.attention_indicator,
   );
 
   function savePreferences(nextPreferences: {
@@ -85,7 +92,7 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
   }) {
     const writeResult = writeManualReviewViewPreferences(
       getManualReviewBrowserStorage(),
-      nextPreferences
+      nextPreferences,
     );
 
     if (writeResult.available) {
@@ -124,11 +131,20 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-7">
         <CountBucketPanel title="Review Status" buckets={data.status_counts} />
-        <CountBucketPanel title="Reason Distribution" buckets={data.reason_counts} />
-        <CountBucketPanel title="Visibility Groups" buckets={data.group_counts} />
-        <CountBucketPanel title="Age Buckets" buckets={data.age_bucket_counts} />
+        <CountBucketPanel
+          title="Reason Distribution"
+          buckets={data.reason_counts}
+        />
+        <CountBucketPanel
+          title="Visibility Groups"
+          buckets={data.group_counts}
+        />
+        <CountBucketPanel
+          title="Age Buckets"
+          buckets={data.age_bucket_counts}
+        />
         <CountBucketPanel
           title="Decision Readiness"
           buckets={data.decision_readiness_counts}
@@ -136,6 +152,10 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         <CountBucketPanel
           title="Future Action Preflight"
           buckets={data.action_preflight_counts}
+        />
+        <CountBucketPanel
+          title="Future Action Preview"
+          buckets={data.future_action_preview_counts}
         />
       </div>
 
@@ -148,12 +168,14 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
             <label className="text-sm font-semibold text-[#162033]">
               Filter review items
               <select
+                id="manual-review-filter"
+                name="manual-review-filter"
                 className="mt-2 min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-[#162033] shadow-sm focus:border-[#2f7ae5] focus:outline-none focus:ring-2 focus:ring-[#2f7ae5]/20"
                 value={viewState.selectedFilter.key}
                 onChange={(event) =>
                   savePreferences({
                     selectedFilter: event.target.value,
-                    selectedSort
+                    selectedSort,
                   })
                 }
               >
@@ -167,12 +189,14 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
             <label className="text-sm font-semibold text-[#162033]">
               Sort review items
               <select
+                id="manual-review-sort"
+                name="manual-review-sort"
                 className="mt-2 min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-[#162033] shadow-sm focus:border-[#2f7ae5] focus:outline-none focus:ring-2 focus:ring-[#2f7ae5]/20"
                 value={viewState.selectedSort.key}
                 onChange={(event) =>
                   savePreferences({
                     selectedFilter,
-                    selectedSort: event.target.value as ManualReviewSortKey
+                    selectedSort: event.target.value as ManualReviewSortKey,
                   })
                 }
               >
@@ -265,7 +289,7 @@ function ReviewItemGroup({
   title,
   description,
   items,
-  emptyLabel
+  emptyLabel,
 }: ReviewItemGroupProps) {
   return (
     <SectionCard title={title} description={description}>
@@ -284,7 +308,11 @@ function ReviewItemGroup({
   );
 }
 
-function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) {
+function ReviewQueueItemCard({
+  item,
+}: {
+  item: ManualReviewQueueItemResponse;
+}) {
   const entityLabels = [
     item.job_id ? `Job ${compactId(item.job_id)}` : null,
     item.work_order_id ? `Work order ${compactId(item.work_order_id)}` : null,
@@ -294,7 +322,7 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
       : null,
     item.water_emergency_id
       ? `Water Emergency ${compactId(item.water_emergency_id)}`
-      : null
+      : null,
   ].filter(Boolean);
 
   return (
@@ -321,6 +349,10 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
             <StatusBadge
               label={humanizeLabel(item.action_preflight.label)}
               variant={badgeVariantForLabel(item.action_preflight.label)}
+            />
+            <StatusBadge
+              label={humanizeLabel(item.future_action_preview.label)}
+              variant={badgeVariantForLabel(item.future_action_preview.label)}
             />
           </div>
           <div className="mt-3 text-sm font-semibold text-[#162033]">
@@ -392,6 +424,51 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
         </div>
       </div>
 
+      <div className="mt-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Future Action Preview
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(item.future_action_preview.label)}
+            variant={badgeVariantForLabel(item.future_action_preview.label)}
+          />
+          <StatusBadge
+            label={
+              item.future_action_preview.is_currently_executable
+                ? "Currently executable"
+                : "Not executable in Phase 0"
+            }
+            variant={
+              item.future_action_preview.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {item.future_action_preview.description}
+        </p>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Expected Outcome
+            </div>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              {item.future_action_preview.expected_outcome_summary}
+            </p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Impacted Entities
+            </div>
+            <p className="mt-1 break-words text-sm leading-6 text-slate-600">
+              {item.future_action_preview.impacted_entity_summary}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {entityLabels.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
           {entityLabels.map((label) => (
@@ -421,12 +498,24 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
         />
         <MiniMetric
           label="Confidence"
-          value={item.confidence_score === null ? "Not scored" : `${item.confidence_score}%`}
+          value={
+            item.confidence_score === null
+              ? "Not scored"
+              : `${item.confidence_score}%`
+          }
         />
         <MiniMetric
           label="Executable"
           value={
             item.action_preflight.is_currently_executable
+              ? "Executable"
+              : "Read-only Phase 0"
+          }
+        />
+        <MiniMetric
+          label="Preview Executable"
+          value={
+            item.future_action_preview.is_currently_executable
               ? "Executable"
               : "Read-only Phase 0"
           }

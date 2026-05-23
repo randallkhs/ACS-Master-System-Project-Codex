@@ -103,6 +103,20 @@ export type ManualReviewActionPreflightResponse = {
   requires_audit_reason: boolean;
 };
 
+export type ManualReviewFutureActionPreviewResponse = {
+  label: string;
+  description: string;
+  expected_outcome_summary: string;
+  impacted_entity_summary: string;
+  impacted_entity_references: string[];
+  blocker_codes: string[];
+  required_future_controls: string[];
+  evidence_references: string[];
+  is_currently_executable: boolean;
+  requires_operator_identity: boolean;
+  requires_audit_reason: boolean;
+};
+
 export type ManualReviewQueueItemResponse = {
   review_item_id: string;
   status: string;
@@ -132,6 +146,7 @@ export type ManualReviewQueueItemResponse = {
   evidence_references: string[];
   decision_readiness: ManualReviewDecisionReadinessResponse;
   action_preflight: ManualReviewActionPreflightResponse;
+  future_action_preview: ManualReviewFutureActionPreviewResponse;
 };
 
 export type ManualReviewQueueResponse = {
@@ -152,6 +167,7 @@ export type ManualReviewQueueResponse = {
   age_bucket_counts: CountBucket[];
   decision_readiness_counts: CountBucket[];
   action_preflight_counts: CountBucket[];
+  future_action_preview_counts: CountBucket[];
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   available_filters: ManualReviewFilterOptionResponse[];
@@ -662,6 +678,7 @@ export type ManualReviewDetailResponse = {
   reason_context: ManualReviewReasonEvidenceContextResponse;
   decision_readiness: ManualReviewDecisionReadinessResponse;
   action_preflight: ManualReviewActionPreflightResponse;
+  future_action_preview: ManualReviewFutureActionPreviewResponse;
   linked_entity_context: ManualReviewDetailLinkedEntityContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];

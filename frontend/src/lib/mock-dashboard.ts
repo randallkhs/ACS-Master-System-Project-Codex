@@ -3,7 +3,7 @@ import type {
   ManualReviewDetailResponse,
   ManualReviewQueueResponse,
   WaterEmergencyDashboardResponse,
-  WaterEmergencyDetailResponse
+  WaterEmergencyDetailResponse,
 } from "@/lib/dashboard-contracts";
 
 export const mockDashboardOverview: DashboardOverviewResponse = {
@@ -17,46 +17,46 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
     blocked_operations: 3,
     escalation_indicators: 2,
     open_water_emergencies: 1,
-    audit_correlation_count: 11
+    audit_correlation_count: 11,
   },
   lifecycle_summary: {
     intake_lifecycle_counts: [
       { label: "approved", count: 10 },
       { label: "review_required", count: 4 },
       { label: "blocked", count: 2 },
-      { label: "water_emergency_separated", count: 1 }
+      { label: "water_emergency_separated", count: 1 },
     ],
     job_status_counts: [
       { label: "open", count: 9 },
       { label: "scheduled", count: 6 },
-      { label: "blocked", count: 3 }
+      { label: "blocked", count: 3 },
     ],
     work_order_status_counts: [
       { label: "generated", count: 8 },
       { label: "ready_for_visit", count: 4 },
-      { label: "review_required", count: 2 }
+      { label: "review_required", count: 2 },
     ],
     visit_status_counts: [
       { label: "dispatch_ready", count: 7 },
       { label: "scheduled", count: 9 },
       { label: "blocked", count: 3 },
-      { label: "water_emergency", count: 1 }
+      { label: "water_emergency", count: 1 },
     ],
     route_status_counts: [
       { label: "prepared", count: 9 },
       { label: "authorized", count: 5 },
-      { label: "blocked", count: 3 }
+      { label: "blocked", count: 3 },
     ],
     dispatch_execution_state_counts: [
       { label: "not_executed", count: 8 },
       { label: "executed", count: 6 },
-      { label: "blocked", count: 3 }
+      { label: "blocked", count: 3 },
     ],
     dispatch_ready_visits: 7,
     dispatched_route_assignments: 6,
     water_emergency_records: 1,
     water_emergency_separated_intake: 1,
-    blocker_count: 3
+    blocker_count: 3,
   },
   manual_review_summary: {
     total_items: 9,
@@ -67,16 +67,16 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
     severity_counts: [
       { label: "high", count: 2 },
       { label: "medium", count: 4 },
-      { label: "low", count: 3 }
+      { label: "low", count: 3 },
     ],
     reason_counts: [
       { label: "uncertain_cancellation", count: 2 },
       { label: "water_emergency_review", count: 1 },
       { label: "address_validation", count: 3 },
-      { label: "dispatch_blocker", count: 3 }
+      { label: "dispatch_blocker", count: 3 },
     ],
     escalation_indicators: 2,
-    audit_correlation_count: 5
+    audit_correlation_count: 5,
   },
   dispatch_summary: {
     route_assignments: {
@@ -84,84 +84,84 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
       status_counts: [
         { label: "prepared", count: 9 },
         { label: "authorized", count: 5 },
-        { label: "blocked", count: 3 }
+        { label: "blocked", count: 3 },
       ],
       region_counts: [
         { label: "miami", count: 7 },
         { label: "broward", count: 6 },
-        { label: "palm_beach", count: 4 }
+        { label: "palm_beach", count: 4 },
       ],
       time_window_counts: [
         { label: "morning", count: 7 },
         { label: "afternoon", count: 8 },
-        { label: "after_hours", count: 2 }
+        { label: "after_hours", count: 2 },
       ],
       authorization_state_counts: [
         { label: "authorized", count: 5 },
         { label: "pending", count: 9 },
-        { label: "blocked", count: 3 }
+        { label: "blocked", count: 3 },
       ],
       dispatched_count: 6,
       awaiting_dispatch_execution_count: 8,
-      blocked_count: 3
+      blocked_count: 3,
     },
     external_execution: {
       adapter_state_counts: [
         { label: "prepared", count: 7 },
         { label: "not_prepared", count: 8 },
-        { label: "blocked", count: 2 }
+        { label: "blocked", count: 2 },
       ],
       execution_state_counts: [
         { label: "not_executed", count: 9 },
         { label: "completed", count: 6 },
-        { label: "failed", count: 2 }
+        { label: "failed", count: 2 },
       ],
       confirmation_state_counts: [
         { label: "confirmed", count: 5 },
         { label: "pending", count: 10 },
-        { label: "failed", count: 2 }
+        { label: "failed", count: 2 },
       ],
       prepared_count: 7,
       execution_completed_count: 6,
       execution_failed_count: 2,
       confirmation_failed_count: 2,
       retry_prepared_count: 1,
-      reconciliation_required_count: 2
+      reconciliation_required_count: 2,
     },
     reconciliation_recovery: {
       reconciliation_state_counts: [
         { label: "consistent", count: 9 },
         { label: "mismatch", count: 2 },
-        { label: "not_checked", count: 6 }
+        { label: "not_checked", count: 6 },
       ],
       recovery_state_counts: [
         { label: "no_recovery_needed", count: 11 },
         { label: "replay_prepared", count: 1 },
-        { label: "blocked", count: 1 }
+        { label: "blocked", count: 1 },
       ],
       mismatch_count: 2,
       divergence_count: 1,
       replay_prepared_count: 1,
       rollback_prepared_count: 0,
-      recovery_blocked_count: 1
+      recovery_blocked_count: 1,
     },
     governance_accountability: {
       governance_state_counts: [
         { label: "approved", count: 5 },
         { label: "pending", count: 9 },
-        { label: "blocked", count: 3 }
+        { label: "blocked", count: 3 },
       ],
       accountability_state_counts: [
         { label: "normal", count: 12 },
         { label: "escalation_required", count: 2 },
-        { label: "blocked", count: 3 }
+        { label: "blocked", count: 3 },
       ],
       operator_approved_count: 5,
       intervention_required_count: 2,
       escalation_required_count: 2,
       incident_prepared_count: 1,
-      accountability_blocked_count: 3
-    }
+      accountability_blocked_count: 3,
+    },
   },
   timeline_summary: {
     total_events: 6,
@@ -170,7 +170,7 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
     audit_correlation_ids: [
       "audit-dashboard-001",
       "audit-dashboard-002",
-      "audit-dashboard-003"
+      "audit-dashboard-003",
     ],
     entries: [
       {
@@ -187,7 +187,7 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
         audit_correlation_id: "audit-dashboard-003",
         previous_state: "pending",
         new_state: "escalation_required",
-        is_immutable: true
+        is_immutable: true,
       },
       {
         occurred_at: "2026-05-16T09:05:00Z",
@@ -203,7 +203,7 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
         audit_correlation_id: "audit-dashboard-002",
         previous_state: "mismatch",
         new_state: "replay_prepared",
-        is_immutable: true
+        is_immutable: true,
       },
       {
         occurred_at: "2026-05-16T08:50:00Z",
@@ -219,7 +219,7 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
         audit_correlation_id: "audit-dashboard-001",
         previous_state: "pending",
         new_state: "failed",
-        is_immutable: true
+        is_immutable: true,
       },
       {
         occurred_at: "2026-05-16T08:30:00Z",
@@ -235,7 +235,7 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
         audit_correlation_id: "audit-dashboard-001",
         previous_state: "authorized",
         new_state: "executed",
-        is_immutable: true
+        is_immutable: true,
       },
       {
         occurred_at: "2026-05-16T08:10:00Z",
@@ -251,7 +251,7 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
         audit_correlation_id: "audit-dashboard-002",
         previous_state: null,
         new_state: "open",
-        is_immutable: true
+        is_immutable: true,
       },
       {
         occurred_at: "2026-05-16T07:55:00Z",
@@ -267,17 +267,24 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
         audit_correlation_id: "audit-dashboard-003",
         previous_state: "intake_received",
         new_state: "water_emergency_separated",
-        is_immutable: true
-      }
-    ]
-  }
+        is_immutable: true,
+      },
+    ],
+  },
 };
 
 const manualReviewFutureControls = [
   "action_not_available_read_only_phase",
   "requires_future_auth",
   "requires_operator_identity",
-  "requires_audit_reason"
+  "requires_audit_reason",
+];
+
+const manualReviewPreviewFutureControls = [
+  "preview_not_executable_read_only_phase",
+  "requires_future_auth",
+  "requires_operator_identity",
+  "requires_audit_reason",
 ];
 
 export const mockManualReviewQueue: ManualReviewQueueResponse = {
@@ -295,20 +302,20 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
     { label: "archived", count: 1 },
     { label: "deferred", count: 1 },
     { label: "open", count: 2 },
-    { label: "resolved", count: 1 }
+    { label: "resolved", count: 1 },
   ],
   reason_counts: [
     { label: "missing_customer_data", count: 1 },
     { label: "water_emergency_equipment_review", count: 1 },
     { label: "duplicate_route_conflict", count: 1 },
     { label: "cancellation_status_uncertainty", count: 1 },
-    { label: "needs_operator_review", count: 1 }
+    { label: "needs_operator_review", count: 1 },
   ],
   severity_counts: [
     { label: "critical", count: 1 },
     { label: "high", count: 2 },
     { label: "medium", count: 1 },
-    { label: "low", count: 1 }
+    { label: "low", count: 1 },
   ],
   group_counts: [
     { label: "open", count: 2 },
@@ -321,25 +328,31 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
     { label: "missing_data", count: 1 },
     { label: "duplicate_or_conflict", count: 1 },
     { label: "cancellation_or_status_uncertainty", count: 1 },
-    { label: "needs_operator_review", count: 1 }
+    { label: "needs_operator_review", count: 1 },
   ],
   age_bucket_counts: [
     { label: "new", count: 1 },
     { label: "active", count: 1 },
     { label: "aging", count: 1 },
-    { label: "resolved_or_archived", count: 2 }
+    { label: "resolved_or_archived", count: 2 },
   ],
   decision_readiness_counts: [
     { label: "blocked_by_missing_data", count: 1 },
     { label: "needs_water_emergency_review", count: 1 },
     { label: "resolved_or_archived", count: 2 },
-    { label: "needs_operator_review", count: 1 }
+    { label: "needs_entity_context", count: 1 },
   ],
   action_preflight_counts: [
     { label: "blocked_by_missing_data", count: 1 },
     { label: "blocked_by_resolved_or_archived_status", count: 2 },
     { label: "blocked_by_water_emergency_context", count: 1 },
-    { label: "unknown_action_eligibility", count: 1 }
+    { label: "blocked_by_missing_entity_context", count: 1 },
+  ],
+  future_action_preview_counts: [
+    { label: "future_request_information_preview", count: 1 },
+    { label: "no_action_available_water_emergency_context", count: 1 },
+    { label: "no_action_available_resolved_or_archived", count: 2 },
+    { label: "no_action_available_missing_entity_context", count: 1 },
   ],
   audit_correlation_count: 5,
   taxonomy_metadata: {
@@ -359,7 +372,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         legal_or_insurance_policy: false,
         requires_alfonso_owner_review: false,
         reason:
-          "Separates Water Emergency review visibility from standard dispatch review context."
+          "Separates Water Emergency review visibility from standard dispatch review context.",
       },
       {
         key: "dispatch_related",
@@ -370,100 +383,113 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         legal_or_insurance_policy: false,
         requires_alfonso_owner_review: false,
         reason:
-          "Identifies review records tied to standard job, visit, work-order, or route evidence."
-      }
-    ]
+          "Identifies review records tied to standard job, visit, work-order, or route evidence.",
+      },
+    ],
   },
   available_filters: [
     {
       key: "all",
       label: "All reviews",
       count: 5,
-      description: "Every persisted Manual Review item returned by this read-only queue."
+      description:
+        "Every persisted Manual Review item returned by this read-only queue.",
     },
     {
       key: "open",
       label: "Open",
       count: 2,
-      description: "Open Manual Review items requiring safety visibility."
+      description: "Open Manual Review items requiring safety visibility.",
     },
     {
       key: "deferred",
       label: "Deferred",
       count: 1,
-      description: "Review items intentionally deferred for later operator follow-up."
+      description:
+        "Review items intentionally deferred for later operator follow-up.",
     },
     {
       key: "resolved",
       label: "Resolved",
       count: 1,
-      description: "Resolved review items kept separate from active review needs."
+      description:
+        "Resolved review items kept separate from active review needs.",
     },
     {
       key: "archived",
       label: "Archived",
       count: 1,
-      description: "Archived review history separated from active review needs."
+      description:
+        "Archived review history separated from active review needs.",
     },
     {
       key: "active_attention",
       label: "Active attention",
       count: 3,
-      description: "Open or deferred review items still requiring operator attention."
+      description:
+        "Open or deferred review items still requiring operator attention.",
     },
     {
       key: "water_emergency_related",
       label: "Water Emergency related",
       count: 1,
-      description: "Review items specifically tied to Water Emergency records, jobs, or visits."
+      description:
+        "Review items specifically tied to Water Emergency records, jobs, or visits.",
     },
     {
       key: "dispatch_related",
       label: "Dispatch related",
       count: 3,
-      description: "Review items tied to standard job, work-order, visit, or route evidence."
+      description:
+        "Review items tied to standard job, work-order, visit, or route evidence.",
     },
     {
       key: "missing_data",
       label: "Missing data",
       count: 1,
-      description: "Review items whose reason indicates missing, invalid, incomplete, or unknown data."
+      description:
+        "Review items whose reason indicates missing, invalid, incomplete, or unknown data.",
     },
     {
       key: "duplicate_or_conflict",
       label: "Duplicate or conflict",
       count: 1,
-      description: "Review items whose reason indicates duplicate or conflicting evidence."
+      description:
+        "Review items whose reason indicates duplicate or conflicting evidence.",
     },
     {
       key: "cancellation_or_status_uncertainty",
       label: "Cancellation or status uncertainty",
       count: 1,
-      description: "Review items whose reason indicates cancellation or status uncertainty."
+      description:
+        "Review items whose reason indicates cancellation or status uncertainty.",
     },
     {
       key: "needs_operator_review",
       label: "Needs operator review",
       count: 1,
-      description: "Fallback visibility group when no more specific Phase 0 group is deterministic."
-    }
+      description:
+        "Fallback visibility group when no more specific Phase 0 group is deterministic.",
+    },
   ],
   sort_options: [
     {
       key: "attention",
       label: "Attention priority",
-      description: "Active, blocker, severity, status, and created-time ordering."
+      description:
+        "Active, blocker, severity, status, and created-time ordering.",
     },
     {
       key: "newest",
       label: "Newest first",
-      description: "Most recently created Manual Review items first."
+      description: "Most recently created Manual Review items first.",
     },
     {
       key: "status",
       label: "Status and reason",
-      description: "Status group, reason code, attention, and created-time ordering."
-    }
+      description:
+        "Status group, reason code, attention, and created-time ordering.",
+    },
   ],
   result_window_metadata: {
     total_count: 5,
@@ -471,7 +497,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
     result_limit: 5,
     has_more: false,
     sort_key: "attention",
-    generated_at: "2026-05-16T09:35:00Z"
+    generated_at: "2026-05-16T09:35:00Z",
   },
   items: [
     {
@@ -479,7 +505,12 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       status: "open",
       severity: "high",
       reason_code: "missing_customer_data",
-      visibility_groups: ["open", "blocked", "dispatch_related", "missing_data"],
+      visibility_groups: [
+        "open",
+        "blocked",
+        "dispatch_related",
+        "missing_data",
+      ],
       primary_group: "missing_data",
       entity_type: "job",
       entity_id: "42000000-0000-4000-8000-000000000001",
@@ -504,7 +535,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         "review:41000000-0000-4000-8000-000000000001",
         "job:42000000-0000-4000-8000-000000000001",
         "work_order:43000000-0000-4000-8000-000000000001",
-        "audit:audit-manual-review-mock-001"
+        "audit:audit-manual-review-mock-001",
       ],
       decision_readiness: {
         label: "blocked_by_missing_data",
@@ -514,16 +545,16 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "missing_data_evidence",
           "active_manual_review",
           "blocker_indicator",
-          "high_or_critical_severity"
+          "high_or_critical_severity",
         ],
         evidence_references: [
           "review:41000000-0000-4000-8000-000000000001",
           "job:42000000-0000-4000-8000-000000000001",
           "work_order:43000000-0000-4000-8000-000000000001",
-          "audit:audit-manual-review-mock-001"
+          "audit:audit-manual-review-mock-001",
         ],
         is_active_decision_need: true,
-        is_resolution_candidate: false
+        is_resolution_candidate: false,
       },
       action_preflight: {
         label: "blocked_by_missing_data",
@@ -531,19 +562,47 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "Future Manual Review action is blocked until missing, invalid, incomplete, or unknown data has operator-safe resolution context.",
         blocker_codes: [
           "missing_data_context_required",
-          "readiness:blocked_by_missing_data"
+          "readiness:blocked_by_missing_data",
         ],
         required_future_controls: manualReviewFutureControls,
         evidence_references: [
           "review:41000000-0000-4000-8000-000000000001",
           "job:42000000-0000-4000-8000-000000000001",
           "work_order:43000000-0000-4000-8000-000000000001",
-          "audit:audit-manual-review-mock-001"
+          "audit:audit-manual-review-mock-001",
         ],
         is_currently_executable: false,
         requires_operator_identity: true,
-        requires_audit_reason: true
-      }
+        requires_audit_reason: true,
+      },
+      future_action_preview: {
+        label: "future_request_information_preview",
+        description:
+          "A future authenticated workflow may request or collect missing information; this read model does not resolve the review.",
+        expected_outcome_summary:
+          "Expected non-binding outcome: gather missing information and keep Manual Review authoritative until an operator verifies the evidence.",
+        impacted_entity_summary:
+          "Impacted entities: review:41000000-0000-4000-8000-000000000001, job:42000000-0000-4000-8000-000000000001, work_order:43000000-0000-4000-8000-000000000001",
+        impacted_entity_references: [
+          "review:41000000-0000-4000-8000-000000000001",
+          "job:42000000-0000-4000-8000-000000000001",
+          "work_order:43000000-0000-4000-8000-000000000001",
+        ],
+        blocker_codes: [
+          "missing_data_context_required",
+          "readiness:blocked_by_missing_data",
+        ],
+        required_future_controls: manualReviewPreviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000001",
+          "job:42000000-0000-4000-8000-000000000001",
+          "work_order:43000000-0000-4000-8000-000000000001",
+          "audit:audit-manual-review-mock-001",
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true,
+      },
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000002",
@@ -576,7 +635,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
         "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
         "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
-        "audit:audit-manual-review-mock-002"
+        "audit:audit-manual-review-mock-002",
       ],
       decision_readiness: {
         label: "needs_water_emergency_review",
@@ -586,17 +645,17 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "water_emergency_related",
           "active_manual_review",
           "blocker_indicator",
-          "high_or_critical_severity"
+          "high_or_critical_severity",
         ],
         evidence_references: [
           "review:41000000-0000-4000-8000-000000000002",
           "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
           "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
           "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
-          "audit:audit-manual-review-mock-002"
+          "audit:audit-manual-review-mock-002",
         ],
         is_active_decision_need: true,
-        is_resolution_candidate: false
+        is_resolution_candidate: false,
       },
       action_preflight: {
         label: "blocked_by_water_emergency_context",
@@ -604,7 +663,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "Future Manual Review action must account for the linked Water Emergency context and remain separated from standard dispatch review actions.",
         blocker_codes: [
           "water_emergency_context_required",
-          "readiness:needs_water_emergency_review"
+          "readiness:needs_water_emergency_review",
         ],
         required_future_controls: manualReviewFutureControls,
         evidence_references: [
@@ -612,12 +671,42 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
           "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
           "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
-          "audit:audit-manual-review-mock-002"
+          "audit:audit-manual-review-mock-002",
         ],
         is_currently_executable: false,
         requires_operator_identity: true,
-        requires_audit_reason: true
-      }
+        requires_audit_reason: true,
+      },
+      future_action_preview: {
+        label: "no_action_available_water_emergency_context",
+        description:
+          "Water Emergency-related Manual Review requires separated future action design before any preview can become executable.",
+        expected_outcome_summary:
+          "Future modules should route this item through Water Emergency-specific review preparation instead of standard dispatch action flow.",
+        impacted_entity_summary:
+          "Impacted entities: review:41000000-0000-4000-8000-000000000002, job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d, visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b, water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        impacted_entity_references: [
+          "review:41000000-0000-4000-8000-000000000002",
+          "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+          "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        ],
+        blocker_codes: [
+          "water_emergency_context_required",
+          "readiness:needs_water_emergency_review",
+        ],
+        required_future_controls: manualReviewPreviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000002",
+          "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+          "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+          "audit:audit-manual-review-mock-002",
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true,
+      },
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000003",
@@ -627,7 +716,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       visibility_groups: [
         "resolved",
         "dispatch_related",
-        "duplicate_or_conflict"
+        "duplicate_or_conflict",
       ],
       primary_group: "duplicate_or_conflict",
       entity_type: "route_assignment",
@@ -654,7 +743,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         "job:42000000-0000-4000-8000-000000000003",
         "work_order:43000000-0000-4000-8000-000000000003",
         "visit:45000000-0000-4000-8000-000000000003",
-        "route_assignment:44000000-0000-4000-8000-000000000003"
+        "route_assignment:44000000-0000-4000-8000-000000000003",
       ],
       decision_readiness: {
         label: "resolved_or_archived",
@@ -666,10 +755,10 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "job:42000000-0000-4000-8000-000000000003",
           "work_order:43000000-0000-4000-8000-000000000003",
           "visit:45000000-0000-4000-8000-000000000003",
-          "route_assignment:44000000-0000-4000-8000-000000000003"
+          "route_assignment:44000000-0000-4000-8000-000000000003",
         ],
         is_active_decision_need: false,
-        is_resolution_candidate: false
+        is_resolution_candidate: false,
       },
       action_preflight: {
         label: "blocked_by_resolved_or_archived_status",
@@ -677,7 +766,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "Resolved or archived Manual Review items are historical visibility and are not eligible for active future review actions.",
         blocker_codes: [
           "resolved_or_archived_status",
-          "readiness:resolved_or_archived"
+          "readiness:resolved_or_archived",
         ],
         required_future_controls: manualReviewFutureControls,
         evidence_references: [
@@ -685,12 +774,43 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "job:42000000-0000-4000-8000-000000000003",
           "work_order:43000000-0000-4000-8000-000000000003",
           "visit:45000000-0000-4000-8000-000000000003",
-          "route_assignment:44000000-0000-4000-8000-000000000003"
+          "route_assignment:44000000-0000-4000-8000-000000000003",
         ],
         is_currently_executable: false,
         requires_operator_identity: true,
-        requires_audit_reason: true
-      }
+        requires_audit_reason: true,
+      },
+      future_action_preview: {
+        label: "no_action_available_resolved_or_archived",
+        description:
+          "Resolved or archived Manual Review evidence is retained for history; no active future action preview is selected.",
+        expected_outcome_summary:
+          "Future modules should keep this item separated from active action queues unless a new reviewed workflow explicitly reopens it.",
+        impacted_entity_summary:
+          "Impacted entities: review:41000000-0000-4000-8000-000000000003, job:42000000-0000-4000-8000-000000000003, work_order:43000000-0000-4000-8000-000000000003, visit:45000000-0000-4000-8000-000000000003, route_assignment:44000000-0000-4000-8000-000000000003",
+        impacted_entity_references: [
+          "review:41000000-0000-4000-8000-000000000003",
+          "job:42000000-0000-4000-8000-000000000003",
+          "work_order:43000000-0000-4000-8000-000000000003",
+          "visit:45000000-0000-4000-8000-000000000003",
+          "route_assignment:44000000-0000-4000-8000-000000000003",
+        ],
+        blocker_codes: [
+          "resolved_or_archived_status",
+          "readiness:resolved_or_archived",
+        ],
+        required_future_controls: manualReviewPreviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000003",
+          "job:42000000-0000-4000-8000-000000000003",
+          "work_order:43000000-0000-4000-8000-000000000003",
+          "visit:45000000-0000-4000-8000-000000000003",
+          "route_assignment:44000000-0000-4000-8000-000000000003",
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true,
+      },
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000004",
@@ -700,7 +820,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       visibility_groups: [
         "archived",
         "dispatch_related",
-        "cancellation_or_status_uncertainty"
+        "cancellation_or_status_uncertainty",
       ],
       primary_group: "cancellation_or_status_uncertainty",
       entity_type: "job",
@@ -724,7 +844,7 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       audit_correlation_id: "audit-manual-review-mock-004",
       evidence_references: [
         "review:41000000-0000-4000-8000-000000000004",
-        "job:42000000-0000-4000-8000-000000000004"
+        "job:42000000-0000-4000-8000-000000000004",
       ],
       decision_readiness: {
         label: "resolved_or_archived",
@@ -733,10 +853,10 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         reason_codes: ["resolved_or_archived_status"],
         evidence_references: [
           "review:41000000-0000-4000-8000-000000000004",
-          "job:42000000-0000-4000-8000-000000000004"
+          "job:42000000-0000-4000-8000-000000000004",
         ],
         is_active_decision_need: false,
-        is_resolution_candidate: false
+        is_resolution_candidate: false,
       },
       action_preflight: {
         label: "blocked_by_resolved_or_archived_status",
@@ -744,17 +864,42 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "Resolved or archived Manual Review items are historical visibility and are not eligible for active future review actions.",
         blocker_codes: [
           "resolved_or_archived_status",
-          "readiness:resolved_or_archived"
+          "readiness:resolved_or_archived",
         ],
         required_future_controls: manualReviewFutureControls,
         evidence_references: [
           "review:41000000-0000-4000-8000-000000000004",
-          "job:42000000-0000-4000-8000-000000000004"
+          "job:42000000-0000-4000-8000-000000000004",
         ],
         is_currently_executable: false,
         requires_operator_identity: true,
-        requires_audit_reason: true
-      }
+        requires_audit_reason: true,
+      },
+      future_action_preview: {
+        label: "no_action_available_resolved_or_archived",
+        description:
+          "Resolved or archived Manual Review evidence is retained for history; no active future action preview is selected.",
+        expected_outcome_summary:
+          "Future modules should keep this item separated from active action queues unless a new reviewed workflow explicitly reopens it.",
+        impacted_entity_summary:
+          "Impacted entities: review:41000000-0000-4000-8000-000000000004, job:42000000-0000-4000-8000-000000000004",
+        impacted_entity_references: [
+          "review:41000000-0000-4000-8000-000000000004",
+          "job:42000000-0000-4000-8000-000000000004",
+        ],
+        blocker_codes: [
+          "resolved_or_archived_status",
+          "readiness:resolved_or_archived",
+        ],
+        required_future_controls: manualReviewPreviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000004",
+          "job:42000000-0000-4000-8000-000000000004",
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true,
+      },
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000005",
@@ -784,44 +929,68 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
       audit_correlation_id: "audit-manual-review-mock-005",
       evidence_references: [
         "review:41000000-0000-4000-8000-000000000005",
-        "audit:audit-manual-review-mock-005"
+        "audit:audit-manual-review-mock-005",
       ],
       decision_readiness: {
-        label: "needs_operator_review",
+        label: "needs_entity_context",
         summary:
-          "No more specific deterministic readiness label is available, so this item remains in Manual Review for operator-safe visibility.",
+          "The review points to an entity that is not yet represented by a deterministic job, work-order, visit, route, or Water Emergency link.",
         reason_codes: [
-          "operator_review_required",
+          "entity_context_missing",
           "active_manual_review",
           "blocker_indicator",
-          "high_or_critical_severity"
+          "high_or_critical_severity",
         ],
         evidence_references: [
           "review:41000000-0000-4000-8000-000000000005",
-          "audit:audit-manual-review-mock-005"
+          "audit:audit-manual-review-mock-005",
         ],
         is_active_decision_need: true,
-        is_resolution_candidate: false
+        is_resolution_candidate: false,
       },
       action_preflight: {
-        label: "unknown_action_eligibility",
+        label: "blocked_by_missing_entity_context",
         summary:
-          "No deterministic future action eligibility can be selected safely, so the review remains read-only Manual Review visibility.",
+          "Future Manual Review action is blocked until the review has deterministic linked entity context. This Phase 0 preflight does not execute an action.",
         blocker_codes: [
-          "unknown_action_eligibility",
-          "readiness:needs_operator_review"
+          "missing_entity_context",
+          "readiness:needs_entity_context",
         ],
         required_future_controls: manualReviewFutureControls,
         evidence_references: [
           "review:41000000-0000-4000-8000-000000000005",
-          "audit:audit-manual-review-mock-005"
+          "audit:audit-manual-review-mock-005",
         ],
         is_currently_executable: false,
         requires_operator_identity: true,
-        requires_audit_reason: true
-      }
-    }
-  ]
+        requires_audit_reason: true,
+      },
+      future_action_preview: {
+        label: "no_action_available_missing_entity_context",
+        description:
+          "No future action preview is available until the review has deterministic linked entity context.",
+        expected_outcome_summary:
+          "Future modules would need to connect this review to a known job, work order, visit, route assignment, or Water Emergency before action.",
+        impacted_entity_summary:
+          "Impacted entities: no deterministic linked entity context.",
+        impacted_entity_references: [
+          "review:41000000-0000-4000-8000-000000000005",
+        ],
+        blocker_codes: [
+          "missing_entity_context",
+          "readiness:needs_entity_context",
+        ],
+        required_future_controls: manualReviewPreviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000005",
+          "audit:audit-manual-review-mock-005",
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true,
+      },
+    },
+  ],
 };
 
 export const mockManualReviewDetail: ManualReviewDetailResponse = {
@@ -837,10 +1006,11 @@ export const mockManualReviewDetail: ManualReviewDetailResponse = {
     snapshot_keys: ["validation_snapshot"],
     blocker_indicator: true,
     attention_indicator: true,
-    evidence_references: mockManualReviewQueue.items[0].evidence_references
+    evidence_references: mockManualReviewQueue.items[0].evidence_references,
   },
   decision_readiness: mockManualReviewQueue.items[0].decision_readiness,
   action_preflight: mockManualReviewQueue.items[0].action_preflight,
+  future_action_preview: mockManualReviewQueue.items[0].future_action_preview,
   linked_entity_context: {
     entity_type: "job",
     entity_id: "42000000-0000-4000-8000-000000000001",
@@ -859,7 +1029,7 @@ export const mockManualReviewDetail: ManualReviewDetailResponse = {
     is_water_emergency_related: false,
     is_dispatch_related: true,
     unknown_indicators: [],
-    audit_correlation_ids: ["audit-manual-review-mock-001"]
+    audit_correlation_ids: ["audit-manual-review-mock-001"],
   },
   data_gap_counts: [],
   audit_correlation_ids: ["audit-manual-review-mock-001"],
@@ -884,10 +1054,10 @@ export const mockManualReviewDetail: ManualReviewDetailResponse = {
         audit_correlation_id: "audit-manual-review-mock-001",
         previous_state: "open",
         new_state: "evidence_attached",
-        is_immutable: true
-      }
-    ]
-  }
+        is_immutable: true,
+      },
+    ],
+  },
 };
 
 export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
@@ -897,11 +1067,11 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
   closed_count: 1,
   status_counts: [
     { label: "drying_in_progress", count: 1 },
-    { label: "closed", count: 1 }
+    { label: "closed", count: 1 },
   ],
   stage_counts: [
     { label: "monitoring", count: 1 },
-    { label: "closed_after_monitoring", count: 1 }
+    { label: "closed_after_monitoring", count: 1 },
   ],
   multi_visit_count: 1,
   equipment_onsite_count: 1,
@@ -912,7 +1082,7 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
     work_orders_with_equipment_notes_count: 1,
     records_missing_equipment_context_count: 0,
     inventory_entity_available: false,
-    unknown_counts: [{ label: "equipment_inventory_not_modeled", count: 1 }]
+    unknown_counts: [{ label: "equipment_inventory_not_modeled", count: 1 }],
   },
   visit_chain_summary: {
     total_visits: 2,
@@ -922,17 +1092,17 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
     completed_visit_count: 0,
     visit_status_counts: [
       { label: "review_required", count: 1 },
-      { label: "scheduled", count: 1 }
-    ]
+      { label: "scheduled", count: 1 },
+    ],
   },
   drying_stage_summary: {
     stage_counts: [
       { label: "monitoring", count: 1 },
-      { label: "closed_after_monitoring", count: 1 }
+      { label: "closed_after_monitoring", count: 1 },
     ],
     active_stage_counts: [{ label: "monitoring", count: 1 }],
     missing_stage_count: 0,
-    moisture_tracking_required_count: 1
+    moisture_tracking_required_count: 1,
   },
   review_exception_summary: {
     total_review_count: 3,
@@ -945,19 +1115,19 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
     review_reason_counts: [
       { label: "water_detail_unknown_blocker", count: 1 },
       { label: "water_emergency_deferred_review", count: 1 },
-      { label: "water_emergency_archived_exception", count: 1 }
+      { label: "water_emergency_archived_exception", count: 1 },
     ],
     blocker_reason_counts: [
       { label: "water_detail_unknown_blocker", count: 1 },
-      { label: "water_emergency_archived_exception", count: 1 }
+      { label: "water_emergency_archived_exception", count: 1 },
     ],
     unknown_counts: [{ label: "open_record_without_scoped_review", count: 1 }],
     review_item_ids: [
       "74c29ad0-a8f0-4b9a-b596-285b35556717",
       "4b7cb8c9-b1d4-4e71-bbe5-5387f255e392",
-      "48791671-859c-4e6c-a9ad-2dbd6324c11d"
+      "48791671-859c-4e6c-a9ad-2dbd6324c11d",
     ],
-    audit_correlation_ids: ["audit-dashboard-003", "audit-dashboard-review"]
+    audit_correlation_ids: ["audit-dashboard-003", "audit-dashboard-review"],
   },
   next_step_summary: {
     total_records: 2,
@@ -967,11 +1137,11 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       { label: "needs_manual_review", count: 1 },
       { label: "needs_operator_decision", count: 1 },
       { label: "needs_equipment_review", count: 1 },
-      { label: "closed_no_active_next_step", count: 1 }
+      { label: "closed_no_active_next_step", count: 1 },
     ],
     blocker_counts: [
       { label: "water_detail_unknown_blocker", count: 1 },
-      { label: "equipment_inventory_not_modeled", count: 1 }
+      { label: "equipment_inventory_not_modeled", count: 1 },
     ],
     records: [
       {
@@ -980,18 +1150,18 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         labels: [
           "needs_manual_review",
           "needs_operator_decision",
-          "needs_equipment_review"
+          "needs_equipment_review",
         ],
         summary:
           "Open Manual Review evidence exists; operator review remains required before any future Water Emergency workflow step.",
         reason_codes: [
           "water_detail_unknown_blocker",
-          "equipment_inventory_not_modeled"
+          "equipment_inventory_not_modeled",
         ],
         evidence_references: [
           "job:72eba727-e804-4dd0-8628-bf7eb1212c60",
           "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
-          "review:74c29ad0-a8f0-4b9a-b596-285b35556717"
+          "review:74c29ad0-a8f0-4b9a-b596-285b35556717",
         ],
         current_status: "drying_in_progress",
         current_stage: "monitoring",
@@ -1004,9 +1174,9 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
         related_visit_ids: [
           "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
-          "94b62507-5b8d-4a9d-9578-5225492d81d1"
+          "94b62507-5b8d-4a9d-9578-5225492d81d1",
         ],
-        audit_correlation_ids: ["audit-dashboard-003"]
+        audit_correlation_ids: ["audit-dashboard-003"],
       },
       {
         water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
@@ -1017,7 +1187,7 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         reason_codes: ["water_emergency_closed_or_resolved"],
         evidence_references: [
           "job:871ac83f-88bb-4f09-8ca3-c3718dce6a46",
-          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831"
+          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831",
         ],
         current_status: "closed",
         current_stage: "closed_after_monitoring",
@@ -1029,9 +1199,9 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         related_job_id: "871ac83f-88bb-4f09-8ca3-c3718dce6a46",
         related_work_order_ids: [],
         related_visit_ids: [],
-        audit_correlation_ids: []
-      }
-    ]
+        audit_correlation_ids: [],
+      },
+    ],
   },
   operator_queue_summary: {
     total_records: 2,
@@ -1040,11 +1210,11 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
     critical_attention_count: 1,
     queue_group_counts: [
       { label: "active_attention", count: 1 },
-      { label: "closed_or_resolved", count: 1 }
+      { label: "closed_or_resolved", count: 1 },
     ],
     attention_label_counts: [
       { label: "critical_attention", count: 1 },
-      { label: "closed_or_resolved", count: 1 }
+      { label: "closed_or_resolved", count: 1 },
     ],
     items: [
       {
@@ -1055,18 +1225,18 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         readiness_labels: [
           "needs_manual_review",
           "needs_operator_decision",
-          "needs_equipment_review"
+          "needs_equipment_review",
         ],
         summary:
           "Critical unresolved Water Emergency evidence exists; operator attention is needed before any future emergency workflow step.",
         reason_codes: [
           "water_detail_unknown_blocker",
-          "equipment_inventory_not_modeled"
+          "equipment_inventory_not_modeled",
         ],
         evidence_references: [
           "job:72eba727-e804-4dd0-8628-bf7eb1212c60",
           "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
-          "review:74c29ad0-a8f0-4b9a-b596-285b35556717"
+          "review:74c29ad0-a8f0-4b9a-b596-285b35556717",
         ],
         current_status: "drying_in_progress",
         current_stage: "monitoring",
@@ -1078,9 +1248,9 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
         related_visit_ids: [
           "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
-          "94b62507-5b8d-4a9d-9578-5225492d81d1"
+          "94b62507-5b8d-4a9d-9578-5225492d81d1",
         ],
-        audit_correlation_ids: ["audit-dashboard-003"]
+        audit_correlation_ids: ["audit-dashboard-003"],
       },
       {
         water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
@@ -1093,7 +1263,7 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         reason_codes: ["water_emergency_closed_or_resolved"],
         evidence_references: [
           "job:871ac83f-88bb-4f09-8ca3-c3718dce6a46",
-          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831"
+          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831",
         ],
         current_status: "closed",
         current_stage: "closed_after_monitoring",
@@ -1104,9 +1274,9 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         related_job_id: "871ac83f-88bb-4f09-8ca3-c3718dce6a46",
         related_work_order_ids: [],
         related_visit_ids: [],
-        audit_correlation_ids: []
-      }
-    ]
+        audit_correlation_ids: [],
+      },
+    ],
   },
   aging_followup_summary: {
     total_records: 2,
@@ -1118,15 +1288,15 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
     unknown_timing_count: 0,
     label_counts: [
       { label: "stale_evidence", count: 1 },
-      { label: "closed_or_resolved", count: 1 }
+      { label: "closed_or_resolved", count: 1 },
     ],
     age_bucket_counts: [
       { label: "3_to_7_days", count: 1 },
-      { label: "over_7_days", count: 1 }
+      { label: "over_7_days", count: 1 },
     ],
     followup_bucket_counts: [
       { label: "followup_not_due", count: 1 },
-      { label: "closed_or_resolved", count: 1 }
+      { label: "closed_or_resolved", count: 1 },
     ],
     items: [
       {
@@ -1155,13 +1325,13 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
         related_visit_ids: [
           "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
-          "94b62507-5b8d-4a9d-9578-5225492d81d1"
+          "94b62507-5b8d-4a9d-9578-5225492d81d1",
         ],
         audit_correlation_ids: ["audit-dashboard-003"],
         evidence_references: [
           "job:72eba727-e804-4dd0-8628-bf7eb1212c60",
-          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7"
-        ]
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        ],
       },
       {
         water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
@@ -1191,10 +1361,10 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         audit_correlation_ids: [],
         evidence_references: [
           "job:871ac83f-88bb-4f09-8ca3-c3718dce6a46",
-          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831"
-        ]
-      }
-    ]
+          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831",
+        ],
+      },
+    ],
   },
   view_state_summary: {
     total_records: 2,
@@ -1206,119 +1376,127 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         label: "All records",
         count: 2,
         description:
-          "Every persisted Water Emergency record in this read-only dashboard response."
+          "Every persisted Water Emergency record in this read-only dashboard response.",
       },
       {
         key: "active",
         label: "Active records",
         count: 1,
         description:
-          "Open Water Emergency records separated from closed or resolved records."
+          "Open Water Emergency records separated from closed or resolved records.",
       },
       {
         key: "critical_attention",
         label: "Critical attention",
         count: 1,
-        description: "Records with critical persisted review or alert evidence."
+        description:
+          "Records with critical persisted review or alert evidence.",
       },
       {
         key: "needs_manual_review",
         label: "Needs Manual Review",
         count: 1,
-        description: "Records with Manual Review or operator-decision evidence."
+        description:
+          "Records with Manual Review or operator-decision evidence.",
       },
       {
         key: "blocked_missing_data",
         label: "Blocked or missing data",
         count: 1,
-        description: "Records with blocker, unknown, or missing-data evidence."
+        description: "Records with blocker, unknown, or missing-data evidence.",
       },
       {
         key: "followup_due",
         label: "Follow-up due",
         count: 0,
-        description: "Records with conservative Phase 0 follow-up due visibility."
+        description:
+          "Records with conservative Phase 0 follow-up due visibility.",
       },
       {
         key: "followup_overdue",
         label: "Follow-up overdue",
         count: 0,
-        description: "Records with conservative Phase 0 follow-up overdue visibility."
+        description:
+          "Records with conservative Phase 0 follow-up overdue visibility.",
       },
       {
         key: "stale_evidence",
         label: "Stale evidence",
         count: 1,
         description:
-          "Records where related evidence is old enough to flag for operator awareness."
+          "Records where related evidence is old enough to flag for operator awareness.",
       },
       {
         key: "ready_for_close_review",
         label: "Ready for close review",
         count: 0,
-        description: "Records with persisted close-review readiness evidence."
+        description: "Records with persisted close-review readiness evidence.",
       },
       {
         key: "needs_followup",
         label: "Needs follow-up",
         count: 0,
-        description: "Records with visit-chain follow-up visibility evidence."
+        description: "Records with visit-chain follow-up visibility evidence.",
       },
       {
         key: "equipment_review_needed",
         label: "Equipment review needed",
         count: 0,
-        description: "Records with equipment context that needs operator review."
+        description:
+          "Records with equipment context that needs operator review.",
       },
       {
         key: "drying_stage_review_needed",
         label: "Drying-stage review needed",
         count: 0,
         description:
-          "Records with drying-stage or moisture confirmation visibility."
+          "Records with drying-stage or moisture confirmation visibility.",
       },
       {
         key: "needs_operator_review",
         label: "Needs operator review",
         count: 0,
         description:
-          "Records with no safer deterministic group than operator review."
+          "Records with no safer deterministic group than operator review.",
       },
       {
         key: "unknown_timing",
         label: "Unknown timing",
         count: 0,
-        description: "Records missing enough timing evidence to avoid inferred SLA status."
+        description:
+          "Records missing enough timing evidence to avoid inferred SLA status.",
       },
       {
         key: "closed_or_resolved",
         label: "Closed or resolved",
         count: 1,
-        description: "Closed or resolved records separated from active attention groups."
-      }
+        description:
+          "Closed or resolved records separated from active attention groups.",
+      },
     ],
     sort_options: [
       {
         key: "attention",
         label: "Attention priority",
         description:
-          "Critical, review, blocker, timing, close-review, monitoring, then closed."
+          "Critical, review, blocker, timing, close-review, monitoring, then closed.",
       },
       {
         key: "last_activity",
         label: "Last activity",
         description:
-          "Most recent persisted visit, review, event, opened, or closed timestamp."
+          "Most recent persisted visit, review, event, opened, or closed timestamp.",
       },
       {
         key: "status",
         label: "Status and stage",
-        description: "Current status, drying stage, and deterministic attention rank."
-      }
+        description:
+          "Current status, drying stage, and deterministic attention rank.",
+      },
     ],
     group_counts: [
       { label: "critical_attention", count: 1 },
-      { label: "closed_or_resolved", count: 1 }
+      { label: "closed_or_resolved", count: 1 },
     ],
     items: [
       {
@@ -1329,7 +1507,7 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
           "critical_attention",
           "needs_manual_review",
           "blocked_missing_data",
-          "stale_evidence"
+          "stale_evidence",
         ],
         primary_filter_group: "critical_attention",
         sort_rank: 10,
@@ -1353,14 +1531,14 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
         related_visit_ids: [
           "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
-          "94b62507-5b8d-4a9d-9578-5225492d81d1"
+          "94b62507-5b8d-4a9d-9578-5225492d81d1",
         ],
         audit_correlation_ids: ["audit-dashboard-003"],
         evidence_references: [
           "job:72eba727-e804-4dd0-8628-bf7eb1212c60",
           "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
-          "review:74c29ad0-a8f0-4b9a-b596-285b35556717"
-        ]
+          "review:74c29ad0-a8f0-4b9a-b596-285b35556717",
+        ],
       },
       {
         water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
@@ -1382,17 +1560,20 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         last_activity_at: "2026-05-14T17:00:00Z",
         summary:
           "Closed or resolved Water Emergency record; it is separated from active attention items.",
-        reason_codes: ["water_emergency_closed_or_resolved", "closed_or_resolved"],
+        reason_codes: [
+          "water_emergency_closed_or_resolved",
+          "closed_or_resolved",
+        ],
         related_job_id: "871ac83f-88bb-4f09-8ca3-c3718dce6a46",
         related_work_order_ids: [],
         related_visit_ids: [],
         audit_correlation_ids: [],
         evidence_references: [
           "job:871ac83f-88bb-4f09-8ca3-c3718dce6a46",
-          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831"
-        ]
-      }
-    ]
+          "water_emergency:19be3f77-7771-4aca-bb8e-9534b32a0831",
+        ],
+      },
+    ],
   },
   governance_metadata: {
     randall_authorized_phase_0_baseline: true,
@@ -1412,7 +1593,7 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         randall_authorized_phase_0_baseline: true,
         legal_or_insurance_policy: false,
         requires_alfonso_owner_review: false,
-        reason: "Internal read-only filter group for dashboard view state."
+        reason: "Internal read-only filter group for dashboard view state.",
       },
       {
         key: "closed_or_resolved",
@@ -1422,8 +1603,8 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         randall_authorized_phase_0_baseline: true,
         legal_or_insurance_policy: false,
         requires_alfonso_owner_review: false,
-        reason: "Internal read-only filter group for dashboard view state."
-      }
+        reason: "Internal read-only filter group for dashboard view state.",
+      },
     ],
     provisional_attention_labels: [
       {
@@ -1434,8 +1615,8 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         randall_authorized_phase_0_baseline: true,
         legal_or_insurance_policy: false,
         requires_alfonso_owner_review: false,
-        reason: "Internal read-only attention label for operator scanability."
-      }
+        reason: "Internal read-only attention label for operator scanability.",
+      },
     ],
     provisional_timing_labels: [
       {
@@ -1447,8 +1628,8 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         legal_or_insurance_policy: false,
         requires_alfonso_owner_review: false,
         reason:
-          "Internal read-only timing label for Phase 0 follow-up visibility; not final SLA enforcement."
-      }
+          "Internal read-only timing label for Phase 0 follow-up visibility; not final SLA enforcement.",
+      },
     ],
     provisional_readiness_labels: [
       {
@@ -1459,8 +1640,8 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         randall_authorized_phase_0_baseline: true,
         legal_or_insurance_policy: false,
         requires_alfonso_owner_review: false,
-        reason: "Internal read-only readiness label for operator context."
-      }
+        reason: "Internal read-only readiness label for operator context.",
+      },
     ],
     owner_review_required_items: [
       {
@@ -1472,8 +1653,8 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         legal_or_insurance_policy: true,
         requires_alfonso_owner_review: true,
         reason:
-          "Final SLA commitments, insurance documentation, drying certification, warranty language, or customer-facing policy can create company liability and require Alfonso owner review."
-      }
+          "Final SLA commitments, insurance documentation, drying certification, warranty language, or customer-facing policy can create company liability and require Alfonso owner review.",
+      },
     ],
     future_role_visibility_roles: [
       "office_admin",
@@ -1481,8 +1662,8 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       "dispatcher",
       "reviewer",
       "technician",
-      "owner"
-    ]
+      "owner",
+    ],
   },
   result_window_metadata: {
     total_count: 2,
@@ -1490,7 +1671,7 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
     result_limit: 2,
     has_more: false,
     sort_key: "attention",
-    generated_at: "2026-05-22T12:00:00Z"
+    generated_at: "2026-05-22T12:00:00Z",
   },
   related_job_count: 2,
   related_work_order_count: 1,
@@ -1514,18 +1695,19 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       related_work_order_ids: ["87f35d07-7bb6-4d7d-81fc-787cb05dc4a4"],
       related_visit_ids: [
         "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
-        "94b62507-5b8d-4a9d-9578-5225492d81d1"
+        "94b62507-5b8d-4a9d-9578-5225492d81d1",
       ],
       open_review_count: 1,
       timeline_event_count: 1,
-      audit_correlation_ids: ["audit-dashboard-003"]
+      audit_correlation_ids: ["audit-dashboard-003"],
     },
     {
       water_emergency_id: "19be3f77-7771-4aca-bb8e-9534b32a0831",
       job_id: "871ac83f-88bb-4f09-8ca3-c3718dce6a46",
       status: "closed",
       drying_stage: "closed_after_monitoring",
-      next_required_action: "No action. Synthetic closed Water Emergency example.",
+      next_required_action:
+        "No action. Synthetic closed Water Emergency example.",
       is_open: false,
       equipment_onsite: false,
       moisture_tracking_required: false,
@@ -1535,8 +1717,8 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
       related_visit_ids: [],
       open_review_count: 0,
       timeline_event_count: 0,
-      audit_correlation_ids: []
-    }
+      audit_correlation_ids: [],
+    },
   ],
   timeline_summary: {
     total_events: 1,
@@ -1558,10 +1740,10 @@ export const mockWaterEmergencyDashboard: WaterEmergencyDashboardResponse = {
         audit_correlation_id: "audit-dashboard-003",
         previous_state: "intake_received",
         new_state: "water_emergency_separated",
-        is_immutable: true
-      }
-    ]
-  }
+        is_immutable: true,
+      },
+    ],
+  },
 };
 
 export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
@@ -1576,7 +1758,7 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
     requested_date: "2026-05-16",
     scheduled_date: "2026-05-16",
     source_system: "module32_mock",
-    source_event_id: "module32-water-emergency-detail"
+    source_event_id: "module32-water-emergency-detail",
   },
   work_orders: [
     {
@@ -1585,8 +1767,8 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
       status: "generated",
       dispatch_status: "not_dispatched",
       assigned_technician_id: null,
-      audit_correlation_id: "audit-dashboard-003"
-    }
+      audit_correlation_id: "audit-dashboard-003",
+    },
   ],
   visits: [
     {
@@ -1599,7 +1781,7 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
       scheduled_end_at: "2026-05-16T15:00:00Z",
       arrived_at: null,
       completed_at: null,
-      audit_correlation_id: "audit-dashboard-003"
+      audit_correlation_id: "audit-dashboard-003",
     },
     {
       visit_id: "94b62507-5b8d-4a9d-9578-5225492d81d1",
@@ -1611,8 +1793,8 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
       scheduled_end_at: "2026-05-17T14:00:00Z",
       arrived_at: null,
       completed_at: null,
-      audit_correlation_id: "audit-dashboard-003"
-    }
+      audit_correlation_id: "audit-dashboard-003",
+    },
   ],
   review_indicators: [
     {
@@ -1626,8 +1808,8 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
       job_id: "72eba727-e804-4dd0-8628-bf7eb1212c60",
       visit_id: "bc393a4e-1b61-4daa-a9f9-bb615e944d9b",
       audit_correlation_id: "audit-dashboard-003",
-      recommended_action: "Review synthetic Water Emergency detail evidence."
-    }
+      recommended_action: "Review synthetic Water Emergency detail evidence.",
+    },
   ],
   equipment_context: {
     equipment_onsite: true,
@@ -1637,10 +1819,10 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
       {
         work_order_id: "87f35d07-7bb6-4d7d-81fc-787cb05dc4a4",
         required_equipment_notes:
-          "Synthetic-only equipment context: air movers and dehumidifier placeholders."
-      }
+          "Synthetic-only equipment context: air movers and dehumidifier placeholders.",
+      },
     ],
-    unknown_indicators: ["equipment_inventory_not_modeled"]
+    unknown_indicators: ["equipment_inventory_not_modeled"],
   },
   visit_chain: {
     total_visits: 2,
@@ -1651,15 +1833,15 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
     next_scheduled_visit_at: "2026-05-16T13:00:00Z",
     visit_status_counts: [
       { label: "review_required", count: 1 },
-      { label: "scheduled", count: 1 }
-    ]
+      { label: "scheduled", count: 1 },
+    ],
   },
   drying_stage_context: {
     status: "drying_in_progress",
     current_stage: "monitoring",
     next_required_action: "Synthetic drying progress review",
     moisture_tracking_required: true,
-    missing_indicators: []
+    missing_indicators: [],
   },
   review_exception_context: {
     total_review_count: 1,
@@ -1670,10 +1852,12 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
     critical_unresolved_count: 1,
     escalation_indicator_count: 1,
     review_reason_counts: [{ label: "water_detail_unknown_blocker", count: 1 }],
-    blocker_reason_counts: [{ label: "water_detail_unknown_blocker", count: 1 }],
+    blocker_reason_counts: [
+      { label: "water_detail_unknown_blocker", count: 1 },
+    ],
     unknown_indicators: [],
     review_item_ids: ["74c29ad0-a8f0-4b9a-b596-285b35556717"],
-    audit_correlation_ids: ["audit-dashboard-003"]
+    audit_correlation_ids: ["audit-dashboard-003"],
   },
   next_step_readiness: mockWaterEmergencyDashboard.next_step_summary.records[0],
   data_gap_counts: [],
@@ -1698,8 +1882,8 @@ export const mockWaterEmergencyDetail: WaterEmergencyDetailResponse = {
         audit_correlation_id: "audit-dashboard-003",
         previous_state: "new",
         new_state: "extraction_started",
-        is_immutable: true
-      }
-    ]
-  }
+        is_immutable: true,
+      },
+    ],
+  },
 };
