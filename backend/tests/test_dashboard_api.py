@@ -13,6 +13,7 @@ from app.domain.dashboard import (
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
     ManualReviewActionPreflight,
+    ManualReviewCommandContract,
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
@@ -710,6 +711,10 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
             CountBucket(label="future_request_information_preview", count=1),
             CountBucket(label="no_action_available_resolved_or_archived", count=1),
         ),
+        command_contract_counts=(
+            CountBucket(label="requires_preflight_pass", count=1),
+            CountBucket(label="command_not_executable_phase_0", count=1),
+        ),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
             CountBucket(label="resolved_or_archived", count=1),
@@ -877,6 +882,51 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     requires_operator_identity=True,
                     requires_audit_reason=True,
                 ),
+                command_contract=ManualReviewCommandContract(
+                    label="requires_preflight_pass",
+                    summary=(
+                        "Future Manual Review commands require missing-data context and "
+                        "the future audit envelope before execution can be implemented."
+                    ),
+                    future_command_candidates=("request_information",),
+                    required_contract_labels=(
+                        "command_contract_read_only_phase",
+                        "requires_future_auth",
+                        "requires_operator_identity",
+                        "requires_role_authorization",
+                        "requires_audit_reason",
+                        "requires_idempotency_key",
+                        "requires_preflight_pass",
+                        "requires_immutable_event_recording",
+                        "requires_post_action_consistency_check",
+                        "command_not_executable_phase_0",
+                    ),
+                    impacted_entity_summary=(
+                        "Impacted entities: review:00000000-0000-0000-0000-000000000040, "
+                        "job:00000000-0000-0000-0000-000000000041, "
+                        "work_order:00000000-0000-0000-0000-000000000042"
+                    ),
+                    impacted_entity_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                    ),
+                    blocker_codes=("missing_data_context_required",),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                        "audit:audit-manual-review-api-001",
+                    ),
+                    is_currently_executable=False,
+                    not_executable_reason=("Manual Review commands are not executable in Phase 0."),
+                    requires_operator_identity=True,
+                    requires_role_authorization=True,
+                    requires_audit_reason=True,
+                    requires_idempotency_key=True,
+                    requires_immutable_event_recording=True,
+                    requires_post_action_consistency_check=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000040",
                     "job:00000000-0000-0000-0000-000000000041",
@@ -981,6 +1031,50 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     requires_operator_identity=True,
                     requires_audit_reason=True,
                 ),
+                command_contract=ManualReviewCommandContract(
+                    label="command_not_executable_phase_0",
+                    summary=(
+                        "Resolved or archived Manual Review records are retained as "
+                        "read-only history and do not expose active future command eligibility."
+                    ),
+                    future_command_candidates=(),
+                    required_contract_labels=(
+                        "command_contract_read_only_phase",
+                        "requires_future_auth",
+                        "requires_operator_identity",
+                        "requires_role_authorization",
+                        "requires_audit_reason",
+                        "requires_idempotency_key",
+                        "requires_preflight_pass",
+                        "requires_immutable_event_recording",
+                        "requires_post_action_consistency_check",
+                        "command_not_executable_phase_0",
+                    ),
+                    impacted_entity_summary=(
+                        "Impacted entities: review:00000000-0000-0000-0000-000000000043, "
+                        "water_emergency:00000000-0000-0000-0000-000000000031"
+                    ),
+                    impacted_entity_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                    ),
+                    blocker_codes=("resolved_or_archived_status",),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                        "audit:audit-manual-review-api-002",
+                    ),
+                    is_currently_executable=False,
+                    not_executable_reason=("Manual Review commands are not executable in Phase 0."),
+                    requires_operator_identity=True,
+                    requires_role_authorization=True,
+                    requires_audit_reason=True,
+                    requires_idempotency_key=True,
+                    requires_immutable_event_recording=True,
+                    requires_post_action_consistency_check=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000043",
                     "job:00000000-0000-0000-0000-000000000032",
@@ -1013,6 +1107,7 @@ def manual_review_detail_contract() -> ManualReviewDetailReadModel:
         decision_readiness=review_item.decision_readiness,
         action_preflight=review_item.action_preflight,
         future_action_preview=review_item.future_action_preview,
+        command_contract=review_item.command_contract,
         linked_entity_context=ManualReviewDetailLinkedEntityContext(
             entity_type="job",
             entity_id=UUID("00000000-0000-0000-0000-000000000041"),
@@ -1202,6 +1297,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
         {"label": "future_request_information_preview", "count": 1},
         {"label": "no_action_available_resolved_or_archived", "count": 1},
     ]
+    assert manual_review_queue_response.json()["command_contract_counts"] == [
+        {"label": "requires_preflight_pass", "count": 1},
+        {"label": "command_not_executable_phase_0", "count": 1},
+    ]
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"
@@ -1223,6 +1322,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     assert manual_review_queue_response.json()["items"][0]["future_action_preview"]["label"] == (
         "future_request_information_preview"
+    )
+    assert manual_review_queue_response.json()["items"][0]["command_contract"]["label"] == (
+        "requires_preflight_pass"
     )
     assert (
         manual_review_queue_response.json()["items"][0]["action_preflight"][
@@ -1247,6 +1349,24 @@ def test_dashboard_api_routes_return_read_only_contracts(
             "requires_audit_reason"
         ]
         is True
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["command_contract"][
+            "is_currently_executable"
+        ]
+        is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["command_contract"][
+            "requires_role_authorization"
+        ]
+        is True
+    )
+    assert (
+        "requires_idempotency_key"
+        in manual_review_queue_response.json()["items"][0]["command_contract"][
+            "required_contract_labels"
+        ]
     )
     assert (
         "requires_future_auth"
@@ -1274,6 +1394,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][1]["future_action_preview"]["label"] == (
         "no_action_available_resolved_or_archived"
     )
+    assert manual_review_queue_response.json()["items"][1]["command_contract"]["label"] == (
+        "command_not_executable_phase_0"
+    )
     assert manual_review_detail_response.status_code == 200
     assert manual_review_detail_response.json()["review_item"]["review_item_id"] == (
         "00000000-0000-0000-0000-000000000040"
@@ -1289,6 +1412,12 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     assert manual_review_detail_response.json()["future_action_preview"]["label"] == (
         "future_request_information_preview"
+    )
+    assert manual_review_detail_response.json()["command_contract"]["label"] == (
+        "requires_preflight_pass"
+    )
+    assert (
+        manual_review_detail_response.json()["command_contract"]["is_currently_executable"] is False
     )
     assert (
         manual_review_detail_response.json()["linked_entity_context"]["is_dispatch_related"] is True

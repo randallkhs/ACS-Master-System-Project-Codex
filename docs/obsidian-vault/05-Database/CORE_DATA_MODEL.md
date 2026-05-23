@@ -224,6 +224,8 @@ Module 44 adds Manual Review action-preflight and future authorization-readiness
 
 Module 45 adds Manual Review future-action preview and expected-outcome preparedness visibility as read-model metadata only. It does not add action states, workflow transitions, approval/rejection/defer/archive/resolve outcome tables, auth/RBAC tables, operator identity tables, audit-reason persistence, impacted-entity audit tables, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated action execution, operator identity capture, required audit reasons, impacted-entity audit history, outcome reason taxonomy, and role-scoped action authority after the action workflow is explicitly designed.
 
+Module 46 adds Manual Review future command-contract and audit-envelope visibility as read-model metadata only. It does not add command tables, mutation endpoints, workflow transitions, approval/rejection/defer/archive/resolve outcome tables, auth/RBAC tables, operator identity tables, audit-reason persistence, idempotency persistence, immutable-event writes, consistency-check writes, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated command execution, operator identity capture, role authorization, idempotency keys, required audit reasons, immutable event history, post-action consistency checks, and role-scoped action authority after the action workflow is explicitly designed.
+
 ## Audit Logs
 
 Represents durable trace history.
@@ -587,6 +589,26 @@ No database table or column was added for:
 - workflow engine state
 
 The read model derives future-action preview labels from existing `ReviewItem` status, reason, recommended action text, entity links, Water Emergency links, decision-readiness labels, action-preflight labels, and evidence references. Labels such as future approve preview, future reject preview, future defer preview, future archive preview, future resolve preview, future request information preview, no action available for missing entity context, no action available for Water Emergency context, no action available for resolved/archived history, and unknown action preview are Randall-authorized Phase 0 visibility baselines only. Every preview remains currently non-executable and does not mutate review records, create audit/action records, or define final company policy.
+
+## Phase 0 Module 46 Manual Review Command-Contract Read-Model Note
+
+Module 46 adds Manual Review future command-contract and audit-envelope visibility as dashboard read-model projections only.
+
+No database table or column was added for:
+
+- Manual Review command execution
+- approval/rejection/defer/archive/resolve outcomes
+- operator identity capture
+- role authorization
+- audit reason persistence
+- idempotency keys
+- immutable event recording
+- post-action consistency checks
+- auth or RBAC
+- action history
+- workflow engine state
+
+The read model derives command-contract labels from existing `ReviewItem` status, reason, recommended action text, entity links, Water Emergency links, decision-readiness labels, action-preflight labels, future-action preview labels, and evidence references. Labels such as command contract read-only phase, requires future auth, requires operator identity, requires role authorization, requires audit reason, requires idempotency key, requires preflight pass, requires entity context, requires no conflict blocker, requires Water Emergency scope check, requires immutable event recording, requires post-action consistency check, and command not executable Phase 0 are Randall-authorized Phase 0 visibility baselines only. Every command contract remains currently non-executable and does not mutate review records, create audit/action records, implement auth/RBAC, or define final company policy.
 
 ---
 

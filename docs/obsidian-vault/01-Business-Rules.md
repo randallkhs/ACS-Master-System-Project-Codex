@@ -380,3 +380,23 @@ Never risk:
 - losing water emergency tracking
 - assigning wrong technicians
 - corrupting operational data
+
+---
+
+# 16. Phase 0 Manual Review Command Contract Boundary
+
+Module 46 adds read-only Manual Review future command-contract and audit-envelope visibility.
+
+Rules:
+
+- command-contract labels are Randall-authorized Phase 0 visibility baselines only
+- every future command contract remains currently non-executable
+- future commands require auth, operator identity, role authorization, audit reason, idempotency key, immutable event recording, and post-action consistency checks before any mutation module exists
+- missing entity context, missing data, duplicate/conflict evidence, Water Emergency context, and resolved/archived status remain blockers or historical visibility states
+- Water Emergency-related Manual Review command contracts must remain separated from standard dispatch review context
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution authority is created
+
+Open concerns:
+
+- final Manual Review action workflow and role authority remain future work
+- legal, insurance, compliance, customer-liability, or formal company-policy language requires Alfonso owner review

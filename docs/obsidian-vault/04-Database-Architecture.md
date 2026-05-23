@@ -934,3 +934,21 @@ Unresolved:
 - final Manual Review action taxonomy and authenticated operator authority model
 - whether future resolution workflows need dedicated transition history or decision outcome tables
 - exact role-scoped Manual Review visibility rules after auth exists
+
+## Manual Review Command-Contract Projection
+
+Phase 0 Module 46 adds read-only future command-contract and audit-envelope metadata to Manual Review queue and detail contracts without adding database tables or columns.
+
+Projection philosophy:
+
+- command-contract labels are derived from existing ReviewItem status, reason, recommended action, entity-link, Water Emergency-link, decision-readiness, action-preflight, future-action preview, and evidence-reference data
+- every projected command contract is currently non-executable
+- every future command contract requires future auth, operator identity, role authorization, audit reason, idempotency key, immutable event recording, and post-action consistency checks
+- missing entity context, conflict evidence, Water Emergency scope, and resolved/archived status remain blockers or historical visibility states
+- no command table, audit-envelope persistence, operator identity table, RBAC table, action history table, vendor execution record, AI authority, or workflow engine is added in Module 46
+
+Unresolved:
+
+- future authenticated Manual Review command execution schema
+- operator identity, role authorization, idempotency, audit reason, immutable event, and consistency-check persistence
+- final command taxonomy and role-scoped action authority

@@ -453,3 +453,19 @@ AI may enrich records, but it must not become the source of truth for:
 - route approval
 - FastField dispatch approval
 - final job completion
+
+---
+
+## Phase 0 Module 46 Manual Review Command-Contract Boundary
+
+Manual Review command-contract and audit-envelope labels are deterministic backend read-model metadata.
+
+AI boundary:
+
+- AI must not decide command eligibility
+- AI must not generate executable approve/reject/defer/archive/resolve commands
+- AI must not bypass Manual Review, auth, operator identity, role authorization, audit reason, idempotency, immutable event recording, or post-action consistency checks
+- AI must not convert command-contract visibility into dispatch execution, vendor calls, or workflow transitions
+- Water Emergency-related command contracts must remain separated from standard dispatch and cannot be auto-scoped by AI
+
+Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend safety gates remain authoritative.

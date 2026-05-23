@@ -358,6 +358,144 @@ function ManualReviewDetailContent({
         </div>
       </SectionCard>
 
+      <SectionCard
+        title="Future Command Contract"
+        description={
+          context.is_water_emergency_related
+            ? "Water Emergency-related command contract requirements remain separated from standard Manual Review command preparation and are read-only."
+            : "Future command contract and audit envelope requirements are displayed as read-only Phase 0 preparation only."
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(detail.command_contract.label)}
+            variant={badgeVariantForLabel(detail.command_contract.label)}
+          />
+          <StatusBadge
+            label={
+              detail.command_contract.is_currently_executable
+                ? "Currently executable: Yes"
+                : "Currently executable: No"
+            }
+            variant={
+              detail.command_contract.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {detail.command_contract.requires_operator_identity ? (
+            <StatusBadge
+              label="Requires future operator identity"
+              variant="info"
+            />
+          ) : null}
+          {detail.command_contract.requires_role_authorization ? (
+            <StatusBadge
+              label="Requires future role authorization"
+              variant="info"
+            />
+          ) : null}
+          {detail.command_contract.requires_audit_reason ? (
+            <StatusBadge label="Requires future audit reason" variant="info" />
+          ) : null}
+          {detail.command_contract.requires_idempotency_key ? (
+            <StatusBadge
+              label="Requires future idempotency key"
+              variant="info"
+            />
+          ) : null}
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          {detail.command_contract.summary}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {detail.command_contract.not_executable_reason}
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Audit Envelope Requirements
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.command_contract.required_contract_labels.map(
+                (requirement) => (
+                  <StatusBadge
+                    key={requirement}
+                    label={humanizeLabel(requirement)}
+                    variant={badgeVariantForLabel(requirement)}
+                  />
+                ),
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Command Candidates
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.command_contract.future_command_candidates.length > 0 ? (
+                detail.command_contract.future_command_candidates.map(
+                  (candidate) => (
+                    <StatusBadge
+                      key={candidate}
+                      label={humanizeLabel(candidate)}
+                      variant="neutral"
+                    />
+                  ),
+                )
+              ) : (
+                <span className="text-sm text-slate-600">
+                  No active future command candidate is available.
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Command blockers
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.command_contract.blocker_codes.length > 0 ? (
+                detail.command_contract.blocker_codes.map((blockerCode) => (
+                  <StatusBadge
+                    key={blockerCode}
+                    label={humanizeLabel(blockerCode)}
+                    variant={badgeVariantForLabel(blockerCode)}
+                  />
+                ))
+              ) : (
+                <span className="text-sm text-slate-600">
+                  No blocker codes beyond Phase 0 read-only status.
+                </span>
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Impacted Entities
+            </div>
+            <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+              {detail.command_contract.impacted_entity_summary}
+            </p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Contract evidence
+            </div>
+            <div className="mt-2">
+              <EvidenceList
+                references={detail.command_contract.evidence_references}
+              />
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <SectionCard
           title="Reason And Evidence Context"

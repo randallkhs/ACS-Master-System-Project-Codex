@@ -127,6 +127,25 @@ class ManualReviewFutureActionPreviewResponse(DashboardSchema):
     requires_audit_reason: bool
 
 
+class ManualReviewCommandContractResponse(DashboardSchema):
+    label: str
+    summary: str
+    future_command_candidates: tuple[str, ...]
+    required_contract_labels: tuple[str, ...]
+    impacted_entity_summary: str
+    impacted_entity_references: tuple[str, ...]
+    blocker_codes: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    is_currently_executable: bool
+    not_executable_reason: str
+    requires_operator_identity: bool
+    requires_role_authorization: bool
+    requires_audit_reason: bool
+    requires_idempotency_key: bool
+    requires_immutable_event_recording: bool
+    requires_post_action_consistency_check: bool
+
+
 class ManualReviewQueueItemResponse(DashboardSchema):
     review_item_id: UUID
     status: str
@@ -156,6 +175,7 @@ class ManualReviewQueueItemResponse(DashboardSchema):
     decision_readiness: ManualReviewDecisionReadinessResponse
     action_preflight: ManualReviewActionPreflightResponse
     future_action_preview: ManualReviewFutureActionPreviewResponse
+    command_contract: ManualReviewCommandContractResponse
     evidence_references: tuple[str, ...]
 
 
@@ -177,6 +197,7 @@ class ManualReviewQueueResponse(DashboardSchema):
     decision_readiness_counts: tuple[CountBucketResponse, ...]
     action_preflight_counts: tuple[CountBucketResponse, ...]
     future_action_preview_counts: tuple[CountBucketResponse, ...]
+    command_contract_counts: tuple[CountBucketResponse, ...]
     age_bucket_counts: tuple[CountBucketResponse, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadataResponse
@@ -227,6 +248,7 @@ class ManualReviewDetailResponse(DashboardSchema):
     decision_readiness: ManualReviewDecisionReadinessResponse
     action_preflight: ManualReviewActionPreflightResponse
     future_action_preview: ManualReviewFutureActionPreviewResponse
+    command_contract: ManualReviewCommandContractResponse
     linked_entity_context: ManualReviewDetailLinkedEntityContextResponse
     data_gap_counts: tuple[CountBucketResponse, ...]
     audit_correlation_ids: tuple[str, ...]

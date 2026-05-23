@@ -570,16 +570,25 @@ describe("DashboardView", () => {
     expect(html).toContain("Decision Readiness");
     expect(html).toContain("Future Action Preflight");
     expect(html).toContain("Future Action Preview");
+    expect(html).toContain("Future Command Contract");
+    expect(html).toContain("Audit Envelope Requirements");
     expect(html).toContain("Future Request Information Preview");
+    expect(html).toContain("Requires Preflight Pass");
     expect(html).toContain("Expected Outcome");
     expect(html).toContain("Impacted Entities");
     expect(html).toContain("Blocked By Missing Data");
     expect(html).toContain("Requires Future Auth");
     expect(html).toContain("Requires Operator Identity");
+    expect(html).toContain("Requires Role Authorization");
     expect(html).toContain("Requires Audit Reason");
+    expect(html).toContain("Requires Idempotency Key");
+    expect(html).toContain("Requires Immutable Event Recording");
+    expect(html).toContain("Requires Post Action Consistency Check");
+    expect(html).toContain("Currently executable: No");
     expect(html).toContain("Needs Water Emergency Review");
     expect(html).toContain("Blocked By Water Emergency Context");
     expect(html).toContain("No Action Available Water Emergency Context");
+    expect(html).toContain("Requires Water Emergency Scope Check");
     expect(html).toContain("Active decision need");
     expect(html).toContain("Water Emergency-related reviews");
     expect(html).toContain("Standard dispatch and other reviews");
@@ -793,6 +802,7 @@ describe("DashboardView", () => {
       action_preflight: mockManualReviewQueue.items[1].action_preflight,
       future_action_preview:
         mockManualReviewQueue.items[1].future_action_preview,
+      command_contract: mockManualReviewQueue.items[1].command_contract,
       linked_entity_context: {
         ...mockManualReviewDetail.linked_entity_context,
         entity_type: "water_emergency",
@@ -838,6 +848,15 @@ describe("DashboardView", () => {
     expect(html).toContain("Future Action Preview");
     expect(html).toContain("No Action Available Water Emergency Context");
     expect(html).toContain("Water Emergency-related future-action preview");
+    expect(html).toContain("Future Command Contract");
+    expect(html).toContain("Audit Envelope Requirements");
+    expect(html).toContain("Requires Water Emergency Scope Check");
+    expect(html).toContain("Water Emergency-related command contract");
+    expect(html).toContain("Currently executable: No");
+    expect(html).toContain("Requires Role Authorization");
+    expect(html).toContain("Requires Idempotency Key");
+    expect(html).toContain("Requires Immutable Event Recording");
+    expect(html).toContain("Requires Post Action Consistency Check");
     expect(html).toContain("Expected Outcome");
     expect(html).toContain("Impacted Entities");
     expect(html).toContain("Requires Future Auth");

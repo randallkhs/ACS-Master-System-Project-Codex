@@ -371,6 +371,9 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     readiness_counts = {bucket.label: bucket.count for bucket in queue.decision_readiness_counts}
     preflight_counts = {bucket.label: bucket.count for bucket in queue.action_preflight_counts}
     preview_counts = {bucket.label: bucket.count for bucket in queue.future_action_preview_counts}
+    command_contract_counts = {
+        bucket.label: bucket.count for bucket in queue.command_contract_counts
+    }
     items_by_reason = {item.reason_code: item for item in queue.items}
 
     assert queue.total_items == 4
@@ -399,6 +402,9 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert preview_counts["future_request_information_preview"] == 1
     assert preview_counts["no_action_available_water_emergency_context"] == 1
     assert preview_counts["no_action_available_resolved_or_archived"] == 2
+    assert command_contract_counts["requires_preflight_pass"] == 1
+    assert command_contract_counts["requires_water_emergency_scope_check"] == 1
+    assert command_contract_counts["command_not_executable_phase_0"] == 2
 
     missing_item = items_by_reason["missing_customer_data"]
     assert missing_item.review_item_id == missing_review_id
@@ -418,6 +424,20 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert missing_item.future_action_preview.requires_audit_reason is True
     assert "requires_future_auth" in missing_item.future_action_preview.required_future_controls
     assert "job:" in missing_item.future_action_preview.impacted_entity_summary
+    assert missing_item.command_contract.label == "requires_preflight_pass"
+    assert missing_item.command_contract.is_currently_executable is False
+    assert missing_item.command_contract.requires_operator_identity is True
+    assert missing_item.command_contract.requires_role_authorization is True
+    assert missing_item.command_contract.requires_audit_reason is True
+    assert missing_item.command_contract.requires_idempotency_key is True
+    assert missing_item.command_contract.requires_immutable_event_recording is True
+    assert missing_item.command_contract.requires_post_action_consistency_check is True
+    assert "requires_future_auth" in missing_item.command_contract.required_contract_labels
+    assert "requires_idempotency_key" in missing_item.command_contract.required_contract_labels
+    assert "requires_immutable_event_recording" in (
+        missing_item.command_contract.required_contract_labels
+    )
+    assert "request_information" in missing_item.command_contract.future_command_candidates
     assert missing_item.job_id == standard_job.id
     assert missing_item.work_order_id == standard_work_order.id
     assert missing_item.age_bucket == "new"
@@ -433,6 +453,12 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert water_item.future_action_preview.label == ("no_action_available_water_emergency_context")
     assert water_item.future_action_preview.is_currently_executable is False
     assert "water_emergency:" in water_item.future_action_preview.impacted_entity_summary
+    assert water_item.command_contract.label == "requires_water_emergency_scope_check"
+    assert water_item.command_contract.is_currently_executable is False
+    assert "requires_water_emergency_scope_check" in (
+        water_item.command_contract.required_contract_labels
+    )
+    assert "water_emergency_context_required" in water_item.command_contract.blocker_codes
     assert "water_emergency_related" in water_item.decision_readiness.reason_codes
     assert "water_emergency_related" in water_item.visibility_groups
     assert "dispatch_related" not in water_item.visibility_groups
@@ -446,6 +472,9 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert conflict_item.action_preflight.is_currently_executable is False
     assert conflict_item.future_action_preview.label == ("no_action_available_resolved_or_archived")
     assert conflict_item.future_action_preview.is_currently_executable is False
+    assert conflict_item.command_contract.label == "command_not_executable_phase_0"
+    assert conflict_item.command_contract.is_currently_executable is False
+    assert "resolved_or_archived_status" in conflict_item.command_contract.blocker_codes
     assert conflict_item.decision_readiness.is_active_decision_need is False
     assert conflict_item.route_assignment_id == route_assignment.id
     assert conflict_item.work_order_id == standard_work_order.id
@@ -458,6 +487,8 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert archived_item.action_preflight.is_currently_executable is False
     assert archived_item.future_action_preview.label == ("no_action_available_resolved_or_archived")
     assert archived_item.future_action_preview.is_currently_executable is False
+    assert archived_item.command_contract.label == "command_not_executable_phase_0"
+    assert archived_item.command_contract.is_currently_executable is False
     assert archived_item.decision_readiness.is_active_decision_need is False
     assert archived_item.age_bucket == "resolved_or_archived"
     assert archived_item.attention_indicator is False
@@ -554,6 +585,9 @@ def test_manual_review_decision_readiness_marks_missing_all_entity_context_safel
         "no_action_available_missing_entity_context"
     )
     assert queue.items[0].future_action_preview.is_currently_executable is False
+    assert queue.items[0].command_contract.label == "requires_entity_context"
+    assert queue.items[0].command_contract.is_currently_executable is False
+    assert "requires_entity_context" in queue.items[0].command_contract.required_contract_labels
     assert queue.items[0].decision_readiness.is_resolution_candidate is False
     assert queue.items[0].action_preflight.label != "eligible_for_operator_decision"
 
@@ -619,6 +653,78 @@ def test_manual_review_future_action_preview_labels_recommended_actions() -> Non
     assert all(not item.future_action_preview.is_currently_executable for item in queue.items)
     assert all(item.future_action_preview.requires_operator_identity for item in queue.items)
     assert all(item.future_action_preview.requires_audit_reason for item in queue.items)
+
+
+def test_manual_review_command_contract_requires_future_audit_envelope() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    job_id = uuid4()
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=[Job(id=job_id, job_type="standard", status="awaiting_dispatch")],
+        review_items=[
+            ReviewItem(
+                id=uuid4(),
+                job_id=job_id,
+                entity_type="job",
+                entity_id=job_id,
+                reason_code="operator_decision_requested",
+                status="open",
+                severity="medium",
+                recommended_action="approve synthetic review",
+                created_at=now - timedelta(minutes=20),
+                audit_correlation_id="audit-manual-review-command-contract",
+            ),
+        ],
+    )
+
+    command_contract = queue.items[0].command_contract
+
+    assert command_contract.label == "command_contract_read_only_phase"
+    assert command_contract.is_currently_executable is False
+    assert command_contract.future_command_candidates == ("approve",)
+    assert command_contract.requires_operator_identity is True
+    assert command_contract.requires_role_authorization is True
+    assert command_contract.requires_audit_reason is True
+    assert command_contract.requires_idempotency_key is True
+    assert command_contract.requires_immutable_event_recording is True
+    assert command_contract.requires_post_action_consistency_check is True
+    assert command_contract.required_contract_labels == (
+        "command_contract_read_only_phase",
+        "requires_future_auth",
+        "requires_operator_identity",
+        "requires_role_authorization",
+        "requires_audit_reason",
+        "requires_idempotency_key",
+        "requires_preflight_pass",
+        "requires_immutable_event_recording",
+        "requires_post_action_consistency_check",
+        "command_not_executable_phase_0",
+    )
+    assert command_contract.not_executable_reason == (
+        "Manual Review commands are not executable in Phase 0."
+    )
+    assert "job:" in command_contract.impacted_entity_summary
+
+
+def test_manual_review_command_contract_does_not_mutate_review_status() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    review = ReviewItem(
+        id=uuid4(),
+        reason_code="operator_review_requested",
+        status="open",
+        severity="medium",
+        created_at=now - timedelta(minutes=30),
+        audit_correlation_id="audit-manual-review-command-read-only",
+    )
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        review_items=[review],
+    )
+
+    assert review.status == "open"
+    assert queue.items[0].status == "open"
+    assert queue.items[0].command_contract.label == "requires_entity_context"
+    assert queue.items[0].command_contract.is_currently_executable is False
 
 
 def test_manual_review_future_action_preview_does_not_mutate_review_status() -> None:

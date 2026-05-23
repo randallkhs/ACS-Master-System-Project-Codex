@@ -1617,3 +1617,19 @@ Unresolved integration questions:
 * whether future integration tests should use a disposable PostgreSQL database
 * production database provisioning and migration rollout strategy
 * dashboard refresh and stale-data rules for office use
+
+---
+
+Phase 0 Module 46 Manual Review Command Contract Boundary
+
+Manual Review command-contract metadata is intentionally outside the dispatch execution path.
+
+Dispatch boundary:
+
+* command-contract labels do not authorize dispatch
+* future Manual Review commands remain currently non-executable
+* Water Emergency-related command contracts require Water Emergency scope checks and do not enter standard dispatch action preparation
+* audit-envelope requirements are future action prerequisites, not dispatch instructions
+* no dispatch execution, vendor call, approval action, auth/RBAC, or workflow engine behavior is added
+
+Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules exist and preserve Manual Review authority.

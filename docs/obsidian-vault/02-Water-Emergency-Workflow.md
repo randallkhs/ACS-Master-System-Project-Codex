@@ -607,3 +607,23 @@ The final system should allow ACS to completely replace:
 - spreadsheet dependency
 
 with one integrated operational workflow system.
+
+---
+
+# 14. Phase 0 Module 46 Manual Review Command-Contract Separation
+
+Water Emergency-related Manual Review items may now expose read-only future command-contract metadata when they are specifically linked to Water Emergency evidence.
+
+Separation rules:
+
+- Water Emergency command-contract metadata is visibility only and does not execute Water Emergency actions
+- Water Emergency-related reviews require a future Water Emergency scope check before any future Manual Review command could be implemented
+- Water Emergency command-contract blockers must not be merged into standard dispatch action preparation
+- resolved or archived Water Emergency-related review items remain historical visibility, not active action needs
+- no Water Emergency close, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution behavior is added
+
+Future work:
+
+- authenticated Manual Review action workflows
+- role-scoped Water Emergency review authority
+- owner-reviewed legal, insurance, warranty, or company-liability language if future actions affect formal policy

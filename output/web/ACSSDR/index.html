@@ -1031,7 +1031,7 @@
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
                 <span class="status-pill"><span class="status-dot"></span>Under Development</span>
-                <strong>Last updated: May 23, 2026 at 11:18 AM EDT</strong>
+                <strong>Last updated: May 23, 2026 at 2:58 PM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1041,16 +1041,16 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>44</strong>
+                <strong>45</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>New Manual Review action-preflight update added since the last public report</span>
+                <span>New Manual Review future-action preview update added since the last public report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Read-only future action readiness context now visible</span>
+                <span>Read-only expected outcome and impacted entity context now visible</span>
               </div>
               <div class="stat-card">
                 <strong>0</strong>
@@ -2089,6 +2089,30 @@
                 approve, reject, defer, archive, resolve, dispatch, or change any record.
               </div>
             </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 45 manual review action preview outcome impact audit reason preparedness future action preview expected outcome impacted entity operator identity water emergency separated">
+              <div class="module-top">
+                <span class="module-number">45</span>
+                <div>
+                  <h3>Manual Review Future-Action Preview and Outcome Preparedness</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module helps the Manual Review area explain what a future operator action may
+                prepare for without allowing any action yet. It shows read-only future-action
+                preview labels, expected non-binding outcomes, impacted entity context, blockers,
+                and future operator identity and audit reason requirements.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A review item can show whether future preparation points toward requesting
+                information, an operator decision, resolution review, or no-action visibility
+                because of missing context, Water Emergency scope, conflict, or resolved/archived
+                history. The dashboard still does not approve, reject, defer, archive, resolve,
+                dispatch, or change any record.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -2112,6 +2136,7 @@
             <div class="check-item"><span class="check">✓</span><span>Manual Review filtering, sorting, and saved-view preference foundation</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review decision-readiness and resolution-preparation visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review action-preflight and future authorization-readiness visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Manual Review future-action preview and expected outcome visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2132,37 +2157,36 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 44 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 45 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 44 completed read-only Manual Review action-preflight and safe execution
-            preparation visibility. The module was reviewed and committed before Module 45 work
-            begins. This gives ACS clearer blocker, future authorization, operator identity, and
-            audit-reason context without adding operational action buttons yet.
+            Module 45 completed read-only Manual Review future-action preview and outcome
+            preparedness visibility. The module was reviewed and committed before Module 46 work
+            begins. This gives ACS clearer expected-outcome, impacted-entity, operator identity,
+            and audit-reason context without adding operational action buttons yet.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The Manual Review Queue and detail panel can now show whether a future review
-                action is blocked by missing entity context, missing data, conflict evidence, Water
-                Emergency context, or resolved/archived status. It also shows that future actions
-                will require authentication, operator identity, and an audit reason.
+                The Manual Review Queue and detail panel can now show future-action preview labels,
+                expected non-binding outcomes, impacted entity references, blocker context, and
+                future operator identity and audit reason requirements.
               </p>
             </article>
             <article class="overview-card">
               <h3>Why it matters</h3>
               <p>
                 Manual Review is the safety system. This work helps Luis and the office understand
-                what must be checked before any future operator action can be safely designed.
-                Water Emergency-related action preparation stays separated from standard dispatch
-                review context, and resolved or archived items are shown as historical visibility
-                instead of active future action needs.
+                what a future action workflow may need to prepare for before any real action is
+                allowed. Water Emergency-related preview context stays separated from standard
+                dispatch review context, and resolved or archived items are shown as historical
+                visibility instead of active future action needs.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 44 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                Module 45 passed backend checks, frontend checks, local PostgreSQL live dashboard
                 verification, browser checks, and ChatGPT review follow-up. It has been committed
                 and pushed by Randall.
               </p>
@@ -2170,9 +2194,9 @@
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is Module 45: read-only Manual Review future-action preview,
-                expected outcome context, impacted entity visibility, operator identity
-                preparedness, and audit-reason preparedness. Module 45 is not marked complete yet.
+                The next planned area is Module 46: read-only Manual Review future command-contract
+                visibility, audit envelope requirements, authorization boundary context,
+                idempotency expectations, and safety gates. Module 46 is not marked complete yet.
               </p>
             </article>
           </div>

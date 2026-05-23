@@ -16,6 +16,7 @@ from app.domain.dashboard import (
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
     ManualReviewActionPreflight,
+    ManualReviewCommandContract,
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
@@ -677,6 +678,10 @@ class DashboardReadModelService:
                 (item.future_action_preview for item in queue_items),
                 "label",
             ),
+            command_contract_counts=count_by_attr(
+                (item.command_contract for item in queue_items),
+                "label",
+            ),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
@@ -735,6 +740,7 @@ class DashboardReadModelService:
             decision_readiness=queue_item.decision_readiness,
             action_preflight=queue_item.action_preflight,
             future_action_preview=queue_item.future_action_preview,
+            command_contract=queue_item.command_contract,
             linked_entity_context=manual_review_detail_linked_entity_context(
                 queue_item,
                 jobs=jobs,
@@ -1517,6 +1523,19 @@ def manual_review_queue_item(
         water_emergency_id=water_emergency_id,
         evidence_references=evidence_references,
     )
+    command_contract = manual_review_command_contract(
+        review,
+        groups=groups,
+        decision_readiness=decision_readiness,
+        action_preflight=action_preflight,
+        future_action_preview=future_action_preview,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+        evidence_references=evidence_references,
+    )
 
     return ManualReviewQueueItem(
         review_item_id=review.id or NIL_UUID,
@@ -1547,6 +1566,7 @@ def manual_review_queue_item(
         decision_readiness=decision_readiness,
         action_preflight=action_preflight,
         future_action_preview=future_action_preview,
+        command_contract=command_contract,
         evidence_references=evidence_references,
     )
 
@@ -1899,6 +1919,143 @@ def manual_review_future_action_preview(
         requires_operator_identity=True,
         requires_audit_reason=True,
     )
+
+
+def manual_review_command_contract(
+    review: ReviewItem,
+    *,
+    groups: Sequence[str],
+    decision_readiness: ManualReviewDecisionReadiness,
+    action_preflight: ManualReviewActionPreflight,
+    future_action_preview: ManualReviewFutureActionPreview,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+    evidence_references: Sequence[str],
+) -> ManualReviewCommandContract:
+    status = normalized(review.status)
+    impacted_entity_references = manual_review_impacted_entity_references(
+        review,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+    )
+    blocker_codes: list[str] = [
+        *action_preflight.blocker_codes,
+        *future_action_preview.blocker_codes,
+    ]
+    required_contract_labels = [
+        "command_contract_read_only_phase",
+        "requires_future_auth",
+        "requires_operator_identity",
+        "requires_role_authorization",
+        "requires_audit_reason",
+        "requires_idempotency_key",
+        "requires_preflight_pass",
+        "requires_immutable_event_recording",
+        "requires_post_action_consistency_check",
+        "command_not_executable_phase_0",
+    ]
+
+    if status in RESOLVED_REVIEW_STATUSES or status == "archived":
+        label = "command_not_executable_phase_0"
+        summary = (
+            "Resolved or archived Manual Review records are retained as read-only "
+            "history and do not expose active future command eligibility."
+        )
+        blocker_codes.append("resolved_or_archived_status")
+        future_command_candidates: tuple[str, ...] = ()
+    elif action_preflight.label == "blocked_by_missing_entity_context":
+        label = "requires_entity_context"
+        summary = (
+            "Future Manual Review command execution would require deterministic "
+            "linked entity context before any command contract can proceed."
+        )
+        blocker_codes.append("missing_entity_context")
+        required_contract_labels.append("requires_entity_context")
+        future_command_candidates = ()
+    elif water_emergency_id is not None:
+        label = "requires_water_emergency_scope_check"
+        summary = (
+            "Future Manual Review commands tied to Water Emergency records require "
+            "a Water Emergency scope check and separated action design."
+        )
+        blocker_codes.append("water_emergency_context_required")
+        required_contract_labels.append("requires_water_emergency_scope_check")
+        future_command_candidates = manual_review_future_command_candidates(
+            future_action_preview.label,
+        )
+    elif "duplicate_or_conflict" in groups or action_preflight.label == "blocked_by_conflict":
+        label = "requires_no_conflict_blocker"
+        summary = (
+            "Future Manual Review commands require conflict resolution context before "
+            "approval, rejection, deferral, archive, or resolution can be designed."
+        )
+        blocker_codes.append("conflict_context_required")
+        required_contract_labels.append("requires_no_conflict_blocker")
+        future_command_candidates = manual_review_future_command_candidates(
+            future_action_preview.label,
+        )
+    elif "missing_data" in groups or action_preflight.label == "blocked_by_missing_data":
+        label = "requires_preflight_pass"
+        summary = (
+            "Future Manual Review commands require missing-data context, preflight "
+            "validation, operator identity, role authorization, and audit envelope "
+            "capture before execution can be implemented."
+        )
+        blocker_codes.append("missing_data_context_required")
+        future_command_candidates = manual_review_future_command_candidates(
+            future_action_preview.label,
+        )
+    else:
+        label = "command_contract_read_only_phase"
+        summary = (
+            "Future Manual Review command requirements are visible as a Phase 0 "
+            "contract only. No command is executable from this read model."
+        )
+        future_command_candidates = manual_review_future_command_candidates(
+            future_action_preview.label,
+        )
+        if not future_command_candidates and not decision_readiness.is_resolution_candidate:
+            blocker_codes.append("unknown_command_contract")
+
+    return ManualReviewCommandContract(
+        label=label,
+        summary=summary,
+        future_command_candidates=future_command_candidates,
+        required_contract_labels=tuple(dict.fromkeys(required_contract_labels)),
+        impacted_entity_summary=manual_review_impacted_entity_summary(
+            impacted_entity_references,
+        ),
+        impacted_entity_references=impacted_entity_references,
+        blocker_codes=tuple(dict.fromkeys(blocker_codes)),
+        evidence_references=tuple(evidence_references),
+        is_currently_executable=False,
+        not_executable_reason="Manual Review commands are not executable in Phase 0.",
+        requires_operator_identity=True,
+        requires_role_authorization=True,
+        requires_audit_reason=True,
+        requires_idempotency_key=True,
+        requires_immutable_event_recording=True,
+        requires_post_action_consistency_check=True,
+    )
+
+
+def manual_review_future_command_candidates(preview_label: str) -> tuple[str, ...]:
+    command_by_preview = {
+        "future_approve_preview": ("approve",),
+        "future_reject_preview": ("reject",),
+        "future_defer_preview": ("defer",),
+        "future_archive_preview": ("archive",),
+        "future_resolve_preview": ("resolve",),
+        "future_request_information_preview": ("request_information",),
+        "future_operator_decision_preview": ("operator_decision",),
+    }
+    return command_by_preview.get(preview_label, ())
 
 
 def manual_review_future_action_label_for_recommendation(

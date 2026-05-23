@@ -904,6 +904,28 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 46 Manual Review Command-Contract Boundary
+
+Module 46 extends Manual Review queue and detail visibility with read-only future command-contract and audit-envelope preparation context:
+
+- backend read models expose deterministic command-contract labels, summaries, future command candidates, required contract labels, impacted entity references, blocker codes, evidence references, explicit non-executable flags, and future audit-envelope requirement flags from existing ReviewItem evidence
+- every command contract remains `is_currently_executable = false`
+- every future command contract requires future auth, operator identity, role authorization, audit reason, idempotency key, immutable event recording, and post-action consistency checks
+- Water Emergency-related command contracts require Water Emergency scope checks and remain separated from standard dispatch review preparation through persisted job, visit, entity, and Water Emergency links
+- missing entity context, missing data, duplicate/conflict evidence, Water Emergency context, resolved/archived status, and unknown command evidence remain blockers or visibility states instead of executable actions
+- frontend queue and detail panels display command-contract context as read-only evidence and do not add forms, inputs, workflow controls, or button-styled command labels
+
+The boundary remains projection-only. The endpoint and UI do not execute Manual Review commands, mutate review records, create POST/PUT/PATCH/DELETE endpoints, implement auth/RBAC, dispatch work, call external integrations, add AI authority, create audit/action history, persist idempotency keys, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review command execution workflows
+- final Manual Review command taxonomy and role authority
+- operator identity capture, role authorization, audit reason requirements, idempotency persistence, immutable event writes, post-action consistency checks, and action-history persistence
+- production role-scoped action visibility and permission design
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

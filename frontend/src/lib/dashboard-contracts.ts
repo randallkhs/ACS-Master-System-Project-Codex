@@ -117,6 +117,25 @@ export type ManualReviewFutureActionPreviewResponse = {
   requires_audit_reason: boolean;
 };
 
+export type ManualReviewCommandContractResponse = {
+  label: string;
+  summary: string;
+  future_command_candidates: string[];
+  required_contract_labels: string[];
+  impacted_entity_summary: string;
+  impacted_entity_references: string[];
+  blocker_codes: string[];
+  evidence_references: string[];
+  is_currently_executable: boolean;
+  not_executable_reason: string;
+  requires_operator_identity: boolean;
+  requires_role_authorization: boolean;
+  requires_audit_reason: boolean;
+  requires_idempotency_key: boolean;
+  requires_immutable_event_recording: boolean;
+  requires_post_action_consistency_check: boolean;
+};
+
 export type ManualReviewQueueItemResponse = {
   review_item_id: string;
   status: string;
@@ -147,6 +166,7 @@ export type ManualReviewQueueItemResponse = {
   decision_readiness: ManualReviewDecisionReadinessResponse;
   action_preflight: ManualReviewActionPreflightResponse;
   future_action_preview: ManualReviewFutureActionPreviewResponse;
+  command_contract: ManualReviewCommandContractResponse;
 };
 
 export type ManualReviewQueueResponse = {
@@ -168,6 +188,7 @@ export type ManualReviewQueueResponse = {
   decision_readiness_counts: CountBucket[];
   action_preflight_counts: CountBucket[];
   future_action_preview_counts: CountBucket[];
+  command_contract_counts: CountBucket[];
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   available_filters: ManualReviewFilterOptionResponse[];
@@ -679,6 +700,7 @@ export type ManualReviewDetailResponse = {
   decision_readiness: ManualReviewDecisionReadinessResponse;
   action_preflight: ManualReviewActionPreflightResponse;
   future_action_preview: ManualReviewFutureActionPreviewResponse;
+  command_contract: ManualReviewCommandContractResponse;
   linked_entity_context: ManualReviewDetailLinkedEntityContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];

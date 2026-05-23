@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 45 keeps the frontend foundation read-only while adding Manual Review future-action preview, expected outcome, impacted entity, audit-reason, and operator-identity preparedness visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, and action-preflight context.
+Phase 0 Module 46 keeps the frontend foundation read-only while adding Manual Review future command-contract and audit-envelope requirement visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, and future-action preview context.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -144,6 +144,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Manual Review queue filter/sort view-state panel with frontend-only saved preferences
 - Manual Review action-preflight visibility for future operator identity, audit reason, auth, and blocker preparation
 - Manual Review future-action preview visibility for expected non-binding outcomes, impacted entities, and future operator identity/audit reason requirements
+- Manual Review future command-contract visibility for future auth, operator identity, role authorization, audit reason, idempotency key, immutable event recording, and post-action consistency check requirements
 - Operational overview
 - Dispatch lifecycle summary
 - Manual Review summary
@@ -305,6 +306,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Water Emergency-related future-action preview remains visibly separated from standard Manual Review action-preparation context.
 - Preview labels are not styled as buttons and are never currently executable in Phase 0.
 - The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution controls.
+
+## Module 46 Manual Review Future Command-Contract Notes
+
+- The Manual Review Queue and detail panel now display backend-provided future command-contract labels, audit-envelope requirements, command blockers, impacted entity summaries, and evidence references.
+- Command-contract labels explain future-only requirements for auth, operator identity, role authorization, audit reason, idempotency key, immutable event recording, post-action consistency checks, preflight pass, entity context, no conflict blocker, and Water Emergency scope checks.
+- Every command contract renders as `Currently executable: No` in Phase 0. These labels are not buttons, forms, inputs, mutation controls, auth controls, RBAC controls, or action execution controls.
+- Water Emergency-related command contract context remains visibly separated from standard Manual Review command preparation.
+- The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, or future command data-entry fields.
 
 ## Module 38 Water Emergency View-State Notes
 

@@ -788,3 +788,28 @@ Open API/frontend concerns:
 - final Manual Review future-action preview/action taxonomy
 - operator identity, audit reason, action history, impacted-entity audit, and outcome reason contracts
 - role-scoped action visibility after auth/RBAC exists
+
+## Phase 0 Module 46 Manual Review Command-Contract Boundary
+
+The Manual Review queue and detail API contracts now include read-only future command-contract and audit-envelope metadata for later action module preparation.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes command-contract counts and each queue item's command-contract label, summary, future command candidates, required contract labels, impacted entity references, blocker codes, evidence references, non-executable flag, not-executable reason, and future audit-envelope requirement flags.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the selected review item's same command-contract context alongside decision-readiness, action-preflight, future-action preview, reason/evidence, linked entity, and timeline evidence.
+- command-contract labels include command-contract read-only phase, requires future auth, operator identity, role authorization, audit reason, idempotency key, preflight pass, entity context, no conflict blocker, Water Emergency scope check, immutable event recording, post-action consistency check, and command not executable Phase 0 where deterministically supported.
+- every command contract is informational only and remains `is_currently_executable = false`.
+- Water Emergency-related command contracts remain separated through persisted entity/job/visit/Water Emergency links.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, backend preference persistence, audit-action persistence, idempotency persistence, or workflow execution calls are added
+- command-contract labels are Randall-authorized Phase 0 visibility baselines only and must not imply current action authority, legal policy, company-liability policy, or executable workflow state
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review command endpoints
+- final Manual Review command/action taxonomy
+- operator identity, role authorization, audit reason, idempotency, immutable event, post-action consistency, action history, impacted-entity audit, and outcome reason contracts
+- role-scoped action visibility after auth/RBAC exists

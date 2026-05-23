@@ -131,7 +131,7 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-7">
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
         <CountBucketPanel title="Review Status" buckets={data.status_counts} />
         <CountBucketPanel
           title="Reason Distribution"
@@ -156,6 +156,10 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         <CountBucketPanel
           title="Future Action Preview"
           buckets={data.future_action_preview_counts}
+        />
+        <CountBucketPanel
+          title="Future Command Contract"
+          buckets={data.command_contract_counts}
         />
       </div>
 
@@ -354,6 +358,10 @@ function ReviewQueueItemCard({
               label={humanizeLabel(item.future_action_preview.label)}
               variant={badgeVariantForLabel(item.future_action_preview.label)}
             />
+            <StatusBadge
+              label={humanizeLabel(item.command_contract.label)}
+              variant={badgeVariantForLabel(item.command_contract.label)}
+            />
           </div>
           <div className="mt-3 text-sm font-semibold text-[#162033]">
             {humanizeLabel(item.primary_group)}
@@ -469,6 +477,78 @@ function ReviewQueueItemCard({
         </div>
       </div>
 
+      <div className="mt-3 rounded-md border border-blue-200 bg-blue-50/70 px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Future Command Contract
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(item.command_contract.label)}
+            variant={badgeVariantForLabel(item.command_contract.label)}
+          />
+          <StatusBadge
+            label={
+              item.command_contract.is_currently_executable
+                ? "Currently executable: Yes"
+                : "Currently executable: No"
+            }
+            variant={
+              item.command_contract.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {item.command_contract.requires_role_authorization ? (
+            <StatusBadge label="Requires role authorization" variant="info" />
+          ) : null}
+          {item.command_contract.requires_idempotency_key ? (
+            <StatusBadge label="Requires idempotency key" variant="info" />
+          ) : null}
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {item.command_contract.summary}
+        </p>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Audit Envelope Requirements
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {item.command_contract.required_contract_labels.map((label) => (
+                <StatusBadge
+                  key={`${item.review_item_id}-${label}`}
+                  label={humanizeLabel(label)}
+                  variant={badgeVariantForLabel(label)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Command blockers
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {item.command_contract.blocker_codes.length > 0 ? (
+                item.command_contract.blocker_codes.map((blockerCode) => (
+                  <StatusBadge
+                    key={`${item.review_item_id}-${blockerCode}`}
+                    label={humanizeLabel(blockerCode)}
+                    variant={badgeVariantForLabel(blockerCode)}
+                  />
+                ))
+              ) : (
+                <span className="text-sm text-slate-600">
+                  No blocker codes beyond Phase 0 read-only status.
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <p className="mt-3 break-words text-sm leading-6 text-slate-600">
+          {item.command_contract.impacted_entity_summary}
+        </p>
+      </div>
+
       {entityLabels.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
           {entityLabels.map((label) => (
@@ -516,6 +596,14 @@ function ReviewQueueItemCard({
           label="Preview Executable"
           value={
             item.future_action_preview.is_currently_executable
+              ? "Executable"
+              : "Read-only Phase 0"
+          }
+        />
+        <MiniMetric
+          label="Command Executable"
+          value={
+            item.command_contract.is_currently_executable
               ? "Executable"
               : "Read-only Phase 0"
           }
