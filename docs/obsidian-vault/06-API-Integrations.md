@@ -813,3 +813,28 @@ Open API/frontend concerns:
 - final Manual Review command/action taxonomy
 - operator identity, role authorization, audit reason, idempotency, immutable event, post-action consistency, action history, impacted-entity audit, and outcome reason contracts
 - role-scoped action visibility after auth/RBAC exists
+
+## Phase 0 Module 47 Manual Review Audit-Ledger Dry-Run Boundary
+
+The Manual Review queue and detail API contracts now include read-only audit-ledger dry-run metadata for later action module preparation.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes audit-ledger dry-run counts and each queue item's dry-run label, summary, future command candidates, required labels, proposed future event type/state, proposed audit envelope fields, proposed idempotency scope, proposed consistency-check summary, evidence references, non-executable flag, Phase 0 execution-blocked flag, and future audit-envelope requirement flags.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the selected review item's same dry-run context alongside decision-readiness, action-preflight, future-action preview, command-contract, reason/evidence, linked entity, and timeline evidence.
+- dry-run labels include dry-run only Phase 0, audit envelope required, operator identity required, role authorization required, idempotency key required, immutable event required, consistency check required, command execution blocked by read-only phase, missing entity, conflict, Water Emergency scope, resolved/archived status, and unknown dry-run readiness where deterministically supported.
+- every dry-run record is informational only and remains `is_currently_executable = false` and `phase_allows_execution = false`.
+- Water Emergency-related dry-runs remain separated through persisted entity/job/visit/Water Emergency links.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, backend preference persistence, audit-action persistence, idempotency persistence, immutable event write, or workflow execution calls are added
+- dry-run labels are Randall-authorized Phase 0 visibility baselines only and must not imply current action authority, legal policy, company-liability policy, audit-write behavior, or executable workflow state
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review command endpoints
+- final Manual Review dry-run/action taxonomy
+- operator identity, role authorization, audit reason, idempotency, immutable event, post-action consistency, audit-ledger/action history, impacted-entity audit, and outcome reason contracts
+- role-scoped action visibility after auth/RBAC exists

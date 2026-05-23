@@ -161,6 +161,10 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
           title="Future Command Contract"
           buckets={data.command_contract_counts}
         />
+        <CountBucketPanel
+          title="Command Dry Run"
+          buckets={data.audit_ledger_dry_run_counts}
+        />
       </div>
 
       <SectionCard
@@ -362,6 +366,10 @@ function ReviewQueueItemCard({
               label={humanizeLabel(item.command_contract.label)}
               variant={badgeVariantForLabel(item.command_contract.label)}
             />
+            <StatusBadge
+              label={humanizeLabel(item.audit_ledger_dry_run.label)}
+              variant={badgeVariantForLabel(item.audit_ledger_dry_run.label)}
+            />
           </div>
           <div className="mt-3 text-sm font-semibold text-[#162033]">
             {humanizeLabel(item.primary_group)}
@@ -549,6 +557,87 @@ function ReviewQueueItemCard({
         </p>
       </div>
 
+      <div className="mt-3 rounded-md border border-amber-200 bg-amber-50/70 px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Command Dry Run
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(item.audit_ledger_dry_run.label)}
+            variant={badgeVariantForLabel(item.audit_ledger_dry_run.label)}
+          />
+          <StatusBadge
+            label={
+              item.audit_ledger_dry_run.is_currently_executable
+                ? "Currently executable: Yes"
+                : "Currently executable: No"
+            }
+            variant={
+              item.audit_ledger_dry_run.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              item.audit_ledger_dry_run.phase_allows_execution
+                ? "Phase allows execution: Yes"
+                : "Phase allows execution: No"
+            }
+            variant={
+              item.audit_ledger_dry_run.phase_allows_execution
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {item.audit_ledger_dry_run.requires_idempotency_key ? (
+            <StatusBadge label="Idempotency Key Required" variant="info" />
+          ) : null}
+          {item.audit_ledger_dry_run.requires_immutable_event_recording ? (
+            <StatusBadge label="Immutable Event Required" variant="info" />
+          ) : null}
+          {item.audit_ledger_dry_run.requires_post_action_consistency_check ? (
+            <StatusBadge label="Consistency Check Required" variant="info" />
+          ) : null}
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {item.audit_ledger_dry_run.summary}
+        </p>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Audit Ledger Preparation
+            </div>
+            <p className="mt-1 break-words text-sm leading-6 text-slate-600">
+              {item.audit_ledger_dry_run.proposed_future_event_type} /{" "}
+              {humanizeLabel(
+                item.audit_ledger_dry_run.proposed_future_event_state,
+              )}
+            </p>
+            <p className="mt-1 break-all font-mono text-xs leading-5 text-slate-600">
+              {item.audit_ledger_dry_run.proposed_future_idempotency_scope}
+            </p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Dry-run Requirements
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {item.audit_ledger_dry_run.required_labels.map((label) => (
+                <StatusBadge
+                  key={`${item.review_item_id}-${label}`}
+                  label={humanizeLabel(label)}
+                  variant={badgeVariantForLabel(label)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          {item.audit_ledger_dry_run.execution_unavailable_reason}
+        </p>
+      </div>
+
       {entityLabels.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
           {entityLabels.map((label) => (
@@ -604,6 +693,14 @@ function ReviewQueueItemCard({
           label="Command Executable"
           value={
             item.command_contract.is_currently_executable
+              ? "Executable"
+              : "Read-only Phase 0"
+          }
+        />
+        <MiniMetric
+          label="Dry-run Executable"
+          value={
+            item.audit_ledger_dry_run.is_currently_executable
               ? "Executable"
               : "Read-only Phase 0"
           }

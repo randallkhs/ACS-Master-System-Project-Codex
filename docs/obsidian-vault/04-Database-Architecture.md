@@ -952,3 +952,24 @@ Unresolved:
 - future authenticated Manual Review command execution schema
 - operator identity, role authorization, idempotency, audit reason, immutable event, and consistency-check persistence
 - final command taxonomy and role-scoped action authority
+
+## Manual Review Audit-Ledger Dry-Run Projection
+
+Phase 0 Module 47 adds read-only audit-ledger and command dry-run metadata to Manual Review queue and detail contracts without adding database tables or columns.
+
+Persistence philosophy:
+
+- audit-ledger dry-run labels are derived from existing ReviewItem status, reason, recommended action, entity-link, Water Emergency-link, action-preflight labels, command-contract labels, and evidence-reference data
+- every projected dry-run record is currently non-executable and Phase 0 blocks execution
+- every future dry-run requires audit reason, operator identity, role authorization, idempotency key, immutable event recording, and post-action consistency checks
+- proposed future event type/state, audit envelope fields, idempotency scope, and consistency-check summaries are deterministic read-model metadata only
+- existing OperationalEventRecord evidence remains the read source for timeline/audit references; this module does not write audit events
+- missing entity context, conflict evidence, Water Emergency scope, and resolved/archived status remain blockers or historical visibility states
+- no audit-ledger table, command table, audit-envelope persistence, operator identity table, RBAC table, action history table, vendor execution record, AI authority, or workflow engine is added in Module 47
+
+Unresolved:
+
+- future authenticated Manual Review command execution schema
+- durable audit ledger or immutable event write model for executed actions
+- operator identity, role authorization, audit reason, idempotency, immutable event, and consistency-check persistence
+- final dry-run/action taxonomy and role-scoped action authority

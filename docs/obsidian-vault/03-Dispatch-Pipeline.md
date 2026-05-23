@@ -1633,3 +1633,19 @@ Dispatch boundary:
 * no dispatch execution, vendor call, approval action, auth/RBAC, or workflow engine behavior is added
 
 Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules exist and preserve Manual Review authority.
+
+---
+
+Phase 0 Module 47 Manual Review Audit-Ledger Dry-Run Boundary
+
+Manual Review audit-ledger dry-run metadata is intentionally outside the dispatch execution path.
+
+Dispatch boundary:
+
+* dry-run labels do not authorize dispatch
+* future Manual Review commands remain currently non-executable and Phase 0 blocks execution
+* Water Emergency-related dry-runs require Water Emergency scope checks and do not enter standard dispatch action preparation
+* proposed future event type/state, audit envelope fields, idempotency scope, immutable-event requirements, and consistency checks are preparation metadata only
+* no dispatch execution, vendor call, approval action, audit write, auth/RBAC, or workflow engine behavior is added
+
+Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules and durable audit/event persistence exist.

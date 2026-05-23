@@ -374,6 +374,7 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     command_contract_counts = {
         bucket.label: bucket.count for bucket in queue.command_contract_counts
     }
+    dry_run_counts = {bucket.label: bucket.count for bucket in queue.audit_ledger_dry_run_counts}
     items_by_reason = {item.reason_code: item for item in queue.items}
 
     assert queue.total_items == 4
@@ -405,6 +406,9 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert command_contract_counts["requires_preflight_pass"] == 1
     assert command_contract_counts["requires_water_emergency_scope_check"] == 1
     assert command_contract_counts["command_not_executable_phase_0"] == 2
+    assert dry_run_counts["dry_run_only_phase_0"] == 1
+    assert dry_run_counts["command_execution_blocked_water_emergency_scope"] == 1
+    assert dry_run_counts["command_execution_blocked_resolved_or_archived"] == 2
 
     missing_item = items_by_reason["missing_customer_data"]
     assert missing_item.review_item_id == missing_review_id
@@ -438,6 +442,34 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
         missing_item.command_contract.required_contract_labels
     )
     assert "request_information" in missing_item.command_contract.future_command_candidates
+    assert missing_item.audit_ledger_dry_run.label == "dry_run_only_phase_0"
+    assert missing_item.audit_ledger_dry_run.is_currently_executable is False
+    assert missing_item.audit_ledger_dry_run.phase_allows_execution is False
+    assert missing_item.audit_ledger_dry_run.future_command_type_candidates == (
+        "request_information",
+    )
+    assert missing_item.audit_ledger_dry_run.proposed_future_event_type == (
+        "manual_review.future_command.request_information"
+    )
+    assert missing_item.audit_ledger_dry_run.proposed_future_event_state == (
+        "proposed_not_recorded"
+    )
+    assert missing_item.audit_ledger_dry_run.proposed_future_idempotency_scope == (
+        f"manual_review:{missing_review_id}:request_information"
+    )
+    assert "audit_envelope_required" in missing_item.audit_ledger_dry_run.required_labels
+    assert "idempotency_key" in (
+        missing_item.audit_ledger_dry_run.proposed_future_audit_envelope_fields
+    )
+    assert missing_item.audit_ledger_dry_run.requires_audit_reason is True
+    assert missing_item.audit_ledger_dry_run.requires_operator_identity is True
+    assert missing_item.audit_ledger_dry_run.requires_role_authorization is True
+    assert missing_item.audit_ledger_dry_run.requires_idempotency_key is True
+    assert missing_item.audit_ledger_dry_run.requires_immutable_event_recording is True
+    assert missing_item.audit_ledger_dry_run.requires_post_action_consistency_check is True
+    assert "audit:audit-manual-review-missing" in (
+        missing_item.audit_ledger_dry_run.audit_correlation_references
+    )
     assert missing_item.job_id == standard_job.id
     assert missing_item.work_order_id == standard_work_order.id
     assert missing_item.age_bucket == "new"
@@ -458,6 +490,13 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert "requires_water_emergency_scope_check" in (
         water_item.command_contract.required_contract_labels
     )
+    assert water_item.audit_ledger_dry_run.label == (
+        "command_execution_blocked_water_emergency_scope"
+    )
+    assert water_item.audit_ledger_dry_run.is_currently_executable is False
+    assert "command_execution_blocked_water_emergency_scope" in (
+        water_item.audit_ledger_dry_run.required_labels
+    )
     assert "water_emergency_context_required" in water_item.command_contract.blocker_codes
     assert "water_emergency_related" in water_item.decision_readiness.reason_codes
     assert "water_emergency_related" in water_item.visibility_groups
@@ -475,6 +514,11 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert conflict_item.command_contract.label == "command_not_executable_phase_0"
     assert conflict_item.command_contract.is_currently_executable is False
     assert "resolved_or_archived_status" in conflict_item.command_contract.blocker_codes
+    assert conflict_item.audit_ledger_dry_run.label == (
+        "command_execution_blocked_resolved_or_archived"
+    )
+    assert conflict_item.audit_ledger_dry_run.future_command_type_candidates == ()
+    assert conflict_item.audit_ledger_dry_run.is_currently_executable is False
     assert conflict_item.decision_readiness.is_active_decision_need is False
     assert conflict_item.route_assignment_id == route_assignment.id
     assert conflict_item.work_order_id == standard_work_order.id
@@ -489,6 +533,9 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert archived_item.future_action_preview.is_currently_executable is False
     assert archived_item.command_contract.label == "command_not_executable_phase_0"
     assert archived_item.command_contract.is_currently_executable is False
+    assert archived_item.audit_ledger_dry_run.label == (
+        "command_execution_blocked_resolved_or_archived"
+    )
     assert archived_item.decision_readiness.is_active_decision_need is False
     assert archived_item.age_bucket == "resolved_or_archived"
     assert archived_item.attention_indicator is False
@@ -557,6 +604,11 @@ def test_manual_review_decision_readiness_marks_missing_entity_context_safely() 
         "no_action_available_missing_entity_context"
     )
     assert queue.items[0].future_action_preview.is_currently_executable is False
+    assert queue.items[0].audit_ledger_dry_run.label == ("command_execution_blocked_missing_entity")
+    assert queue.items[0].audit_ledger_dry_run.is_currently_executable is False
+    assert "command_execution_blocked_missing_entity" in (
+        queue.items[0].audit_ledger_dry_run.required_labels
+    )
     assert queue.items[0].decision_readiness.is_active_decision_need is True
     assert "entity_context_missing" in queue.items[0].decision_readiness.reason_codes
 
@@ -588,6 +640,9 @@ def test_manual_review_decision_readiness_marks_missing_all_entity_context_safel
     assert queue.items[0].command_contract.label == "requires_entity_context"
     assert queue.items[0].command_contract.is_currently_executable is False
     assert "requires_entity_context" in queue.items[0].command_contract.required_contract_labels
+    assert queue.items[0].audit_ledger_dry_run.label == ("command_execution_blocked_missing_entity")
+    assert queue.items[0].audit_ledger_dry_run.phase_allows_execution is False
+    assert queue.items[0].audit_ledger_dry_run.future_command_type_candidates == ()
     assert queue.items[0].decision_readiness.is_resolution_candidate is False
     assert queue.items[0].action_preflight.label != "eligible_for_operator_decision"
 
@@ -616,6 +671,7 @@ def test_manual_review_action_preflight_does_not_mutate_review_status() -> None:
         "no_action_available_missing_entity_context"
     )
     assert queue.items[0].future_action_preview.is_currently_executable is False
+    assert queue.items[0].audit_ledger_dry_run.label == ("command_execution_blocked_missing_entity")
 
 
 def test_manual_review_future_action_preview_labels_recommended_actions() -> None:
@@ -704,6 +760,96 @@ def test_manual_review_command_contract_requires_future_audit_envelope() -> None
         "Manual Review commands are not executable in Phase 0."
     )
     assert "job:" in command_contract.impacted_entity_summary
+
+
+def test_manual_review_audit_ledger_dry_run_requires_future_immutable_event_envelope() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    job_id = uuid4()
+    review_id = uuid4()
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=[Job(id=job_id, job_type="standard", status="awaiting_dispatch")],
+        review_items=[
+            ReviewItem(
+                id=review_id,
+                job_id=job_id,
+                entity_type="job",
+                entity_id=job_id,
+                reason_code="operator_decision_requested",
+                status="open",
+                severity="medium",
+                recommended_action="approve synthetic review",
+                created_at=now - timedelta(minutes=20),
+                audit_correlation_id="audit-manual-review-dry-run",
+            ),
+        ],
+    )
+
+    dry_run = queue.items[0].audit_ledger_dry_run
+
+    assert dry_run.label == "dry_run_only_phase_0"
+    assert dry_run.is_currently_executable is False
+    assert dry_run.phase_allows_execution is False
+    assert dry_run.future_command_type_candidates == ("approve",)
+    assert dry_run.proposed_future_event_type == "manual_review.future_command.approve"
+    assert dry_run.proposed_future_event_state == "proposed_not_recorded"
+    assert dry_run.proposed_future_idempotency_scope == f"manual_review:{review_id}:approve"
+    assert dry_run.requires_audit_reason is True
+    assert dry_run.requires_operator_identity is True
+    assert dry_run.requires_role_authorization is True
+    assert dry_run.requires_idempotency_key is True
+    assert dry_run.requires_immutable_event_recording is True
+    assert dry_run.requires_post_action_consistency_check is True
+    assert dry_run.required_labels == (
+        "dry_run_only_phase_0",
+        "audit_envelope_required",
+        "operator_identity_required",
+        "role_authorization_required",
+        "idempotency_key_required",
+        "immutable_event_required",
+        "consistency_check_required",
+        "command_execution_blocked_read_only_phase",
+    )
+    assert dry_run.proposed_future_audit_envelope_fields == (
+        "review_item_id",
+        "future_command_type",
+        "operator_identity_id",
+        "role_authorization",
+        "audit_reason",
+        "idempotency_key",
+        "preflight_label",
+        "command_contract_label",
+        "impacted_entity_references",
+        "audit_correlation_id",
+        "occurred_at",
+        "immutable_event_fingerprint",
+        "post_action_consistency_check",
+    )
+    assert dry_run.execution_unavailable_reason == (
+        "Manual Review command dry-runs are visibility only; execution is not available in Phase 0."
+    )
+    assert "audit:audit-manual-review-dry-run" in dry_run.audit_correlation_references
+
+
+def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    review = ReviewItem(
+        id=uuid4(),
+        reason_code="operator_review_requested",
+        status="open",
+        severity="medium",
+        created_at=now - timedelta(minutes=30),
+        audit_correlation_id="audit-manual-review-dry-run-read-only",
+    )
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        review_items=[review],
+    )
+
+    assert review.status == "open"
+    assert queue.items[0].status == "open"
+    assert queue.items[0].audit_ledger_dry_run.label == ("command_execution_blocked_missing_entity")
+    assert queue.items[0].audit_ledger_dry_run.is_currently_executable is False
 
 
 def test_manual_review_command_contract_does_not_mutate_review_status() -> None:

@@ -16,6 +16,7 @@ from app.domain.dashboard import (
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
     ManualReviewActionPreflight,
+    ManualReviewAuditLedgerDryRun,
     ManualReviewCommandContract,
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
@@ -682,6 +683,10 @@ class DashboardReadModelService:
                 (item.command_contract for item in queue_items),
                 "label",
             ),
+            audit_ledger_dry_run_counts=count_by_attr(
+                (item.audit_ledger_dry_run for item in queue_items),
+                "label",
+            ),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
@@ -741,6 +746,7 @@ class DashboardReadModelService:
             action_preflight=queue_item.action_preflight,
             future_action_preview=queue_item.future_action_preview,
             command_contract=queue_item.command_contract,
+            audit_ledger_dry_run=queue_item.audit_ledger_dry_run,
             linked_entity_context=manual_review_detail_linked_entity_context(
                 queue_item,
                 jobs=jobs,
@@ -1536,6 +1542,14 @@ def manual_review_queue_item(
         water_emergency_id=water_emergency_id,
         evidence_references=evidence_references,
     )
+    audit_ledger_dry_run = manual_review_audit_ledger_dry_run(
+        review,
+        groups=groups,
+        action_preflight=action_preflight,
+        command_contract=command_contract,
+        evidence_references=evidence_references,
+        water_emergency_id=water_emergency_id,
+    )
 
     return ManualReviewQueueItem(
         review_item_id=review.id or NIL_UUID,
@@ -1567,6 +1581,7 @@ def manual_review_queue_item(
         action_preflight=action_preflight,
         future_action_preview=future_action_preview,
         command_contract=command_contract,
+        audit_ledger_dry_run=audit_ledger_dry_run,
         evidence_references=evidence_references,
     )
 
@@ -2036,6 +2051,132 @@ def manual_review_command_contract(
         evidence_references=tuple(evidence_references),
         is_currently_executable=False,
         not_executable_reason="Manual Review commands are not executable in Phase 0.",
+        requires_operator_identity=True,
+        requires_role_authorization=True,
+        requires_audit_reason=True,
+        requires_idempotency_key=True,
+        requires_immutable_event_recording=True,
+        requires_post_action_consistency_check=True,
+    )
+
+
+MANUAL_REVIEW_AUDIT_ENVELOPE_FIELDS = (
+    "review_item_id",
+    "future_command_type",
+    "operator_identity_id",
+    "role_authorization",
+    "audit_reason",
+    "idempotency_key",
+    "preflight_label",
+    "command_contract_label",
+    "impacted_entity_references",
+    "audit_correlation_id",
+    "occurred_at",
+    "immutable_event_fingerprint",
+    "post_action_consistency_check",
+)
+
+
+def manual_review_audit_ledger_dry_run(
+    review: ReviewItem,
+    *,
+    groups: Sequence[str],
+    action_preflight: ManualReviewActionPreflight,
+    command_contract: ManualReviewCommandContract,
+    evidence_references: Sequence[str],
+    water_emergency_id: UUID | None,
+) -> ManualReviewAuditLedgerDryRun:
+    status = normalized(review.status)
+    future_command_candidates = command_contract.future_command_candidates
+    primary_candidate = future_command_candidates[0] if future_command_candidates else "blocked"
+    required_labels = [
+        "dry_run_only_phase_0",
+        "audit_envelope_required",
+        "operator_identity_required",
+        "role_authorization_required",
+        "idempotency_key_required",
+        "immutable_event_required",
+        "consistency_check_required",
+        "command_execution_blocked_read_only_phase",
+    ]
+
+    if status in RESOLVED_REVIEW_STATUSES or status == "archived":
+        label = "command_execution_blocked_resolved_or_archived"
+        summary = (
+            "Resolved or archived Manual Review records retain audit-ledger "
+            "visibility without active command dry-run execution."
+        )
+        required_labels.append("command_execution_blocked_resolved_or_archived")
+        primary_candidate = "blocked"
+    elif command_contract.label == "requires_entity_context":
+        label = "command_execution_blocked_missing_entity"
+        summary = (
+            "Future command dry-run is blocked until the Manual Review item has "
+            "deterministic linked entity context."
+        )
+        required_labels.append("command_execution_blocked_missing_entity")
+    elif water_emergency_id is not None:
+        label = "command_execution_blocked_water_emergency_scope"
+        summary = (
+            "Water Emergency-related Manual Review dry-run context requires a "
+            "Water Emergency scope check and separated future action design."
+        )
+        required_labels.append("command_execution_blocked_water_emergency_scope")
+    elif (
+        "duplicate_or_conflict" in groups
+        or command_contract.label == "requires_no_conflict_blocker"
+    ):
+        label = "command_execution_blocked_conflict"
+        summary = (
+            "Duplicate or conflicting evidence blocks future command execution until "
+            "a future authenticated operator workflow resolves the conflict."
+        )
+        required_labels.append("command_execution_blocked_conflict")
+    elif not future_command_candidates and command_contract.label != "requires_preflight_pass":
+        label = "unknown_dry_run_readiness"
+        summary = (
+            "No deterministic Manual Review command dry-run candidate is available, "
+            "so audit-ledger preparation remains unknown and read-only."
+        )
+        required_labels.append("unknown_dry_run_readiness")
+    else:
+        label = "dry_run_only_phase_0"
+        summary = (
+            "Future Manual Review command dry-run is visible for audit-ledger "
+            "preparation only and cannot execute in Phase 0."
+        )
+
+    proposed_event_type = (
+        f"manual_review.future_command.{primary_candidate}"
+        if primary_candidate != "blocked"
+        else "manual_review.future_command.blocked"
+    )
+
+    return ManualReviewAuditLedgerDryRun(
+        label=label,
+        summary=summary,
+        future_command_type_candidates=future_command_candidates,
+        required_labels=tuple(dict.fromkeys(required_labels)),
+        proposed_future_event_type=proposed_event_type,
+        proposed_future_event_state="proposed_not_recorded",
+        proposed_future_audit_envelope_fields=MANUAL_REVIEW_AUDIT_ENVELOPE_FIELDS,
+        proposed_future_idempotency_scope=(
+            f"manual_review:{review.id or NIL_UUID}:{primary_candidate}"
+        ),
+        proposed_future_consistency_check_summary=(
+            "Future command execution would re-read the review item, linked entities, "
+            "immutable event fingerprint, and post-action state before presenting any outcome."
+        ),
+        audit_correlation_references=tuple(
+            reference for reference in evidence_references if reference.startswith("audit:")
+        ),
+        evidence_references=tuple(evidence_references),
+        is_currently_executable=False,
+        phase_allows_execution=False,
+        execution_unavailable_reason=(
+            "Manual Review command dry-runs are visibility only; execution is not "
+            "available in Phase 0."
+        ),
         requires_operator_identity=True,
         requires_role_authorization=True,
         requires_audit_reason=True,

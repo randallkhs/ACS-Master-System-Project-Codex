@@ -572,6 +572,11 @@ describe("DashboardView", () => {
     expect(html).toContain("Future Action Preview");
     expect(html).toContain("Future Command Contract");
     expect(html).toContain("Audit Envelope Requirements");
+    expect(html).toContain("Command Dry Run");
+    expect(html).toContain("Audit Ledger Preparation");
+    expect(html).toContain("Dry Run Only Phase 0");
+    expect(html).toContain("Immutable Event Required");
+    expect(html).toContain("Consistency Check Required");
     expect(html).toContain("Future Request Information Preview");
     expect(html).toContain("Requires Preflight Pass");
     expect(html).toContain("Expected Outcome");
@@ -803,6 +808,8 @@ describe("DashboardView", () => {
       future_action_preview:
         mockManualReviewQueue.items[1].future_action_preview,
       command_contract: mockManualReviewQueue.items[1].command_contract,
+      audit_ledger_dry_run:
+        mockManualReviewQueue.items[1].audit_ledger_dry_run,
       linked_entity_context: {
         ...mockManualReviewDetail.linked_entity_context,
         entity_type: "water_emergency",
@@ -850,7 +857,11 @@ describe("DashboardView", () => {
     expect(html).toContain("Water Emergency-related future-action preview");
     expect(html).toContain("Future Command Contract");
     expect(html).toContain("Audit Envelope Requirements");
+    expect(html).toContain("Command Dry Run");
+    expect(html).toContain("Audit Ledger Preparation");
     expect(html).toContain("Requires Water Emergency Scope Check");
+    expect(html).toContain("Command Execution Blocked Water Emergency Scope");
+    expect(html).toContain("Water Emergency-related command dry-run");
     expect(html).toContain("Water Emergency-related command contract");
     expect(html).toContain("Currently executable: No");
     expect(html).toContain("Requires Role Authorization");

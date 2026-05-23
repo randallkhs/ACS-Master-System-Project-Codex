@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 46 keeps the frontend foundation read-only while adding Manual Review future command-contract and audit-envelope requirement visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, and future-action preview context.
+Phase 0 Module 47 keeps the frontend foundation read-only while adding Manual Review audit-ledger dry-run, immutable-event preparation, and idempotency-readiness visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, and future command-contract context.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -314,6 +314,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Every command contract renders as `Currently executable: No` in Phase 0. These labels are not buttons, forms, inputs, mutation controls, auth controls, RBAC controls, or action execution controls.
 - Water Emergency-related command contract context remains visibly separated from standard Manual Review command preparation.
 - The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, or future command data-entry fields.
+
+## Module 47 Manual Review Audit-Ledger Dry-Run Notes
+
+- The Manual Review Queue and detail panel now display backend-provided audit-ledger dry-run labels, proposed future event type/state, proposed audit envelope fields, idempotency scope, consistency-check summary, audit/evidence references, and explicit non-executable flags.
+- Dry-run labels explain future-only requirements for audit reason, operator identity, role authorization, idempotency key, immutable event recording, and post-action consistency checks before any later mutation module is allowed.
+- Every dry-run record renders as `Currently executable: No` and `Phase allows execution: No` in Phase 0. These labels are not buttons, forms, inputs, mutation controls, auth controls, RBAC controls, audit-write controls, or action execution controls.
+- Water Emergency-related dry-run context remains visibly separated from standard Manual Review command preparation.
+- The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, audit forms, command forms, or future command data-entry fields.
 
 ## Module 38 Water Emergency View-State Notes
 

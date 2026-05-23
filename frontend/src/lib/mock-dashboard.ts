@@ -1,5 +1,6 @@
 import type {
   DashboardOverviewResponse,
+  ManualReviewAuditLedgerDryRunResponse,
   ManualReviewCommandContractResponse,
   ManualReviewDetailResponse,
   ManualReviewQueueResponse,
@@ -343,6 +344,84 @@ function manualReviewCommandContractMock({
   };
 }
 
+const manualReviewAuditEnvelopeFields = [
+  "review_item_id",
+  "future_command_type",
+  "operator_identity_id",
+  "role_authorization",
+  "audit_reason",
+  "idempotency_key",
+  "preflight_label",
+  "command_contract_label",
+  "impacted_entity_references",
+  "audit_correlation_id",
+  "occurred_at",
+  "immutable_event_fingerprint",
+  "post_action_consistency_check",
+];
+
+const manualReviewDryRunRequiredLabels = [
+  "dry_run_only_phase_0",
+  "audit_envelope_required",
+  "operator_identity_required",
+  "role_authorization_required",
+  "idempotency_key_required",
+  "immutable_event_required",
+  "consistency_check_required",
+  "command_execution_blocked_read_only_phase",
+];
+
+function manualReviewAuditLedgerDryRunMock({
+  label,
+  summary,
+  reviewItemId,
+  futureCommandTypeCandidates = [],
+  extraRequiredLabels = [],
+  evidenceReferences,
+}: {
+  label: string;
+  summary: string;
+  reviewItemId: string;
+  futureCommandTypeCandidates?: string[];
+  extraRequiredLabels?: string[];
+  evidenceReferences: string[];
+}): ManualReviewAuditLedgerDryRunResponse {
+  const candidate = futureCommandTypeCandidates[0] ?? "blocked";
+
+  return {
+    label,
+    summary,
+    future_command_type_candidates: futureCommandTypeCandidates,
+    required_labels: [
+      ...manualReviewDryRunRequiredLabels,
+      ...extraRequiredLabels,
+    ],
+    proposed_future_event_type:
+      candidate === "blocked"
+        ? "manual_review.future_command.blocked"
+        : `manual_review.future_command.${candidate}`,
+    proposed_future_event_state: "proposed_not_recorded",
+    proposed_future_audit_envelope_fields: manualReviewAuditEnvelopeFields,
+    proposed_future_idempotency_scope: `manual_review:${reviewItemId}:${candidate}`,
+    proposed_future_consistency_check_summary:
+      "Future command execution would re-read the review item, linked entities, immutable event fingerprint, and post-action state before presenting any outcome.",
+    audit_correlation_references: evidenceReferences.filter((reference) =>
+      reference.startsWith("audit:"),
+    ),
+    evidence_references: evidenceReferences,
+    is_currently_executable: false,
+    phase_allows_execution: false,
+    execution_unavailable_reason:
+      "Manual Review command dry-runs are visibility only; execution is not available in Phase 0.",
+    requires_operator_identity: true,
+    requires_role_authorization: true,
+    requires_audit_reason: true,
+    requires_idempotency_key: true,
+    requires_immutable_event_recording: true,
+    requires_post_action_consistency_check: true,
+  };
+}
+
 export const mockManualReviewQueue: ManualReviewQueueResponse = {
   generated_at: "2026-05-16T09:35:00Z",
   total_items: 5,
@@ -415,6 +494,12 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
     { label: "requires_water_emergency_scope_check", count: 1 },
     { label: "command_not_executable_phase_0", count: 2 },
     { label: "requires_entity_context", count: 1 },
+  ],
+  audit_ledger_dry_run_counts: [
+    { label: "dry_run_only_phase_0", count: 1 },
+    { label: "command_execution_blocked_water_emergency_scope", count: 1 },
+    { label: "command_execution_blocked_resolved_or_archived", count: 2 },
+    { label: "command_execution_blocked_missing_entity", count: 1 },
   ],
   audit_correlation_count: 5,
   taxonomy_metadata: {
@@ -688,6 +773,19 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         ],
         futureCommandCandidates: ["request_information"],
       }),
+      audit_ledger_dry_run: manualReviewAuditLedgerDryRunMock({
+        label: "dry_run_only_phase_0",
+        summary:
+          "Future Manual Review command dry-run is visible for audit-ledger preparation only and cannot execute in Phase 0.",
+        reviewItemId: "41000000-0000-4000-8000-000000000001",
+        futureCommandTypeCandidates: ["request_information"],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000001",
+          "job:42000000-0000-4000-8000-000000000001",
+          "work_order:43000000-0000-4000-8000-000000000001",
+          "audit:audit-manual-review-mock-001",
+        ],
+      }),
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000002",
@@ -816,6 +914,22 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "audit:audit-manual-review-mock-002",
         ],
         extraRequiredLabels: ["requires_water_emergency_scope_check"],
+      }),
+      audit_ledger_dry_run: manualReviewAuditLedgerDryRunMock({
+        label: "command_execution_blocked_water_emergency_scope",
+        summary:
+          "Water Emergency-related Manual Review dry-run context requires a Water Emergency scope check and separated future action design.",
+        reviewItemId: "41000000-0000-4000-8000-000000000002",
+        extraRequiredLabels: [
+          "command_execution_blocked_water_emergency_scope",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000002",
+          "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+          "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+          "audit:audit-manual-review-mock-002",
+        ],
       }),
     },
     {
@@ -946,6 +1060,22 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "route_assignment:44000000-0000-4000-8000-000000000003",
         ],
       }),
+      audit_ledger_dry_run: manualReviewAuditLedgerDryRunMock({
+        label: "command_execution_blocked_resolved_or_archived",
+        summary:
+          "Resolved or archived Manual Review records retain audit-ledger visibility without active command dry-run execution.",
+        reviewItemId: "41000000-0000-4000-8000-000000000003",
+        extraRequiredLabels: [
+          "command_execution_blocked_resolved_or_archived",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000003",
+          "job:42000000-0000-4000-8000-000000000003",
+          "work_order:43000000-0000-4000-8000-000000000003",
+          "visit:45000000-0000-4000-8000-000000000003",
+          "route_assignment:44000000-0000-4000-8000-000000000003",
+        ],
+      }),
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000004",
@@ -1048,6 +1178,19 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         blockerCodes: [
           "resolved_or_archived_status",
           "readiness:resolved_or_archived",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000004",
+          "job:42000000-0000-4000-8000-000000000004",
+        ],
+      }),
+      audit_ledger_dry_run: manualReviewAuditLedgerDryRunMock({
+        label: "command_execution_blocked_resolved_or_archived",
+        summary:
+          "Resolved or archived Manual Review records retain audit-ledger visibility without active command dry-run execution.",
+        reviewItemId: "41000000-0000-4000-8000-000000000004",
+        extraRequiredLabels: [
+          "command_execution_blocked_resolved_or_archived",
         ],
         evidenceReferences: [
           "review:41000000-0000-4000-8000-000000000004",
@@ -1162,6 +1305,17 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         ],
         extraRequiredLabels: ["requires_entity_context"],
       }),
+      audit_ledger_dry_run: manualReviewAuditLedgerDryRunMock({
+        label: "command_execution_blocked_missing_entity",
+        summary:
+          "Future command dry-run is blocked until the Manual Review item has deterministic linked entity context.",
+        reviewItemId: "41000000-0000-4000-8000-000000000005",
+        extraRequiredLabels: ["command_execution_blocked_missing_entity"],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000005",
+          "audit:audit-manual-review-mock-005",
+        ],
+      }),
     },
   ],
 };
@@ -1185,6 +1339,7 @@ export const mockManualReviewDetail: ManualReviewDetailResponse = {
   action_preflight: mockManualReviewQueue.items[0].action_preflight,
   future_action_preview: mockManualReviewQueue.items[0].future_action_preview,
   command_contract: mockManualReviewQueue.items[0].command_contract,
+  audit_ledger_dry_run: mockManualReviewQueue.items[0].audit_ledger_dry_run,
   linked_entity_context: {
     entity_type: "job",
     entity_id: "42000000-0000-4000-8000-000000000001",

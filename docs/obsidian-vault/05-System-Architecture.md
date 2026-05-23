@@ -926,6 +926,28 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 47 Manual Review Audit-Ledger Dry-Run Boundary
+
+Module 47 extends Manual Review queue and detail visibility with read-only audit-ledger preparation, command dry-run, immutable-event, and idempotency-readiness context:
+
+- backend read models expose deterministic dry-run labels, proposed future event type/state, proposed audit envelope fields, idempotency scope, consistency-check summary, evidence references, explicit non-executable flags, and Phase 0 execution-blocked flags from existing ReviewItem evidence
+- every dry-run record remains `is_currently_executable = false` and `phase_allows_execution = false`
+- every future dry-run requires audit reason, operator identity, role authorization, idempotency key, immutable event recording, and post-action consistency checks
+- Water Emergency-related dry-runs require Water Emergency scope checks and remain separated from standard dispatch review preparation through persisted job, visit, entity, and Water Emergency links
+- missing entity context, duplicate/conflict evidence, Water Emergency context, resolved/archived status, and unknown dry-run evidence remain blockers or visibility states instead of executable actions
+- frontend queue and detail panels display dry-run context as read-only evidence and do not add forms, inputs, workflow controls, audit-write controls, or button-styled dry-run labels
+
+The boundary remains projection-only. The endpoint and UI do not execute Manual Review commands, mutate review records, write audit events, create POST/PUT/PATCH/DELETE endpoints, implement auth/RBAC, persist idempotency keys, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review command execution workflows
+- final Manual Review dry-run/action taxonomy and role authority
+- operator identity capture, role authorization, audit reason requirements, idempotency persistence, immutable event writes, post-action consistency checks, audit-ledger persistence, and action-history persistence
+- production role-scoped action visibility and permission design
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

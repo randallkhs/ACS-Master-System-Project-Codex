@@ -610,6 +610,27 @@ No database table or column was added for:
 
 The read model derives command-contract labels from existing `ReviewItem` status, reason, recommended action text, entity links, Water Emergency links, decision-readiness labels, action-preflight labels, future-action preview labels, and evidence references. Labels such as command contract read-only phase, requires future auth, requires operator identity, requires role authorization, requires audit reason, requires idempotency key, requires preflight pass, requires entity context, requires no conflict blocker, requires Water Emergency scope check, requires immutable event recording, requires post-action consistency check, and command not executable Phase 0 are Randall-authorized Phase 0 visibility baselines only. Every command contract remains currently non-executable and does not mutate review records, create audit/action records, implement auth/RBAC, or define final company policy.
 
+## Phase 0 Module 47 Manual Review Audit-Ledger Dry-Run Read-Model Note
+
+Module 47 adds Manual Review audit-ledger dry-run and immutable-event preparation visibility as dashboard read-model projections only.
+
+No database table or column was added for:
+
+- Manual Review command execution
+- audit-ledger writes
+- immutable event writes
+- idempotency key persistence
+- approval/rejection/defer/archive/resolve outcomes
+- operator identity capture
+- role authorization
+- audit reason persistence
+- post-action consistency check persistence
+- auth or RBAC
+- action history
+- workflow engine state
+
+The read model derives audit-ledger dry-run labels from existing `ReviewItem` status, reason, recommended action text, entity links, Water Emergency links, action-preflight labels, command-contract labels, and evidence references. Labels such as dry-run only Phase 0, audit envelope required, operator identity required, role authorization required, idempotency key required, immutable event required, consistency check required, command execution blocked by read-only phase, missing entity, conflict, Water Emergency scope, resolved/archived status, and unknown dry-run readiness are Randall-authorized Phase 0 visibility baselines only. Every dry-run record remains currently non-executable, Phase 0 blocks execution, and the projection does not mutate review records, create audit/action records, implement auth/RBAC, persist idempotency keys, or define final company policy.
+
 ---
 
 ## Initial Status Concepts

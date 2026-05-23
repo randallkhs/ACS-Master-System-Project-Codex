@@ -146,6 +146,29 @@ class ManualReviewCommandContractResponse(DashboardSchema):
     requires_post_action_consistency_check: bool
 
 
+class ManualReviewAuditLedgerDryRunResponse(DashboardSchema):
+    label: str
+    summary: str
+    future_command_type_candidates: tuple[str, ...]
+    required_labels: tuple[str, ...]
+    proposed_future_event_type: str
+    proposed_future_event_state: str
+    proposed_future_audit_envelope_fields: tuple[str, ...]
+    proposed_future_idempotency_scope: str
+    proposed_future_consistency_check_summary: str
+    audit_correlation_references: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    is_currently_executable: bool
+    phase_allows_execution: bool
+    execution_unavailable_reason: str
+    requires_operator_identity: bool
+    requires_role_authorization: bool
+    requires_audit_reason: bool
+    requires_idempotency_key: bool
+    requires_immutable_event_recording: bool
+    requires_post_action_consistency_check: bool
+
+
 class ManualReviewQueueItemResponse(DashboardSchema):
     review_item_id: UUID
     status: str
@@ -176,6 +199,7 @@ class ManualReviewQueueItemResponse(DashboardSchema):
     action_preflight: ManualReviewActionPreflightResponse
     future_action_preview: ManualReviewFutureActionPreviewResponse
     command_contract: ManualReviewCommandContractResponse
+    audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse
     evidence_references: tuple[str, ...]
 
 
@@ -198,6 +222,7 @@ class ManualReviewQueueResponse(DashboardSchema):
     action_preflight_counts: tuple[CountBucketResponse, ...]
     future_action_preview_counts: tuple[CountBucketResponse, ...]
     command_contract_counts: tuple[CountBucketResponse, ...]
+    audit_ledger_dry_run_counts: tuple[CountBucketResponse, ...]
     age_bucket_counts: tuple[CountBucketResponse, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadataResponse
@@ -249,6 +274,7 @@ class ManualReviewDetailResponse(DashboardSchema):
     action_preflight: ManualReviewActionPreflightResponse
     future_action_preview: ManualReviewFutureActionPreviewResponse
     command_contract: ManualReviewCommandContractResponse
+    audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse
     linked_entity_context: ManualReviewDetailLinkedEntityContextResponse
     data_gap_counts: tuple[CountBucketResponse, ...]
     audit_correlation_ids: tuple[str, ...]

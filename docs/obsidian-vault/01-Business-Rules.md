@@ -400,3 +400,24 @@ Open concerns:
 
 - final Manual Review action workflow and role authority remain future work
 - legal, insurance, compliance, customer-liability, or formal company-policy language requires Alfonso owner review
+
+---
+
+# 17. Phase 0 Manual Review Audit Ledger And Command Dry-Run Boundary
+
+Module 47 adds read-only Manual Review audit-ledger preparation and command dry-run visibility.
+
+Rules:
+
+- audit-ledger and dry-run labels are Randall-authorized Phase 0 visibility baselines only
+- every dry-run record remains currently non-executable and Phase 0 does not allow execution
+- future commands require audit reason, operator identity, role authorization, idempotency key, immutable event recording, and post-action consistency checks before any mutation module exists
+- proposed future event type/state, audit envelope fields, idempotency scope, and consistency-check summaries are preparation metadata only
+- missing entity context, duplicate/conflict evidence, Water Emergency scope, and resolved/archived status remain blockers or historical visibility states
+- Water Emergency-related Manual Review dry-runs must remain separated from standard dispatch review context
+- no audit write, approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution authority is created
+
+Open concerns:
+
+- final Manual Review command execution workflow and audit-ledger persistence remain future work
+- legal, insurance, compliance, customer-liability, or formal company-policy language requires Alfonso owner review

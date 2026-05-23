@@ -627,3 +627,25 @@ Future work:
 - authenticated Manual Review action workflows
 - role-scoped Water Emergency review authority
 - owner-reviewed legal, insurance, warranty, or company-liability language if future actions affect formal policy
+
+---
+
+# 15. Phase 0 Module 47 Manual Review Audit-Ledger Dry-Run Separation
+
+Water Emergency-related Manual Review items may now expose read-only audit-ledger dry-run metadata when they are specifically linked to Water Emergency evidence.
+
+Separation rules:
+
+- Water Emergency dry-run metadata is visibility only and does not execute Water Emergency actions
+- Water Emergency-related dry-runs require a future Water Emergency scope check before any future Manual Review command could be implemented
+- Water Emergency dry-run blockers must not be merged into standard dispatch action preparation
+- proposed future audit envelope fields, idempotency scope, immutable-event requirements, and consistency checks are preparation metadata only
+- resolved or archived Water Emergency-related review items remain historical visibility, not active action needs
+- no Water Emergency close, resolve, dispatch, audit-write, vendor, AI, auth, RBAC, or workflow execution behavior is added
+
+Future work:
+
+- authenticated Manual Review action workflows
+- durable audit-ledger/event persistence for future actions
+- role-scoped Water Emergency review authority
+- owner-reviewed legal, insurance, warranty, or company-liability language if future actions affect formal policy

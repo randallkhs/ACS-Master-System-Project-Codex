@@ -496,6 +496,146 @@ function ManualReviewDetailContent({
         </div>
       </SectionCard>
 
+      <SectionCard
+        title="Command Dry Run"
+        description={
+          context.is_water_emergency_related
+            ? "Water Emergency-related command dry-run context remains separated from standard Manual Review dry-run preparation and is read-only."
+            : "Audit Ledger Preparation is displayed as read-only Phase 0 command dry-run context only."
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(detail.audit_ledger_dry_run.label)}
+            variant={badgeVariantForLabel(detail.audit_ledger_dry_run.label)}
+          />
+          <StatusBadge
+            label={
+              detail.audit_ledger_dry_run.is_currently_executable
+                ? "Currently executable: Yes"
+                : "Currently executable: No"
+            }
+            variant={
+              detail.audit_ledger_dry_run.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              detail.audit_ledger_dry_run.phase_allows_execution
+                ? "Phase allows execution: Yes"
+                : "Phase allows execution: No"
+            }
+            variant={
+              detail.audit_ledger_dry_run.phase_allows_execution
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {detail.audit_ledger_dry_run.requires_operator_identity ? (
+            <StatusBadge
+              label="Requires future operator identity"
+              variant="info"
+            />
+          ) : null}
+          {detail.audit_ledger_dry_run.requires_audit_reason ? (
+            <StatusBadge label="Requires future audit reason" variant="info" />
+          ) : null}
+          {detail.audit_ledger_dry_run.requires_idempotency_key ? (
+            <StatusBadge
+              label="Requires future idempotency key"
+              variant="info"
+            />
+          ) : null}
+          {detail.audit_ledger_dry_run.requires_immutable_event_recording ? (
+            <StatusBadge label="Immutable Event Required" variant="info" />
+          ) : null}
+          {detail.audit_ledger_dry_run.requires_post_action_consistency_check ? (
+            <StatusBadge label="Consistency Check Required" variant="info" />
+          ) : null}
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          {detail.audit_ledger_dry_run.summary}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {detail.audit_ledger_dry_run.execution_unavailable_reason}
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Audit Ledger Preparation
+            </div>
+            <DetailRow
+              label="Proposed future event"
+              value={`${detail.audit_ledger_dry_run.proposed_future_event_type} / ${humanizeLabel(detail.audit_ledger_dry_run.proposed_future_event_state)}`}
+            />
+            <div className="mt-3">
+              <DetailRow
+                label="Proposed idempotency scope"
+                value={detail.audit_ledger_dry_run.proposed_future_idempotency_scope}
+              />
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future Consistency Check
+            </div>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {
+                detail.audit_ledger_dry_run
+                  .proposed_future_consistency_check_summary
+              }
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Dry-run requirements
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.audit_ledger_dry_run.required_labels.map((label) => (
+                <StatusBadge
+                  key={label}
+                  label={humanizeLabel(label)}
+                  variant={badgeVariantForLabel(label)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Audit envelope fields
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.audit_ledger_dry_run.proposed_future_audit_envelope_fields.map(
+                (field) => (
+                  <StatusBadge
+                    key={field}
+                    label={humanizeLabel(field)}
+                    variant="neutral"
+                  />
+                ),
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Dry-run evidence
+            </div>
+            <div className="mt-2">
+              <EvidenceList
+                references={detail.audit_ledger_dry_run.evidence_references}
+              />
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <SectionCard
           title="Reason And Evidence Context"

@@ -13,6 +13,7 @@ from app.domain.dashboard import (
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
     ManualReviewActionPreflight,
+    ManualReviewAuditLedgerDryRun,
     ManualReviewCommandContract,
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
@@ -715,6 +716,10 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
             CountBucket(label="requires_preflight_pass", count=1),
             CountBucket(label="command_not_executable_phase_0", count=1),
         ),
+        audit_ledger_dry_run_counts=(
+            CountBucket(label="dry_run_only_phase_0", count=1),
+            CountBucket(label="command_execution_blocked_resolved_or_archived", count=1),
+        ),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
             CountBucket(label="resolved_or_archived", count=1),
@@ -927,6 +932,68 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     requires_immutable_event_recording=True,
                     requires_post_action_consistency_check=True,
                 ),
+                audit_ledger_dry_run=ManualReviewAuditLedgerDryRun(
+                    label="dry_run_only_phase_0",
+                    summary=(
+                        "Future Manual Review command dry-run is visible for audit-ledger "
+                        "preparation only and cannot execute in Phase 0."
+                    ),
+                    future_command_type_candidates=("request_information",),
+                    required_labels=(
+                        "dry_run_only_phase_0",
+                        "audit_envelope_required",
+                        "operator_identity_required",
+                        "role_authorization_required",
+                        "idempotency_key_required",
+                        "immutable_event_required",
+                        "consistency_check_required",
+                        "command_execution_blocked_read_only_phase",
+                    ),
+                    proposed_future_event_type=("manual_review.future_command.request_information"),
+                    proposed_future_event_state="proposed_not_recorded",
+                    proposed_future_audit_envelope_fields=(
+                        "review_item_id",
+                        "future_command_type",
+                        "operator_identity_id",
+                        "role_authorization",
+                        "audit_reason",
+                        "idempotency_key",
+                        "preflight_label",
+                        "command_contract_label",
+                        "impacted_entity_references",
+                        "audit_correlation_id",
+                        "occurred_at",
+                        "immutable_event_fingerprint",
+                        "post_action_consistency_check",
+                    ),
+                    proposed_future_idempotency_scope=(
+                        "manual_review:00000000-0000-0000-0000-000000000040:request_information"
+                    ),
+                    proposed_future_consistency_check_summary=(
+                        "Future command execution would re-read the review item, linked "
+                        "entities, immutable event fingerprint, and post-action state before "
+                        "presenting any outcome."
+                    ),
+                    audit_correlation_references=("audit:audit-manual-review-api-001",),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                        "audit:audit-manual-review-api-001",
+                    ),
+                    is_currently_executable=False,
+                    phase_allows_execution=False,
+                    execution_unavailable_reason=(
+                        "Manual Review command dry-runs are visibility only; execution "
+                        "is not available in Phase 0."
+                    ),
+                    requires_operator_identity=True,
+                    requires_role_authorization=True,
+                    requires_audit_reason=True,
+                    requires_idempotency_key=True,
+                    requires_immutable_event_recording=True,
+                    requires_post_action_consistency_check=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000040",
                     "job:00000000-0000-0000-0000-000000000041",
@@ -1075,6 +1142,69 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     requires_immutable_event_recording=True,
                     requires_post_action_consistency_check=True,
                 ),
+                audit_ledger_dry_run=ManualReviewAuditLedgerDryRun(
+                    label="command_execution_blocked_resolved_or_archived",
+                    summary=(
+                        "Resolved or archived Manual Review records retain audit-ledger "
+                        "visibility without active command dry-run execution."
+                    ),
+                    future_command_type_candidates=(),
+                    required_labels=(
+                        "dry_run_only_phase_0",
+                        "audit_envelope_required",
+                        "operator_identity_required",
+                        "role_authorization_required",
+                        "idempotency_key_required",
+                        "immutable_event_required",
+                        "consistency_check_required",
+                        "command_execution_blocked_read_only_phase",
+                        "command_execution_blocked_resolved_or_archived",
+                    ),
+                    proposed_future_event_type="manual_review.future_command.blocked",
+                    proposed_future_event_state="proposed_not_recorded",
+                    proposed_future_audit_envelope_fields=(
+                        "review_item_id",
+                        "future_command_type",
+                        "operator_identity_id",
+                        "role_authorization",
+                        "audit_reason",
+                        "idempotency_key",
+                        "preflight_label",
+                        "command_contract_label",
+                        "impacted_entity_references",
+                        "audit_correlation_id",
+                        "occurred_at",
+                        "immutable_event_fingerprint",
+                        "post_action_consistency_check",
+                    ),
+                    proposed_future_idempotency_scope=(
+                        "manual_review:00000000-0000-0000-0000-000000000043:blocked"
+                    ),
+                    proposed_future_consistency_check_summary=(
+                        "Future command execution would re-read the review item, linked "
+                        "entities, immutable event fingerprint, and post-action state before "
+                        "presenting any outcome."
+                    ),
+                    audit_correlation_references=("audit:audit-manual-review-api-002",),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                        "audit:audit-manual-review-api-002",
+                    ),
+                    is_currently_executable=False,
+                    phase_allows_execution=False,
+                    execution_unavailable_reason=(
+                        "Manual Review command dry-runs are visibility only; execution "
+                        "is not available in Phase 0."
+                    ),
+                    requires_operator_identity=True,
+                    requires_role_authorization=True,
+                    requires_audit_reason=True,
+                    requires_idempotency_key=True,
+                    requires_immutable_event_recording=True,
+                    requires_post_action_consistency_check=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000043",
                     "job:00000000-0000-0000-0000-000000000032",
@@ -1108,6 +1238,7 @@ def manual_review_detail_contract() -> ManualReviewDetailReadModel:
         action_preflight=review_item.action_preflight,
         future_action_preview=review_item.future_action_preview,
         command_contract=review_item.command_contract,
+        audit_ledger_dry_run=review_item.audit_ledger_dry_run,
         linked_entity_context=ManualReviewDetailLinkedEntityContext(
             entity_type="job",
             entity_id=UUID("00000000-0000-0000-0000-000000000041"),
@@ -1301,6 +1432,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
         {"label": "requires_preflight_pass", "count": 1},
         {"label": "command_not_executable_phase_0", "count": 1},
     ]
+    assert manual_review_queue_response.json()["audit_ledger_dry_run_counts"] == [
+        {"label": "dry_run_only_phase_0", "count": 1},
+        {"label": "command_execution_blocked_resolved_or_archived", "count": 1},
+    ]
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"
@@ -1369,6 +1504,55 @@ def test_dashboard_api_routes_return_read_only_contracts(
         ]
     )
     assert (
+        manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"]["label"]
+        == "dry_run_only_phase_0"
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"][
+            "is_currently_executable"
+        ]
+        is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"][
+            "phase_allows_execution"
+        ]
+        is False
+    )
+    assert manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"][
+        "future_command_type_candidates"
+    ] == ["request_information"]
+    assert (
+        manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"][
+            "proposed_future_event_type"
+        ]
+        == "manual_review.future_command.request_information"
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"][
+            "proposed_future_event_state"
+        ]
+        == "proposed_not_recorded"
+    )
+    assert (
+        "idempotency_key_required"
+        in manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"][
+            "required_labels"
+        ]
+    )
+    assert (
+        "immutable_event_fingerprint"
+        in manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"][
+            "proposed_future_audit_envelope_fields"
+        ]
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["audit_ledger_dry_run"][
+            "requires_immutable_event_recording"
+        ]
+        is True
+    )
+    assert (
         "requires_future_auth"
         in (
             manual_review_queue_response.json()["items"][0]["action_preflight"][
@@ -1397,6 +1581,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][1]["command_contract"]["label"] == (
         "command_not_executable_phase_0"
     )
+    assert (
+        manual_review_queue_response.json()["items"][1]["audit_ledger_dry_run"]["label"]
+        == "command_execution_blocked_resolved_or_archived"
+    )
     assert manual_review_detail_response.status_code == 200
     assert manual_review_detail_response.json()["review_item"]["review_item_id"] == (
         "00000000-0000-0000-0000-000000000040"
@@ -1418,6 +1606,17 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     assert (
         manual_review_detail_response.json()["command_contract"]["is_currently_executable"] is False
+    )
+    assert manual_review_detail_response.json()["audit_ledger_dry_run"]["label"] == (
+        "dry_run_only_phase_0"
+    )
+    assert (
+        manual_review_detail_response.json()["audit_ledger_dry_run"]["is_currently_executable"]
+        is False
+    )
+    assert (
+        manual_review_detail_response.json()["audit_ledger_dry_run"]["requires_idempotency_key"]
+        is True
     )
     assert (
         manual_review_detail_response.json()["linked_entity_context"]["is_dispatch_related"] is True
