@@ -171,6 +171,85 @@ function ManualReviewDetailContent({
         </div>
       </SectionCard>
 
+      <SectionCard
+        title="Future Action Preflight"
+        description={
+          context.is_water_emergency_related
+            ? "Water Emergency-related action preflight is separated from standard Manual Review action preparation and remains read-only."
+            : "Future action requirements are displayed as preparation notes only. This panel does not execute Manual Review actions."
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(detail.action_preflight.label)}
+            variant={badgeVariantForLabel(detail.action_preflight.label)}
+          />
+          <StatusBadge
+            label={
+              detail.action_preflight.is_currently_executable
+                ? "Currently executable"
+                : "Not executable in Phase 0"
+            }
+            variant={
+              detail.action_preflight.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {detail.action_preflight.requires_operator_identity ? (
+            <StatusBadge label="Requires operator identity" variant="info" />
+          ) : null}
+          {detail.action_preflight.requires_audit_reason ? (
+            <StatusBadge label="Requires audit reason" variant="info" />
+          ) : null}
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          {detail.action_preflight.summary}
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Preflight blockers
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.action_preflight.blocker_codes.map((blockerCode) => (
+                <StatusBadge
+                  key={blockerCode}
+                  label={humanizeLabel(blockerCode)}
+                  variant={badgeVariantForLabel(blockerCode)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future requirements
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.action_preflight.required_future_controls.map((control) => (
+                <StatusBadge
+                  key={control}
+                  label={humanizeLabel(control)}
+                  variant={badgeVariantForLabel(control)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Preflight evidence
+            </div>
+            <div className="mt-2">
+              <EvidenceList
+                references={detail.action_preflight.evidence_references}
+              />
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <SectionCard
           title="Reason And Evidence Context"
@@ -313,7 +392,7 @@ function EvidenceList({ references }: { references: string[] }) {
       {references.map((reference) => (
         <span
           key={reference}
-          className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 font-mono text-xs font-medium text-slate-600"
+          className="break-all rounded-md border border-slate-200 bg-slate-50 px-2 py-1 font-mono text-xs font-medium text-slate-600"
         >
           {reference}
         </span>

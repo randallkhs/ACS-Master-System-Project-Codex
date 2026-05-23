@@ -92,6 +92,17 @@ export type ManualReviewDecisionReadinessResponse = {
   is_resolution_candidate: boolean;
 };
 
+export type ManualReviewActionPreflightResponse = {
+  label: string;
+  summary: string;
+  blocker_codes: string[];
+  required_future_controls: string[];
+  evidence_references: string[];
+  is_currently_executable: boolean;
+  requires_operator_identity: boolean;
+  requires_audit_reason: boolean;
+};
+
 export type ManualReviewQueueItemResponse = {
   review_item_id: string;
   status: string;
@@ -120,6 +131,7 @@ export type ManualReviewQueueItemResponse = {
   audit_correlation_id: string | null;
   evidence_references: string[];
   decision_readiness: ManualReviewDecisionReadinessResponse;
+  action_preflight: ManualReviewActionPreflightResponse;
 };
 
 export type ManualReviewQueueResponse = {
@@ -139,6 +151,7 @@ export type ManualReviewQueueResponse = {
   group_counts: CountBucket[];
   age_bucket_counts: CountBucket[];
   decision_readiness_counts: CountBucket[];
+  action_preflight_counts: CountBucket[];
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   available_filters: ManualReviewFilterOptionResponse[];
@@ -648,6 +661,7 @@ export type ManualReviewDetailResponse = {
   review_item: ManualReviewQueueItemResponse;
   reason_context: ManualReviewReasonEvidenceContextResponse;
   decision_readiness: ManualReviewDecisionReadinessResponse;
+  action_preflight: ManualReviewActionPreflightResponse;
   linked_entity_context: ManualReviewDetailLinkedEntityContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];

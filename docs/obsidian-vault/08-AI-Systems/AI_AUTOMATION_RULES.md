@@ -383,6 +383,14 @@ AI is still not used in this module.
 
 AI must not infer final Manual Review readiness taxonomy, approve, reject, defer, archive, resolve, dispatch, escalate, clear blockers, decide missing information is sufficient, call vendor integrations, implement auth/RBAC, or transform readiness labels into workflow authority. Future AI explanations for Manual Review readiness evidence must remain advisory and separate from persisted backend read models.
 
+## Phase 0 Module 44 Boundary
+
+Manual Review action-preflight, future authorization readiness, blocker evidence, operator identity preparation, and audit-reason preparation visibility is deterministic, display-only, and read-only.
+
+AI is still not used in this module.
+
+AI must not infer final Manual Review action eligibility, approve, reject, defer, archive, resolve, dispatch, escalate, clear blockers, decide missing information is sufficient, create auth/RBAC behavior, create operator identity, create audit reasons, call vendor integrations, or transform action-preflight labels into workflow authority. Future AI explanations for Manual Review action-preflight evidence must remain advisory and separate from persisted backend read models and authenticated operator actions.
+
 ---
 
 ## Confidence And Review

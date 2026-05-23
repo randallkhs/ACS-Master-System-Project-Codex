@@ -15,6 +15,7 @@ from app.domain.dashboard import (
     DispatchLifecycleSummary,
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
+    ManualReviewActionPreflight,
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
@@ -667,6 +668,10 @@ class DashboardReadModelService:
                 (item.decision_readiness for item in queue_items),
                 "label",
             ),
+            action_preflight_counts=count_by_attr(
+                (item.action_preflight for item in queue_items),
+                "label",
+            ),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
@@ -723,6 +728,7 @@ class DashboardReadModelService:
                 queue_item=queue_item,
             ),
             decision_readiness=queue_item.decision_readiness,
+            action_preflight=queue_item.action_preflight,
             linked_entity_context=manual_review_detail_linked_entity_context(
                 queue_item,
                 jobs=jobs,
@@ -1480,6 +1486,19 @@ def manual_review_queue_item(
         water_emergency_id=water_emergency_id,
         evidence_references=evidence_references,
     )
+    action_preflight = manual_review_action_preflight(
+        review,
+        groups=groups,
+        decision_readiness=decision_readiness,
+        entity_type=normalized(review.entity_type) or None,
+        entity_id=review.entity_id,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+        evidence_references=evidence_references,
+    )
 
     return ManualReviewQueueItem(
         review_item_id=review.id or NIL_UUID,
@@ -1508,6 +1527,7 @@ def manual_review_queue_item(
         recommended_action=review.recommended_action,
         audit_correlation_id=review.audit_correlation_id,
         decision_readiness=decision_readiness,
+        action_preflight=action_preflight,
         evidence_references=evidence_references,
     )
 
@@ -1555,6 +1575,21 @@ def manual_review_decision_readiness(
             reason_codes.append("duplicate_or_conflict_evidence")
         if "missing_data" in groups:
             reason_codes.append("missing_data_evidence")
+    elif manual_review_needs_entity_context(
+        entity_type=entity_type,
+        entity_id=entity_id,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+    ):
+        label = "needs_entity_context"
+        summary = (
+            "The review points to an entity that is not yet represented by a deterministic "
+            "job, work-order, visit, route, or Water Emergency link."
+        )
+        reason_codes.append("entity_context_missing")
     elif "duplicate_or_conflict" in groups:
         label = "blocked_by_conflict"
         summary = (
@@ -1573,21 +1608,6 @@ def manual_review_decision_readiness(
             "read-only and needs operator-safe information gathering before any future action."
         )
         reason_codes.append("missing_data_evidence")
-    elif manual_review_needs_entity_context(
-        entity_type=entity_type,
-        entity_id=entity_id,
-        job_id=job_id,
-        work_order_id=work_order_id,
-        visit_id=visit_id,
-        route_assignment_id=route_assignment_id,
-        water_emergency_id=water_emergency_id,
-    ):
-        label = "needs_entity_context"
-        summary = (
-            "The review points to an entity that is not yet represented by a deterministic "
-            "job, work-order, visit, route, or Water Emergency link."
-        )
-        reason_codes.append("entity_context_missing")
     elif "dispatch_related" in groups:
         label = "needs_dispatch_review"
         summary = (
@@ -1635,6 +1655,111 @@ def manual_review_decision_readiness(
     )
 
 
+def manual_review_action_preflight(
+    review: ReviewItem,
+    *,
+    groups: Sequence[str],
+    decision_readiness: ManualReviewDecisionReadiness,
+    entity_type: str | None,
+    entity_id: UUID | None,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+    evidence_references: Sequence[str],
+) -> ManualReviewActionPreflight:
+    status = normalized(review.status)
+    blocker_codes: list[str] = []
+    required_future_controls = [
+        "action_not_available_read_only_phase",
+        "requires_future_auth",
+        "requires_operator_identity",
+        "requires_audit_reason",
+    ]
+
+    if status in RESOLVED_REVIEW_STATUSES or status == "archived":
+        label = "blocked_by_resolved_or_archived_status"
+        summary = (
+            "Resolved or archived Manual Review items are historical visibility and are "
+            "not eligible for active future review actions."
+        )
+        blocker_codes.append("resolved_or_archived_status")
+    elif manual_review_needs_entity_context(
+        entity_type=entity_type,
+        entity_id=entity_id,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+    ):
+        label = "blocked_by_missing_entity_context"
+        summary = (
+            "Future Manual Review action is blocked until the review has deterministic "
+            "linked entity context. This Phase 0 preflight does not execute an action."
+        )
+        blocker_codes.append("missing_entity_context")
+    elif water_emergency_id is not None:
+        label = "blocked_by_water_emergency_context"
+        summary = (
+            "Future Manual Review action must account for the linked Water Emergency "
+            "context and remain separated from standard dispatch review actions."
+        )
+        blocker_codes.append("water_emergency_context_required")
+        if "missing_data" in groups:
+            blocker_codes.append("missing_data_context_required")
+        if "duplicate_or_conflict" in groups:
+            blocker_codes.append("conflict_context_required")
+    elif "duplicate_or_conflict" in groups:
+        label = "blocked_by_conflict"
+        summary = (
+            "Duplicate or conflicting evidence must remain blocked until a future "
+            "operator-decision workflow is explicitly implemented."
+        )
+        blocker_codes.append("conflict_context_required")
+    elif "missing_data" in groups:
+        label = "blocked_by_missing_data"
+        summary = (
+            "Future Manual Review action is blocked until missing, invalid, incomplete, "
+            "or unknown data has operator-safe resolution context."
+        )
+        blocker_codes.append("missing_data_context_required")
+    elif decision_readiness.label == "ready_for_resolution_review":
+        label = "eligible_for_resolution_review"
+        summary = (
+            "Existing evidence is ready for a future authenticated resolution review, "
+            "but Phase 0 does not execute that resolution."
+        )
+    elif decision_readiness.label == "ready_for_operator_decision":
+        label = "eligible_for_operator_decision"
+        summary = (
+            "Existing evidence is ready for a future authenticated operator decision, "
+            "but Phase 0 does not execute approve, reject, defer, archive, or resolve actions."
+        )
+    else:
+        label = "unknown_action_eligibility"
+        summary = (
+            "No deterministic future action eligibility can be selected safely, so the "
+            "review remains read-only Manual Review visibility."
+        )
+        blocker_codes.append("unknown_action_eligibility")
+
+    if decision_readiness.label:
+        blocker_codes.append(f"readiness:{decision_readiness.label}")
+
+    return ManualReviewActionPreflight(
+        label=label,
+        summary=summary,
+        blocker_codes=tuple(dict.fromkeys(blocker_codes)),
+        required_future_controls=tuple(required_future_controls),
+        evidence_references=tuple(evidence_references),
+        is_currently_executable=False,
+        requires_operator_identity=True,
+        requires_audit_reason=True,
+    )
+
+
 def manual_review_needs_entity_context(
     *,
     entity_type: str | None,
@@ -1645,9 +1770,6 @@ def manual_review_needs_entity_context(
     route_assignment_id: UUID | None,
     water_emergency_id: UUID | None,
 ) -> bool:
-    if entity_type is None and entity_id is None:
-        return False
-
     return all(
         linked_id is None
         for linked_id in (

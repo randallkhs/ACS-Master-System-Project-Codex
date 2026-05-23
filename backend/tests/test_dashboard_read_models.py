@@ -369,6 +369,7 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
 
     group_counts = {bucket.label: bucket.count for bucket in queue.group_counts}
     readiness_counts = {bucket.label: bucket.count for bucket in queue.decision_readiness_counts}
+    preflight_counts = {bucket.label: bucket.count for bucket in queue.action_preflight_counts}
     items_by_reason = {item.reason_code: item for item in queue.items}
 
     assert queue.total_items == 4
@@ -391,6 +392,9 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert readiness_counts["blocked_by_missing_data"] == 1
     assert readiness_counts["needs_water_emergency_review"] == 1
     assert readiness_counts["resolved_or_archived"] == 2
+    assert preflight_counts["blocked_by_missing_data"] == 1
+    assert preflight_counts["blocked_by_water_emergency_context"] == 1
+    assert preflight_counts["blocked_by_resolved_or_archived_status"] == 2
 
     missing_item = items_by_reason["missing_customer_data"]
     assert missing_item.review_item_id == missing_review_id
@@ -398,6 +402,12 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     assert missing_item.decision_readiness.label == "blocked_by_missing_data"
     assert missing_item.decision_readiness.is_active_decision_need is True
     assert "missing_data_evidence" in missing_item.decision_readiness.reason_codes
+    assert missing_item.action_preflight.label == "blocked_by_missing_data"
+    assert missing_item.action_preflight.is_currently_executable is False
+    assert missing_item.action_preflight.requires_operator_identity is True
+    assert missing_item.action_preflight.requires_audit_reason is True
+    assert "requires_future_auth" in missing_item.action_preflight.required_future_controls
+    assert "requires_audit_reason" in missing_item.action_preflight.required_future_controls
     assert missing_item.job_id == standard_job.id
     assert missing_item.work_order_id == standard_work_order.id
     assert missing_item.age_bucket == "new"
@@ -407,6 +417,9 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
     water_item = items_by_reason["water_emergency_equipment_review"]
     assert water_item.water_emergency_id == water_emergency.id
     assert water_item.decision_readiness.label == "needs_water_emergency_review"
+    assert water_item.action_preflight.label == "blocked_by_water_emergency_context"
+    assert "water_emergency_context_required" in water_item.action_preflight.blocker_codes
+    assert water_item.action_preflight.is_currently_executable is False
     assert "water_emergency_related" in water_item.decision_readiness.reason_codes
     assert "water_emergency_related" in water_item.visibility_groups
     assert "dispatch_related" not in water_item.visibility_groups
@@ -416,6 +429,8 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
 
     conflict_item = items_by_reason["duplicate_route_conflict"]
     assert conflict_item.decision_readiness.label == "resolved_or_archived"
+    assert conflict_item.action_preflight.label == "blocked_by_resolved_or_archived_status"
+    assert conflict_item.action_preflight.is_currently_executable is False
     assert conflict_item.decision_readiness.is_active_decision_need is False
     assert conflict_item.route_assignment_id == route_assignment.id
     assert conflict_item.work_order_id == standard_work_order.id
@@ -424,6 +439,8 @@ def test_manual_review_queue_detail_groups_reason_and_entity_context() -> None:
 
     archived_item = items_by_reason["cancellation_status_uncertainty"]
     assert archived_item.decision_readiness.label == "resolved_or_archived"
+    assert archived_item.action_preflight.label == "blocked_by_resolved_or_archived_status"
+    assert archived_item.action_preflight.is_currently_executable is False
     assert archived_item.decision_readiness.is_active_decision_need is False
     assert archived_item.age_bucket == "resolved_or_archived"
     assert archived_item.attention_indicator is False
@@ -478,9 +495,61 @@ def test_manual_review_decision_readiness_marks_missing_entity_context_safely() 
 
     assert queue.total_items == 1
     assert queue.decision_readiness_counts == (CountBucket(label="needs_entity_context", count=1),)
+    assert queue.action_preflight_counts == (
+        CountBucket(label="blocked_by_missing_entity_context", count=1),
+    )
     assert queue.items[0].decision_readiness.label == "needs_entity_context"
+    assert queue.items[0].action_preflight.label == "blocked_by_missing_entity_context"
+    assert "missing_entity_context" in queue.items[0].action_preflight.blocker_codes
+    assert queue.items[0].action_preflight.is_currently_executable is False
     assert queue.items[0].decision_readiness.is_active_decision_need is True
     assert "entity_context_missing" in queue.items[0].decision_readiness.reason_codes
+
+
+def test_manual_review_decision_readiness_marks_missing_all_entity_context_safely() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        review_items=[
+            ReviewItem(
+                id=uuid4(),
+                reason_code="operator_review_requested",
+                status="open",
+                severity="medium",
+                created_at=now - timedelta(minutes=30),
+                audit_correlation_id="audit-manual-review-no-entity-context",
+            ),
+        ],
+    )
+
+    assert queue.total_items == 1
+    assert queue.items[0].decision_readiness.label == "needs_entity_context"
+    assert queue.items[0].action_preflight.label == "blocked_by_missing_entity_context"
+    assert queue.items[0].action_preflight.is_currently_executable is False
+    assert queue.items[0].decision_readiness.is_resolution_candidate is False
+    assert queue.items[0].action_preflight.label != "eligible_for_operator_decision"
+
+
+def test_manual_review_action_preflight_does_not_mutate_review_status() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    review = ReviewItem(
+        id=uuid4(),
+        reason_code="missing_customer_data",
+        status="open",
+        severity="high",
+        created_at=now - timedelta(hours=1),
+        audit_correlation_id="audit-manual-review-preflight-read-only",
+    )
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        review_items=[review],
+    )
+
+    assert review.status == "open"
+    assert queue.items[0].status == "open"
+    assert queue.items[0].decision_readiness.label == "needs_entity_context"
+    assert queue.items[0].action_preflight.label == "blocked_by_missing_entity_context"
+    assert queue.items[0].action_preflight.is_currently_executable is False
 
 
 def test_manual_review_detail_read_model_includes_entity_context_and_ordered_evidence() -> None:
@@ -601,6 +670,9 @@ def test_manual_review_detail_read_model_includes_entity_context_and_ordered_evi
     assert detail.reason_context.blocker_indicator is True
     assert detail.reason_context.attention_indicator is True
     assert detail.decision_readiness.label == "needs_water_emergency_review"
+    assert detail.action_preflight.label == "blocked_by_water_emergency_context"
+    assert "water_emergency_context_required" in detail.action_preflight.blocker_codes
+    assert detail.action_preflight.is_currently_executable is False
     assert detail.decision_readiness.is_active_decision_need is True
     assert "water_emergency_related" in detail.decision_readiness.reason_codes
     assert detail.linked_entity_context.water_emergency_id == water_emergency.id

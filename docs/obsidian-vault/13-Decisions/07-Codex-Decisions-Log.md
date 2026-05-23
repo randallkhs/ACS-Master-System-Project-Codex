@@ -1035,8 +1035,6 @@ Use this file for durable decisions that affect future development. Do not recor
   - API/frontend contract notes
   - AI/dashboard safety boundary
 
----
-
 ## 2026-05-21 — Phase 0 Module 36 Water Emergency Operator Queue, Attention Priority, And Triage Visibility
 
 - Decision type: Implementation / Water Emergency visibility / read-only queue contract
@@ -1392,6 +1390,40 @@ Use this file for durable decisions that affect future development. Do not recor
 - Future implications:
   - Future authenticated modules still need formal Manual Review approve/reject/defer/archive/resolve workflows.
   - Future production modules may need action history, operator identity, outcome reason taxonomy, role-scoped visibility, and refresh/stale-data behavior.
+  - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary
+
+---
+
+## 2026-05-22 — Phase 0 Module 44 Manual Review Action Authorization, Preflight Validation, And Safe Execution Preparation
+
+- Decision type: Implementation / Manual Review visibility / read-only action-preflight contract
+- Status: Implemented
+- Decision:
+  - Extend Manual Review queue and detail read models with deterministic action-preflight labels, summaries, blocker codes, future requirement labels, evidence references, non-executable flags, operator-identity requirement flags, and audit-reason requirement flags.
+  - Add queue-level action-preflight counts for operator scanability.
+  - Keep Water Emergency-related action preflight separated from standard dispatch review preparation through persisted entity, job, visit, and Water Emergency links.
+  - Treat resolved and archived review items as historical visibility blocked from active future actions.
+  - Display future auth, operator identity, and audit reason requirements as read-only preparation notes only.
+  - Add frontend queue and detail action-preflight visibility without approve/reject/defer/archive/resolve/dispatch controls.
+- Rationale:
+  - Manual Review is the system safety authority, so future action modules need clear eligibility and blocker evidence before any mutation endpoints or authenticated controls are added.
+  - Action-preflight labels help explain whether a review is blocked by missing entity context, missing data, conflict evidence, Water Emergency context, resolved/archived state, or unknown action eligibility.
+  - The labels must remain read-only Phase 0 baselines so they do not become hidden workflow execution, action authority, auth/RBAC, or final business policy.
+- Future implications:
+  - Future authenticated modules still need formal Manual Review approve/reject/defer/archive/resolve workflows.
+  - Future production modules may need action history, operator identity capture, required audit reasons, outcome reason taxonomy, permission checks, and role-scoped action visibility.
   - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
 - Affected systems:
   - Backend dashboard domain read models

@@ -271,6 +271,14 @@ These labels are Randall-authorized Phase 0 visibility baselines only. They expl
 
 Water Emergency-related readiness must remain visually separated from standard dispatch readiness. Resolved and archived review items must not be shown as active decision needs.
 
+## Phase 0 Module 44 Manual Review Action-Preflight Visibility
+
+Manual Review now has read-only action-preflight and future authorization-readiness visibility. The queue and detail read models can expose internal labels such as action not available in read-only phase, eligible for future operator decision, eligible for future resolution review, blocked by missing entity context, blocked by missing data, blocked by conflict, blocked by Water Emergency context, blocked by resolved or archived status, requires future auth, requires operator identity, requires audit reason, and unknown action eligibility.
+
+These labels are Randall-authorized Phase 0 visibility baselines only. They prepare future Manual Review action modules by showing blockers and required evidence, but they do not make any action executable and do not implement auth, RBAC, approve, reject, defer, archive, resolve, dispatch, vendor calls, AI authority, or workflow execution.
+
+Water Emergency-related action preflight must remain visually separated from standard dispatch review context. Resolved and archived review items must not be shown as eligible for active future review actions.
+
 ---
 
 # 10. Confidence Scoring

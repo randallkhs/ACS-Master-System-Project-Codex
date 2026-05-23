@@ -273,6 +273,13 @@ export const mockDashboardOverview: DashboardOverviewResponse = {
   }
 };
 
+const manualReviewFutureControls = [
+  "action_not_available_read_only_phase",
+  "requires_future_auth",
+  "requires_operator_identity",
+  "requires_audit_reason"
+];
+
 export const mockManualReviewQueue: ManualReviewQueueResponse = {
   generated_at: "2026-05-16T09:35:00Z",
   total_items: 5,
@@ -327,6 +334,12 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
     { label: "needs_water_emergency_review", count: 1 },
     { label: "resolved_or_archived", count: 2 },
     { label: "needs_operator_review", count: 1 }
+  ],
+  action_preflight_counts: [
+    { label: "blocked_by_missing_data", count: 1 },
+    { label: "blocked_by_resolved_or_archived_status", count: 2 },
+    { label: "blocked_by_water_emergency_context", count: 1 },
+    { label: "unknown_action_eligibility", count: 1 }
   ],
   audit_correlation_count: 5,
   taxonomy_metadata: {
@@ -511,6 +524,25 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         ],
         is_active_decision_need: true,
         is_resolution_candidate: false
+      },
+      action_preflight: {
+        label: "blocked_by_missing_data",
+        summary:
+          "Future Manual Review action is blocked until missing, invalid, incomplete, or unknown data has operator-safe resolution context.",
+        blocker_codes: [
+          "missing_data_context_required",
+          "readiness:blocked_by_missing_data"
+        ],
+        required_future_controls: manualReviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000001",
+          "job:42000000-0000-4000-8000-000000000001",
+          "work_order:43000000-0000-4000-8000-000000000001",
+          "audit:audit-manual-review-mock-001"
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true
       }
     },
     {
@@ -565,6 +597,26 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         ],
         is_active_decision_need: true,
         is_resolution_candidate: false
+      },
+      action_preflight: {
+        label: "blocked_by_water_emergency_context",
+        summary:
+          "Future Manual Review action must account for the linked Water Emergency context and remain separated from standard dispatch review actions.",
+        blocker_codes: [
+          "water_emergency_context_required",
+          "readiness:needs_water_emergency_review"
+        ],
+        required_future_controls: manualReviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000002",
+          "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+          "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+          "audit:audit-manual-review-mock-002"
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true
       }
     },
     {
@@ -618,6 +670,26 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         ],
         is_active_decision_need: false,
         is_resolution_candidate: false
+      },
+      action_preflight: {
+        label: "blocked_by_resolved_or_archived_status",
+        summary:
+          "Resolved or archived Manual Review items are historical visibility and are not eligible for active future review actions.",
+        blocker_codes: [
+          "resolved_or_archived_status",
+          "readiness:resolved_or_archived"
+        ],
+        required_future_controls: manualReviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000003",
+          "job:42000000-0000-4000-8000-000000000003",
+          "work_order:43000000-0000-4000-8000-000000000003",
+          "visit:45000000-0000-4000-8000-000000000003",
+          "route_assignment:44000000-0000-4000-8000-000000000003"
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true
       }
     },
     {
@@ -665,6 +737,23 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         ],
         is_active_decision_need: false,
         is_resolution_candidate: false
+      },
+      action_preflight: {
+        label: "blocked_by_resolved_or_archived_status",
+        summary:
+          "Resolved or archived Manual Review items are historical visibility and are not eligible for active future review actions.",
+        blocker_codes: [
+          "resolved_or_archived_status",
+          "readiness:resolved_or_archived"
+        ],
+        required_future_controls: manualReviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000004",
+          "job:42000000-0000-4000-8000-000000000004"
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true
       }
     },
     {
@@ -713,6 +802,23 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         ],
         is_active_decision_need: true,
         is_resolution_candidate: false
+      },
+      action_preflight: {
+        label: "unknown_action_eligibility",
+        summary:
+          "No deterministic future action eligibility can be selected safely, so the review remains read-only Manual Review visibility.",
+        blocker_codes: [
+          "unknown_action_eligibility",
+          "readiness:needs_operator_review"
+        ],
+        required_future_controls: manualReviewFutureControls,
+        evidence_references: [
+          "review:41000000-0000-4000-8000-000000000005",
+          "audit:audit-manual-review-mock-005"
+        ],
+        is_currently_executable: false,
+        requires_operator_identity: true,
+        requires_audit_reason: true
       }
     }
   ]
@@ -734,6 +840,7 @@ export const mockManualReviewDetail: ManualReviewDetailResponse = {
     evidence_references: mockManualReviewQueue.items[0].evidence_references
   },
   decision_readiness: mockManualReviewQueue.items[0].decision_readiness,
+  action_preflight: mockManualReviewQueue.items[0].action_preflight,
   linked_entity_context: {
     entity_type: "job",
     entity_id: "42000000-0000-4000-8000-000000000001",

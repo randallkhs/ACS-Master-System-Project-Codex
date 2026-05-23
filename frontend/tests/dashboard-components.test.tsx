@@ -562,8 +562,13 @@ describe("DashboardView", () => {
     expect(html).toContain("Read-only Manual Review visibility");
     expect(html).toContain("Randall-authorized Phase 0 review taxonomy baseline");
     expect(html).toContain("Decision Readiness");
+    expect(html).toContain("Future Action Preflight");
     expect(html).toContain("Blocked By Missing Data");
+    expect(html).toContain("Requires Future Auth");
+    expect(html).toContain("Requires Operator Identity");
+    expect(html).toContain("Requires Audit Reason");
     expect(html).toContain("Needs Water Emergency Review");
+    expect(html).toContain("Blocked By Water Emergency Context");
     expect(html).toContain("Active decision need");
     expect(html).toContain("Water Emergency-related reviews");
     expect(html).toContain("Standard dispatch and other reviews");
@@ -620,7 +625,8 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Reject review");
     expect(html).not.toContain("Defer review");
     expect(html).not.toContain("Archive review");
-    expect(html).not.toContain("Action");
+    expect(html).not.toContain("Execute action");
+    expect(html).not.toContain("Run preflight");
   });
 
   it("renders Manual Review filter controls and can isolate Water Emergency reviews", () => {
@@ -797,6 +803,12 @@ describe("DashboardView", () => {
     expect(html).toContain("Decision Readiness");
     expect(html).toContain("Needs Water Emergency Review");
     expect(html).toContain("Water Emergency-related readiness");
+    expect(html).toContain("Future Action Preflight");
+    expect(html).toContain("Blocked By Water Emergency Context");
+    expect(html).toContain("Water Emergency-related action preflight");
+    expect(html).toContain("Requires Future Auth");
+    expect(html).toContain("Requires Operator Identity");
+    expect(html).toContain("Requires Audit Reason");
     expect(html).toContain("Water Emergency Related");
     expect(html).toContain("Linked Entity Context");
     expect(html).toContain("Water Emergency review detail");
@@ -809,6 +821,8 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Reject review");
     expect(html).not.toContain("Defer review");
     expect(html).not.toContain("Archive review");
+    expect(html).not.toContain("Execute action");
+    expect(html).not.toContain("Run preflight");
   });
 
   it("renders Manual Review detail not-selected state without mock success or actions", () => {

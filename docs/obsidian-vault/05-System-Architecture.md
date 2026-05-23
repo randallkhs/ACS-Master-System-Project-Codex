@@ -861,6 +861,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 44 Manual Review Action-Preflight Boundary
+
+Module 44 extends Manual Review queue and detail visibility with read-only action authorization readiness and preflight context:
+
+- backend read models expose deterministic action-preflight labels, summaries, blocker codes, future requirement labels, evidence references, and explicit non-executable flags from existing ReviewItem evidence
+- future-only requirements identify that real actions will need auth, operator identity, and audit reason capture later
+- Water Emergency-related action preflight is separated from standard dispatch review preparation through persisted job, visit, entity, and Water Emergency links
+- missing entity context, missing data, duplicate/conflict evidence, Water Emergency context, resolved/archived status, and unknown eligibility remain blockers or visibility states instead of executable actions
+- frontend queue and detail panels display preflight context as read-only evidence and do not add workflow controls
+
+The boundary remains projection-only. The endpoint and UI do not execute Manual Review actions, mutate review records, implement auth/RBAC, dispatch work, call external integrations, add AI authority, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review approve/reject/defer/archive/resolve workflows
+- final Manual Review action eligibility taxonomy and role authority
+- operator identity capture, audit reason requirements, and action-history persistence
+- production role-scoped action visibility and permission design
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

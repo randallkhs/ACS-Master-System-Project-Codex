@@ -220,6 +220,8 @@ Module 42 adds Manual Review filter, sort, saved-view, and queue scalability vis
 
 Module 43 adds Manual Review decision-readiness and resolution-preparation visibility as read-model metadata only. It does not add action states, workflow transitions, approval/rejection outcome tables, auth/RBAC tables, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated Manual Review action history, operator identity, resolution outcomes, and role-scoped visibility after the action workflow is explicitly designed.
 
+Module 44 adds Manual Review action-preflight and future authorization-readiness visibility as read-model metadata only. It does not add action states, workflow transitions, approval/rejection/defer/archive outcome tables, auth/RBAC tables, operator identity tables, audit-reason persistence, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated Manual Review action history, operator identity capture, required audit reasons, outcome reason taxonomy, and role-scoped action authority after the action workflow is explicitly designed.
+
 ## Audit Logs
 
 Represents durable trace history.
@@ -550,6 +552,22 @@ No database table or column was added for:
 - review queue pagination cursors
 
 The read model uses existing `ReviewItem` fields plus related job, work-order, visit, route-assignment, and Water Emergency references where they already exist. Visibility groups such as open, deferred, resolved, archived, blocked, Water Emergency-related, dispatch-related, missing data, duplicate/conflict, cancellation/status uncertainty, and needs-operator-review are Randall-authorized Phase 0 baseline labels only. They do not mutate review records, resolve reviews, or define final company policy.
+
+## Phase 0 Module 44 Manual Review Action-Preflight Read-Model Note
+
+Module 44 adds Manual Review action-preflight visibility as dashboard read-model projections only.
+
+No database table or column was added for:
+
+- Manual Review action execution
+- approval/rejection/defer/archive/resolve outcomes
+- operator identity capture
+- audit reason persistence
+- auth or RBAC
+- action history
+- workflow engine state
+
+The read model derives action-preflight labels from existing `ReviewItem` status, reason, entity links, Water Emergency links, decision-readiness labels, and evidence references. Labels such as blocked by missing data, blocked by conflict, blocked by Water Emergency context, blocked by resolved/archived status, eligible for future operator decision, and unknown action eligibility are Randall-authorized Phase 0 visibility baselines only. They do not make actions executable, mutate review records, or define final company policy.
 
 ---
 

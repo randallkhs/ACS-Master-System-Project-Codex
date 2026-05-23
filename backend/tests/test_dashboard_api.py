@@ -12,6 +12,7 @@ from app.domain.dashboard import (
     DispatchLifecycleSummary,
     ExternalExecutionSummary,
     GovernanceAccountabilitySummary,
+    ManualReviewActionPreflight,
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
@@ -700,6 +701,10 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
             CountBucket(label="blocked_by_missing_data", count=1),
             CountBucket(label="resolved_or_archived", count=1),
         ),
+        action_preflight_counts=(
+            CountBucket(label="blocked_by_missing_data", count=1),
+            CountBucket(label="blocked_by_resolved_or_archived_status", count=1),
+        ),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
             CountBucket(label="resolved_or_archived", count=1),
@@ -807,6 +812,29 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     is_active_decision_need=True,
                     is_resolution_candidate=False,
                 ),
+                action_preflight=ManualReviewActionPreflight(
+                    label="blocked_by_missing_data",
+                    summary=(
+                        "Future Manual Review action is blocked until missing-data "
+                        "context is addressed. This Phase 0 label is read-only."
+                    ),
+                    blocker_codes=("missing_data_context_required",),
+                    required_future_controls=(
+                        "action_not_available_read_only_phase",
+                        "requires_future_auth",
+                        "requires_operator_identity",
+                        "requires_audit_reason",
+                    ),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                        "audit:audit-manual-review-api-001",
+                    ),
+                    is_currently_executable=False,
+                    requires_operator_identity=True,
+                    requires_audit_reason=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000040",
                     "job:00000000-0000-0000-0000-000000000041",
@@ -853,6 +881,29 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     is_active_decision_need=False,
                     is_resolution_candidate=False,
                 ),
+                action_preflight=ManualReviewActionPreflight(
+                    label="blocked_by_resolved_or_archived_status",
+                    summary=(
+                        "Resolved or archived Manual Review items are historical "
+                        "visibility and are not eligible for active future actions."
+                    ),
+                    blocker_codes=("resolved_or_archived_status",),
+                    required_future_controls=(
+                        "action_not_available_read_only_phase",
+                        "requires_future_auth",
+                        "requires_operator_identity",
+                        "requires_audit_reason",
+                    ),
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                        "audit:audit-manual-review-api-002",
+                    ),
+                    is_currently_executable=False,
+                    requires_operator_identity=True,
+                    requires_audit_reason=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000043",
                     "job:00000000-0000-0000-0000-000000000032",
@@ -883,6 +934,7 @@ def manual_review_detail_contract() -> ManualReviewDetailReadModel:
             evidence_references=review_item.evidence_references,
         ),
         decision_readiness=review_item.decision_readiness,
+        action_preflight=review_item.action_preflight,
         linked_entity_context=ManualReviewDetailLinkedEntityContext(
             entity_type="job",
             entity_id=UUID("00000000-0000-0000-0000-000000000041"),
@@ -1064,6 +1116,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
         {"label": "blocked_by_missing_data", "count": 1},
         {"label": "resolved_or_archived", "count": 1},
     ]
+    assert manual_review_queue_response.json()["action_preflight_counts"] == [
+        {"label": "blocked_by_missing_data", "count": 1},
+        {"label": "blocked_by_resolved_or_archived_status", "count": 1},
+    ]
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"
@@ -1080,6 +1136,23 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][0]["decision_readiness"]["label"] == (
         "blocked_by_missing_data"
     )
+    assert manual_review_queue_response.json()["items"][0]["action_preflight"]["label"] == (
+        "blocked_by_missing_data"
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["action_preflight"][
+            "is_currently_executable"
+        ]
+        is False
+    )
+    assert (
+        "requires_future_auth"
+        in (
+            manual_review_queue_response.json()["items"][0]["action_preflight"][
+                "required_future_controls"
+            ]
+        )
+    )
     assert (
         manual_review_queue_response.json()["items"][0]["decision_readiness"][
             "is_active_decision_need"
@@ -1092,6 +1165,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][1]["decision_readiness"]["label"] == (
         "resolved_or_archived"
     )
+    assert manual_review_queue_response.json()["items"][1]["action_preflight"]["label"] == (
+        "blocked_by_resolved_or_archived_status"
+    )
     assert manual_review_detail_response.status_code == 200
     assert manual_review_detail_response.json()["review_item"]["review_item_id"] == (
         "00000000-0000-0000-0000-000000000040"
@@ -1100,6 +1176,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
         "missing_customer_data"
     )
     assert manual_review_detail_response.json()["decision_readiness"]["label"] == (
+        "blocked_by_missing_data"
+    )
+    assert manual_review_detail_response.json()["action_preflight"]["label"] == (
         "blocked_by_missing_data"
     )
     assert (

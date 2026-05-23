@@ -738,3 +738,28 @@ Open API/frontend concerns:
 - final Manual Review readiness/action taxonomy
 - role-scoped review visibility after auth/RBAC exists
 - future action history, resolution outcome, and audit identity requirements
+
+## Phase 0 Module 44 Manual Review Action-Preflight Contract Boundary
+
+The Manual Review queue and detail API contracts now include read-only action-preflight metadata for future action module preparation.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes action-preflight counts and each queue item's preflight label, summary, blocker codes, future requirement labels, evidence references, non-executable flag, operator-identity requirement flag, and audit-reason requirement flag.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the selected review item's same action-preflight context alongside decision-readiness, reason/evidence, linked entity, and timeline evidence.
+- preflight labels include blocked by missing entity context, blocked by missing data, blocked by conflict, blocked by Water Emergency context, blocked by resolved or archived status, eligible for future operator decision, eligible for future resolution review, and unknown action eligibility where deterministically supported.
+- future requirements such as auth, operator identity, and audit reason are informational only and are not implemented as controls.
+- Water Emergency-related action preflight remains separated through persisted entity/job/visit/Water Emergency links.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, backend preference persistence, or workflow execution calls are added
+- action-preflight labels are Randall-authorized Phase 0 visibility baselines only and must not imply current action authority, legal policy, company-liability policy, or executable workflow state
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review action endpoints
+- final Manual Review action-preflight/action eligibility taxonomy
+- operator identity, audit reason, action history, and outcome reason contracts
+- role-scoped action visibility after auth/RBAC exists

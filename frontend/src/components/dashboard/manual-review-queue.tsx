@@ -124,7 +124,7 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-6">
         <CountBucketPanel title="Review Status" buckets={data.status_counts} />
         <CountBucketPanel title="Reason Distribution" buckets={data.reason_counts} />
         <CountBucketPanel title="Visibility Groups" buckets={data.group_counts} />
@@ -132,6 +132,10 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         <CountBucketPanel
           title="Decision Readiness"
           buckets={data.decision_readiness_counts}
+        />
+        <CountBucketPanel
+          title="Future Action Preflight"
+          buckets={data.action_preflight_counts}
         />
       </div>
 
@@ -314,6 +318,10 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
               label={humanizeLabel(item.decision_readiness.label)}
               variant={badgeVariantForLabel(item.decision_readiness.label)}
             />
+            <StatusBadge
+              label={humanizeLabel(item.action_preflight.label)}
+              variant={badgeVariantForLabel(item.action_preflight.label)}
+            />
           </div>
           <div className="mt-3 text-sm font-semibold text-[#162033]">
             {humanizeLabel(item.primary_group)}
@@ -359,6 +367,31 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
         </div>
       </div>
 
+      <div className="mt-3 rounded-md border border-slate-200 bg-white px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Future Action Preflight
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {item.action_preflight.summary}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {item.action_preflight.blocker_codes.map((blockerCode) => (
+            <StatusBadge
+              key={`${item.review_item_id}-${blockerCode}`}
+              label={humanizeLabel(blockerCode)}
+              variant={badgeVariantForLabel(blockerCode)}
+            />
+          ))}
+          {item.action_preflight.required_future_controls.map((control) => (
+            <StatusBadge
+              key={`${item.review_item_id}-${control}`}
+              label={humanizeLabel(control)}
+              variant={badgeVariantForLabel(control)}
+            />
+          ))}
+        </div>
+      </div>
+
       {entityLabels.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
           {entityLabels.map((label) => (
@@ -389,6 +422,14 @@ function ReviewQueueItemCard({ item }: { item: ManualReviewQueueItemResponse }) 
         <MiniMetric
           label="Confidence"
           value={item.confidence_score === null ? "Not scored" : `${item.confidence_score}%`}
+        />
+        <MiniMetric
+          label="Executable"
+          value={
+            item.action_preflight.is_currently_executable
+              ? "Executable"
+              : "Read-only Phase 0"
+          }
         />
       </div>
 
