@@ -22,8 +22,11 @@ from app.domain.dashboard import (
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
+    ManualReviewExecutionReadinessAudit,
     ManualReviewFilterOption,
     ManualReviewFutureActionPreview,
+    ManualReviewFutureTransitionPrerequisite,
+    ManualReviewMutationBoundaryLock,
     ManualReviewPermissionReadiness,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
@@ -697,6 +700,9 @@ class DashboardReadModelService:
             permission_readiness_counts=count_by_attr(
                 (item.permission_readiness for item in queue_items),
                 "label",
+            ),
+            execution_readiness_audit=manual_review_execution_readiness_audit(
+                queue_items,
             ),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
@@ -2534,6 +2540,324 @@ def manual_review_permission_readiness(
         service_account_allowed=False,
         technician_action_allowed=False,
         requires_water_emergency_scope_check=requires_water_scope,
+    )
+
+
+MANUAL_REVIEW_OWNER_REVIEW_GUARDRAIL_LABELS = (
+    "customer_facing_promises_require_alfonso_owner_review",
+    "insurance_documentation_requires_alfonso_owner_review",
+    "warranty_status_requires_alfonso_owner_review",
+    "drying_certification_language_requires_alfonso_owner_review",
+    "formal_policy_commitments_require_alfonso_owner_review",
+    "billing_financial_commitments_require_alfonso_owner_review",
+)
+
+MANUAL_REVIEW_FUTURE_TRANSITION_PREREQUISITES = (
+    (
+        "auth_provider_selected_configured",
+        "Auth provider selected and configured",
+        "auth_rbac",
+        "blocked_by_auth",
+        False,
+        (
+            "Manual Review action execution cannot exist until real ACS-FSM auth is "
+            "selected, configured, and reviewed."
+        ),
+    ),
+    (
+        "operator_identity_model_approved",
+        "Operator identity model approved",
+        "auth_rbac",
+        "blocked_by_auth",
+        False,
+        (
+            "Future actions require a durable operator identity model before any "
+            "command can capture an audit actor."
+        ),
+    ),
+    (
+        "role_permission_model_approved",
+        "Role and permission model approved",
+        "auth_rbac",
+        "blocked_by_rbac",
+        False,
+        (
+            "Future Manual Review commands require an approved role and permission "
+            "model; Phase 0 does not enforce RBAC."
+        ),
+    ),
+    (
+        "audit_envelope_schema_approved",
+        "Audit envelope schema approved",
+        "audit",
+        "blocked_by_audit",
+        False,
+        (
+            "Future command execution requires an approved audit envelope before any "
+            "immutable event write is allowed."
+        ),
+    ),
+    (
+        "idempotency_strategy_approved",
+        "Idempotency strategy approved",
+        "idempotency",
+        "planned_future",
+        False,
+        (
+            "Future Manual Review command execution requires an approved idempotency "
+            "strategy to avoid duplicate effects."
+        ),
+    ),
+    (
+        "immutable_event_writing_tested",
+        "Immutable event writing tested",
+        "audit",
+        "blocked_by_audit",
+        False,
+        (
+            "Future Manual Review command execution requires tested immutable event "
+            "recording before mutation can be considered."
+        ),
+    ),
+    (
+        "rollback_replay_strategy_approved",
+        "Rollback and replay strategy approved",
+        "consistency",
+        "planned_future",
+        False,
+        (
+            "Future action modules need a reviewed rollback or replay strategy for "
+            "operational recovery."
+        ),
+    ),
+    (
+        "post_action_consistency_check_tested",
+        "Post-action consistency check tested",
+        "consistency",
+        "planned_future",
+        False,
+        (
+            "Future action modules must prove post-action consistency checks before "
+            "any workflow state changes."
+        ),
+    ),
+    (
+        "manual_review_action_contracts_approved",
+        "Manual Review action contracts approved",
+        "manual_review_action",
+        "planned_future",
+        False,
+        (
+            "Future approve, reject, defer, archive, resolve, and "
+            "request-information contracts must be reviewed before execution exists."
+        ),
+    ),
+    (
+        "frontend_action_ui_reviewed",
+        "Frontend action UI reviewed",
+        "frontend",
+        "planned_future",
+        False,
+        (
+            "Future action UI must receive explicit review; Phase 0 does not render "
+            "action controls or forms."
+        ),
+    ),
+    (
+        "acssdr_stakeholder_report_updated",
+        "ACSSDR stakeholder report updated",
+        "review_workflow",
+        "planned_future",
+        False,
+        (
+            "The stakeholder report must be updated for the specific future mutation "
+            "module only after review and commit."
+        ),
+    ),
+    (
+        "chatgpt_review_gui_workflow_mandatory",
+        "ChatGPT Review GUI workflow remains mandatory",
+        "review_workflow",
+        "satisfied_now",
+        False,
+        (
+            "The Review GUI and ChatGPT review workflow remain mandatory before "
+            "Randall commits a module."
+        ),
+    ),
+    (
+        "owner_review_for_liability_actions",
+        "Alfonso owner review for liability-sensitive actions",
+        "owner_review",
+        "blocked_by_owner_review",
+        True,
+        (
+            "Customer-facing promises, insurance documentation, warranty status, "
+            "drying certification language, policy commitments, and billing "
+            "commitments require owner review."
+        ),
+    ),
+)
+
+
+def manual_review_execution_readiness_audit(
+    queue_items: Sequence[ManualReviewQueueItem],
+) -> ManualReviewExecutionReadinessAudit:
+    currently_executable_count = count_where(
+        queue_items,
+        manual_review_item_has_currently_executable_layer,
+    )
+    return ManualReviewExecutionReadinessAudit(
+        summary=(
+            "Manual Review actions are not executable in Phase 0. This read-only audit "
+            "summarizes readiness layers and locks the mutation boundary for future "
+            "reviewed action modules."
+        ),
+        total_review_items=len(queue_items),
+        active_review_items=count_where(
+            queue_items,
+            lambda item: item.status in UNRESOLVED_REVIEW_STATUSES,
+        ),
+        resolved_archived_review_items=count_where(
+            queue_items,
+            lambda item: item.status in RESOLVED_REVIEW_STATUSES or item.status == "archived",
+        ),
+        water_emergency_related_review_items=count_where(
+            queue_items,
+            lambda item: "water_emergency_related" in item.visibility_groups,
+        ),
+        dispatch_related_review_items=count_where(
+            queue_items,
+            lambda item: "dispatch_related" in item.visibility_groups,
+        ),
+        items_with_missing_entity_context=count_where(
+            queue_items,
+            lambda item: (
+                item.decision_readiness.label == "needs_entity_context"
+                or item.action_preflight.label == "blocked_by_missing_entity_context"
+                or item.command_validation.label == "validation_blocked_missing_entity"
+            ),
+        ),
+        items_with_conflict_blockers=count_where(
+            queue_items,
+            lambda item: (
+                "duplicate_or_conflict" in item.visibility_groups
+                or "conflict_context_required" in item.action_preflight.blocker_codes
+                or item.command_validation.label == "validation_blocked_conflict"
+            ),
+        ),
+        items_with_missing_data_blockers=count_where(
+            queue_items,
+            lambda item: (
+                "missing_data" in item.visibility_groups
+                or item.action_preflight.label == "blocked_by_missing_data"
+            ),
+        ),
+        items_with_future_action_preview_labels=count_where(
+            queue_items,
+            lambda item: bool(item.future_action_preview.label),
+        ),
+        items_with_command_contract_labels=count_where(
+            queue_items,
+            lambda item: bool(item.command_contract.label),
+        ),
+        items_with_dry_run_labels=count_where(
+            queue_items,
+            lambda item: bool(item.audit_ledger_dry_run.label),
+        ),
+        items_with_safety_gate_matrix_labels=count_where(
+            queue_items,
+            lambda item: bool(item.command_validation.safety_gates),
+        ),
+        items_with_permission_readiness_labels=count_where(
+            queue_items,
+            lambda item: bool(item.permission_readiness.label),
+        ),
+        items_blocked_by_phase_execution=count_where(
+            queue_items,
+            lambda item: (
+                item.audit_ledger_dry_run.phase_allows_execution is False
+                or item.command_validation.phase_allows_execution is False
+                or item.permission_readiness.phase_allows_execution is False
+            ),
+        ),
+        currently_executable_count=currently_executable_count,
+        required_future_auth_count=count_where(
+            queue_items,
+            lambda item: (
+                "requires_future_auth" in item.permission_readiness.required_permission_labels
+            ),
+        ),
+        required_future_rbac_count=count_where(
+            queue_items,
+            lambda item: item.permission_readiness.future_role_authorization_required,
+        ),
+        required_future_operator_identity_count=count_where(
+            queue_items,
+            lambda item: item.permission_readiness.future_operator_identity_required,
+        ),
+        required_future_audit_reason_count=count_where(
+            queue_items,
+            lambda item: item.permission_readiness.future_audit_reason_required,
+        ),
+        required_future_idempotency_key_count=count_where(
+            queue_items,
+            lambda item: item.permission_readiness.future_idempotency_key_required,
+        ),
+        required_future_immutable_event_count=count_where(
+            queue_items,
+            lambda item: item.permission_readiness.future_immutable_event_required,
+        ),
+        required_future_post_action_consistency_check_count=count_where(
+            queue_items,
+            lambda item: item.permission_readiness.future_post_action_consistency_check_required,
+        ),
+        mutation_boundary=ManualReviewMutationBoundaryLock(
+            manual_review_mutations_enabled=False,
+            action_execution_phase="read_only_phase_0",
+            currently_executable_count=currently_executable_count,
+            mutation_endpoints_available=False,
+            auth_required_before_execution=True,
+            rbac_required_before_execution=True,
+            audit_envelope_required_before_execution=True,
+            idempotency_required_before_execution=True,
+            immutable_event_required_before_execution=True,
+            post_action_consistency_required_before_execution=True,
+        ),
+        future_transition_prerequisites=tuple(
+            ManualReviewFutureTransitionPrerequisite(
+                key=key,
+                label=label,
+                category=category,
+                status=status,
+                requires_alfonso_owner_review=requires_owner_review,
+                reason=reason,
+            )
+            for (
+                key,
+                label,
+                category,
+                status,
+                requires_owner_review,
+                reason,
+            ) in MANUAL_REVIEW_FUTURE_TRANSITION_PREREQUISITES
+        ),
+        owner_review_guardrail_labels=MANUAL_REVIEW_OWNER_REVIEW_GUARDRAIL_LABELS,
+    )
+
+
+def manual_review_item_has_currently_executable_layer(
+    item: ManualReviewQueueItem,
+) -> bool:
+    return any(
+        (
+            item.action_preflight.is_currently_executable,
+            item.future_action_preview.is_currently_executable,
+            item.command_contract.is_currently_executable,
+            item.audit_ledger_dry_run.is_currently_executable,
+            item.command_validation.is_currently_executable,
+            item.permission_readiness.is_currently_executable,
+        ),
     )
 
 

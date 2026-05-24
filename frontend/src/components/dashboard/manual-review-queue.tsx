@@ -3,6 +3,7 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import type {
   DashboardFetchResult,
+  ManualReviewExecutionReadinessAuditResponse,
   ManualReviewQueueItemResponse,
   ManualReviewQueueResponse,
   ManualReviewSafetyGateResponse,
@@ -176,6 +177,8 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         />
       </div>
 
+      <ExecutionReadinessAuditPanel audit={data.execution_readiness_audit} />
+
       <SectionCard
         title="Manual Review View State"
         description="Read-only filter and sort controls change only this dashboard view. They do not approve, reject, defer, archive, dispatch, or update Manual Review records."
@@ -292,6 +295,187 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         />
       </div>
     </section>
+  );
+}
+
+function ExecutionReadinessAuditPanel({
+  audit,
+}: {
+  audit: ManualReviewExecutionReadinessAuditResponse;
+}) {
+  const boundary = audit.mutation_boundary;
+  const groupedPrerequisites = audit.future_transition_prerequisites.reduce<
+    Record<string, typeof audit.future_transition_prerequisites>
+  >((groups, prerequisite) => {
+    const current = groups[prerequisite.category] ?? [];
+    return {
+      ...groups,
+      [prerequisite.category]: [...current, prerequisite],
+    };
+  }, {});
+
+  return (
+    <SectionCard
+      title="Execution Readiness Audit"
+      description={`${audit.summary} This section is read-only operational visibility and does not enable Manual Review actions.`}
+    >
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <MiniMetric
+          label="Currently executable count"
+          value={formatCount(audit.currently_executable_count)}
+        />
+        <MiniMetric
+          label="Phase-blocked records"
+          value={formatCount(audit.items_blocked_by_phase_execution)}
+        />
+        <MiniMetric
+          label="Water Emergency readiness"
+          value={formatCount(audit.water_emergency_related_review_items)}
+        />
+        <MiniMetric
+          label="Mutation endpoints"
+          value={boundary.mutation_endpoints_available ? "Available" : "Unavailable"}
+        />
+      </div>
+
+      <div className="mt-4 rounded-md border border-rose-200 bg-rose-50/70 px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Mutation Boundary Lock
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <StatusBadge
+            label={
+              boundary.manual_review_mutations_enabled
+                ? "Manual Review mutations enabled"
+                : "Manual Review mutations disabled"
+            }
+            variant={boundary.manual_review_mutations_enabled ? "danger" : "neutral"}
+          />
+          <StatusBadge
+            label={humanizeLabel(boundary.action_execution_phase)}
+            variant="neutral"
+          />
+          <StatusBadge
+            label={`Currently executable count ${formatCount(boundary.currently_executable_count)}`}
+            variant={
+              boundary.currently_executable_count === 0 ? "success" : "danger"
+            }
+          />
+          <StatusBadge
+            label={
+              boundary.mutation_endpoints_available
+                ? "Mutation endpoints available"
+                : "Mutation endpoints unavailable"
+            }
+            variant={boundary.mutation_endpoints_available ? "danger" : "neutral"}
+          />
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Manual Review actions are not executable in Phase 0. Auth, RBAC, audit
+          envelope, idempotency, immutable event recording, and post-action
+          consistency checks are required before any future action module.
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <MiniMetric
+          label="Future auth required"
+          value={formatCount(audit.required_future_auth_count)}
+        />
+        <MiniMetric
+          label="Future RBAC required"
+          value={formatCount(audit.required_future_rbac_count)}
+        />
+        <MiniMetric
+          label="Future operator identity"
+          value={formatCount(audit.required_future_operator_identity_count)}
+        />
+        <MiniMetric
+          label="Future audit reason"
+          value={formatCount(audit.required_future_audit_reason_count)}
+        />
+        <MiniMetric
+          label="Future idempotency"
+          value={formatCount(audit.required_future_idempotency_key_count)}
+        />
+        <MiniMetric
+          label="Future immutable event"
+          value={formatCount(audit.required_future_immutable_event_count)}
+        />
+        <MiniMetric
+          label="Future consistency check"
+          value={formatCount(
+            audit.required_future_post_action_consistency_check_count,
+          )}
+        />
+        <MiniMetric
+          label="Missing entity context"
+          value={formatCount(audit.items_with_missing_entity_context)}
+        />
+        <MiniMetric
+          label="Conflict blockers"
+          value={formatCount(audit.items_with_conflict_blockers)}
+        />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        {Object.entries(groupedPrerequisites).map(([category, prerequisites]) => (
+          <div
+            key={category}
+            className="rounded-md border border-slate-200 bg-slate-50/70 p-3"
+          >
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              {humanizeLabel(category)}
+            </div>
+            <div className="mt-3 space-y-3">
+              {prerequisites.map((prerequisite) => (
+                <div key={prerequisite.key} className="min-w-0">
+                  <div className="flex flex-wrap gap-2">
+                    <StatusBadge
+                      label={prerequisite.label}
+                      variant={badgeVariantForLabel(prerequisite.key)}
+                    />
+                    <StatusBadge
+                      label={humanizeLabel(prerequisite.status)}
+                      variant={badgeVariantForLabel(prerequisite.status)}
+                    />
+                    {prerequisite.requires_alfonso_owner_review ? (
+                      <StatusBadge
+                        label="Requires Alfonso owner review"
+                        variant="warning"
+                      />
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {prerequisite.reason}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 rounded-md border border-amber-200 bg-amber-50/70 px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Owner-review guardrails
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {audit.owner_review_guardrail_labels.map((label) => (
+            <StatusBadge
+              key={label}
+              label={humanizeLabel(label)}
+              variant="warning"
+            />
+          ))}
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Legal, insurance, warranty, drying certification, formal policy, and
+          financial commitments remain non-binding visibility until Alfonso owner
+          review is completed.
+        </p>
+      </div>
+    </SectionCard>
   );
 }
 

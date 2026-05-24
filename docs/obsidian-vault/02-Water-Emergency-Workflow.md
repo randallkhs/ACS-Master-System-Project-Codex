@@ -671,3 +671,26 @@ Future work:
 - final operator identity and RBAC model
 - role-scoped Water Emergency review authority
 - owner-reviewed legal, insurance, warranty, or company-liability language if future actions affect formal policy
+
+---
+
+# 17. Phase 0 Module 50 Manual Review Execution-Readiness Separation
+
+Water Emergency-related Manual Review items are included in the read-only execution-readiness audit only as separated Water Emergency readiness counts and blockers.
+
+Separation rules:
+
+- Water Emergency readiness metadata is visibility only and does not execute Water Emergency actions
+- the mutation-boundary lock still reports Manual Review mutations disabled, current executable count zero, and mutation endpoints unavailable
+- Water Emergency-related reviews require future authenticated operator identity, role authorization, owner/manager boundary review, audit envelope capture, idempotency, immutable event recording, consistency checks, and Water Emergency scope checks before any future Manual Review command could be implemented
+- Water Emergency readiness blockers must not be merged into standard dispatch action preparation
+- resolved or archived Water Emergency-related review items remain historical visibility, not active action needs
+- no Water Emergency close, resolve, dispatch, login, user management, token/session behavior, fake role enforcement, vendor, AI, auth/RBAC enforcement, mutation endpoint, or workflow execution behavior is added
+
+Future work:
+
+- authenticated Manual Review action workflows
+- final operator identity and RBAC model
+- role-scoped Water Emergency review authority
+- durable audit/idempotency/event/consistency infrastructure
+- owner-reviewed legal, insurance, warranty, drying certification, or company-liability language if future actions affect formal policy

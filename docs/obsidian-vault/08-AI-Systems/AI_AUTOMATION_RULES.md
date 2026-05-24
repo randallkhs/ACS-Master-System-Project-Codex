@@ -516,3 +516,21 @@ AI boundary:
 - Water Emergency-related authorization requirements must remain separated from standard dispatch and cannot be auto-scoped by AI
 
 Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend permission readiness and future authenticated auth/RBAC/audit/event controls remain authoritative.
+
+## Phase 0 Module 50 Manual Review Execution-Readiness Boundary
+
+Manual Review execution-readiness audit labels, mutation-boundary metadata, future transition prerequisites, and owner-review guardrails are deterministic backend read-model metadata.
+
+AI boundary:
+
+- AI must not decide execution readiness for current action
+- AI must not enable Manual Review mutations or mark mutation endpoints available
+- AI must not change `currently_executable_count` or bypass the Phase 0 execution block
+- AI must not create fake roles, fake operators, login/session/token behavior, auth headers, or RBAC enforcement
+- AI must not generate executable approve/reject/defer/archive/resolve commands
+- AI must not write audit events, generate authoritative audit actors or audit reasons, persist idempotency keys, mark immutable event recording complete, or mark post-action consistency complete
+- AI must not bypass Manual Review, auth, operator identity, role authorization, audit reason, idempotency, immutable event recording, post-action consistency checks, owner review, or the Review GUI/ChatGPT review workflow
+- AI must not convert execution-readiness visibility into dispatch execution, vendor calls, audit writes, role enforcement, mutation endpoints, or workflow transitions
+- Water Emergency-related readiness must remain separated from standard dispatch and cannot be auto-scoped by AI
+
+Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend mutation boundaries and future authenticated auth/RBAC/audit/event controls remain authoritative.

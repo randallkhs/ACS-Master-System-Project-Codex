@@ -1176,6 +1176,133 @@ def test_manual_review_permission_readiness_blocks_water_emergency_and_resolved(
     )
 
 
+def test_manual_review_execution_readiness_audit_locks_mutation_boundary() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    standard_job_id = uuid4()
+    work_order_id = uuid4()
+    water_job_id = uuid4()
+    water_emergency_id = uuid4()
+    resolved_review = ReviewItem(
+        id=uuid4(),
+        job_id=standard_job_id,
+        entity_type="job",
+        entity_id=standard_job_id,
+        reason_code="operator_resolved",
+        status="resolved",
+        severity="low",
+        created_at=now - timedelta(days=2),
+        audit_correlation_id="audit-manual-review-readiness-resolved",
+    )
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=[
+            Job(id=standard_job_id, job_type="standard", status="awaiting_dispatch"),
+            Job(id=water_job_id, job_type="water_emergency", status="active"),
+        ],
+        work_orders=[
+            WorkOrder(
+                id=work_order_id,
+                job_id=standard_job_id,
+                status="generated",
+                dispatch_status="not_dispatched",
+            ),
+        ],
+        water_emergencies=[
+            WaterEmergency(
+                id=water_emergency_id,
+                job_id=water_job_id,
+                status="DRYING_IN_PROGRESS",
+                drying_stage="monitoring",
+            ),
+        ],
+        review_items=[
+            ReviewItem(
+                id=uuid4(),
+                job_id=standard_job_id,
+                entity_type="job",
+                entity_id=standard_job_id,
+                reason_code="missing_customer_data",
+                status="open",
+                severity="critical",
+                recommended_action="request missing information",
+                created_at=now - timedelta(minutes=20),
+                audit_correlation_id="audit-manual-review-readiness-missing",
+            ),
+            ReviewItem(
+                id=uuid4(),
+                reason_code="operator_review_requested",
+                status="open",
+                severity="medium",
+                created_at=now - timedelta(minutes=30),
+                audit_correlation_id="audit-manual-review-readiness-missing-entity",
+            ),
+            ReviewItem(
+                id=uuid4(),
+                job_id=water_job_id,
+                entity_type="water_emergency",
+                entity_id=water_emergency_id,
+                reason_code="water_emergency_scope_review",
+                status="open",
+                severity="critical",
+                created_at=now - timedelta(hours=2),
+                audit_correlation_id="audit-manual-review-readiness-water",
+            ),
+            resolved_review,
+        ],
+    )
+
+    audit = queue.execution_readiness_audit
+    boundary = audit.mutation_boundary
+    prerequisites = {
+        prerequisite.key: prerequisite for prerequisite in audit.future_transition_prerequisites
+    }
+
+    assert resolved_review.status == "resolved"
+    assert queue.items[-1].status == "resolved"
+    assert audit.total_review_items == 4
+    assert audit.active_review_items == 3
+    assert audit.resolved_archived_review_items == 1
+    assert audit.water_emergency_related_review_items == 1
+    assert audit.dispatch_related_review_items == 2
+    assert audit.items_with_missing_entity_context == 1
+    assert audit.items_with_missing_data_blockers == 1
+    assert audit.items_with_future_action_preview_labels == 4
+    assert audit.items_with_command_contract_labels == 4
+    assert audit.items_with_dry_run_labels == 4
+    assert audit.items_with_safety_gate_matrix_labels == 4
+    assert audit.items_with_permission_readiness_labels == 4
+    assert audit.items_blocked_by_phase_execution == 4
+    assert audit.currently_executable_count == 0
+    assert audit.required_future_auth_count == 4
+    assert audit.required_future_rbac_count == 4
+    assert audit.required_future_operator_identity_count == 4
+    assert audit.required_future_audit_reason_count == 4
+    assert audit.required_future_idempotency_key_count == 4
+    assert audit.required_future_immutable_event_count == 4
+    assert audit.required_future_post_action_consistency_check_count == 4
+
+    assert boundary.manual_review_mutations_enabled is False
+    assert boundary.action_execution_phase == "read_only_phase_0"
+    assert boundary.currently_executable_count == 0
+    assert boundary.mutation_endpoints_available is False
+    assert boundary.auth_required_before_execution is True
+    assert boundary.rbac_required_before_execution is True
+    assert boundary.audit_envelope_required_before_execution is True
+    assert boundary.idempotency_required_before_execution is True
+    assert boundary.immutable_event_required_before_execution is True
+    assert boundary.post_action_consistency_required_before_execution is True
+
+    assert prerequisites["auth_provider_selected_configured"].status == "blocked_by_auth"
+    assert prerequisites["role_permission_model_approved"].status == "blocked_by_rbac"
+    assert prerequisites["audit_envelope_schema_approved"].status == "blocked_by_audit"
+    assert prerequisites["manual_review_action_contracts_approved"].status == ("planned_future")
+    assert prerequisites["owner_review_for_liability_actions"].status == ("blocked_by_owner_review")
+    assert prerequisites["owner_review_for_liability_actions"].requires_alfonso_owner_review is True
+    assert "insurance_documentation_requires_alfonso_owner_review" in (
+        audit.owner_review_guardrail_labels
+    )
+
+
 def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:
     now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
     review = ReviewItem(

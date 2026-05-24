@@ -622,7 +622,7 @@
         margin-top: 0.7rem;
         border-radius: 999px;
         background: var(--acs-sand);
-        color: var(--acs-red-dark);
+        color: #c8102e;
         padding: 0.35rem 0.65rem;
         font-size: 0.7rem;
         font-weight: 900;
@@ -1051,7 +1051,7 @@
 
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
-                <strong>Last updated: May 23, 2026 at 5:14 PM EDT</strong>
+                <strong>Last updated: May 24, 2026 at 2:51 AM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1061,16 +1061,16 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>47</strong>
+                <strong>49</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
-                <strong>1</strong>
-                <span>New Manual Review audit-ledger and command dry-run update added since the last public report</span>
+                <strong>2</strong>
+                <span>New Manual Review safety-readiness updates added since the last public report</span>
               </div>
               <div class="stat-card">
-                <strong>1</strong>
-                <span>Read-only future audit ledger, immutable-event, and idempotency preparation now visible</span>
+                <strong>2</strong>
+                <span>Read-only command validation and permission-readiness layers now visible</span>
               </div>
               <div class="stat-card">
                 <strong>0</strong>
@@ -2185,6 +2185,54 @@
                 dispatch, write audit events, or change any record.
               </div>
             </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 48 manual review command validation safety gate matrix execution readiness harness phase 0 water emergency separated">
+              <div class="module-top">
+                <span class="module-number">48</span>
+                <div>
+                  <h3>Manual Review Command Validation and Safety Gate Matrix</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module adds read-only command validation and a safety gate matrix for future
+                Manual Review actions. It shows why a future command would be blocked, which
+                safeguards would be required, and why Phase 0 still does not allow execution.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A review item can show future validation labels, safety gates, Phase 0 execution
+                blocked status, and required audit, operator identity, role authorization,
+                idempotency, immutable-event, and consistency-check gates. Water Emergency-related
+                validation stays separated. The dashboard still does not approve, reject, defer,
+                archive, resolve, dispatch, or change any record.
+              </div>
+            </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 49 manual review operator identity role authorization permission readiness future auth rbac audit actor service account technician water emergency separated">
+              <div class="module-top">
+                <span class="module-number">49</span>
+                <div>
+                  <h3>Manual Review Operator Identity and Permission Readiness</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module adds read-only visibility for future operator identity, role
+                authorization, and permission-readiness requirements. It explains that future
+                Manual Review actions must be tied to a real authenticated human operator and an
+                approved role boundary before any execution module can be considered.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A review item can show future required roles, forbidden actor types, audit actor
+                requirements, audit reason requirements, idempotency, immutable-event, and
+                consistency-check requirements. Service accounts and technicians are not presented
+                as future Manual Review action operators. Water Emergency-related authorization
+                stays separated. The dashboard still does not add login, RBAC enforcement, action
+                buttons, dispatch, or record mutation.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -2212,6 +2260,7 @@
             <div class="check-item"><span class="check">✓</span><span>Manual Review future command-contract and audit-envelope visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review audit-ledger dry-run and immutable-event preparation visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review command-validation and safety-gate matrix visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Manual Review operator-identity, role-authorization, and permission-readiness visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2232,39 +2281,41 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 48 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 49 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 48 completed read-only Manual Review command validation, safety-gate matrix
-            visibility, and execution-readiness preparation. The module was reviewed and committed
-            before Module 49 work begins. This gives ACS clearer visibility into why a future
-            Manual Review command would be blocked or ready in a later authorized phase without
-            adding auth, role enforcement, action buttons, audit writes, or workflow execution.
+            Module 49 completed read-only Manual Review operator-identity, role-authorization,
+            and permission-readiness visibility. The module was reviewed and committed before
+            Module 50 work begins. This gives ACS clearer visibility into why future Manual Review
+            commands require authenticated human operator identity, role authorization, audit actor
+            capture, audit reason, idempotency, immutable-event recording, and consistency checks
+            before any action can ever be considered.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The Manual Review Queue and detail panel can now show command-validation labels,
-                future command candidates, validation blockers and warnings, safety gates, Phase 0
-                execution status, and the required future audit, operator identity, role
-                authorization, idempotency, immutable-event, and consistency-check gates.
+                The Manual Review Queue and detail panel can now show future authorization
+                boundary labels, required future roles and permissions, future forbidden actor
+                types, operator identity requirements, audit actor requirements, and explicit
+                non-executable Phase 0 status for Manual Review action planning.
               </p>
             </article>
             <article class="overview-card">
               <h3>Why it matters</h3>
               <p>
                 Manual Review is the safety system. This work helps Luis and the office understand
-                which safety checks must be satisfied before any future Manual Review command can
-                exist. It keeps Phase 0 conservative: every validation record remains read-only,
-                every current execution flag stays off, Water Emergency-related validation stays
-                separated from standard dispatch review context, and resolved or archived items
-                remain historical instead of active command targets.
+                that future Manual Review actions cannot rely on anonymous users, service
+                accounts, fake roles, or technicians acting on their own reviews. It keeps Phase 0
+                conservative: every permission-readiness record remains read-only, every current
+                execution flag stays off, Water Emergency-related authorization stays separated
+                from standard dispatch review context, and resolved or archived items remain
+                historical instead of active command targets.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 48 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                Module 49 passed backend checks, frontend checks, local PostgreSQL live dashboard
                 verification, browser checks, and ChatGPT review follow-up. It has been committed
                 and pushed by Randall.
               </p>
@@ -2272,9 +2323,9 @@
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is Module 49: read-only operator identity, role
-                authorization boundary, and Manual Review permission-readiness visibility.
-                Module 49 is not marked complete yet.
+                The next planned area is Module 50: read-only Manual Review execution-readiness
+                audit, mutation-boundary lock, and transition-plan visibility. Module 50 is not
+                marked complete yet.
               </p>
             </article>
           </div>

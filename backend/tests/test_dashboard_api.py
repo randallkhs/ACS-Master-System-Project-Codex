@@ -19,8 +19,11 @@ from app.domain.dashboard import (
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
+    ManualReviewExecutionReadinessAudit,
     ManualReviewFilterOption,
     ManualReviewFutureActionPreview,
+    ManualReviewFutureTransitionPrerequisite,
+    ManualReviewMutationBoundaryLock,
     ManualReviewPermissionReadiness,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
@@ -901,6 +904,101 @@ def manual_review_permission_readiness_contract(
     )
 
 
+def manual_review_execution_readiness_audit_contract() -> ManualReviewExecutionReadinessAudit:
+    return ManualReviewExecutionReadinessAudit(
+        summary=(
+            "Manual Review actions are not executable in Phase 0. This read-only audit "
+            "summarizes readiness layers and locks the mutation boundary for future "
+            "reviewed action modules."
+        ),
+        total_review_items=2,
+        active_review_items=1,
+        resolved_archived_review_items=1,
+        water_emergency_related_review_items=1,
+        dispatch_related_review_items=1,
+        items_with_missing_entity_context=0,
+        items_with_conflict_blockers=0,
+        items_with_missing_data_blockers=1,
+        items_with_future_action_preview_labels=2,
+        items_with_command_contract_labels=2,
+        items_with_dry_run_labels=2,
+        items_with_safety_gate_matrix_labels=2,
+        items_with_permission_readiness_labels=2,
+        items_blocked_by_phase_execution=2,
+        currently_executable_count=0,
+        required_future_auth_count=2,
+        required_future_rbac_count=2,
+        required_future_operator_identity_count=2,
+        required_future_audit_reason_count=2,
+        required_future_idempotency_key_count=2,
+        required_future_immutable_event_count=2,
+        required_future_post_action_consistency_check_count=2,
+        mutation_boundary=ManualReviewMutationBoundaryLock(
+            manual_review_mutations_enabled=False,
+            action_execution_phase="read_only_phase_0",
+            currently_executable_count=0,
+            mutation_endpoints_available=False,
+            auth_required_before_execution=True,
+            rbac_required_before_execution=True,
+            audit_envelope_required_before_execution=True,
+            idempotency_required_before_execution=True,
+            immutable_event_required_before_execution=True,
+            post_action_consistency_required_before_execution=True,
+        ),
+        future_transition_prerequisites=(
+            ManualReviewFutureTransitionPrerequisite(
+                key="auth_provider_selected_configured",
+                label="Auth provider selected and configured",
+                category="auth_rbac",
+                status="blocked_by_auth",
+                requires_alfonso_owner_review=False,
+                reason=(
+                    "Manual Review action execution cannot exist until real ACS-FSM "
+                    "auth is selected, configured, and reviewed."
+                ),
+            ),
+            ManualReviewFutureTransitionPrerequisite(
+                key="role_permission_model_approved",
+                label="Role and permission model approved",
+                category="auth_rbac",
+                status="blocked_by_rbac",
+                requires_alfonso_owner_review=False,
+                reason=(
+                    "Future Manual Review commands require an approved role and "
+                    "permission model; Phase 0 does not enforce RBAC."
+                ),
+            ),
+            ManualReviewFutureTransitionPrerequisite(
+                key="audit_envelope_schema_approved",
+                label="Audit envelope schema approved",
+                category="audit",
+                status="blocked_by_audit",
+                requires_alfonso_owner_review=False,
+                reason=(
+                    "Future command execution requires an approved audit envelope "
+                    "before any immutable event write is allowed."
+                ),
+            ),
+            ManualReviewFutureTransitionPrerequisite(
+                key="owner_review_for_liability_actions",
+                label="Alfonso owner review for liability-sensitive actions",
+                category="owner_review",
+                status="blocked_by_owner_review",
+                requires_alfonso_owner_review=True,
+                reason=(
+                    "Customer-facing promises, insurance documentation, warranty "
+                    "status, drying certification language, policy commitments, and "
+                    "billing commitments require owner review."
+                ),
+            ),
+        ),
+        owner_review_guardrail_labels=(
+            "customer_facing_promises_require_alfonso_owner_review",
+            "insurance_documentation_requires_alfonso_owner_review",
+        ),
+    )
+
+
 def manual_review_queue_contract() -> ManualReviewQueueReadModel:
     return ManualReviewQueueReadModel(
         generated_at=datetime(2026, 5, 16, 12, 50, tzinfo=UTC),
@@ -959,6 +1057,7 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
             CountBucket(label="permission_ready_for_future_auth_phase", count=1),
             CountBucket(label="permission_blocked_resolved_or_archived", count=1),
         ),
+        execution_readiness_audit=manual_review_execution_readiness_audit_contract(),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
             CountBucket(label="resolved_or_archived", count=1),
@@ -1755,6 +1854,40 @@ def test_dashboard_api_routes_return_read_only_contracts(
         {"label": "permission_ready_for_future_auth_phase", "count": 1},
         {"label": "permission_blocked_resolved_or_archived", "count": 1},
     ]
+    execution_audit = manual_review_queue_response.json()["execution_readiness_audit"]
+    assert execution_audit["total_review_items"] == 2
+    assert execution_audit["active_review_items"] == 1
+    assert execution_audit["resolved_archived_review_items"] == 1
+    assert execution_audit["currently_executable_count"] == 0
+    assert execution_audit["items_blocked_by_phase_execution"] == 2
+    assert execution_audit["mutation_boundary"] == {
+        "manual_review_mutations_enabled": False,
+        "action_execution_phase": "read_only_phase_0",
+        "currently_executable_count": 0,
+        "mutation_endpoints_available": False,
+        "auth_required_before_execution": True,
+        "rbac_required_before_execution": True,
+        "audit_envelope_required_before_execution": True,
+        "idempotency_required_before_execution": True,
+        "immutable_event_required_before_execution": True,
+        "post_action_consistency_required_before_execution": True,
+    }
+    prerequisites_by_key = {
+        prerequisite["key"]: prerequisite
+        for prerequisite in execution_audit["future_transition_prerequisites"]
+    }
+    assert prerequisites_by_key["auth_provider_selected_configured"]["status"] == (
+        "blocked_by_auth"
+    )
+    assert prerequisites_by_key["role_permission_model_approved"]["status"] == ("blocked_by_rbac")
+    assert prerequisites_by_key["audit_envelope_schema_approved"]["status"] == ("blocked_by_audit")
+    assert prerequisites_by_key["owner_review_for_liability_actions"]["status"] == (
+        "blocked_by_owner_review"
+    )
+    assert (
+        prerequisites_by_key["owner_review_for_liability_actions"]["requires_alfonso_owner_review"]
+        is True
+    )
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"

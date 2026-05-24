@@ -1406,6 +1406,38 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-24 — Phase 0 Module 50 Manual Review Execution Readiness Audit, Mutation Boundary Lock, And Transition Plan
+
+- Decision type: Implementation / Manual Review visibility / read-only execution-readiness boundary
+- Status: Implemented
+- Decision:
+  - Extend the Manual Review queue read model with an execution-readiness audit that summarizes active, resolved/archived, Water Emergency-related, dispatch-related, missing-entity, conflict, missing-data, preview, command-contract, dry-run, safety-gate, permission-readiness, Phase 0 blocked, and future auth/RBAC/audit/idempotency/immutable-event/consistency-check counts.
+  - Add a mutation-boundary lock reporting `manual_review_mutations_enabled = false`, `action_execution_phase = read_only_phase_0`, `currently_executable_count = 0`, and `mutation_endpoints_available = false`.
+  - Add future transition prerequisites for auth provider selection, operator identity, role/permission approval, audit envelope approval, idempotency strategy, immutable event writing, rollback/replay, post-action consistency checks, Manual Review action contracts, frontend action UI review, ACSSDR reporting, Review GUI/ChatGPT review, and Alfonso owner review for liability-sensitive actions.
+  - Keep Water Emergency-related execution readiness separated from standard dispatch review preparation through persisted entity, job, visit, and Water Emergency links.
+  - Add frontend queue execution-readiness audit and mutation-boundary visibility without login/signup/user-management controls, approve/reject/defer/archive/resolve/dispatch controls, forms, inputs, auth/RBAC controls, mutation controls, or button-styled readiness labels.
+- Rationale:
+  - Manual Review is the system safety authority, so the final read-only checkpoint before future mutation modules needs to make the mutation boundary explicit and measurable.
+  - Future Manual Review action modules must not proceed until auth, RBAC, audit envelope, idempotency, immutable event writing, consistency checks, action contracts, action UI review, and review workflow prerequisites are explicitly satisfied.
+  - Liability-sensitive actions may create legal, insurance, warranty, customer-facing, or financial consequences, so they remain flagged for Alfonso owner review rather than being silently treated as software-only decisions.
+- Future implications:
+  - Future authenticated modules still need formal ACS-FSM auth provider selection, operator identity schema, role model, permission taxonomy, Manual Review approve/reject/defer/archive/resolve command endpoints, and reviewed action UI.
+  - Future production modules may need durable audit envelopes, operator identity capture, role authorization, required audit reasons, idempotency keys, immutable event writes, impacted-entity audit writes, rollback/replay rules, post-action consistency checks, outcome reason taxonomy, permission checks, and role-scoped action visibility.
+  - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Water Emergency workflow separation notes
+  - Dispatch/API/database/system architecture notes
+  - AI/dashboard safety boundary
+
+---
+
 ## 2026-05-24 — Phase 0 Module 49 Operator Identity, Role Authorization Boundary, And Manual Review Permission Readiness
 
 - Decision type: Implementation / Manual Review visibility / read-only permission-readiness boundary

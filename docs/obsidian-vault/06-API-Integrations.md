@@ -889,3 +889,27 @@ Open API/frontend concerns:
 - final ACS-FSM auth provider, operator identity schema, role model, and permission taxonomy
 - operator identity, role authorization, audit actor, audit reason, idempotency, immutable event, post-action consistency, safety-gate persistence, audit-ledger/action history, impacted-entity audit, and outcome reason contracts
 - role-scoped action visibility after auth/RBAC exists
+
+## Phase 0 Module 50 Manual Review Execution-Readiness Audit Boundary
+
+The Manual Review queue API contract now includes a read-only execution-readiness audit, mutation-boundary lock, future transition prerequisite checklist, and owner-review guardrails for later action module preparation.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes execution-readiness counts for active, resolved/archived, Water Emergency-related, dispatch-related, missing entity, conflict, missing data, future-preview, command-contract, dry-run, safety-gate, permission-readiness, Phase 0 blocked, and future auth/RBAC/audit/idempotency/immutable-event/consistency requirements.
+- The queue response exposes mutation-boundary metadata: `manual_review_mutations_enabled = false`, `action_execution_phase = read_only_phase_0`, `currently_executable_count = 0`, `mutation_endpoints_available = false`, and future auth/RBAC/audit/idempotency/immutable-event/consistency requirements.
+- The queue response exposes future transition prerequisites for auth provider selection, operator identity, role/permission approval, audit envelope approval, idempotency strategy, immutable event writing, rollback/replay, post-action consistency checks, Manual Review action contracts, frontend action UI review, ACSSDR report workflow, Review GUI/ChatGPT review, and Alfonso owner review where liability-sensitive actions are involved.
+- Water Emergency-related execution-readiness remains separated through persisted entity/job/visit/Water Emergency links.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth/RBAC enforcement, login/session/token behavior, auth headers, backend preference persistence, audit-action persistence, idempotency persistence, immutable event write, command validation execution, mutation boundary enforcement, or workflow execution calls are added
+- execution-readiness labels are Randall-authorized Phase 0 visibility baselines only and must not imply current action authority, legal policy, company-liability policy, audit-write behavior, role enforcement, or executable workflow state
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review command endpoints
+- final ACS-FSM auth provider, operator identity schema, role model, and permission taxonomy
+- approved audit envelope, idempotency, immutable event, rollback/replay, and post-action consistency strategies
+- owner-reviewed legal, insurance, warranty, drying certification, formal policy, and financial action boundaries

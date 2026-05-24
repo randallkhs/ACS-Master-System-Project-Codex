@@ -223,6 +223,57 @@ export type ManualReviewPermissionReadinessResponse = {
   requires_water_emergency_scope_check: boolean;
 };
 
+export type ManualReviewMutationBoundaryLockResponse = {
+  manual_review_mutations_enabled: boolean;
+  action_execution_phase: string;
+  currently_executable_count: number;
+  mutation_endpoints_available: boolean;
+  auth_required_before_execution: boolean;
+  rbac_required_before_execution: boolean;
+  audit_envelope_required_before_execution: boolean;
+  idempotency_required_before_execution: boolean;
+  immutable_event_required_before_execution: boolean;
+  post_action_consistency_required_before_execution: boolean;
+};
+
+export type ManualReviewFutureTransitionPrerequisiteResponse = {
+  key: string;
+  label: string;
+  category: string;
+  status: string;
+  requires_alfonso_owner_review: boolean;
+  reason: string;
+};
+
+export type ManualReviewExecutionReadinessAuditResponse = {
+  summary: string;
+  total_review_items: number;
+  active_review_items: number;
+  resolved_archived_review_items: number;
+  water_emergency_related_review_items: number;
+  dispatch_related_review_items: number;
+  items_with_missing_entity_context: number;
+  items_with_conflict_blockers: number;
+  items_with_missing_data_blockers: number;
+  items_with_future_action_preview_labels: number;
+  items_with_command_contract_labels: number;
+  items_with_dry_run_labels: number;
+  items_with_safety_gate_matrix_labels: number;
+  items_with_permission_readiness_labels: number;
+  items_blocked_by_phase_execution: number;
+  currently_executable_count: number;
+  required_future_auth_count: number;
+  required_future_rbac_count: number;
+  required_future_operator_identity_count: number;
+  required_future_audit_reason_count: number;
+  required_future_idempotency_key_count: number;
+  required_future_immutable_event_count: number;
+  required_future_post_action_consistency_check_count: number;
+  mutation_boundary: ManualReviewMutationBoundaryLockResponse;
+  future_transition_prerequisites: ManualReviewFutureTransitionPrerequisiteResponse[];
+  owner_review_guardrail_labels: string[];
+};
+
 export type ManualReviewQueueItemResponse = {
   review_item_id: string;
   status: string;
@@ -282,6 +333,7 @@ export type ManualReviewQueueResponse = {
   audit_ledger_dry_run_counts: CountBucket[];
   command_validation_counts: CountBucket[];
   permission_readiness_counts: CountBucket[];
+  execution_readiness_audit: ManualReviewExecutionReadinessAuditResponse;
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   available_filters: ManualReviewFilterOptionResponse[];

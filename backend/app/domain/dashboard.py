@@ -248,6 +248,60 @@ class ManualReviewPermissionReadiness:
 
 
 @dataclass(frozen=True, slots=True)
+class ManualReviewMutationBoundaryLock:
+    manual_review_mutations_enabled: bool
+    action_execution_phase: str
+    currently_executable_count: int
+    mutation_endpoints_available: bool
+    auth_required_before_execution: bool
+    rbac_required_before_execution: bool
+    audit_envelope_required_before_execution: bool
+    idempotency_required_before_execution: bool
+    immutable_event_required_before_execution: bool
+    post_action_consistency_required_before_execution: bool
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewFutureTransitionPrerequisite:
+    key: str
+    label: str
+    category: str
+    status: str
+    requires_alfonso_owner_review: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewExecutionReadinessAudit:
+    summary: str
+    total_review_items: int
+    active_review_items: int
+    resolved_archived_review_items: int
+    water_emergency_related_review_items: int
+    dispatch_related_review_items: int
+    items_with_missing_entity_context: int
+    items_with_conflict_blockers: int
+    items_with_missing_data_blockers: int
+    items_with_future_action_preview_labels: int
+    items_with_command_contract_labels: int
+    items_with_dry_run_labels: int
+    items_with_safety_gate_matrix_labels: int
+    items_with_permission_readiness_labels: int
+    items_blocked_by_phase_execution: int
+    currently_executable_count: int
+    required_future_auth_count: int
+    required_future_rbac_count: int
+    required_future_operator_identity_count: int
+    required_future_audit_reason_count: int
+    required_future_idempotency_key_count: int
+    required_future_immutable_event_count: int
+    required_future_post_action_consistency_check_count: int
+    mutation_boundary: ManualReviewMutationBoundaryLock
+    future_transition_prerequisites: tuple[ManualReviewFutureTransitionPrerequisite, ...]
+    owner_review_guardrail_labels: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewQueueItem:
     review_item_id: UUID
     status: str
@@ -307,6 +361,7 @@ class ManualReviewQueueReadModel:
     audit_ledger_dry_run_counts: tuple[CountBucket, ...]
     command_validation_counts: tuple[CountBucket, ...]
     permission_readiness_counts: tuple[CountBucket, ...]
+    execution_readiness_audit: ManualReviewExecutionReadinessAudit
     age_bucket_counts: tuple[CountBucket, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadata
