@@ -421,3 +421,24 @@ Open concerns:
 
 - final Manual Review command execution workflow and audit-ledger persistence remain future work
 - legal, insurance, compliance, customer-liability, or formal company-policy language requires Alfonso owner review
+
+---
+
+# 18. Phase 0 Manual Review Command Validation And Safety Gate Boundary
+
+Module 48 adds read-only Manual Review command-validation and safety-gate matrix visibility.
+
+Rules:
+
+- command-validation labels and safety gates are Randall-authorized Phase 0 visibility baselines only
+- every validation record remains currently non-executable and Phase 0 does not allow execution
+- the `phase_allows_execution` safety gate must remain false in Phase 0
+- future commands require linked entity context, audit reason, operator identity, role authorization, idempotency key, immutable event recording, and post-action consistency checks before any mutation module exists
+- missing entity context, duplicate/conflict evidence, Water Emergency scope, and resolved/archived status remain blockers or historical visibility states
+- Water Emergency-related Manual Review validation must remain separated from standard dispatch review context
+- no validation execution, audit write, approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, or workflow execution authority is created
+
+Open concerns:
+
+- final Manual Review command validation/execution workflow and safety-gate persistence remain future work
+- legal, insurance, compliance, customer-liability, or formal company-policy language requires Alfonso owner review

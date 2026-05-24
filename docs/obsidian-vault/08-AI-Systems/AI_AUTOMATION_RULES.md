@@ -484,3 +484,19 @@ AI boundary:
 - Water Emergency-related dry-runs must remain separated from standard dispatch and cannot be auto-scoped by AI
 
 Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend safety gates and future authenticated audit/event controls remain authoritative.
+
+## Phase 0 Module 48 Manual Review Command-Validation Boundary
+
+Manual Review command-validation labels and safety gates are deterministic backend read-model metadata.
+
+AI boundary:
+
+- AI must not decide command validation results
+- AI must not mark safety gates passed or executable
+- AI must not generate executable approve/reject/defer/archive/resolve commands
+- AI must not write audit events, generate authoritative audit reasons, persist idempotency keys, or mark immutable event recording complete
+- AI must not bypass Manual Review, auth, operator identity, role authorization, audit reason, idempotency, immutable event recording, post-action consistency checks, or the Phase 0 execution block
+- AI must not convert validation or safety-gate visibility into dispatch execution, vendor calls, audit writes, or workflow transitions
+- Water Emergency-related validation must remain separated from standard dispatch and cannot be auto-scoped by AI
+
+Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend validation, safety gates, and future authenticated audit/event controls remain authoritative.

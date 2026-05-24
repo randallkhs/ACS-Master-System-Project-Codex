@@ -18,6 +18,7 @@ from app.domain.dashboard import (
     ManualReviewActionPreflight,
     ManualReviewAuditLedgerDryRun,
     ManualReviewCommandContract,
+    ManualReviewCommandValidation,
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
@@ -27,6 +28,7 @@ from app.domain.dashboard import (
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
     ManualReviewResultWindowMetadata,
+    ManualReviewSafetyGate,
     ManualReviewSortOption,
     ManualReviewSummary,
     ManualReviewTaxonomyMetadata,
@@ -687,6 +689,10 @@ class DashboardReadModelService:
                 (item.audit_ledger_dry_run for item in queue_items),
                 "label",
             ),
+            command_validation_counts=count_by_attr(
+                (item.command_validation for item in queue_items),
+                "label",
+            ),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
@@ -747,6 +753,7 @@ class DashboardReadModelService:
             future_action_preview=queue_item.future_action_preview,
             command_contract=queue_item.command_contract,
             audit_ledger_dry_run=queue_item.audit_ledger_dry_run,
+            command_validation=queue_item.command_validation,
             linked_entity_context=manual_review_detail_linked_entity_context(
                 queue_item,
                 jobs=jobs,
@@ -1550,6 +1557,21 @@ def manual_review_queue_item(
         evidence_references=evidence_references,
         water_emergency_id=water_emergency_id,
     )
+    command_validation = manual_review_command_validation(
+        review,
+        groups=groups,
+        decision_readiness=decision_readiness,
+        action_preflight=action_preflight,
+        future_action_preview=future_action_preview,
+        command_contract=command_contract,
+        audit_ledger_dry_run=audit_ledger_dry_run,
+        job_id=job_id,
+        work_order_id=work_order_id,
+        visit_id=visit_id,
+        route_assignment_id=route_assignment_id,
+        water_emergency_id=water_emergency_id,
+        evidence_references=evidence_references,
+    )
 
     return ManualReviewQueueItem(
         review_item_id=review.id or NIL_UUID,
@@ -1582,6 +1604,7 @@ def manual_review_queue_item(
         future_action_preview=future_action_preview,
         command_contract=command_contract,
         audit_ledger_dry_run=audit_ledger_dry_run,
+        command_validation=command_validation,
         evidence_references=evidence_references,
     )
 
@@ -2183,6 +2206,261 @@ def manual_review_audit_ledger_dry_run(
         requires_idempotency_key=True,
         requires_immutable_event_recording=True,
         requires_post_action_consistency_check=True,
+    )
+
+
+def manual_review_command_validation(
+    review: ReviewItem,
+    *,
+    groups: Sequence[str],
+    decision_readiness: ManualReviewDecisionReadiness,
+    action_preflight: ManualReviewActionPreflight,
+    future_action_preview: ManualReviewFutureActionPreview,
+    command_contract: ManualReviewCommandContract,
+    audit_ledger_dry_run: ManualReviewAuditLedgerDryRun,
+    job_id: UUID | None,
+    work_order_id: UUID | None,
+    visit_id: UUID | None,
+    route_assignment_id: UUID | None,
+    water_emergency_id: UUID | None,
+    evidence_references: Sequence[str],
+) -> ManualReviewCommandValidation:
+    del decision_readiness, future_action_preview
+    status = normalized(review.status)
+    has_entity_context = any(
+        linked_id is not None
+        for linked_id in (
+            job_id,
+            work_order_id,
+            visit_id,
+            route_assignment_id,
+            water_emergency_id,
+        )
+    )
+    resolved_or_archived = status in RESOLVED_REVIEW_STATUSES or status == "archived"
+    has_conflict = (
+        "duplicate_or_conflict" in groups
+        or command_contract.label == "requires_no_conflict_blocker"
+        or action_preflight.label == "blocked_by_conflict"
+    )
+    has_missing_data = "missing_data" in groups or action_preflight.label == (
+        "blocked_by_missing_data"
+    )
+    requires_water_emergency_scope_check = water_emergency_id is not None
+    future_command_candidates = (
+        audit_ledger_dry_run.future_command_type_candidates
+        or command_contract.future_command_candidates
+    )
+    candidate_future_command_type = (
+        future_command_candidates[0] if future_command_candidates else "blocked"
+    )
+    validation_blockers: list[str] = ["validation_read_only_phase"]
+    validation_warnings = ["validation_warning_requires_review"]
+
+    if resolved_or_archived:
+        label = "validation_blocked_resolved_or_archived"
+        validation_status = "blocked_resolved_or_archived"
+        summary = (
+            "Resolved or archived Manual Review records remain historical visibility and "
+            "cannot pass active command validation."
+        )
+        validation_blockers.insert(0, "validation_blocked_resolved_or_archived")
+    elif not has_entity_context:
+        label = "validation_blocked_missing_entity"
+        validation_status = "blocked_missing_entity_context"
+        summary = (
+            "Manual Review command validation is blocked until deterministic linked entity "
+            "context is available."
+        )
+        validation_blockers.insert(0, "validation_blocked_missing_entity")
+    elif requires_water_emergency_scope_check:
+        label = "validation_blocked_water_emergency_scope"
+        validation_status = "blocked_water_emergency_scope"
+        summary = (
+            "Water Emergency-related Manual Review validation requires a separated Water "
+            "Emergency scope check before any future command execution can be designed."
+        )
+        validation_blockers.insert(0, "validation_blocked_water_emergency_scope")
+    elif has_conflict:
+        label = "validation_blocked_conflict"
+        validation_status = "blocked_conflict_context"
+        summary = (
+            "Duplicate or conflicting evidence blocks future Manual Review command validation "
+            "until a future operator workflow resolves the conflict."
+        )
+        validation_blockers.insert(0, "validation_blocked_conflict")
+    elif has_missing_data:
+        label = "validation_warning_requires_review"
+        validation_status = "warning_missing_data_review_required"
+        summary = (
+            "Missing-data review evidence requires operator-safe review before a future "
+            "authorized command phase can treat the validation as complete."
+        )
+        validation_warnings.append("missing_data_review_required")
+    elif not future_command_candidates:
+        label = "unknown_validation_state"
+        validation_status = "unknown_validation_state"
+        summary = (
+            "No deterministic future command candidate is available, so validation remains "
+            "unknown and read-only."
+        )
+        validation_blockers.insert(0, "unknown_validation_state")
+    else:
+        label = "validation_passes_future_requirements"
+        validation_status = "future_requirements_visible"
+        summary = (
+            "Future Manual Review command prerequisites are visible and internally consistent "
+            "for a future authorized phase, but Phase 0 still blocks execution."
+        )
+
+    safety_gates = manual_review_safety_gates(
+        has_entity_context=has_entity_context,
+        resolved_or_archived=resolved_or_archived,
+        has_conflict=has_conflict,
+        has_missing_data=has_missing_data,
+        requires_water_emergency_scope_check=requires_water_emergency_scope_check,
+    )
+
+    return ManualReviewCommandValidation(
+        label=label,
+        summary=summary,
+        candidate_future_command_type=candidate_future_command_type,
+        validation_status=validation_status,
+        validation_blockers=tuple(dict.fromkeys(validation_blockers)),
+        validation_warnings=tuple(dict.fromkeys(validation_warnings)),
+        safety_gates=safety_gates,
+        audit_correlation_references=tuple(
+            reference for reference in evidence_references if reference.startswith("audit:")
+        ),
+        evidence_references=tuple(evidence_references),
+        is_currently_executable=False,
+        phase_allows_execution=False,
+        execution_unavailable_reason=(
+            "Manual Review command validation is visibility only; execution is not available "
+            "in Phase 0."
+        ),
+        requires_audit_reason=True,
+        requires_operator_identity=True,
+        requires_role_authorization=True,
+        requires_idempotency_key=True,
+        requires_immutable_event_recording=True,
+        requires_post_action_consistency_check=True,
+        requires_water_emergency_scope_check=requires_water_emergency_scope_check,
+        requires_linked_entity_context=True,
+    )
+
+
+def manual_review_safety_gates(
+    *,
+    has_entity_context: bool,
+    resolved_or_archived: bool,
+    has_conflict: bool,
+    has_missing_data: bool,
+    requires_water_emergency_scope_check: bool,
+) -> tuple[ManualReviewSafetyGate, ...]:
+    return (
+        ManualReviewSafetyGate(
+            key="entity_context_present",
+            label="Entity context present",
+            passed=has_entity_context,
+            required=True,
+            reason=(
+                "A future command must be tied to a deterministic job, work order, visit, "
+                "route assignment, or Water Emergency record."
+            ),
+        ),
+        ManualReviewSafetyGate(
+            key="status_allows_future_action",
+            label="Status allows future action",
+            passed=not resolved_or_archived,
+            required=True,
+            reason="Resolved or archived Manual Review records cannot be active command targets.",
+        ),
+        ManualReviewSafetyGate(
+            key="review_not_resolved_or_archived",
+            label="Review not resolved or archived",
+            passed=not resolved_or_archived,
+            required=True,
+            reason="Historical Manual Review records stay separated from active command readiness.",
+        ),
+        ManualReviewSafetyGate(
+            key="water_emergency_scope_checked",
+            label="Water Emergency scope checked",
+            passed=not requires_water_emergency_scope_check,
+            required=requires_water_emergency_scope_check,
+            reason=(
+                "Water Emergency-related reviews require separated scope checks before any "
+                "future command can be considered."
+            ),
+        ),
+        ManualReviewSafetyGate(
+            key="no_conflict_blocker",
+            label="No conflict blocker",
+            passed=not has_conflict,
+            required=True,
+            reason="Duplicate or conflicting evidence must remain blocked for future review.",
+        ),
+        ManualReviewSafetyGate(
+            key="missing_data_reviewed",
+            label="Missing data reviewed",
+            passed=not has_missing_data,
+            required=has_missing_data,
+            reason="Missing-data reviews require operator-safe evidence review before execution.",
+        ),
+        ManualReviewSafetyGate(
+            key="operator_identity_required",
+            label="Operator identity required",
+            passed=True,
+            required=True,
+            reason=(
+                "Future commands must declare operator identity capture before execution exists."
+            ),
+        ),
+        ManualReviewSafetyGate(
+            key="role_authorization_required",
+            label="Role authorization required",
+            passed=True,
+            required=True,
+            reason="Future commands must declare role authorization before execution exists.",
+        ),
+        ManualReviewSafetyGate(
+            key="audit_reason_required",
+            label="Audit reason required",
+            passed=True,
+            required=True,
+            reason="Future commands must declare audit reason capture before execution exists.",
+        ),
+        ManualReviewSafetyGate(
+            key="idempotency_key_required",
+            label="Idempotency key required",
+            passed=True,
+            required=True,
+            reason="Future commands must declare an idempotency key requirement.",
+        ),
+        ManualReviewSafetyGate(
+            key="immutable_event_required",
+            label="Immutable event required",
+            passed=True,
+            required=True,
+            reason="Future commands must declare immutable event recording requirements.",
+        ),
+        ManualReviewSafetyGate(
+            key="post_action_consistency_check_required",
+            label="Post-action consistency check required",
+            passed=True,
+            required=True,
+            reason="Future commands must declare post-action consistency checks.",
+        ),
+        ManualReviewSafetyGate(
+            key="phase_allows_execution",
+            label="Phase allows execution",
+            passed=False,
+            required=True,
+            reason=(
+                "Phase 0 exposes validation visibility only; Manual Review command execution "
+                "is disabled."
+            ),
+        ),
     )
 
 

@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 47 keeps the frontend foundation read-only while adding Manual Review audit-ledger dry-run, immutable-event preparation, and idempotency-readiness visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, and future command-contract context.
+Phase 0 Module 48 keeps the frontend foundation read-only while adding Manual Review command-validation and safety-gate matrix visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, and audit-ledger dry-run context.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -321,6 +321,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Dry-run labels explain future-only requirements for audit reason, operator identity, role authorization, idempotency key, immutable event recording, and post-action consistency checks before any later mutation module is allowed.
 - Every dry-run record renders as `Currently executable: No` and `Phase allows execution: No` in Phase 0. These labels are not buttons, forms, inputs, mutation controls, auth controls, RBAC controls, audit-write controls, or action execution controls.
 - Water Emergency-related dry-run context remains visibly separated from standard Manual Review command preparation.
+- The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, audit forms, command forms, or future command data-entry fields.
+
+## Module 48 Manual Review Command-Validation Notes
+
+- The Manual Review Queue and detail panel now display backend-provided command-validation labels, validation blockers, validation warnings, candidate future command type, explicit non-executable flags, and a read-only safety gate matrix.
+- Safety gates show whether entity context, active status, Water Emergency scope, conflict review, missing-data review, operator identity, role authorization, audit reason, idempotency key, immutable event recording, post-action consistency check, and Phase 0 execution allowance are present or required.
+- Every validation record renders as `Currently executable: No` and `Phase allows execution: No` in Phase 0. These labels are not buttons, forms, inputs, mutation controls, auth controls, RBAC controls, validation execution controls, audit-write controls, or action execution controls.
+- Water Emergency-related command validation remains visibly separated from standard Manual Review validation context.
 - The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, audit forms, command forms, or future command data-entry fields.
 
 ## Module 38 Water Emergency View-State Notes

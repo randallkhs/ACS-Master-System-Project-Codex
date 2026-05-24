@@ -194,6 +194,15 @@ describe("dashboard API client", () => {
     expect(result.source).toBe("mock");
     expect(result.data.total_items).toBe(mockManualReviewQueue.total_items);
     expect(result.data.items[0].reason_code).toBe("missing_customer_data");
+    expect(result.data.command_validation_counts[0].label).toBe(
+      "validation_warning_requires_review"
+    );
+    expect(result.data.items[0].command_validation.phase_allows_execution).toBe(
+      false
+    );
+    expect(
+      result.data.items[0].command_validation.safety_gates.at(-1)?.key
+    ).toBe("phase_allows_execution");
     expect(result.data.taxonomy_metadata.randall_authorized_phase_0_baseline).toBe(
       true
     );
@@ -211,6 +220,10 @@ describe("dashboard API client", () => {
       mockManualReviewDetail.review_item.review_item_id
     );
     expect(result.data?.linked_entity_context.is_dispatch_related).toBe(true);
+    expect(result.data?.command_validation.is_currently_executable).toBe(false);
+    expect(result.data?.command_validation.safety_gates.at(-1)?.key).toBe(
+      "phase_allows_execution"
+    );
   });
 
   it("keeps no-selected Manual Review detail as live null data when an API base URL is configured", async () => {

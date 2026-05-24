@@ -973,3 +973,23 @@ Unresolved:
 - durable audit ledger or immutable event write model for executed actions
 - operator identity, role authorization, audit reason, idempotency, immutable event, and consistency-check persistence
 - final dry-run/action taxonomy and role-scoped action authority
+
+## Manual Review Command-Validation Projection
+
+Phase 0 Module 48 adds read-only command-validation and safety-gate matrix metadata to Manual Review queue and detail contracts without adding database tables or columns.
+
+Projection philosophy:
+
+- command-validation labels are derived from existing ReviewItem status, reason, recommended action, entity-link, Water Emergency-link, decision-readiness, action-preflight, future-action preview, command-contract, audit-ledger dry-run, and evidence-reference data
+- every projected validation record is currently non-executable and Phase 0 blocks execution
+- every safety gate is read-only and reports whether a future prerequisite is present, required, or blocked; no gate writes state or executes a workflow
+- every future validation record exposes required audit reason, operator identity, role authorization, idempotency key, immutable event recording, post-action consistency check, entity context, and Phase 0 execution-blocked gates
+- missing entity context, conflict evidence, Water Emergency scope, and resolved/archived status remain blockers or historical visibility states
+- no validation table, safety-gate table, command table, audit-envelope persistence, operator identity table, RBAC table, action history table, vendor execution record, AI authority, or workflow engine is added in Module 48
+
+Unresolved:
+
+- future authenticated Manual Review command validation/execution schema
+- durable safety-gate/audit-ledger persistence requirements for executed actions
+- operator identity, role authorization, audit reason, idempotency, immutable event, and consistency-check persistence
+- final validation/action taxonomy and role-scoped action authority

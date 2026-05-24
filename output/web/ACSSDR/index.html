@@ -8,11 +8,11 @@
       name="description"
       content="Plain-English development progress report for the Apple Cleaning Systems Master System."
     />
-    <link rel="icon" href="favicon.ico?v=20260523-4" sizes="any" />
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png?v=20260523-4" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png?v=20260523-4" />
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png?v=20260523-4" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260523-4" />
+    <link rel="icon" href="favicon.ico?v=20260523-7" sizes="any" />
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon.png?v=20260523-7" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png?v=20260523-7" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png?v=20260523-7" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=20260523-7" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -105,11 +105,12 @@
       }
 
       .header-inner {
-        min-height: 80px;
+        min-height: 104px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
+        padding-block: 0.78rem;
       }
 
       .brand-link {
@@ -228,7 +229,7 @@
         flex-wrap: wrap;
         gap: 0.7rem;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
       }
 
       .status-pill {
@@ -270,9 +271,9 @@
         width: 0.52rem;
         height: 0.52rem;
         border-radius: 999px;
-        background: radial-gradient(circle at 35% 30%, #a8dca0 0 9%, #28552f 27%, #102116 72%, #08100b 100%);
+        background: radial-gradient(circle at 35% 30%, #cfcfcf 0 8%, #414449 28%, #141619 70%, #050607 100%);
         box-shadow:
-          0 0 0 1px rgba(112, 255, 123, 0.18),
+          0 0 0 1px rgba(255, 255, 255, 0.12),
           inset 0 0 5px rgba(0, 0, 0, 0.72),
           inset 0 1px 3px rgba(255, 255, 255, 0.22);
         isolation: isolate;
@@ -312,13 +313,11 @@
       }
 
       .led-green.led-core {
-        --led-idle: 0.34;
         --led-active: 0.98;
         background: radial-gradient(circle at 35% 30%, #f5ffe7 0 11%, #a8ff75 30%, #36ff55 62%, #087a1d 100%);
       }
 
       .led-green.led-glow {
-        --led-idle: 0.1;
         --led-active: 0.8;
         background: radial-gradient(circle, rgba(91, 255, 101, 0.9) 0 18%, rgba(91, 255, 101, 0.38) 46%, rgba(91, 255, 101, 0) 73%);
       }
@@ -344,83 +343,38 @@
       }
 
       .led-green {
-        opacity: var(--led-idle);
+        opacity: 0;
       }
 
-      .status-dot:nth-child(1) .led-green { animation: ledGreenA 1.12s steps(1, end) infinite; }
-      .status-dot:nth-child(1) .led-yellow { animation: ledYellowA 1.12s steps(1, end) infinite; }
-      .status-dot:nth-child(1) .led-red { animation: ledRedA 1.12s steps(1, end) infinite; }
+      .status-dot:nth-child(1) .led-green { animation: ledGreenPackets 1.14s steps(1, end) infinite; }
+      .status-dot:nth-child(1) .led-red { animation: ledRedPackets 1.14s steps(1, end) infinite; }
+      .status-dot:nth-child(1) .led-yellow { animation: ledYellowPackets 1.14s steps(1, end) infinite; }
 
-      .status-dot:nth-child(2) .led-green { animation: ledGreenB 1.57s steps(1, end) -0.37s infinite; }
-      .status-dot:nth-child(2) .led-yellow { animation: ledYellowB 1.57s steps(1, end) -0.37s infinite; }
-      .status-dot:nth-child(2) .led-red { animation: ledRedB 1.57s steps(1, end) -0.37s infinite; }
+      .status-dot:nth-child(2) .led-green { animation: ledGreenPackets 1.63s steps(1, end) -0.43s infinite; }
+      .status-dot:nth-child(2) .led-red { animation: ledRedPackets 1.63s steps(1, end) -0.43s infinite; }
+      .status-dot:nth-child(2) .led-yellow { animation: ledYellowPackets 1.63s steps(1, end) -0.43s infinite; }
 
-      .status-dot:nth-child(3) .led-green { animation: ledGreenC 0.86s steps(1, end) -0.18s infinite; }
-      .status-dot:nth-child(3) .led-yellow { animation: ledYellowC 0.86s steps(1, end) -0.18s infinite; }
-      .status-dot:nth-child(3) .led-red { animation: ledRedC 0.86s steps(1, end) -0.18s infinite; }
+      .status-dot:nth-child(3) .led-green { animation: ledGreenPackets 0.91s steps(1, end) -0.19s infinite; }
+      .status-dot:nth-child(3) .led-red { animation: ledRedPackets 0.91s steps(1, end) -0.19s infinite; }
+      .status-dot:nth-child(3) .led-yellow { animation: ledYellowPackets 0.91s steps(1, end) -0.19s infinite; }
 
-      .status-dot:nth-child(4) .led-green { animation: ledGreenD 2.11s steps(1, end) -0.83s infinite; }
-      .status-dot:nth-child(4) .led-yellow { animation: ledYellowD 2.11s steps(1, end) -0.83s infinite; }
-      .status-dot:nth-child(4) .led-red { animation: ledRedD 2.11s steps(1, end) -0.83s infinite; }
+      .status-dot:nth-child(4) .led-green { animation: ledGreenPackets 2.18s steps(1, end) -0.87s infinite; }
+      .status-dot:nth-child(4) .led-red { animation: ledRedPackets 2.18s steps(1, end) -0.87s infinite; }
+      .status-dot:nth-child(4) .led-yellow { animation: ledYellowPackets 2.18s steps(1, end) -0.87s infinite; }
 
-      @keyframes ledGreenA {
-        0%, 14%, 33%, 46%, 59%, 74%, 91%, 100% { opacity: var(--led-idle); }
-        6%, 10%, 21%, 25%, 39%, 43%, 66%, 70%, 84%, 87% { opacity: var(--led-active); }
+      @keyframes ledGreenPackets {
+        0%, 8%, 20%, 29%, 46%, 54%, 74%, 81%, 93%, 98% { opacity: var(--led-active); }
+        9%, 19%, 30%, 45%, 55%, 73%, 82%, 92%, 99%, 100% { opacity: 0; }
       }
 
-      @keyframes ledGreenB {
-        0%, 17%, 31%, 49%, 68%, 83%, 100% { opacity: var(--led-idle); }
-        8%, 12%, 22%, 27%, 38%, 41%, 54%, 58%, 75%, 79%, 90%, 94% { opacity: var(--led-active); }
+      @keyframes ledRedPackets {
+        0%, 9%, 17%, 30%, 40%, 56%, 66%, 82%, 90%, 100% { opacity: 0; }
+        10%, 16%, 31%, 39%, 57%, 65%, 83%, 89% { opacity: var(--led-active); }
       }
 
-      @keyframes ledGreenC {
-        0%, 19%, 36%, 62%, 89%, 100% { opacity: var(--led-idle); }
-        5%, 9%, 24%, 28%, 42%, 47%, 70%, 76%, 82%, 85% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledGreenD {
-        0%, 12%, 34%, 52%, 77%, 90%, 100% { opacity: var(--led-idle); }
-        4%, 7%, 21%, 25%, 41%, 45%, 62%, 66%, 84%, 88% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledYellowA {
-        0%, 52%, 58%, 100% { opacity: 0; }
-        54%, 56% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledYellowB {
-        0%, 33%, 37%, 69%, 73%, 100% { opacity: 0; }
-        35%, 71% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledYellowC {
-        0%, 15%, 19%, 59%, 63%, 100% { opacity: 0; }
-        17%, 61% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledYellowD {
-        0%, 49%, 53%, 100% { opacity: 0; }
-        51% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledRedA {
-        0%, 86%, 90%, 100% { opacity: 0; }
-        88% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledRedB {
-        0%, 96%, 99%, 100% { opacity: 0; }
-        98% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledRedC {
-        0%, 52%, 56%, 100% { opacity: 0; }
-        54% { opacity: var(--led-active); }
-      }
-
-      @keyframes ledRedD {
-        0%, 70%, 74%, 100% { opacity: 0; }
-        72% { opacity: var(--led-active); }
+      @keyframes ledYellowPackets {
+        0%, 16%, 20%, 40%, 45%, 66%, 73%, 89%, 93%, 100% { opacity: 0; }
+        17%, 19%, 41%, 44%, 67%, 72%, 90%, 92% { opacity: var(--led-active); }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -456,7 +410,7 @@
 
       .visual-panel {
         border: 1px solid rgba(255, 255, 255, 0.18);
-        background: rgba(30, 35, 32, 0.82);
+        background: rgba(36, 36, 36, 0.94);
         color: #fff;
         padding: 1rem;
         backdrop-filter: blur(14px);
@@ -1097,44 +1051,7 @@
 
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
-                <span class="status-pill">
-                  <span class="status-lights" aria-hidden="true">
-                    <span class="status-dot">
-                      <span class="led-layer led-core led-green"></span>
-                      <span class="led-layer led-core led-yellow"></span>
-                      <span class="led-layer led-core led-red"></span>
-                      <span class="led-layer led-glow led-green"></span>
-                      <span class="led-layer led-glow led-yellow"></span>
-                      <span class="led-layer led-glow led-red"></span>
-                    </span>
-                    <span class="status-dot">
-                      <span class="led-layer led-core led-green"></span>
-                      <span class="led-layer led-core led-yellow"></span>
-                      <span class="led-layer led-core led-red"></span>
-                      <span class="led-layer led-glow led-green"></span>
-                      <span class="led-layer led-glow led-yellow"></span>
-                      <span class="led-layer led-glow led-red"></span>
-                    </span>
-                    <span class="status-dot">
-                      <span class="led-layer led-core led-green"></span>
-                      <span class="led-layer led-core led-yellow"></span>
-                      <span class="led-layer led-core led-red"></span>
-                      <span class="led-layer led-glow led-green"></span>
-                      <span class="led-layer led-glow led-yellow"></span>
-                      <span class="led-layer led-glow led-red"></span>
-                    </span>
-                    <span class="status-dot">
-                      <span class="led-layer led-core led-green"></span>
-                      <span class="led-layer led-core led-yellow"></span>
-                      <span class="led-layer led-core led-red"></span>
-                      <span class="led-layer led-glow led-green"></span>
-                      <span class="led-layer led-glow led-yellow"></span>
-                      <span class="led-layer led-glow led-red"></span>
-                    </span>
-                  </span>
-                  Under Development
-                </span>
-                <strong>Last updated: May 23, 2026 at 4:24 PM EDT</strong>
+                <strong>Last updated: May 23, 2026 at 5:14 PM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1144,16 +1061,16 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>46</strong>
+                <strong>47</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>New Manual Review command-contract and audit-envelope update added since the last public report</span>
+                <span>New Manual Review audit-ledger and command dry-run update added since the last public report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Read-only future authorization, idempotency, and audit requirements now visible</span>
+                <span>Read-only future audit ledger, immutable-event, and idempotency preparation now visible</span>
               </div>
               <div class="stat-card">
                 <strong>0</strong>
@@ -2243,6 +2160,31 @@
                 approve, reject, defer, archive, resolve, dispatch, or change any record.
               </div>
             </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 47 manual review audit ledger command dry run immutable event preparation idempotency audit envelope water emergency separated">
+              <div class="module-top">
+                <span class="module-number">47</span>
+                <div>
+                  <h3>Manual Review Audit Ledger, Command Dry-Run, and Immutable Event Preparation</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module prepares Manual Review for future action execution by showing read-only
+                audit-ledger preparation, command dry-run labels, immutable-event requirements,
+                idempotency readiness, and consistency-check context. It explains what evidence
+                future operator actions would need without writing audit events or executing
+                commands.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                A review item can show the proposed future audit envelope, future event type,
+                idempotency scope, and why command execution is unavailable in Phase 0. Water
+                Emergency-related dry-run context stays separated from standard dispatch review
+                context. The dashboard still does not approve, reject, defer, archive, resolve,
+                dispatch, write audit events, or change any record.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -2268,6 +2210,7 @@
             <div class="check-item"><span class="check">✓</span><span>Manual Review action-preflight and future authorization-readiness visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review future-action preview and expected outcome visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review future command-contract and audit-envelope visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Manual Review audit-ledger dry-run and immutable-event preparation visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2288,37 +2231,39 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 46 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 47 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 46 completed read-only Manual Review command-contract and audit-envelope
-            visibility. The module was reviewed and committed before Module 47 work begins. This
-            gives ACS clearer future authorization, operator identity, audit reason, idempotency,
-            immutable-event, and consistency-check requirements without adding operational action
-            buttons yet.
+            Module 47 completed read-only Manual Review audit-ledger preparation, command dry-run
+            visibility, immutable-event preparation, and idempotency readiness. The module was
+            reviewed and committed before Module 48 work begins. This gives ACS clearer future
+            audit, idempotency, event-recording, and consistency-check preparation without adding
+            operational action buttons or audit writes yet.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The Manual Review Queue and detail panel can now show future command-contract
-                labels, required audit-envelope safeguards, future command candidates, blocker
-                context, impacted entities, and explicit non-executable status.
+                The Manual Review Queue and detail panel can now show command dry-run labels,
+                proposed future audit envelope fields, proposed immutable event state,
+                idempotency scope, consistency-check summary, blocker context, and explicit
+                non-executable Phase 0 status.
               </p>
             </article>
             <article class="overview-card">
               <h3>Why it matters</h3>
               <p>
                 Manual Review is the safety system. This work helps Luis and the office understand
-                which safeguards must exist before any future operator action can be designed.
-                Water Emergency-related command context stays separated from standard dispatch
-                review context, and resolved or archived items stay historical instead of active
-                future command needs.
+                what audit evidence, event recording, idempotency, operator identity, role
+                authorization, and consistency checks will be needed before any future Manual
+                Review action can execute. Water Emergency-related dry-run context stays separated
+                from standard dispatch review context, and resolved or archived items stay
+                historical instead of active command needs.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 46 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                Module 47 passed backend checks, frontend checks, local PostgreSQL live dashboard
                 verification, browser checks, and ChatGPT review follow-up. It has been committed
                 and pushed by Randall.
               </p>
@@ -2326,9 +2271,9 @@
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is Module 47: read-only Manual Review audit-ledger
-                preparation, command dry-run visibility, immutable-event preparation, and
-                idempotency readiness. Module 47 is not marked complete yet.
+                The next planned area is Module 48: read-only Manual Review command validation,
+                safety gate matrix visibility, and execution-readiness harness preparation.
+                Module 48 is not marked complete yet.
               </p>
             </article>
           </div>

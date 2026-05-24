@@ -181,6 +181,39 @@ class ManualReviewAuditLedgerDryRun:
 
 
 @dataclass(frozen=True, slots=True)
+class ManualReviewSafetyGate:
+    key: str
+    label: str
+    passed: bool
+    required: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewCommandValidation:
+    label: str
+    summary: str
+    candidate_future_command_type: str
+    validation_status: str
+    validation_blockers: tuple[str, ...]
+    validation_warnings: tuple[str, ...]
+    safety_gates: tuple[ManualReviewSafetyGate, ...]
+    audit_correlation_references: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    is_currently_executable: bool
+    phase_allows_execution: bool
+    execution_unavailable_reason: str
+    requires_audit_reason: bool
+    requires_operator_identity: bool
+    requires_role_authorization: bool
+    requires_idempotency_key: bool
+    requires_immutable_event_recording: bool
+    requires_post_action_consistency_check: bool
+    requires_water_emergency_scope_check: bool
+    requires_linked_entity_context: bool
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewQueueItem:
     review_item_id: UUID
     status: str
@@ -212,6 +245,7 @@ class ManualReviewQueueItem:
     future_action_preview: ManualReviewFutureActionPreview
     command_contract: ManualReviewCommandContract
     audit_ledger_dry_run: ManualReviewAuditLedgerDryRun
+    command_validation: ManualReviewCommandValidation
     evidence_references: tuple[str, ...]
 
 
@@ -236,6 +270,7 @@ class ManualReviewQueueReadModel:
     future_action_preview_counts: tuple[CountBucket, ...]
     command_contract_counts: tuple[CountBucket, ...]
     audit_ledger_dry_run_counts: tuple[CountBucket, ...]
+    command_validation_counts: tuple[CountBucket, ...]
     age_bucket_counts: tuple[CountBucket, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadata
@@ -291,6 +326,7 @@ class ManualReviewDetailReadModel:
     future_action_preview: ManualReviewFutureActionPreview
     command_contract: ManualReviewCommandContract
     audit_ledger_dry_run: ManualReviewAuditLedgerDryRun
+    command_validation: ManualReviewCommandValidation
     linked_entity_context: ManualReviewDetailLinkedEntityContext
     data_gap_counts: tuple[CountBucket, ...]
     audit_correlation_ids: tuple[str, ...]

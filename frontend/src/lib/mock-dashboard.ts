@@ -1,9 +1,11 @@
 import type {
   DashboardOverviewResponse,
   ManualReviewAuditLedgerDryRunResponse,
+  ManualReviewCommandValidationResponse,
   ManualReviewCommandContractResponse,
   ManualReviewDetailResponse,
   ManualReviewQueueResponse,
+  ManualReviewSafetyGateResponse,
   WaterEmergencyDashboardResponse,
   WaterEmergencyDetailResponse,
 } from "@/lib/dashboard-contracts";
@@ -422,6 +424,185 @@ function manualReviewAuditLedgerDryRunMock({
   };
 }
 
+function manualReviewSafetyGatesMock({
+  entityContextPresent,
+  resolvedOrArchived = false,
+  hasConflict = false,
+  hasMissingData = false,
+  requiresWaterEmergencyScopeCheck = false,
+}: {
+  entityContextPresent: boolean;
+  resolvedOrArchived?: boolean;
+  hasConflict?: boolean;
+  hasMissingData?: boolean;
+  requiresWaterEmergencyScopeCheck?: boolean;
+}): ManualReviewSafetyGateResponse[] {
+  return [
+    {
+      key: "entity_context_present",
+      label: "Entity context present",
+      passed: entityContextPresent,
+      required: true,
+      reason:
+        "A future command must be tied to deterministic job, work order, visit, route assignment, or Water Emergency evidence.",
+    },
+    {
+      key: "status_allows_future_action",
+      label: "Status allows future action",
+      passed: !resolvedOrArchived,
+      required: true,
+      reason:
+        "Resolved or archived Manual Review records cannot be active command targets.",
+    },
+    {
+      key: "review_not_resolved_or_archived",
+      label: "Review not resolved or archived",
+      passed: !resolvedOrArchived,
+      required: true,
+      reason:
+        "Historical Manual Review records stay separated from active command readiness.",
+    },
+    {
+      key: "water_emergency_scope_checked",
+      label: "Water Emergency scope checked",
+      passed: !requiresWaterEmergencyScopeCheck,
+      required: requiresWaterEmergencyScopeCheck,
+      reason:
+        "Water Emergency-related reviews require separated scope checks before any future command can be considered.",
+    },
+    {
+      key: "no_conflict_blocker",
+      label: "No conflict blocker",
+      passed: !hasConflict,
+      required: true,
+      reason:
+        "Duplicate or conflicting evidence must remain blocked for future review.",
+    },
+    {
+      key: "missing_data_reviewed",
+      label: "Missing data reviewed",
+      passed: !hasMissingData,
+      required: hasMissingData,
+      reason:
+        "Missing-data reviews require operator-safe evidence review before execution.",
+    },
+    {
+      key: "operator_identity_required",
+      label: "Operator identity required",
+      passed: true,
+      required: true,
+      reason:
+        "Future commands must declare operator identity capture before execution exists.",
+    },
+    {
+      key: "role_authorization_required",
+      label: "Role authorization required",
+      passed: true,
+      required: true,
+      reason:
+        "Future commands must declare role authorization before execution exists.",
+    },
+    {
+      key: "audit_reason_required",
+      label: "Audit reason required",
+      passed: true,
+      required: true,
+      reason:
+        "Future commands must declare audit reason capture before execution exists.",
+    },
+    {
+      key: "idempotency_key_required",
+      label: "Idempotency key required",
+      passed: true,
+      required: true,
+      reason: "Future commands must declare an idempotency key requirement.",
+    },
+    {
+      key: "immutable_event_required",
+      label: "Immutable event required",
+      passed: true,
+      required: true,
+      reason:
+        "Future commands must declare immutable event recording requirements.",
+    },
+    {
+      key: "post_action_consistency_check_required",
+      label: "Post-action consistency check required",
+      passed: true,
+      required: true,
+      reason: "Future commands must declare post-action consistency checks.",
+    },
+    {
+      key: "phase_allows_execution",
+      label: "Phase allows execution",
+      passed: false,
+      required: true,
+      reason:
+        "Phase 0 exposes validation visibility only; Manual Review command execution is disabled.",
+    },
+  ];
+}
+
+function manualReviewCommandValidationMock({
+  label,
+  summary,
+  candidateFutureCommandType = "blocked",
+  validationStatus = "blocked_phase_0",
+  validationBlockers = ["validation_read_only_phase"],
+  validationWarnings = ["validation_warning_requires_review"],
+  evidenceReferences,
+  entityContextPresent,
+  resolvedOrArchived = false,
+  hasConflict = false,
+  hasMissingData = false,
+  requiresWaterEmergencyScopeCheck = false,
+}: {
+  label: string;
+  summary: string;
+  candidateFutureCommandType?: string;
+  validationStatus?: string;
+  validationBlockers?: string[];
+  validationWarnings?: string[];
+  evidenceReferences: string[];
+  entityContextPresent: boolean;
+  resolvedOrArchived?: boolean;
+  hasConflict?: boolean;
+  hasMissingData?: boolean;
+  requiresWaterEmergencyScopeCheck?: boolean;
+}): ManualReviewCommandValidationResponse {
+  return {
+    label,
+    summary,
+    candidate_future_command_type: candidateFutureCommandType,
+    validation_status: validationStatus,
+    validation_blockers: validationBlockers,
+    validation_warnings: validationWarnings,
+    safety_gates: manualReviewSafetyGatesMock({
+      entityContextPresent,
+      resolvedOrArchived,
+      hasConflict,
+      hasMissingData,
+      requiresWaterEmergencyScopeCheck,
+    }),
+    audit_correlation_references: evidenceReferences.filter((reference) =>
+      reference.startsWith("audit:"),
+    ),
+    evidence_references: evidenceReferences,
+    is_currently_executable: false,
+    phase_allows_execution: false,
+    execution_unavailable_reason:
+      "Manual Review command validation is visibility only; execution is not available in Phase 0.",
+    requires_audit_reason: true,
+    requires_operator_identity: true,
+    requires_role_authorization: true,
+    requires_idempotency_key: true,
+    requires_immutable_event_recording: true,
+    requires_post_action_consistency_check: true,
+    requires_water_emergency_scope_check: requiresWaterEmergencyScopeCheck,
+    requires_linked_entity_context: true,
+  };
+}
+
 export const mockManualReviewQueue: ManualReviewQueueResponse = {
   generated_at: "2026-05-16T09:35:00Z",
   total_items: 5,
@@ -500,6 +681,12 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
     { label: "command_execution_blocked_water_emergency_scope", count: 1 },
     { label: "command_execution_blocked_resolved_or_archived", count: 2 },
     { label: "command_execution_blocked_missing_entity", count: 1 },
+  ],
+  command_validation_counts: [
+    { label: "validation_warning_requires_review", count: 1 },
+    { label: "validation_blocked_water_emergency_scope", count: 1 },
+    { label: "validation_blocked_resolved_or_archived", count: 2 },
+    { label: "validation_blocked_missing_entity", count: 1 },
   ],
   audit_correlation_count: 5,
   taxonomy_metadata: {
@@ -786,6 +973,25 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "audit:audit-manual-review-mock-001",
         ],
       }),
+      command_validation: manualReviewCommandValidationMock({
+        label: "validation_warning_requires_review",
+        summary:
+          "Missing-data review evidence requires operator-safe review before a future authorized command phase can treat validation as complete.",
+        candidateFutureCommandType: "request_information",
+        validationStatus: "warning_missing_data_review_required",
+        validationWarnings: [
+          "validation_warning_requires_review",
+          "missing_data_review_required",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000001",
+          "job:42000000-0000-4000-8000-000000000001",
+          "work_order:43000000-0000-4000-8000-000000000001",
+          "audit:audit-manual-review-mock-001",
+        ],
+        entityContextPresent: true,
+        hasMissingData: true,
+      }),
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000002",
@@ -930,6 +1136,26 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
           "audit:audit-manual-review-mock-002",
         ],
+      }),
+      command_validation: manualReviewCommandValidationMock({
+        label: "validation_blocked_water_emergency_scope",
+        summary:
+          "Water Emergency-related Manual Review validation requires a separated Water Emergency scope check before any future command execution can be designed.",
+        candidateFutureCommandType: "blocked",
+        validationStatus: "blocked_water_emergency_scope",
+        validationBlockers: [
+          "validation_blocked_water_emergency_scope",
+          "validation_read_only_phase",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000002",
+          "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+          "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+          "audit:audit-manual-review-mock-002",
+        ],
+        entityContextPresent: true,
+        requiresWaterEmergencyScopeCheck: true,
       }),
     },
     {
@@ -1076,6 +1302,27 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "route_assignment:44000000-0000-4000-8000-000000000003",
         ],
       }),
+      command_validation: manualReviewCommandValidationMock({
+        label: "validation_blocked_resolved_or_archived",
+        summary:
+          "Resolved Manual Review records remain historical visibility and cannot pass active command validation.",
+        candidateFutureCommandType: "blocked",
+        validationStatus: "blocked_resolved_or_archived",
+        validationBlockers: [
+          "validation_blocked_resolved_or_archived",
+          "validation_read_only_phase",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000003",
+          "job:42000000-0000-4000-8000-000000000003",
+          "work_order:43000000-0000-4000-8000-000000000003",
+          "visit:45000000-0000-4000-8000-000000000003",
+          "route_assignment:44000000-0000-4000-8000-000000000003",
+        ],
+        entityContextPresent: true,
+        resolvedOrArchived: true,
+        hasConflict: true,
+      }),
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000004",
@@ -1197,6 +1444,23 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "job:42000000-0000-4000-8000-000000000004",
         ],
       }),
+      command_validation: manualReviewCommandValidationMock({
+        label: "validation_blocked_resolved_or_archived",
+        summary:
+          "Archived Manual Review records remain historical visibility and cannot pass active command validation.",
+        candidateFutureCommandType: "blocked",
+        validationStatus: "blocked_resolved_or_archived",
+        validationBlockers: [
+          "validation_blocked_resolved_or_archived",
+          "validation_read_only_phase",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000004",
+          "job:42000000-0000-4000-8000-000000000004",
+        ],
+        entityContextPresent: true,
+        resolvedOrArchived: true,
+      }),
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000005",
@@ -1316,6 +1580,22 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "audit:audit-manual-review-mock-005",
         ],
       }),
+      command_validation: manualReviewCommandValidationMock({
+        label: "validation_blocked_missing_entity",
+        summary:
+          "Manual Review command validation is blocked until deterministic linked entity context is available.",
+        candidateFutureCommandType: "blocked",
+        validationStatus: "blocked_missing_entity_context",
+        validationBlockers: [
+          "validation_blocked_missing_entity",
+          "validation_read_only_phase",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000005",
+          "audit:audit-manual-review-mock-005",
+        ],
+        entityContextPresent: false,
+      }),
     },
   ],
 };
@@ -1340,6 +1620,7 @@ export const mockManualReviewDetail: ManualReviewDetailResponse = {
   future_action_preview: mockManualReviewQueue.items[0].future_action_preview,
   command_contract: mockManualReviewQueue.items[0].command_contract,
   audit_ledger_dry_run: mockManualReviewQueue.items[0].audit_ledger_dry_run,
+  command_validation: mockManualReviewQueue.items[0].command_validation,
   linked_entity_context: {
     entity_type: "job",
     entity_id: "42000000-0000-4000-8000-000000000001",

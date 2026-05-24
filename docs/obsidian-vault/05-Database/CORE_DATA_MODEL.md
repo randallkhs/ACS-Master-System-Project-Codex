@@ -226,6 +226,8 @@ Module 45 adds Manual Review future-action preview and expected-outcome prepared
 
 Module 46 adds Manual Review future command-contract and audit-envelope visibility as read-model metadata only. It does not add command tables, mutation endpoints, workflow transitions, approval/rejection/defer/archive/resolve outcome tables, auth/RBAC tables, operator identity tables, audit-reason persistence, idempotency persistence, immutable-event writes, consistency-check writes, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated command execution, operator identity capture, role authorization, idempotency keys, required audit reasons, immutable event history, post-action consistency checks, and role-scoped action authority after the action workflow is explicitly designed.
 
+Module 48 adds Manual Review command-validation and safety-gate matrix visibility as read-model metadata only. It does not add command tables, mutation endpoints, workflow transitions, validation execution, approval/rejection/defer/archive/resolve outcome tables, auth/RBAC tables, operator identity tables, audit-reason persistence, idempotency persistence, immutable-event writes, consistency-check writes, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated command validation/execution, operator identity capture, role authorization, idempotency keys, required audit reasons, immutable event history, post-action consistency checks, and role-scoped action authority after the action workflow is explicitly designed.
+
 ## Audit Logs
 
 Represents durable trace history.
@@ -630,6 +632,29 @@ No database table or column was added for:
 - workflow engine state
 
 The read model derives audit-ledger dry-run labels from existing `ReviewItem` status, reason, recommended action text, entity links, Water Emergency links, action-preflight labels, command-contract labels, and evidence references. Labels such as dry-run only Phase 0, audit envelope required, operator identity required, role authorization required, idempotency key required, immutable event required, consistency check required, command execution blocked by read-only phase, missing entity, conflict, Water Emergency scope, resolved/archived status, and unknown dry-run readiness are Randall-authorized Phase 0 visibility baselines only. Every dry-run record remains currently non-executable, Phase 0 blocks execution, and the projection does not mutate review records, create audit/action records, implement auth/RBAC, persist idempotency keys, or define final company policy.
+
+## Phase 0 Module 48 Manual Review Command-Validation Read-Model Note
+
+Module 48 adds Manual Review command-validation and safety-gate matrix visibility as dashboard read-model projections only.
+
+No database table or column was added for:
+
+- Manual Review command execution
+- command validation execution
+- safety gate persistence
+- audit-ledger writes
+- immutable event writes
+- idempotency key persistence
+- approval/rejection/defer/archive/resolve outcomes
+- operator identity capture
+- role authorization
+- audit reason persistence
+- post-action consistency check persistence
+- auth or RBAC
+- action history
+- workflow engine state
+
+The read model derives command-validation labels and safety gates from existing `ReviewItem` status, reason, recommended action text, entity links, Water Emergency links, action-preflight labels, command-contract labels, audit-ledger dry-run labels, and evidence references. Labels such as validation read-only Phase 0, validation passes future requirements, missing entity, missing audit reason, missing operator identity, missing role authorization, missing idempotency key, missing immutable-event plan, missing consistency check, Water Emergency scope, resolved/archived status, conflict, warning requires review, and unknown validation state are Randall-authorized Phase 0 visibility baselines only. Every validation record remains currently non-executable, Phase 0 blocks execution, the `phase_allows_execution` safety gate is always false, and the projection does not mutate review records, validate commands for current execution, create audit/action records, implement auth/RBAC, persist idempotency keys, or define final company policy.
 
 ---
 

@@ -831,6 +831,179 @@ def test_manual_review_audit_ledger_dry_run_requires_future_immutable_event_enve
     assert "audit:audit-manual-review-dry-run" in dry_run.audit_correlation_references
 
 
+def test_manual_review_command_validation_safety_gates_remain_non_executable() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    job_id = uuid4()
+    review_id = uuid4()
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=[Job(id=job_id, job_type="standard", status="awaiting_dispatch")],
+        review_items=[
+            ReviewItem(
+                id=review_id,
+                job_id=job_id,
+                entity_type="job",
+                entity_id=job_id,
+                reason_code="operator_decision_requested",
+                status="open",
+                severity="medium",
+                recommended_action="approve synthetic review",
+                created_at=now - timedelta(minutes=20),
+                audit_correlation_id="audit-manual-review-validation",
+            ),
+        ],
+    )
+
+    validation = queue.items[0].command_validation
+    safety_gates = {gate.key: gate for gate in validation.safety_gates}
+
+    assert queue.command_validation_counts == (
+        CountBucket(label="validation_passes_future_requirements", count=1),
+    )
+    assert validation.label == "validation_passes_future_requirements"
+    assert validation.validation_status == "future_requirements_visible"
+    assert validation.candidate_future_command_type == "approve"
+    assert validation.is_currently_executable is False
+    assert validation.phase_allows_execution is False
+    assert validation.requires_audit_reason is True
+    assert validation.requires_operator_identity is True
+    assert validation.requires_role_authorization is True
+    assert validation.requires_idempotency_key is True
+    assert validation.requires_immutable_event_recording is True
+    assert validation.requires_post_action_consistency_check is True
+    assert validation.requires_water_emergency_scope_check is False
+    assert validation.requires_linked_entity_context is True
+    assert validation.validation_blockers == ("validation_read_only_phase",)
+    assert "validation_warning_requires_review" in validation.validation_warnings
+    assert "audit:audit-manual-review-validation" in validation.audit_correlation_references
+    assert {gate.key for gate in validation.safety_gates} == {
+        "entity_context_present",
+        "status_allows_future_action",
+        "review_not_resolved_or_archived",
+        "water_emergency_scope_checked",
+        "no_conflict_blocker",
+        "missing_data_reviewed",
+        "operator_identity_required",
+        "role_authorization_required",
+        "audit_reason_required",
+        "idempotency_key_required",
+        "immutable_event_required",
+        "post_action_consistency_check_required",
+        "phase_allows_execution",
+    }
+    assert safety_gates["entity_context_present"].passed is True
+    assert safety_gates["status_allows_future_action"].passed is True
+    assert safety_gates["review_not_resolved_or_archived"].passed is True
+    assert safety_gates["water_emergency_scope_checked"].passed is True
+    assert safety_gates["no_conflict_blocker"].passed is True
+    assert safety_gates["missing_data_reviewed"].passed is True
+    assert safety_gates["operator_identity_required"].passed is True
+    assert safety_gates["role_authorization_required"].passed is True
+    assert safety_gates["audit_reason_required"].passed is True
+    assert safety_gates["idempotency_key_required"].passed is True
+    assert safety_gates["immutable_event_required"].passed is True
+    assert safety_gates["post_action_consistency_check_required"].passed is True
+    assert safety_gates["phase_allows_execution"].passed is False
+    assert safety_gates["phase_allows_execution"].required is True
+    assert safety_gates["phase_allows_execution"].reason == (
+        "Phase 0 exposes validation visibility only; Manual Review command execution is disabled."
+    )
+
+
+def test_manual_review_command_validation_blocks_missing_entity_context() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    review = ReviewItem(
+        id=uuid4(),
+        reason_code="operator_review_requested",
+        status="open",
+        severity="medium",
+        created_at=now - timedelta(minutes=30),
+        audit_correlation_id="audit-manual-review-validation-missing-entity",
+    )
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        review_items=[review],
+    )
+
+    validation = queue.items[0].command_validation
+    safety_gates = {gate.key: gate for gate in validation.safety_gates}
+
+    assert review.status == "open"
+    assert validation.label == "validation_blocked_missing_entity"
+    assert validation.validation_status == "blocked_missing_entity_context"
+    assert validation.is_currently_executable is False
+    assert validation.phase_allows_execution is False
+    assert "validation_blocked_missing_entity" in validation.validation_blockers
+    assert safety_gates["entity_context_present"].passed is False
+    assert safety_gates["entity_context_present"].required is True
+    assert safety_gates["phase_allows_execution"].passed is False
+
+
+def test_manual_review_command_validation_blocks_resolved_and_water_emergency_scope() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    job_id = uuid4()
+    water_job_id = uuid4()
+    water_emergency_id = uuid4()
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=[
+            Job(id=job_id, job_type="standard", status="awaiting_dispatch"),
+            Job(id=water_job_id, job_type="water_emergency", status="active"),
+        ],
+        water_emergencies=[
+            WaterEmergency(
+                id=water_emergency_id,
+                job_id=water_job_id,
+                status="DRYING_IN_PROGRESS",
+                drying_stage="monitoring",
+            ),
+        ],
+        review_items=[
+            ReviewItem(
+                id=uuid4(),
+                job_id=job_id,
+                entity_type="job",
+                entity_id=job_id,
+                reason_code="operator_resolved",
+                status="resolved",
+                severity="low",
+                created_at=now - timedelta(days=1),
+                audit_correlation_id="audit-manual-review-validation-resolved",
+            ),
+            ReviewItem(
+                id=uuid4(),
+                job_id=water_job_id,
+                entity_type="water_emergency",
+                entity_id=water_emergency_id,
+                reason_code="water_emergency_scope_review",
+                status="open",
+                severity="critical",
+                created_at=now - timedelta(hours=2),
+                audit_correlation_id="audit-manual-review-validation-water",
+            ),
+        ],
+    )
+
+    items_by_reason = {item.reason_code: item for item in queue.items}
+    resolved_validation = items_by_reason["operator_resolved"].command_validation
+    water_validation = items_by_reason["water_emergency_scope_review"].command_validation
+    resolved_gates = {gate.key: gate for gate in resolved_validation.safety_gates}
+    water_gates = {gate.key: gate for gate in water_validation.safety_gates}
+
+    assert resolved_validation.label == "validation_blocked_resolved_or_archived"
+    assert resolved_validation.is_currently_executable is False
+    assert resolved_gates["review_not_resolved_or_archived"].passed is False
+    assert resolved_gates["status_allows_future_action"].passed is False
+    assert resolved_gates["phase_allows_execution"].passed is False
+
+    assert water_validation.label == "validation_blocked_water_emergency_scope"
+    assert water_validation.requires_water_emergency_scope_check is True
+    assert water_validation.is_currently_executable is False
+    assert water_gates["water_emergency_scope_checked"].passed is False
+    assert water_gates["water_emergency_scope_checked"].required is True
+    assert water_gates["phase_allows_execution"].passed is False
+
+
 def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:
     now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
     review = ReviewItem(

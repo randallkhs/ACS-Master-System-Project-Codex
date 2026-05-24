@@ -15,6 +15,7 @@ from app.domain.dashboard import (
     ManualReviewActionPreflight,
     ManualReviewAuditLedgerDryRun,
     ManualReviewCommandContract,
+    ManualReviewCommandValidation,
     ManualReviewDecisionReadiness,
     ManualReviewDetailLinkedEntityContext,
     ManualReviewDetailReadModel,
@@ -24,6 +25,7 @@ from app.domain.dashboard import (
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
     ManualReviewResultWindowMetadata,
+    ManualReviewSafetyGate,
     ManualReviewSortOption,
     ManualReviewSummary,
     ManualReviewTaxonomyMetadata,
@@ -670,6 +672,149 @@ def water_emergency_detail_contract() -> WaterEmergencyDetailReadModel:
     )
 
 
+def manual_review_command_validation_contract(
+    *,
+    label: str,
+    candidate_future_command_type: str,
+    audit_correlation_reference: str,
+    evidence_references: tuple[str, ...],
+    validation_status: str = "future_requirements_visible",
+    validation_blockers: tuple[str, ...] = ("validation_read_only_phase",),
+    validation_warnings: tuple[str, ...] = ("validation_warning_requires_review",),
+    entity_context_present: bool = True,
+    status_allows_future_action: bool = True,
+    water_emergency_scope_checked: bool = True,
+    water_emergency_scope_required: bool = False,
+    no_conflict_blocker: bool = True,
+    missing_data_reviewed: bool = True,
+    missing_data_required: bool = False,
+    requires_water_emergency_scope_check: bool = False,
+) -> ManualReviewCommandValidation:
+    return ManualReviewCommandValidation(
+        label=label,
+        summary=(
+            "Manual Review command validation is visible as read-only Phase 0 "
+            "preparation and cannot execute commands."
+        ),
+        candidate_future_command_type=candidate_future_command_type,
+        validation_status=validation_status,
+        validation_blockers=validation_blockers,
+        validation_warnings=validation_warnings,
+        safety_gates=(
+            ManualReviewSafetyGate(
+                key="entity_context_present",
+                label="Entity context present",
+                passed=entity_context_present,
+                required=True,
+                reason="A future command must be tied to deterministic entity context.",
+            ),
+            ManualReviewSafetyGate(
+                key="status_allows_future_action",
+                label="Status allows future action",
+                passed=status_allows_future_action,
+                required=True,
+                reason="Resolved or archived reviews cannot be active command targets.",
+            ),
+            ManualReviewSafetyGate(
+                key="review_not_resolved_or_archived",
+                label="Review not resolved or archived",
+                passed=status_allows_future_action,
+                required=True,
+                reason="Historical reviews stay separated from active command readiness.",
+            ),
+            ManualReviewSafetyGate(
+                key="water_emergency_scope_checked",
+                label="Water Emergency scope checked",
+                passed=water_emergency_scope_checked,
+                required=water_emergency_scope_required,
+                reason="Water Emergency reviews require separated future scope checks.",
+            ),
+            ManualReviewSafetyGate(
+                key="no_conflict_blocker",
+                label="No conflict blocker",
+                passed=no_conflict_blocker,
+                required=True,
+                reason="Conflict evidence must remain blocked for future review.",
+            ),
+            ManualReviewSafetyGate(
+                key="missing_data_reviewed",
+                label="Missing data reviewed",
+                passed=missing_data_reviewed,
+                required=missing_data_required,
+                reason="Missing data requires operator-safe evidence review.",
+            ),
+            ManualReviewSafetyGate(
+                key="operator_identity_required",
+                label="Operator identity required",
+                passed=True,
+                required=True,
+                reason="Future commands must declare operator identity capture.",
+            ),
+            ManualReviewSafetyGate(
+                key="role_authorization_required",
+                label="Role authorization required",
+                passed=True,
+                required=True,
+                reason="Future commands must declare role authorization.",
+            ),
+            ManualReviewSafetyGate(
+                key="audit_reason_required",
+                label="Audit reason required",
+                passed=True,
+                required=True,
+                reason="Future commands must declare audit reason capture.",
+            ),
+            ManualReviewSafetyGate(
+                key="idempotency_key_required",
+                label="Idempotency key required",
+                passed=True,
+                required=True,
+                reason="Future commands must declare an idempotency key.",
+            ),
+            ManualReviewSafetyGate(
+                key="immutable_event_required",
+                label="Immutable event required",
+                passed=True,
+                required=True,
+                reason="Future commands must declare immutable event recording.",
+            ),
+            ManualReviewSafetyGate(
+                key="post_action_consistency_check_required",
+                label="Post-action consistency check required",
+                passed=True,
+                required=True,
+                reason="Future commands must declare post-action consistency checks.",
+            ),
+            ManualReviewSafetyGate(
+                key="phase_allows_execution",
+                label="Phase allows execution",
+                passed=False,
+                required=True,
+                reason=(
+                    "Phase 0 exposes validation visibility only; Manual Review command "
+                    "execution is disabled."
+                ),
+            ),
+        ),
+        audit_correlation_references=(audit_correlation_reference,),
+        evidence_references=evidence_references,
+        is_currently_executable=False,
+        phase_allows_execution=False,
+        execution_unavailable_reason=(
+            "Manual Review command validation is visibility only; execution is not "
+            "available in Phase 0."
+        ),
+        requires_audit_reason=True,
+        requires_operator_identity=True,
+        requires_role_authorization=True,
+        requires_idempotency_key=True,
+        requires_immutable_event_recording=True,
+        requires_post_action_consistency_check=True,
+        requires_water_emergency_scope_check=requires_water_emergency_scope_check,
+        requires_linked_entity_context=True,
+    )
+
+
 def manual_review_queue_contract() -> ManualReviewQueueReadModel:
     return ManualReviewQueueReadModel(
         generated_at=datetime(2026, 5, 16, 12, 50, tzinfo=UTC),
@@ -719,6 +864,10 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
         audit_ledger_dry_run_counts=(
             CountBucket(label="dry_run_only_phase_0", count=1),
             CountBucket(label="command_execution_blocked_resolved_or_archived", count=1),
+        ),
+        command_validation_counts=(
+            CountBucket(label="validation_warning_requires_review", count=1),
+            CountBucket(label="validation_blocked_resolved_or_archived", count=1),
         ),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
@@ -994,6 +1143,24 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     requires_immutable_event_recording=True,
                     requires_post_action_consistency_check=True,
                 ),
+                command_validation=manual_review_command_validation_contract(
+                    label="validation_warning_requires_review",
+                    candidate_future_command_type="request_information",
+                    validation_status="warning_missing_data_review_required",
+                    validation_warnings=(
+                        "validation_warning_requires_review",
+                        "missing_data_review_required",
+                    ),
+                    missing_data_reviewed=False,
+                    missing_data_required=True,
+                    audit_correlation_reference="audit:audit-manual-review-api-001",
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                        "audit:audit-manual-review-api-001",
+                    ),
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000040",
                     "job:00000000-0000-0000-0000-000000000041",
@@ -1205,6 +1372,26 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                     requires_immutable_event_recording=True,
                     requires_post_action_consistency_check=True,
                 ),
+                command_validation=manual_review_command_validation_contract(
+                    label="validation_blocked_resolved_or_archived",
+                    candidate_future_command_type="blocked",
+                    validation_status="blocked_resolved_or_archived",
+                    validation_blockers=(
+                        "validation_blocked_resolved_or_archived",
+                        "validation_read_only_phase",
+                    ),
+                    status_allows_future_action=False,
+                    water_emergency_scope_checked=False,
+                    water_emergency_scope_required=True,
+                    requires_water_emergency_scope_check=True,
+                    audit_correlation_reference="audit:audit-manual-review-api-002",
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                        "audit:audit-manual-review-api-002",
+                    ),
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000043",
                     "job:00000000-0000-0000-0000-000000000032",
@@ -1239,6 +1426,7 @@ def manual_review_detail_contract() -> ManualReviewDetailReadModel:
         future_action_preview=review_item.future_action_preview,
         command_contract=review_item.command_contract,
         audit_ledger_dry_run=review_item.audit_ledger_dry_run,
+        command_validation=review_item.command_validation,
         linked_entity_context=ManualReviewDetailLinkedEntityContext(
             entity_type="job",
             entity_id=UUID("00000000-0000-0000-0000-000000000041"),
@@ -1436,6 +1624,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
         {"label": "dry_run_only_phase_0", "count": 1},
         {"label": "command_execution_blocked_resolved_or_archived", "count": 1},
     ]
+    assert manual_review_queue_response.json()["command_validation_counts"] == [
+        {"label": "validation_warning_requires_review", "count": 1},
+        {"label": "validation_blocked_resolved_or_archived", "count": 1},
+    ]
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"
@@ -1552,6 +1744,45 @@ def test_dashboard_api_routes_return_read_only_contracts(
         ]
         is True
     )
+    assert manual_review_queue_response.json()["items"][0]["command_validation"]["label"] == (
+        "validation_warning_requires_review"
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["command_validation"][
+            "is_currently_executable"
+        ]
+        is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["command_validation"][
+            "phase_allows_execution"
+        ]
+        is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["command_validation"][
+            "candidate_future_command_type"
+        ]
+        == "request_information"
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["command_validation"][
+            "requires_idempotency_key"
+        ]
+        is True
+    )
+    assert manual_review_queue_response.json()["items"][0]["command_validation"]["safety_gates"][
+        -1
+    ] == {
+        "key": "phase_allows_execution",
+        "label": "Phase allows execution",
+        "passed": False,
+        "required": True,
+        "reason": (
+            "Phase 0 exposes validation visibility only; Manual Review command "
+            "execution is disabled."
+        ),
+    }
     assert (
         "requires_future_auth"
         in (
@@ -1585,6 +1816,15 @@ def test_dashboard_api_routes_return_read_only_contracts(
         manual_review_queue_response.json()["items"][1]["audit_ledger_dry_run"]["label"]
         == "command_execution_blocked_resolved_or_archived"
     )
+    assert manual_review_queue_response.json()["items"][1]["command_validation"]["label"] == (
+        "validation_blocked_resolved_or_archived"
+    )
+    assert (
+        manual_review_queue_response.json()["items"][1]["command_validation"][
+            "is_currently_executable"
+        ]
+        is False
+    )
     assert manual_review_detail_response.status_code == 200
     assert manual_review_detail_response.json()["review_item"]["review_item_id"] == (
         "00000000-0000-0000-0000-000000000040"
@@ -1617,6 +1857,17 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert (
         manual_review_detail_response.json()["audit_ledger_dry_run"]["requires_idempotency_key"]
         is True
+    )
+    assert manual_review_detail_response.json()["command_validation"]["label"] == (
+        "validation_warning_requires_review"
+    )
+    assert (
+        manual_review_detail_response.json()["command_validation"]["phase_allows_execution"]
+        is False
+    )
+    assert (
+        manual_review_detail_response.json()["command_validation"]["safety_gates"][-1]["key"]
+        == "phase_allows_execution"
     )
     assert (
         manual_review_detail_response.json()["linked_entity_context"]["is_dispatch_related"] is True

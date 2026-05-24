@@ -16,7 +16,7 @@ export function SectionCard({
   return (
     <section
       id={id}
-      className="scroll-mt-[26rem] rounded-md border border-slate-200 bg-white p-5 shadow-sm ring-1 ring-black/[0.02] sm:scroll-mt-44"
+      className="min-w-0 max-w-full scroll-mt-[26rem] rounded-md border border-slate-200 bg-white p-5 shadow-sm ring-1 ring-black/[0.02] sm:scroll-mt-44"
     >
       <div className="mb-5">
         <h2 className="text-lg font-semibold tracking-normal text-[#162033]">

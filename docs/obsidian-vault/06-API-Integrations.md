@@ -838,3 +838,29 @@ Open API/frontend concerns:
 - final Manual Review dry-run/action taxonomy
 - operator identity, role authorization, audit reason, idempotency, immutable event, post-action consistency, audit-ledger/action history, impacted-entity audit, and outcome reason contracts
 - role-scoped action visibility after auth/RBAC exists
+
+## Phase 0 Module 48 Manual Review Command-Validation Boundary
+
+The Manual Review queue and detail API contracts now include read-only command-validation and safety-gate matrix metadata for later action module preparation.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes command-validation counts and each queue item's validation label, validation status, candidate future command type, validation blockers, validation warnings, safety gates, evidence references, non-executable flag, Phase 0 execution-blocked flag, and future audit-envelope requirement flags.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the selected review item's same validation context alongside decision-readiness, action-preflight, future-action preview, command-contract, audit-ledger dry-run, reason/evidence, linked entity, and timeline evidence.
+- validation labels include validation read-only phase, validation passes future requirements, missing entity, missing audit reason, missing operator identity, missing role authorization, missing idempotency key, missing immutable-event plan, missing consistency check, Water Emergency scope, resolved/archived status, conflict, warning requires review, and unknown validation state where deterministically supported.
+- safety gates include entity context present, status allows future action, review not resolved/archived, Water Emergency scope checked, no conflict blocker, missing data reviewed, operator identity required, role authorization required, audit reason required, idempotency key required, immutable event required, post-action consistency check required, and phase allows execution.
+- every validation record is informational only and remains `is_currently_executable = false`; the `phase_allows_execution` gate remains false in Phase 0.
+- Water Emergency-related validation remains separated through persisted entity/job/visit/Water Emergency links.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, backend preference persistence, audit-action persistence, idempotency persistence, immutable event write, command validation execution, or workflow execution calls are added
+- validation labels and safety gates are Randall-authorized Phase 0 visibility baselines only and must not imply current action authority, legal policy, company-liability policy, audit-write behavior, or executable workflow state
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review command endpoints
+- final Manual Review validation/action taxonomy
+- operator identity, role authorization, audit reason, idempotency, immutable event, post-action consistency, safety-gate persistence, audit-ledger/action history, impacted-entity audit, and outcome reason contracts
+- role-scoped action visibility after auth/RBAC exists

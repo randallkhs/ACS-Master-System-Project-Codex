@@ -1,6 +1,7 @@
 import type {
   DashboardFetchResult,
   ManualReviewDetailResponse,
+  ManualReviewSafetyGateResponse,
 } from "@/lib/dashboard-contracts";
 import { compactId, formatDateTime, humanizeLabel } from "@/lib/format";
 import { CountBucketPanel } from "@/components/dashboard/count-bucket-panel";
@@ -636,6 +637,146 @@ function ManualReviewDetailContent({
         </div>
       </SectionCard>
 
+      <SectionCard
+        title="Command Validation"
+        description={
+          context.is_water_emergency_related
+            ? "Water Emergency-related command validation remains separated from standard Manual Review validation and is read-only."
+            : "Command validation and the safety gate matrix are read-only Phase 0 visibility for future authorized action modules."
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(detail.command_validation.label)}
+            variant={badgeVariantForLabel(detail.command_validation.label)}
+          />
+          <StatusBadge
+            label={
+              detail.command_validation.is_currently_executable
+                ? "Currently executable: Yes"
+                : "Currently executable: No"
+            }
+            variant={
+              detail.command_validation.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              detail.command_validation.phase_allows_execution
+                ? "Phase allows execution: Yes"
+                : "Phase allows execution: No"
+            }
+            variant={
+              detail.command_validation.phase_allows_execution
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {detail.command_validation.requires_operator_identity ? (
+            <StatusBadge
+              label="Requires future operator identity"
+              variant="info"
+            />
+          ) : null}
+          {detail.command_validation.requires_role_authorization ? (
+            <StatusBadge
+              label="Requires future role authorization"
+              variant="info"
+            />
+          ) : null}
+          {detail.command_validation.requires_audit_reason ? (
+            <StatusBadge label="Requires future audit reason" variant="info" />
+          ) : null}
+          {detail.command_validation.requires_idempotency_key ? (
+            <StatusBadge
+              label="Requires future idempotency key"
+              variant="info"
+            />
+          ) : null}
+          {detail.command_validation.requires_immutable_event_recording ? (
+            <StatusBadge label="Immutable Event Required" variant="info" />
+          ) : null}
+          {detail.command_validation.requires_post_action_consistency_check ? (
+            <StatusBadge label="Consistency Check Required" variant="info" />
+          ) : null}
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          {detail.command_validation.summary}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {detail.command_validation.execution_unavailable_reason}
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Candidate Future Command
+            </div>
+            <DetailRow
+              label="Candidate"
+              value={humanizeLabel(
+                detail.command_validation.candidate_future_command_type,
+              )}
+            />
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Validation Status
+            </div>
+            <DetailRow
+              label="Status"
+              value={humanizeLabel(detail.command_validation.validation_status)}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Validation blockers
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.command_validation.validation_blockers.map((blocker) => (
+                <StatusBadge
+                  key={blocker}
+                  label={humanizeLabel(blocker)}
+                  variant={badgeVariantForLabel(blocker)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Validation warnings
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.command_validation.validation_warnings.map((warning) => (
+                <StatusBadge
+                  key={warning}
+                  label={humanizeLabel(warning)}
+                  variant={badgeVariantForLabel(warning)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Validation evidence
+            </div>
+            <div className="mt-2">
+              <EvidenceList
+                references={detail.command_validation.evidence_references}
+              />
+            </div>
+          </div>
+        </div>
+
+        <SafetyGateMatrix gates={detail.command_validation.safety_gates} />
+      </SectionCard>
+
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <SectionCard
           title="Reason And Evidence Context"
@@ -744,6 +885,42 @@ function ManualReviewDetailContent({
         >
           <TimelineList entries={detail.timeline_summary.entries} />
         </SectionCard>
+      </div>
+    </div>
+  );
+}
+
+function SafetyGateMatrix({
+  gates,
+}: {
+  gates: ManualReviewSafetyGateResponse[];
+}) {
+  return (
+    <div className="mt-4">
+      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+        Safety Gate Matrix
+      </div>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        {gates.map((gate) => (
+          <div
+            key={gate.key}
+            className="rounded-md border border-slate-200 bg-white p-3"
+          >
+            <div className="flex flex-wrap gap-1.5">
+              <StatusBadge
+                label={humanizeLabel(gate.label)}
+                variant={gate.passed ? "success" : "danger"}
+              />
+              <StatusBadge
+                label={gate.required ? "Required" : "Optional"}
+                variant={gate.required ? "info" : "neutral"}
+              />
+            </div>
+            <p className="mt-2 text-xs leading-5 text-slate-600">
+              {gate.reason}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );

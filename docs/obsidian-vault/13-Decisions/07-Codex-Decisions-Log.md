@@ -1406,6 +1406,40 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-23 — Phase 0 Module 48 Manual Review Command Validation, Safety Gate Matrix, And Execution Readiness Harness
+
+- Decision type: Implementation / Manual Review visibility / read-only command-validation boundary
+- Status: Implemented
+- Decision:
+  - Extend Manual Review queue and detail read models with deterministic command-validation labels, summaries, candidate future command type, validation status, blockers, warnings, safety gates, audit/evidence references, explicit non-executable flags, and Phase 0 execution-blocked flags.
+  - Add queue-level command-validation counts for operator scanability.
+  - Require every validation record to expose future audit reason, operator identity, role authorization, idempotency key, immutable event recording, post-action consistency check, linked entity context, and Phase 0 execution-blocked gates while remaining non-executable.
+  - Keep Water Emergency-related validation separated from standard dispatch review preparation through persisted entity, job, visit, and Water Emergency links.
+  - Treat missing entity context, duplicate/conflict evidence, Water Emergency scope, resolved/archived status, and unknown validation context as blockers or historical visibility instead of executable command readiness.
+  - Add frontend queue and detail command-validation and safety-gate matrix visibility without approve/reject/defer/archive/resolve/dispatch controls, forms, inputs, validation execution controls, audit-write controls, mutation controls, or button-styled gate labels.
+- Rationale:
+  - Manual Review is the system safety authority, so future action modules need visible validation prerequisites and safety gates before any mutation endpoints or authenticated controls are added.
+  - Safety-gate labels document the future checks needed for real execution without making any action currently executable or writing audit events.
+  - The labels remain read-only Phase 0 baselines so they do not become hidden workflow execution, action authority, auth/RBAC, final business policy, legal policy, or company-liability policy.
+- Future implications:
+  - Future authenticated modules still need formal Manual Review approve/reject/defer/archive/resolve command endpoints and command-validation execution rules.
+  - Future production modules may need durable validation records, safety-gate persistence, audit ledger writes, operator identity capture, role authorization, required audit reasons, idempotency keys, immutable event writes, impacted-entity audit writes, post-action consistency checks, outcome reason taxonomy, permission checks, and role-scoped action visibility.
+  - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary
+
+---
+
 ## 2026-05-23 — Phase 0 Module 47 Manual Review Audit Ledger, Command Dry-Run, And Immutable Event Preparation
 
 - Decision type: Implementation / Manual Review visibility / read-only audit-ledger dry-run boundary

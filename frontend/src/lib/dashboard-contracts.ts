@@ -159,6 +159,37 @@ export type ManualReviewAuditLedgerDryRunResponse = {
   requires_post_action_consistency_check: boolean;
 };
 
+export type ManualReviewSafetyGateResponse = {
+  key: string;
+  label: string;
+  passed: boolean;
+  required: boolean;
+  reason: string;
+};
+
+export type ManualReviewCommandValidationResponse = {
+  label: string;
+  summary: string;
+  candidate_future_command_type: string;
+  validation_status: string;
+  validation_blockers: string[];
+  validation_warnings: string[];
+  safety_gates: ManualReviewSafetyGateResponse[];
+  audit_correlation_references: string[];
+  evidence_references: string[];
+  is_currently_executable: boolean;
+  phase_allows_execution: boolean;
+  execution_unavailable_reason: string;
+  requires_audit_reason: boolean;
+  requires_operator_identity: boolean;
+  requires_role_authorization: boolean;
+  requires_idempotency_key: boolean;
+  requires_immutable_event_recording: boolean;
+  requires_post_action_consistency_check: boolean;
+  requires_water_emergency_scope_check: boolean;
+  requires_linked_entity_context: boolean;
+};
+
 export type ManualReviewQueueItemResponse = {
   review_item_id: string;
   status: string;
@@ -191,6 +222,7 @@ export type ManualReviewQueueItemResponse = {
   future_action_preview: ManualReviewFutureActionPreviewResponse;
   command_contract: ManualReviewCommandContractResponse;
   audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse;
+  command_validation: ManualReviewCommandValidationResponse;
 };
 
 export type ManualReviewQueueResponse = {
@@ -214,6 +246,7 @@ export type ManualReviewQueueResponse = {
   future_action_preview_counts: CountBucket[];
   command_contract_counts: CountBucket[];
   audit_ledger_dry_run_counts: CountBucket[];
+  command_validation_counts: CountBucket[];
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   available_filters: ManualReviewFilterOptionResponse[];
@@ -727,6 +760,7 @@ export type ManualReviewDetailResponse = {
   future_action_preview: ManualReviewFutureActionPreviewResponse;
   command_contract: ManualReviewCommandContractResponse;
   audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse;
+  command_validation: ManualReviewCommandValidationResponse;
   linked_entity_context: ManualReviewDetailLinkedEntityContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];

@@ -1649,3 +1649,20 @@ Dispatch boundary:
 * no dispatch execution, vendor call, approval action, audit write, auth/RBAC, or workflow engine behavior is added
 
 Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules and durable audit/event persistence exist.
+
+---
+
+Phase 0 Module 48 Manual Review Command-Validation Boundary
+
+Manual Review command-validation and safety-gate metadata is intentionally outside the dispatch execution path.
+
+Dispatch boundary:
+
+* validation labels do not authorize dispatch
+* safety gates do not execute workflows or mutate records
+* future Manual Review commands remain currently non-executable and Phase 0 blocks execution
+* Water Emergency-related validation requires Water Emergency scope checks and does not enter standard dispatch action preparation
+* audit reason, operator identity, role authorization, idempotency, immutable-event, and post-action consistency gates are preparation metadata only
+* no dispatch execution, vendor call, approval action, command validation execution, audit write, auth/RBAC, or workflow engine behavior is added
+
+Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules, durable audit/event persistence, and explicit Manual Review command execution rules exist.

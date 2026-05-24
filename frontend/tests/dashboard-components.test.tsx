@@ -574,6 +574,12 @@ describe("DashboardView", () => {
     expect(html).toContain("Audit Envelope Requirements");
     expect(html).toContain("Command Dry Run");
     expect(html).toContain("Audit Ledger Preparation");
+    expect(html).toContain("Command Validation");
+    expect(html).toContain("Safety Gate Matrix");
+    expect(html).toContain("Validation Warning Requires Review");
+    expect(html).toContain("Phase allows execution: No");
+    expect(html).toContain("Entity Context Present");
+    expect(html).toContain("Audit Reason Required");
     expect(html).toContain("Dry Run Only Phase 0");
     expect(html).toContain("Immutable Event Required");
     expect(html).toContain("Consistency Check Required");
@@ -810,6 +816,7 @@ describe("DashboardView", () => {
       command_contract: mockManualReviewQueue.items[1].command_contract,
       audit_ledger_dry_run:
         mockManualReviewQueue.items[1].audit_ledger_dry_run,
+      command_validation: mockManualReviewQueue.items[1].command_validation,
       linked_entity_context: {
         ...mockManualReviewDetail.linked_entity_context,
         entity_type: "water_emergency",
@@ -859,10 +866,16 @@ describe("DashboardView", () => {
     expect(html).toContain("Audit Envelope Requirements");
     expect(html).toContain("Command Dry Run");
     expect(html).toContain("Audit Ledger Preparation");
+    expect(html).toContain("Command Validation");
+    expect(html).toContain("Safety Gate Matrix");
     expect(html).toContain("Requires Water Emergency Scope Check");
     expect(html).toContain("Command Execution Blocked Water Emergency Scope");
+    expect(html).toContain("Validation Blocked Water Emergency Scope");
+    expect(html).toContain("Water Emergency Scope Checked");
+    expect(html).toContain("Phase allows execution: No");
     expect(html).toContain("Water Emergency-related command dry-run");
     expect(html).toContain("Water Emergency-related command contract");
+    expect(html).toContain("Water Emergency-related command validation");
     expect(html).toContain("Currently executable: No");
     expect(html).toContain("Requires Role Authorization");
     expect(html).toContain("Requires Idempotency Key");

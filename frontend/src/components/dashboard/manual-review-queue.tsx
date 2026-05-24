@@ -5,6 +5,7 @@ import type {
   DashboardFetchResult,
   ManualReviewQueueItemResponse,
   ManualReviewQueueResponse,
+  ManualReviewSafetyGateResponse,
 } from "@/lib/dashboard-contracts";
 import {
   deriveManualReviewVisibleRecords,
@@ -164,6 +165,10 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
         <CountBucketPanel
           title="Command Dry Run"
           buckets={data.audit_ledger_dry_run_counts}
+        />
+        <CountBucketPanel
+          title="Command Validation"
+          buckets={data.command_validation_counts}
         />
       </div>
 
@@ -369,6 +374,10 @@ function ReviewQueueItemCard({
             <StatusBadge
               label={humanizeLabel(item.audit_ledger_dry_run.label)}
               variant={badgeVariantForLabel(item.audit_ledger_dry_run.label)}
+            />
+            <StatusBadge
+              label={humanizeLabel(item.command_validation.label)}
+              variant={badgeVariantForLabel(item.command_validation.label)}
             />
           </div>
           <div className="mt-3 text-sm font-semibold text-[#162033]">
@@ -638,6 +647,112 @@ function ReviewQueueItemCard({
         </p>
       </div>
 
+      <div className="mt-3 rounded-md border border-emerald-200 bg-emerald-50/70 px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Command Validation
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(item.command_validation.label)}
+            variant={badgeVariantForLabel(item.command_validation.label)}
+          />
+          <StatusBadge
+            label={
+              item.command_validation.is_currently_executable
+                ? "Currently executable: Yes"
+                : "Currently executable: No"
+            }
+            variant={
+              item.command_validation.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              item.command_validation.phase_allows_execution
+                ? "Phase allows execution: Yes"
+                : "Phase allows execution: No"
+            }
+            variant={
+              item.command_validation.phase_allows_execution
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {item.command_validation.requires_audit_reason ? (
+            <StatusBadge label="Audit Reason Required" variant="info" />
+          ) : null}
+          {item.command_validation.requires_operator_identity ? (
+            <StatusBadge label="Operator Identity Required" variant="info" />
+          ) : null}
+          {item.command_validation.requires_idempotency_key ? (
+            <StatusBadge label="Idempotency Key Required" variant="info" />
+          ) : null}
+          {item.command_validation.requires_immutable_event_recording ? (
+            <StatusBadge label="Immutable Event Required" variant="info" />
+          ) : null}
+          {item.command_validation.requires_post_action_consistency_check ? (
+            <StatusBadge label="Consistency Check Required" variant="info" />
+          ) : null}
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {item.command_validation.summary}
+        </p>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Candidate Future Command
+            </div>
+            <p className="mt-1 break-words text-sm leading-6 text-slate-600">
+              {humanizeLabel(item.command_validation.candidate_future_command_type)}
+            </p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Execution Boundary
+            </div>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              {item.command_validation.execution_unavailable_reason}
+            </p>
+          </div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Validation blockers
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {item.command_validation.validation_blockers.map((blocker) => (
+                <StatusBadge
+                  key={`${item.review_item_id}-${blocker}`}
+                  label={humanizeLabel(blocker)}
+                  variant={badgeVariantForLabel(blocker)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Validation warnings
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {item.command_validation.validation_warnings.map((warning) => (
+                <StatusBadge
+                  key={`${item.review_item_id}-${warning}`}
+                  label={humanizeLabel(warning)}
+                  variant={badgeVariantForLabel(warning)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+        <SafetyGateMatrix
+          gates={item.command_validation.safety_gates}
+          itemId={item.review_item_id}
+        />
+      </div>
+
       {entityLabels.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-500">
           {entityLabels.map((label) => (
@@ -705,6 +820,14 @@ function ReviewQueueItemCard({
               : "Read-only Phase 0"
           }
         />
+        <MiniMetric
+          label="Validation Executable"
+          value={
+            item.command_validation.is_currently_executable
+              ? "Executable"
+              : "Read-only Phase 0"
+          }
+        />
       </div>
 
       {item.audit_correlation_id ? (
@@ -713,6 +836,44 @@ function ReviewQueueItemCard({
         </div>
       ) : null}
     </article>
+  );
+}
+
+function SafetyGateMatrix({
+  gates,
+  itemId,
+}: {
+  gates: ManualReviewSafetyGateResponse[];
+  itemId: string;
+}) {
+  return (
+    <div className="mt-4">
+      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+        Safety Gate Matrix
+      </div>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        {gates.map((gate) => (
+          <div
+            key={`${itemId}-${gate.key}`}
+            className="rounded-md border border-slate-200 bg-white/80 p-2"
+          >
+            <div className="flex flex-wrap gap-1.5">
+              <StatusBadge
+                label={humanizeLabel(gate.label)}
+                variant={gate.passed ? "success" : "danger"}
+              />
+              <StatusBadge
+                label={gate.required ? "Required" : "Optional"}
+                variant={gate.required ? "info" : "neutral"}
+              />
+            </div>
+            <p className="mt-2 text-xs leading-5 text-slate-600">
+              {gate.reason}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

@@ -948,6 +948,29 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 48 Manual Review Command-Validation Boundary
+
+Module 48 extends Manual Review queue and detail visibility with read-only command validation and safety-gate matrix context:
+
+- backend read models expose deterministic validation labels, validation status, validation blockers, validation warnings, candidate future command type, safety gates, evidence references, explicit non-executable flags, and Phase 0 execution-blocked flags from existing ReviewItem evidence
+- every validation record remains `is_currently_executable = false` and `phase_allows_execution = false`
+- every future validation record requires audit reason, operator identity, role authorization, idempotency key, immutable event recording, post-action consistency checks, and linked entity context
+- the `phase_allows_execution` safety gate is always false in Phase 0
+- Water Emergency-related validation requires Water Emergency scope checks and remains separated from standard dispatch review preparation through persisted job, visit, entity, and Water Emergency links
+- missing entity context, duplicate/conflict evidence, Water Emergency context, resolved/archived status, and unknown validation evidence remain blockers or visibility states instead of executable actions
+- frontend queue and detail panels display validation and safety gates as read-only evidence and do not add forms, inputs, workflow controls, validation execution controls, audit-write controls, or button-styled gate labels
+
+The boundary remains projection-only. The endpoint and UI do not execute Manual Review commands, mutate review records, validate commands for current execution, write audit events, create POST/PUT/PATCH/DELETE endpoints, implement auth/RBAC, persist idempotency keys, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review command validation/execution workflows
+- final Manual Review validation/action taxonomy and role authority
+- operator identity capture, role authorization, audit reason requirements, idempotency persistence, immutable event writes, post-action consistency checks, audit-ledger persistence, safety-gate persistence, and action-history persistence
+- production role-scoped action visibility and permission design
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

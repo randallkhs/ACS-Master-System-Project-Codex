@@ -169,6 +169,37 @@ class ManualReviewAuditLedgerDryRunResponse(DashboardSchema):
     requires_post_action_consistency_check: bool
 
 
+class ManualReviewSafetyGateResponse(DashboardSchema):
+    key: str
+    label: str
+    passed: bool
+    required: bool
+    reason: str
+
+
+class ManualReviewCommandValidationResponse(DashboardSchema):
+    label: str
+    summary: str
+    candidate_future_command_type: str
+    validation_status: str
+    validation_blockers: tuple[str, ...]
+    validation_warnings: tuple[str, ...]
+    safety_gates: tuple[ManualReviewSafetyGateResponse, ...]
+    audit_correlation_references: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    is_currently_executable: bool
+    phase_allows_execution: bool
+    execution_unavailable_reason: str
+    requires_audit_reason: bool
+    requires_operator_identity: bool
+    requires_role_authorization: bool
+    requires_idempotency_key: bool
+    requires_immutable_event_recording: bool
+    requires_post_action_consistency_check: bool
+    requires_water_emergency_scope_check: bool
+    requires_linked_entity_context: bool
+
+
 class ManualReviewQueueItemResponse(DashboardSchema):
     review_item_id: UUID
     status: str
@@ -200,6 +231,7 @@ class ManualReviewQueueItemResponse(DashboardSchema):
     future_action_preview: ManualReviewFutureActionPreviewResponse
     command_contract: ManualReviewCommandContractResponse
     audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse
+    command_validation: ManualReviewCommandValidationResponse
     evidence_references: tuple[str, ...]
 
 
@@ -223,6 +255,7 @@ class ManualReviewQueueResponse(DashboardSchema):
     future_action_preview_counts: tuple[CountBucketResponse, ...]
     command_contract_counts: tuple[CountBucketResponse, ...]
     audit_ledger_dry_run_counts: tuple[CountBucketResponse, ...]
+    command_validation_counts: tuple[CountBucketResponse, ...]
     age_bucket_counts: tuple[CountBucketResponse, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadataResponse
@@ -275,6 +308,7 @@ class ManualReviewDetailResponse(DashboardSchema):
     future_action_preview: ManualReviewFutureActionPreviewResponse
     command_contract: ManualReviewCommandContractResponse
     audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse
+    command_validation: ManualReviewCommandValidationResponse
     linked_entity_context: ManualReviewDetailLinkedEntityContextResponse
     data_gap_counts: tuple[CountBucketResponse, ...]
     audit_correlation_ids: tuple[str, ...]
