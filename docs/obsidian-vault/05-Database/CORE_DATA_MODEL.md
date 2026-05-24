@@ -658,6 +658,31 @@ The read model derives command-validation labels and safety gates from existing 
 
 ---
 
+## Phase 0 Module 49 Manual Review Permission-Readiness Read-Model Note
+
+Module 49 adds Manual Review operator-identity, role-authorization, and permission-readiness visibility as dashboard read-model projections only.
+
+No database table or column was added for:
+
+- authentication
+- sessions or tokens
+- user management
+- operator identity capture
+- role authorization or RBAC enforcement
+- permission persistence
+- service-account action authority
+- command execution
+- audit actor writes
+- audit reason persistence
+- immutable event writes
+- idempotency key persistence
+- approval/rejection/defer/archive/resolve outcomes
+- workflow engine state
+
+The read model derives permission-readiness labels from existing `ReviewItem` status, reason, recommended action text, entity links, Water Emergency links, command-validation labels, command-contract labels, and evidence references. Labels such as permission read-only Phase 0, requires future auth, requires operator identity, requires role authorization, requires reviewer/dispatcher/operations-manager/owner role, service account not allowed, technician action not allowed, unknown operator blocked, Water Emergency scope blocked, resolved/archived blocked, and ready for future auth phase are Randall-authorized Phase 0 visibility baselines only. Every permission-readiness record remains currently non-executable, Phase 0 blocks execution, and the projection does not mutate review records, implement auth/RBAC, enforce fake roles, create login/session/token behavior, create audit/action records, or define final company policy.
+
+---
+
 ## Initial Status Concepts
 
 Suggested statuses to refine with operations:

@@ -864,3 +864,28 @@ Open API/frontend concerns:
 - final Manual Review validation/action taxonomy
 - operator identity, role authorization, audit reason, idempotency, immutable event, post-action consistency, safety-gate persistence, audit-ledger/action history, impacted-entity audit, and outcome reason contracts
 - role-scoped action visibility after auth/RBAC exists
+
+## Phase 0 Module 49 Manual Review Operator-Identity And Permission-Readiness Boundary
+
+The Manual Review queue and detail API contracts now include read-only operator-identity, role-authorization, and permission-readiness metadata for later auth/RBAC and action module preparation.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes permission-readiness counts and each queue item's permission-readiness label, future command candidate, future required roles, future forbidden roles, future permission set, identity requirement labels, evidence references, non-executable flag, Phase 0 execution-blocked flag, and future audit/identity/RBAC requirement flags.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the selected review item's same permission-readiness context alongside decision-readiness, action-preflight, future-action preview, command-contract, audit-ledger dry-run, command validation, reason/evidence, linked entity, and timeline evidence.
+- permission-readiness labels include permission read-only phase, requires future auth, requires operator identity, requires role authorization, reviewer/dispatcher/operations-manager/owner future role requirements, service account not allowed, technician action not allowed, unknown operator blocked, Water Emergency scope blocked, resolved/archived blocked, and ready-for-future-auth-phase where deterministically supported.
+- every permission-readiness record is informational only and remains `is_currently_executable = false` and `phase_allows_execution = false`.
+- Water Emergency-related authorization requirements remain separated through persisted entity/job/visit/Water Emergency links.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth/RBAC enforcement, login/session/token behavior, auth headers, backend preference persistence, audit-action persistence, idempotency persistence, immutable event write, command validation execution, or workflow execution calls are added
+- permission-readiness labels are Randall-authorized Phase 0 visibility baselines only and must not imply current action authority, legal policy, company-liability policy, audit-write behavior, role enforcement, or executable workflow state
+
+Open API/frontend concerns:
+
+- future authenticated Manual Review command endpoints
+- final ACS-FSM auth provider, operator identity schema, role model, and permission taxonomy
+- operator identity, role authorization, audit actor, audit reason, idempotency, immutable event, post-action consistency, safety-gate persistence, audit-ledger/action history, impacted-entity audit, and outcome reason contracts
+- role-scoped action visibility after auth/RBAC exists

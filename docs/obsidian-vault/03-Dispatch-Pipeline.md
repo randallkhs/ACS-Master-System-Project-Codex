@@ -1666,3 +1666,20 @@ Dispatch boundary:
 * no dispatch execution, vendor call, approval action, command validation execution, audit write, auth/RBAC, or workflow engine behavior is added
 
 Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules, durable audit/event persistence, and explicit Manual Review command execution rules exist.
+
+---
+
+Phase 0 Module 49 Manual Review Operator-Identity And Permission Boundary
+
+Manual Review permission-readiness metadata is intentionally outside the dispatch execution path.
+
+Dispatch boundary:
+
+* permission-readiness labels do not authorize dispatch
+* future Manual Review commands remain currently non-executable and Phase 0 blocks execution
+* Water Emergency-related authorization requirements require Water Emergency scope checks and do not enter standard dispatch action preparation
+* future operator identity, role authorization, audit actor, audit reason, idempotency, immutable-event, and post-action consistency requirements are preparation metadata only
+* service accounts and technicians are explicitly not future Manual Review operator-action actors
+* no dispatch execution, vendor call, approval action, login/session/token behavior, auth/RBAC enforcement, fake role enforcement, audit write, or workflow engine behavior is added
+
+Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules, durable audit/event persistence, explicit Manual Review command execution rules, and formal operator permission checks exist.

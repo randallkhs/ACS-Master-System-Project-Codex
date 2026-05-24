@@ -649,3 +649,25 @@ Future work:
 - durable audit-ledger/event persistence for future actions
 - role-scoped Water Emergency review authority
 - owner-reviewed legal, insurance, warranty, or company-liability language if future actions affect formal policy
+
+---
+
+# 16. Phase 0 Module 49 Manual Review Authorization Separation
+
+Water Emergency-related Manual Review items may now expose read-only future operator-identity, role-authorization, and permission-readiness metadata when they are specifically linked to Water Emergency evidence.
+
+Separation rules:
+
+- Water Emergency permission-readiness metadata is visibility only and does not execute Water Emergency actions
+- Water Emergency-related reviews require future authenticated operator identity, role authorization, owner/manager boundary review, and Water Emergency scope checks before any future Manual Review command could be implemented
+- Water Emergency authorization blockers must not be merged into standard dispatch action preparation
+- service accounts and technicians are not future Manual Review operator-action actors for Water Emergency decisions
+- resolved or archived Water Emergency-related review items remain historical visibility, not active action needs
+- no Water Emergency close, resolve, dispatch, login, user management, token/session behavior, fake role enforcement, vendor, AI, auth/RBAC enforcement, or workflow execution behavior is added
+
+Future work:
+
+- authenticated Manual Review action workflows
+- final operator identity and RBAC model
+- role-scoped Water Emergency review authority
+- owner-reviewed legal, insurance, warranty, or company-liability language if future actions affect formal policy

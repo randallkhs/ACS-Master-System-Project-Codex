@@ -24,6 +24,7 @@ from app.domain.dashboard import (
     ManualReviewDetailReadModel,
     ManualReviewFilterOption,
     ManualReviewFutureActionPreview,
+    ManualReviewPermissionReadiness,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
@@ -693,6 +694,10 @@ class DashboardReadModelService:
                 (item.command_validation for item in queue_items),
                 "label",
             ),
+            permission_readiness_counts=count_by_attr(
+                (item.permission_readiness for item in queue_items),
+                "label",
+            ),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
@@ -754,6 +759,7 @@ class DashboardReadModelService:
             command_contract=queue_item.command_contract,
             audit_ledger_dry_run=queue_item.audit_ledger_dry_run,
             command_validation=queue_item.command_validation,
+            permission_readiness=queue_item.permission_readiness,
             linked_entity_context=manual_review_detail_linked_entity_context(
                 queue_item,
                 jobs=jobs,
@@ -1572,6 +1578,14 @@ def manual_review_queue_item(
         water_emergency_id=water_emergency_id,
         evidence_references=evidence_references,
     )
+    permission_readiness = manual_review_permission_readiness(
+        review,
+        groups=groups,
+        command_validation=command_validation,
+        command_contract=command_contract,
+        water_emergency_id=water_emergency_id,
+        evidence_references=evidence_references,
+    )
 
     return ManualReviewQueueItem(
         review_item_id=review.id or NIL_UUID,
@@ -1605,6 +1619,7 @@ def manual_review_queue_item(
         command_contract=command_contract,
         audit_ledger_dry_run=audit_ledger_dry_run,
         command_validation=command_validation,
+        permission_readiness=permission_readiness,
         evidence_references=evidence_references,
     )
 
@@ -2348,6 +2363,225 @@ def manual_review_command_validation(
         requires_water_emergency_scope_check=requires_water_emergency_scope_check,
         requires_linked_entity_context=True,
     )
+
+
+MANUAL_REVIEW_FUTURE_OPERATOR_ROLES = (
+    "owner",
+    "operations_manager",
+    "office_admin",
+    "dispatcher",
+    "reviewer",
+    "technician",
+    "system_service",
+    "unknown_operator",
+)
+MANUAL_REVIEW_FORBIDDEN_FUTURE_OPERATOR_ROLES = (
+    "system_service",
+    "technician",
+    "unknown_operator",
+)
+MANUAL_REVIEW_BASE_REQUIRED_PERMISSIONS = (
+    "manual_review.future_command.view",
+    "manual_review.future_command.prepare",
+    "manual_review.audit_actor.capture",
+    "manual_review.audit_reason.capture",
+    "manual_review.idempotency.require",
+    "manual_review.immutable_event.require",
+    "manual_review.consistency_check.require",
+)
+MANUAL_REVIEW_PERMISSION_EXECUTION_UNAVAILABLE_REASON = (
+    "Manual Review permission readiness is visibility only; auth, RBAC, and action "
+    "execution are not available in Phase 0."
+)
+MANUAL_REVIEW_IDENTITY_UNAVAILABLE_REASON = (
+    "Phase 0 does not implement login, sessions, token handling, operator identity, "
+    "or RBAC; future Manual Review commands remain non-executable."
+)
+
+
+def manual_review_permission_readiness(
+    review: ReviewItem,
+    *,
+    groups: Sequence[str],
+    command_validation: ManualReviewCommandValidation,
+    command_contract: ManualReviewCommandContract,
+    water_emergency_id: UUID | None,
+    evidence_references: Sequence[str],
+) -> ManualReviewPermissionReadiness:
+    status = normalized(review.status)
+    resolved_or_archived = status in RESOLVED_REVIEW_STATUSES or status == "archived"
+    requires_water_scope = (
+        water_emergency_id is not None
+        or command_validation.requires_water_emergency_scope_check
+        or "water_emergency_related" in groups
+    )
+    candidate = command_validation.candidate_future_command_type or "blocked"
+    required_permission_labels = [
+        "permission_read_only_phase",
+        "requires_future_auth",
+        "requires_operator_identity",
+        "requires_role_authorization",
+        "requires_audit_reason",
+        "requires_idempotency_key",
+        "requires_immutable_event_recording",
+        "requires_post_action_consistency_check",
+        "service_account_not_allowed",
+        "technician_action_not_allowed",
+        "command_not_executable_phase_0",
+    ]
+    identity_requirement_labels = [
+        "requires_future_auth",
+        "requires_operator_identity",
+        "permission_blocked_unknown_operator",
+        "service_account_not_allowed",
+        "technician_action_not_allowed",
+    ]
+
+    if resolved_or_archived:
+        label = "permission_blocked_resolved_or_archived"
+        summary = (
+            "Resolved or archived Manual Review records retain read-only permission "
+            "visibility but do not expose active future operator permission readiness."
+        )
+        future_required_roles: tuple[str, ...] = ()
+        future_required_permissions: tuple[str, ...] = ()
+        required_permission_labels.append("permission_blocked_resolved_or_archived")
+    elif requires_water_scope:
+        label = "permission_blocked_water_emergency_scope"
+        summary = (
+            "Water Emergency-related Manual Review commands require separated future "
+            "operator identity, role authorization, owner/manager boundary, and scope "
+            "review before any action module can exist."
+        )
+        future_required_roles = ("owner", "operations_manager", "reviewer")
+        future_required_permissions = (
+            *MANUAL_REVIEW_BASE_REQUIRED_PERMISSIONS,
+            "manual_review.water_emergency.scope_review",
+            "manual_review.owner_override.review",
+        )
+        required_permission_labels.extend(
+            (
+                "permission_blocked_water_emergency_scope",
+                "requires_operations_manager_role",
+                "requires_owner_role_for_override",
+            ),
+        )
+        identity_requirement_labels.append("permission_blocked_water_emergency_scope")
+    elif command_validation.label == "validation_blocked_missing_entity":
+        label = "permission_blocked_unknown_operator"
+        summary = (
+            "Future Manual Review permission readiness is blocked because Phase 0 has "
+            "no authenticated operator context and the review lacks deterministic linked "
+            "entity context."
+        )
+        future_required_roles = ("reviewer", "operations_manager")
+        future_required_permissions = MANUAL_REVIEW_BASE_REQUIRED_PERMISSIONS
+    else:
+        label = "permission_ready_for_future_auth_phase"
+        summary = (
+            "Future Manual Review permission requirements are visible for a later auth "
+            "phase. Phase 0 does not authenticate an operator, enforce roles, or execute "
+            "the candidate command."
+        )
+        future_required_roles = manual_review_future_required_roles(
+            candidate,
+            groups=groups,
+            command_contract=command_contract,
+        )
+        future_required_permissions = manual_review_future_required_permissions(
+            groups=groups,
+            future_required_roles=future_required_roles,
+        )
+        required_permission_labels.append("permission_ready_for_future_auth_phase")
+
+    required_permission_labels.extend(
+        manual_review_role_requirement_labels(future_required_roles),
+    )
+
+    return ManualReviewPermissionReadiness(
+        label=label,
+        summary=summary,
+        candidate_future_command_type=candidate,
+        future_required_roles=tuple(dict.fromkeys(future_required_roles)),
+        future_forbidden_roles=MANUAL_REVIEW_FORBIDDEN_FUTURE_OPERATOR_ROLES,
+        future_required_permissions=tuple(dict.fromkeys(future_required_permissions)),
+        required_permission_labels=tuple(dict.fromkeys(required_permission_labels)),
+        identity_requirement_labels=tuple(dict.fromkeys(identity_requirement_labels)),
+        audit_correlation_references=tuple(
+            reference for reference in evidence_references if reference.startswith("audit:")
+        ),
+        evidence_references=tuple(evidence_references),
+        is_currently_executable=False,
+        phase_allows_execution=False,
+        execution_unavailable_reason=MANUAL_REVIEW_PERMISSION_EXECUTION_UNAVAILABLE_REASON,
+        identity_unavailable_reason=MANUAL_REVIEW_IDENTITY_UNAVAILABLE_REASON,
+        future_operator_identity_required=True,
+        future_operator_id_required=True,
+        future_operator_display_name_required=True,
+        future_operator_email_required=True,
+        future_authentication_provider_boundary=(
+            "Future ACS-FSM auth provider boundary is not implemented in Phase 0; "
+            "Manual Review commands must not rely on service accounts or fake roles."
+        ),
+        future_role_authorization_required=True,
+        future_permission_set_required=True,
+        future_audit_actor_required=True,
+        future_audit_reason_required=True,
+        future_idempotency_key_required=True,
+        future_immutable_event_required=True,
+        future_post_action_consistency_check_required=True,
+        impersonation_allowed=False,
+        service_account_allowed=False,
+        technician_action_allowed=False,
+        requires_water_emergency_scope_check=requires_water_scope,
+    )
+
+
+def manual_review_future_required_roles(
+    candidate: str,
+    *,
+    groups: Sequence[str],
+    command_contract: ManualReviewCommandContract,
+) -> tuple[str, ...]:
+    if candidate == "archive":
+        roles = ["operations_manager", "owner"]
+    elif candidate in {"approve", "reject", "defer", "resolve", "operator_decision"}:
+        roles = ["reviewer", "operations_manager"]
+    elif candidate == "request_information":
+        roles = ["reviewer", "office_admin", "operations_manager"]
+    else:
+        roles = ["reviewer", "operations_manager"]
+
+    if "dispatch_related" in groups:
+        roles.append("dispatcher")
+    if "requires_no_conflict_blocker" in command_contract.required_contract_labels:
+        roles.append("operations_manager")
+    return tuple(role for role in MANUAL_REVIEW_FUTURE_OPERATOR_ROLES if role in roles)
+
+
+def manual_review_future_required_permissions(
+    *,
+    groups: Sequence[str],
+    future_required_roles: Sequence[str],
+) -> tuple[str, ...]:
+    permissions = [*MANUAL_REVIEW_BASE_REQUIRED_PERMISSIONS]
+    if "dispatch_related" in groups or "dispatcher" in future_required_roles:
+        permissions.append("manual_review.dispatch_review.prepare")
+    if "owner" in future_required_roles:
+        permissions.append("manual_review.owner_override.review")
+    return tuple(permissions)
+
+
+def manual_review_role_requirement_labels(
+    roles: Sequence[str],
+) -> tuple[str, ...]:
+    labels_by_role = {
+        "owner": "requires_owner_role_for_override",
+        "operations_manager": "requires_operations_manager_role",
+        "dispatcher": "requires_dispatcher_role",
+        "reviewer": "requires_reviewer_role",
+    }
+    return tuple(labels_by_role[role] for role in roles if role in labels_by_role)
 
 
 def manual_review_safety_gates(

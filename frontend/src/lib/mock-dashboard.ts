@@ -4,6 +4,7 @@ import type {
   ManualReviewCommandValidationResponse,
   ManualReviewCommandContractResponse,
   ManualReviewDetailResponse,
+  ManualReviewPermissionReadinessResponse,
   ManualReviewQueueResponse,
   ManualReviewSafetyGateResponse,
   WaterEmergencyDashboardResponse,
@@ -603,6 +604,91 @@ function manualReviewCommandValidationMock({
   };
 }
 
+function manualReviewPermissionReadinessMock({
+  label,
+  summary,
+  candidateFutureCommandType = "blocked",
+  futureRequiredRoles = ["reviewer", "operations_manager"],
+  futureRequiredPermissions = [
+    "manual_review.future_command.view",
+    "manual_review.future_command.prepare",
+    "manual_review.audit_actor.capture",
+    "manual_review.audit_reason.capture",
+    "manual_review.idempotency.require",
+    "manual_review.immutable_event.require",
+    "manual_review.consistency_check.require",
+  ],
+  extraRequiredLabels = [],
+  evidenceReferences,
+  requiresWaterEmergencyScopeCheck = false,
+}: {
+  label: string;
+  summary: string;
+  candidateFutureCommandType?: string;
+  futureRequiredRoles?: string[];
+  futureRequiredPermissions?: string[];
+  extraRequiredLabels?: string[];
+  evidenceReferences: string[];
+  requiresWaterEmergencyScopeCheck?: boolean;
+}): ManualReviewPermissionReadinessResponse {
+  return {
+    label,
+    summary,
+    candidate_future_command_type: candidateFutureCommandType,
+    future_required_roles: futureRequiredRoles,
+    future_forbidden_roles: ["system_service", "technician", "unknown_operator"],
+    future_required_permissions: futureRequiredPermissions,
+    required_permission_labels: [
+      "permission_read_only_phase",
+      "requires_future_auth",
+      "requires_operator_identity",
+      "requires_role_authorization",
+      "requires_audit_reason",
+      "requires_idempotency_key",
+      "requires_immutable_event_recording",
+      "requires_post_action_consistency_check",
+      "service_account_not_allowed",
+      "technician_action_not_allowed",
+      "command_not_executable_phase_0",
+      ...extraRequiredLabels,
+    ],
+    identity_requirement_labels: [
+      "requires_future_auth",
+      "requires_operator_identity",
+      "permission_blocked_unknown_operator",
+      "service_account_not_allowed",
+      "technician_action_not_allowed",
+    ],
+    audit_correlation_references: evidenceReferences.filter((reference) =>
+      reference.startsWith("audit:"),
+    ),
+    evidence_references: evidenceReferences,
+    is_currently_executable: false,
+    phase_allows_execution: false,
+    execution_unavailable_reason:
+      "Manual Review permission readiness is visibility only; auth, RBAC, and action execution are not available in Phase 0.",
+    identity_unavailable_reason:
+      "Phase 0 does not implement login, sessions, token handling, operator identity, or RBAC; future Manual Review commands remain non-executable.",
+    future_operator_identity_required: true,
+    future_operator_id_required: true,
+    future_operator_display_name_required: true,
+    future_operator_email_required: true,
+    future_authentication_provider_boundary:
+      "Future ACS-FSM auth provider boundary is not implemented in Phase 0; Manual Review commands must not rely on service accounts or fake roles.",
+    future_role_authorization_required: true,
+    future_permission_set_required: true,
+    future_audit_actor_required: true,
+    future_audit_reason_required: true,
+    future_idempotency_key_required: true,
+    future_immutable_event_required: true,
+    future_post_action_consistency_check_required: true,
+    impersonation_allowed: false,
+    service_account_allowed: false,
+    technician_action_allowed: false,
+    requires_water_emergency_scope_check: requiresWaterEmergencyScopeCheck,
+  };
+}
+
 export const mockManualReviewQueue: ManualReviewQueueResponse = {
   generated_at: "2026-05-16T09:35:00Z",
   total_items: 5,
@@ -687,6 +773,12 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
     { label: "validation_blocked_water_emergency_scope", count: 1 },
     { label: "validation_blocked_resolved_or_archived", count: 2 },
     { label: "validation_blocked_missing_entity", count: 1 },
+  ],
+  permission_readiness_counts: [
+    { label: "permission_ready_for_future_auth_phase", count: 1 },
+    { label: "permission_blocked_water_emergency_scope", count: 1 },
+    { label: "permission_blocked_resolved_or_archived", count: 2 },
+    { label: "permission_blocked_unknown_operator", count: 1 },
   ],
   audit_correlation_count: 5,
   taxonomy_metadata: {
@@ -992,6 +1084,35 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         entityContextPresent: true,
         hasMissingData: true,
       }),
+      permission_readiness: manualReviewPermissionReadinessMock({
+        label: "permission_ready_for_future_auth_phase",
+        summary:
+          "Future Manual Review permission requirements are visible for a later auth phase; Phase 0 does not authenticate an operator, enforce roles, or execute the candidate command.",
+        candidateFutureCommandType: "request_information",
+        futureRequiredRoles: ["reviewer", "operations_manager", "dispatcher"],
+        futureRequiredPermissions: [
+          "manual_review.future_command.view",
+          "manual_review.future_command.prepare",
+          "manual_review.audit_actor.capture",
+          "manual_review.audit_reason.capture",
+          "manual_review.idempotency.require",
+          "manual_review.immutable_event.require",
+          "manual_review.consistency_check.require",
+          "manual_review.dispatch_review.prepare",
+        ],
+        extraRequiredLabels: [
+          "permission_ready_for_future_auth_phase",
+          "requires_reviewer_role",
+          "requires_dispatcher_role",
+          "requires_operations_manager_role",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000001",
+          "job:42000000-0000-4000-8000-000000000001",
+          "work_order:43000000-0000-4000-8000-000000000001",
+          "audit:audit-manual-review-mock-001",
+        ],
+      }),
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000002",
@@ -1155,6 +1276,38 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
           "audit:audit-manual-review-mock-002",
         ],
         entityContextPresent: true,
+        requiresWaterEmergencyScopeCheck: true,
+      }),
+      permission_readiness: manualReviewPermissionReadinessMock({
+        label: "permission_blocked_water_emergency_scope",
+        summary:
+          "Water Emergency-related Manual Review commands require separated future operator identity, role authorization, owner or manager boundary, and scope review before any action module can exist.",
+        candidateFutureCommandType: "blocked",
+        futureRequiredRoles: ["owner", "operations_manager", "reviewer"],
+        futureRequiredPermissions: [
+          "manual_review.future_command.view",
+          "manual_review.future_command.prepare",
+          "manual_review.audit_actor.capture",
+          "manual_review.audit_reason.capture",
+          "manual_review.idempotency.require",
+          "manual_review.immutable_event.require",
+          "manual_review.consistency_check.require",
+          "manual_review.water_emergency.scope_review",
+          "manual_review.owner_override.review",
+        ],
+        extraRequiredLabels: [
+          "permission_blocked_water_emergency_scope",
+          "requires_owner_role_for_override",
+          "requires_operations_manager_role",
+          "requires_reviewer_role",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000002",
+          "job:72eba727-8f18-45d5-a1d3-c4fa4bd21f2d",
+          "visit:f862c2f6-4e1c-47ac-b3e9-9639a8f9c31b",
+          "water_emergency:e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+          "audit:audit-manual-review-mock-002",
+        ],
         requiresWaterEmergencyScopeCheck: true,
       }),
     },
@@ -1323,6 +1476,22 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         resolvedOrArchived: true,
         hasConflict: true,
       }),
+      permission_readiness: manualReviewPermissionReadinessMock({
+        label: "permission_blocked_resolved_or_archived",
+        summary:
+          "Resolved or archived Manual Review records retain read-only permission visibility but do not expose active future operator permission readiness.",
+        candidateFutureCommandType: "blocked",
+        futureRequiredRoles: [],
+        futureRequiredPermissions: [],
+        extraRequiredLabels: ["permission_blocked_resolved_or_archived"],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000003",
+          "job:42000000-0000-4000-8000-000000000003",
+          "work_order:43000000-0000-4000-8000-000000000003",
+          "visit:45000000-0000-4000-8000-000000000003",
+          "route_assignment:44000000-0000-4000-8000-000000000003",
+        ],
+      }),
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000004",
@@ -1461,6 +1630,19 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         entityContextPresent: true,
         resolvedOrArchived: true,
       }),
+      permission_readiness: manualReviewPermissionReadinessMock({
+        label: "permission_blocked_resolved_or_archived",
+        summary:
+          "Resolved or archived Manual Review records retain read-only permission visibility but do not expose active future operator permission readiness.",
+        candidateFutureCommandType: "blocked",
+        futureRequiredRoles: [],
+        futureRequiredPermissions: [],
+        extraRequiredLabels: ["permission_blocked_resolved_or_archived"],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000004",
+          "job:42000000-0000-4000-8000-000000000004",
+        ],
+      }),
     },
     {
       review_item_id: "41000000-0000-4000-8000-000000000005",
@@ -1596,6 +1778,21 @@ export const mockManualReviewQueue: ManualReviewQueueResponse = {
         ],
         entityContextPresent: false,
       }),
+      permission_readiness: manualReviewPermissionReadinessMock({
+        label: "permission_blocked_unknown_operator",
+        summary:
+          "Future Manual Review permission readiness is blocked because Phase 0 has no authenticated operator context and the review lacks deterministic linked entity context.",
+        candidateFutureCommandType: "blocked",
+        extraRequiredLabels: [
+          "permission_blocked_unknown_operator",
+          "requires_reviewer_role",
+          "requires_operations_manager_role",
+        ],
+        evidenceReferences: [
+          "review:41000000-0000-4000-8000-000000000005",
+          "audit:audit-manual-review-mock-005",
+        ],
+      }),
     },
   ],
 };
@@ -1621,6 +1818,7 @@ export const mockManualReviewDetail: ManualReviewDetailResponse = {
   command_contract: mockManualReviewQueue.items[0].command_contract,
   audit_ledger_dry_run: mockManualReviewQueue.items[0].audit_ledger_dry_run,
   command_validation: mockManualReviewQueue.items[0].command_validation,
+  permission_readiness: mockManualReviewQueue.items[0].permission_readiness,
   linked_entity_context: {
     entity_type: "job",
     entity_id: "42000000-0000-4000-8000-000000000001",

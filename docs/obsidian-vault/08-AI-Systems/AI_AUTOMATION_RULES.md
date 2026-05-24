@@ -500,3 +500,19 @@ AI boundary:
 - Water Emergency-related validation must remain separated from standard dispatch and cannot be auto-scoped by AI
 
 Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend validation, safety gates, and future authenticated audit/event controls remain authoritative.
+
+## Phase 0 Module 49 Manual Review Operator-Identity And Permission Boundary
+
+Manual Review permission-readiness labels, future role requirements, future forbidden roles, future permission sets, and operator-identity requirements are deterministic backend read-model metadata.
+
+AI boundary:
+
+- AI must not decide operator identity or role authorization
+- AI must not create fake roles, fake operators, login/session/token behavior, or RBAC enforcement
+- AI must not generate executable approve/reject/defer/archive/resolve commands
+- AI must not write audit events, generate authoritative audit actors or audit reasons, persist idempotency keys, or mark immutable event recording complete
+- AI must not bypass Manual Review, auth, operator identity, role authorization, audit reason, idempotency, immutable event recording, post-action consistency checks, or the Phase 0 execution block
+- AI must not convert permission-readiness visibility into dispatch execution, vendor calls, audit writes, role enforcement, or workflow transitions
+- Water Emergency-related authorization requirements must remain separated from standard dispatch and cannot be auto-scoped by AI
+
+Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend permission readiness and future authenticated auth/RBAC/audit/event controls remain authoritative.

@@ -1004,6 +1004,178 @@ def test_manual_review_command_validation_blocks_resolved_and_water_emergency_sc
     assert water_gates["phase_allows_execution"].passed is False
 
 
+def test_manual_review_permission_readiness_requires_future_identity_and_roles() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    job_id = uuid4()
+    work_order_id = uuid4()
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=[Job(id=job_id, job_type="standard", status="awaiting_dispatch")],
+        work_orders=[
+            WorkOrder(
+                id=work_order_id,
+                job_id=job_id,
+                status="generated",
+                dispatch_status="not_dispatched",
+            ),
+        ],
+        review_items=[
+            ReviewItem(
+                id=uuid4(),
+                job_id=job_id,
+                entity_type="job",
+                entity_id=job_id,
+                reason_code="operator_decision_requested",
+                status="open",
+                severity="medium",
+                recommended_action="approve synthetic review",
+                created_at=now - timedelta(minutes=20),
+                audit_correlation_id="audit-manual-review-permission",
+            ),
+        ],
+    )
+
+    permission = queue.items[0].permission_readiness
+
+    assert queue.permission_readiness_counts == (
+        CountBucket(label="permission_ready_for_future_auth_phase", count=1),
+    )
+    assert permission.label == "permission_ready_for_future_auth_phase"
+    assert permission.candidate_future_command_type == "approve"
+    assert permission.is_currently_executable is False
+    assert permission.phase_allows_execution is False
+    assert permission.future_operator_identity_required is True
+    assert permission.future_role_authorization_required is True
+    assert permission.future_audit_actor_required is True
+    assert permission.future_audit_reason_required is True
+    assert permission.future_idempotency_key_required is True
+    assert permission.future_immutable_event_required is True
+    assert permission.future_post_action_consistency_check_required is True
+    assert permission.service_account_allowed is False
+    assert permission.technician_action_allowed is False
+    assert permission.impersonation_allowed is False
+    assert "reviewer" in permission.future_required_roles
+    assert "dispatcher" in permission.future_required_roles
+    assert "system_service" in permission.future_forbidden_roles
+    assert "technician" in permission.future_forbidden_roles
+    assert "manual_review.future_command.prepare" in permission.future_required_permissions
+    assert "manual_review.dispatch_review.prepare" in permission.future_required_permissions
+    assert "requires_future_auth" in permission.required_permission_labels
+    assert "requires_operator_identity" in permission.required_permission_labels
+    assert "requires_role_authorization" in permission.required_permission_labels
+    assert "service_account_not_allowed" in permission.required_permission_labels
+    assert "technician_action_not_allowed" in permission.required_permission_labels
+    assert "permission_blocked_unknown_operator" in permission.identity_requirement_labels
+    assert permission.identity_unavailable_reason == (
+        "Phase 0 does not implement login, sessions, token handling, operator identity, "
+        "or RBAC; future Manual Review commands remain non-executable."
+    )
+    assert permission.execution_unavailable_reason == (
+        "Manual Review permission readiness is visibility only; auth, RBAC, and action "
+        "execution are not available in Phase 0."
+    )
+
+
+def test_manual_review_permission_readiness_blocks_missing_entity_context() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    review = ReviewItem(
+        id=uuid4(),
+        reason_code="operator_review_requested",
+        status="open",
+        severity="medium",
+        created_at=now - timedelta(minutes=30),
+        audit_correlation_id="audit-manual-review-permission-missing-entity",
+    )
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        review_items=[review],
+    )
+
+    permission = queue.items[0].permission_readiness
+
+    assert review.status == "open"
+    assert permission.label == "permission_blocked_unknown_operator"
+    assert permission.candidate_future_command_type == "blocked"
+    assert permission.is_currently_executable is False
+    assert permission.phase_allows_execution is False
+    assert "requires_operator_identity" in permission.required_permission_labels
+    assert "requires_role_authorization" in permission.required_permission_labels
+    assert "permission_blocked_unknown_operator" in permission.identity_requirement_labels
+    assert permission.future_required_roles == ("reviewer", "operations_manager")
+
+
+def test_manual_review_permission_readiness_blocks_water_emergency_and_resolved() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    standard_job_id = uuid4()
+    water_job_id = uuid4()
+    water_emergency_id = uuid4()
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=[
+            Job(id=standard_job_id, job_type="standard", status="awaiting_dispatch"),
+            Job(id=water_job_id, job_type="water_emergency", status="active"),
+        ],
+        water_emergencies=[
+            WaterEmergency(
+                id=water_emergency_id,
+                job_id=water_job_id,
+                status="DRYING_IN_PROGRESS",
+                drying_stage="monitoring",
+            ),
+        ],
+        review_items=[
+            ReviewItem(
+                id=uuid4(),
+                job_id=standard_job_id,
+                entity_type="job",
+                entity_id=standard_job_id,
+                reason_code="operator_resolved",
+                status="resolved",
+                severity="low",
+                created_at=now - timedelta(days=1),
+                audit_correlation_id="audit-manual-review-permission-resolved",
+            ),
+            ReviewItem(
+                id=uuid4(),
+                job_id=water_job_id,
+                entity_type="water_emergency",
+                entity_id=water_emergency_id,
+                reason_code="water_emergency_scope_review",
+                status="open",
+                severity="critical",
+                created_at=now - timedelta(hours=2),
+                audit_correlation_id="audit-manual-review-permission-water",
+            ),
+        ],
+    )
+
+    items_by_reason = {item.reason_code: item for item in queue.items}
+    resolved_permission = items_by_reason["operator_resolved"].permission_readiness
+    water_permission = items_by_reason["water_emergency_scope_review"].permission_readiness
+
+    assert resolved_permission.label == "permission_blocked_resolved_or_archived"
+    assert resolved_permission.future_required_roles == ()
+    assert resolved_permission.is_currently_executable is False
+    assert resolved_permission.phase_allows_execution is False
+    assert "permission_blocked_resolved_or_archived" in (
+        resolved_permission.required_permission_labels
+    )
+
+    assert water_permission.label == "permission_blocked_water_emergency_scope"
+    assert water_permission.requires_water_emergency_scope_check is True
+    assert water_permission.is_currently_executable is False
+    assert water_permission.phase_allows_execution is False
+    assert "owner" in water_permission.future_required_roles
+    assert "operations_manager" in water_permission.future_required_roles
+    assert "manual_review.water_emergency.scope_review" in (
+        water_permission.future_required_permissions
+    )
+    assert "requires_owner_role_for_override" in water_permission.required_permission_labels
+    assert "permission_blocked_water_emergency_scope" in (
+        water_permission.required_permission_labels
+    )
+
+
 def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:
     now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
     review = ReviewItem(

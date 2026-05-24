@@ -21,6 +21,7 @@ from app.domain.dashboard import (
     ManualReviewDetailReadModel,
     ManualReviewFilterOption,
     ManualReviewFutureActionPreview,
+    ManualReviewPermissionReadiness,
     ManualReviewQueueItem,
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
@@ -815,6 +816,91 @@ def manual_review_command_validation_contract(
     )
 
 
+def manual_review_permission_readiness_contract(
+    *,
+    label: str,
+    candidate_future_command_type: str = "request_information",
+    future_required_roles: tuple[str, ...] = ("reviewer", "operations_manager", "dispatcher"),
+    future_required_permissions: tuple[str, ...] = (
+        "manual_review.future_command.view",
+        "manual_review.future_command.prepare",
+        "manual_review.audit_actor.capture",
+        "manual_review.audit_reason.capture",
+        "manual_review.idempotency.require",
+        "manual_review.immutable_event.require",
+        "manual_review.consistency_check.require",
+        "manual_review.dispatch_review.prepare",
+    ),
+    extra_required_labels: tuple[str, ...] = (),
+    audit_correlation_reference: str = "audit:audit-manual-review-api-001",
+    evidence_references: tuple[str, ...] = (),
+    requires_water_emergency_scope_check: bool = False,
+) -> ManualReviewPermissionReadiness:
+    return ManualReviewPermissionReadiness(
+        label=label,
+        summary=(
+            "Manual Review permission readiness is read-only Phase 0 visibility for "
+            "future auth and role authorization."
+        ),
+        candidate_future_command_type=candidate_future_command_type,
+        future_required_roles=future_required_roles,
+        future_forbidden_roles=("system_service", "technician", "unknown_operator"),
+        future_required_permissions=future_required_permissions,
+        required_permission_labels=(
+            "permission_read_only_phase",
+            "requires_future_auth",
+            "requires_operator_identity",
+            "requires_role_authorization",
+            "requires_audit_reason",
+            "requires_idempotency_key",
+            "requires_immutable_event_recording",
+            "requires_post_action_consistency_check",
+            "service_account_not_allowed",
+            "technician_action_not_allowed",
+            "command_not_executable_phase_0",
+            *extra_required_labels,
+        ),
+        identity_requirement_labels=(
+            "requires_future_auth",
+            "requires_operator_identity",
+            "permission_blocked_unknown_operator",
+            "service_account_not_allowed",
+            "technician_action_not_allowed",
+        ),
+        audit_correlation_references=(audit_correlation_reference,),
+        evidence_references=evidence_references,
+        is_currently_executable=False,
+        phase_allows_execution=False,
+        execution_unavailable_reason=(
+            "Manual Review permission readiness is visibility only; auth, RBAC, and "
+            "action execution are not available in Phase 0."
+        ),
+        identity_unavailable_reason=(
+            "Phase 0 does not implement login, sessions, token handling, operator identity, "
+            "or RBAC; future Manual Review commands remain non-executable."
+        ),
+        future_operator_identity_required=True,
+        future_operator_id_required=True,
+        future_operator_display_name_required=True,
+        future_operator_email_required=True,
+        future_authentication_provider_boundary=(
+            "Future ACS-FSM auth provider boundary is not implemented in Phase 0; "
+            "Manual Review commands must not rely on service accounts or fake roles."
+        ),
+        future_role_authorization_required=True,
+        future_permission_set_required=True,
+        future_audit_actor_required=True,
+        future_audit_reason_required=True,
+        future_idempotency_key_required=True,
+        future_immutable_event_required=True,
+        future_post_action_consistency_check_required=True,
+        impersonation_allowed=False,
+        service_account_allowed=False,
+        technician_action_allowed=False,
+        requires_water_emergency_scope_check=requires_water_emergency_scope_check,
+    )
+
+
 def manual_review_queue_contract() -> ManualReviewQueueReadModel:
     return ManualReviewQueueReadModel(
         generated_at=datetime(2026, 5, 16, 12, 50, tzinfo=UTC),
@@ -868,6 +954,10 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
         command_validation_counts=(
             CountBucket(label="validation_warning_requires_review", count=1),
             CountBucket(label="validation_blocked_resolved_or_archived", count=1),
+        ),
+        permission_readiness_counts=(
+            CountBucket(label="permission_ready_for_future_auth_phase", count=1),
+            CountBucket(label="permission_blocked_resolved_or_archived", count=1),
         ),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
@@ -1161,6 +1251,23 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                         "audit:audit-manual-review-api-001",
                     ),
                 ),
+                permission_readiness=manual_review_permission_readiness_contract(
+                    label="permission_ready_for_future_auth_phase",
+                    candidate_future_command_type="request_information",
+                    extra_required_labels=(
+                        "permission_ready_for_future_auth_phase",
+                        "requires_reviewer_role",
+                        "requires_dispatcher_role",
+                        "requires_operations_manager_role",
+                    ),
+                    audit_correlation_reference="audit:audit-manual-review-api-001",
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000040",
+                        "job:00000000-0000-0000-0000-000000000041",
+                        "work_order:00000000-0000-0000-0000-000000000042",
+                        "audit:audit-manual-review-api-001",
+                    ),
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000040",
                     "job:00000000-0000-0000-0000-000000000041",
@@ -1392,6 +1499,21 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
                         "audit:audit-manual-review-api-002",
                     ),
                 ),
+                permission_readiness=manual_review_permission_readiness_contract(
+                    label="permission_blocked_resolved_or_archived",
+                    candidate_future_command_type="blocked",
+                    future_required_roles=(),
+                    future_required_permissions=(),
+                    extra_required_labels=("permission_blocked_resolved_or_archived",),
+                    audit_correlation_reference="audit:audit-manual-review-api-002",
+                    evidence_references=(
+                        "review:00000000-0000-0000-0000-000000000043",
+                        "job:00000000-0000-0000-0000-000000000032",
+                        "water_emergency:00000000-0000-0000-0000-000000000031",
+                        "audit:audit-manual-review-api-002",
+                    ),
+                    requires_water_emergency_scope_check=True,
+                ),
                 evidence_references=(
                     "review:00000000-0000-0000-0000-000000000043",
                     "job:00000000-0000-0000-0000-000000000032",
@@ -1427,6 +1549,7 @@ def manual_review_detail_contract() -> ManualReviewDetailReadModel:
         command_contract=review_item.command_contract,
         audit_ledger_dry_run=review_item.audit_ledger_dry_run,
         command_validation=review_item.command_validation,
+        permission_readiness=review_item.permission_readiness,
         linked_entity_context=ManualReviewDetailLinkedEntityContext(
             entity_type="job",
             entity_id=UUID("00000000-0000-0000-0000-000000000041"),
@@ -1628,6 +1751,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
         {"label": "validation_warning_requires_review", "count": 1},
         {"label": "validation_blocked_resolved_or_archived", "count": 1},
     ]
+    assert manual_review_queue_response.json()["permission_readiness_counts"] == [
+        {"label": "permission_ready_for_future_auth_phase", "count": 1},
+        {"label": "permission_blocked_resolved_or_archived", "count": 1},
+    ]
     assert (
         manual_review_queue_response.json()["taxonomy_metadata"][
             "randall_authorized_phase_0_baseline"
@@ -1747,6 +1874,57 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][0]["command_validation"]["label"] == (
         "validation_warning_requires_review"
     )
+    assert manual_review_queue_response.json()["items"][0]["permission_readiness"]["label"] == (
+        "permission_ready_for_future_auth_phase"
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["permission_readiness"][
+            "is_currently_executable"
+        ]
+        is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["permission_readiness"][
+            "phase_allows_execution"
+        ]
+        is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["permission_readiness"][
+            "future_operator_identity_required"
+        ]
+        is True
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["permission_readiness"][
+            "future_role_authorization_required"
+        ]
+        is True
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["permission_readiness"][
+            "service_account_allowed"
+        ]
+        is False
+    )
+    assert (
+        manual_review_queue_response.json()["items"][0]["permission_readiness"][
+            "technician_action_allowed"
+        ]
+        is False
+    )
+    assert (
+        "dispatcher"
+        in manual_review_queue_response.json()["items"][0]["permission_readiness"][
+            "future_required_roles"
+        ]
+    )
+    assert (
+        "manual_review.dispatch_review.prepare"
+        in manual_review_queue_response.json()["items"][0]["permission_readiness"][
+            "future_required_permissions"
+        ]
+    )
     assert (
         manual_review_queue_response.json()["items"][0]["command_validation"][
             "is_currently_executable"
@@ -1819,6 +1997,9 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert manual_review_queue_response.json()["items"][1]["command_validation"]["label"] == (
         "validation_blocked_resolved_or_archived"
     )
+    assert manual_review_queue_response.json()["items"][1]["permission_readiness"]["label"] == (
+        "permission_blocked_resolved_or_archived"
+    )
     assert (
         manual_review_queue_response.json()["items"][1]["command_validation"][
             "is_currently_executable"
@@ -1860,6 +2041,13 @@ def test_dashboard_api_routes_return_read_only_contracts(
     )
     assert manual_review_detail_response.json()["command_validation"]["label"] == (
         "validation_warning_requires_review"
+    )
+    assert manual_review_detail_response.json()["permission_readiness"]["label"] == (
+        "permission_ready_for_future_auth_phase"
+    )
+    assert (
+        manual_review_detail_response.json()["permission_readiness"]["phase_allows_execution"]
+        is False
     )
     assert (
         manual_review_detail_response.json()["command_validation"]["phase_allows_execution"]

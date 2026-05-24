@@ -2211,6 +2211,7 @@
             <div class="check-item"><span class="check">✓</span><span>Manual Review future-action preview and expected outcome visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review future command-contract and audit-envelope visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review audit-ledger dry-run and immutable-event preparation visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Manual Review command-validation and safety-gate matrix visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2231,39 +2232,39 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 47 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 48 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 47 completed read-only Manual Review audit-ledger preparation, command dry-run
-            visibility, immutable-event preparation, and idempotency readiness. The module was
-            reviewed and committed before Module 48 work begins. This gives ACS clearer future
-            audit, idempotency, event-recording, and consistency-check preparation without adding
-            operational action buttons or audit writes yet.
+            Module 48 completed read-only Manual Review command validation, safety-gate matrix
+            visibility, and execution-readiness preparation. The module was reviewed and committed
+            before Module 49 work begins. This gives ACS clearer visibility into why a future
+            Manual Review command would be blocked or ready in a later authorized phase without
+            adding auth, role enforcement, action buttons, audit writes, or workflow execution.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The Manual Review Queue and detail panel can now show command dry-run labels,
-                proposed future audit envelope fields, proposed immutable event state,
-                idempotency scope, consistency-check summary, blocker context, and explicit
-                non-executable Phase 0 status.
+                The Manual Review Queue and detail panel can now show command-validation labels,
+                future command candidates, validation blockers and warnings, safety gates, Phase 0
+                execution status, and the required future audit, operator identity, role
+                authorization, idempotency, immutable-event, and consistency-check gates.
               </p>
             </article>
             <article class="overview-card">
               <h3>Why it matters</h3>
               <p>
                 Manual Review is the safety system. This work helps Luis and the office understand
-                what audit evidence, event recording, idempotency, operator identity, role
-                authorization, and consistency checks will be needed before any future Manual
-                Review action can execute. Water Emergency-related dry-run context stays separated
-                from standard dispatch review context, and resolved or archived items stay
-                historical instead of active command needs.
+                which safety checks must be satisfied before any future Manual Review command can
+                exist. It keeps Phase 0 conservative: every validation record remains read-only,
+                every current execution flag stays off, Water Emergency-related validation stays
+                separated from standard dispatch review context, and resolved or archived items
+                remain historical instead of active command targets.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 47 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                Module 48 passed backend checks, frontend checks, local PostgreSQL live dashboard
                 verification, browser checks, and ChatGPT review follow-up. It has been committed
                 and pushed by Randall.
               </p>
@@ -2271,9 +2272,9 @@
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is Module 48: read-only Manual Review command validation,
-                safety gate matrix visibility, and execution-readiness harness preparation.
-                Module 48 is not marked complete yet.
+                The next planned area is Module 49: read-only operator identity, role
+                authorization boundary, and Manual Review permission-readiness visibility.
+                Module 49 is not marked complete yet.
               </p>
             </article>
           </div>

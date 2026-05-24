@@ -442,3 +442,24 @@ Open concerns:
 
 - final Manual Review command validation/execution workflow and safety-gate persistence remain future work
 - legal, insurance, compliance, customer-liability, or formal company-policy language requires Alfonso owner review
+
+---
+
+# 19. Phase 0 Manual Review Operator Identity And Permission Boundary
+
+Module 49 adds read-only Manual Review operator-identity, role-authorization, and permission-readiness visibility.
+
+Rules:
+
+- permission-readiness labels are Randall-authorized Phase 0 visibility baselines only
+- every permission-readiness record remains currently non-executable and Phase 0 does not allow execution
+- future Manual Review commands require future auth, operator identity, role authorization, audit actor capture, audit reason, idempotency key, immutable event recording, and post-action consistency checks before any mutation module exists
+- service accounts and technicians are not future Manual Review operator-action actors
+- missing entity context, Water Emergency scope, resolved/archived status, and unknown operator context remain blockers or historical visibility states
+- Water Emergency-related Manual Review authorization requirements must remain separated from standard dispatch review context
+- no login, signup, user management, token/session behavior, auth headers, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, RBAC, or workflow execution authority is created
+
+Open concerns:
+
+- final ACS-FSM auth provider, operator identity schema, RBAC model, permission taxonomy, and Manual Review action authority remain future work
+- legal, insurance, compliance, customer-liability, or formal company-policy language requires Alfonso owner review

@@ -971,6 +971,29 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 49 Manual Review Operator-Identity And Permission Boundary
+
+Module 49 extends Manual Review queue and detail visibility with read-only operator-identity, role-authorization, and permission-readiness context:
+
+- backend read models expose deterministic permission-readiness labels, future command candidate, future required roles, forbidden roles, future permission set, identity requirement labels, evidence references, explicit non-executable flags, and Phase 0 execution-blocked flags from existing ReviewItem evidence
+- every permission-readiness record remains `is_currently_executable = false` and `phase_allows_execution = false`
+- every future permission-readiness record requires future auth, operator identity, role authorization, audit actor, audit reason, idempotency key, immutable event recording, and post-action consistency checks
+- service accounts, technicians, and unknown operators are not future Manual Review operator-action actors
+- Water Emergency-related authorization requirements require Water Emergency scope checks and remain separated from standard dispatch review preparation through persisted job, visit, entity, and Water Emergency links
+- missing entity context, Water Emergency context, resolved/archived status, and unknown operator context remain blockers or visibility states instead of executable actions
+- frontend queue and detail panels display future authorization boundary context as read-only evidence and do not add login UI, user-management UI, forms, inputs, workflow controls, auth/RBAC controls, or button-styled permission labels
+
+The boundary remains projection-only. The endpoint and UI do not execute Manual Review commands, mutate review records, validate commands for current execution, write audit events, create POST/PUT/PATCH/DELETE endpoints, implement auth/RBAC, create login/session/token behavior, persist idempotency keys, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- future authenticated Manual Review command validation/execution workflows
+- final ACS-FSM auth provider and operator identity schema
+- durable RBAC/permission model and role-scoped action authority
+- operator identity capture, role authorization, audit actor, audit reason, idempotency, immutable event, post-action consistency, audit-ledger persistence, safety-gate persistence, and action-history persistence
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

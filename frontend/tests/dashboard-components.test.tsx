@@ -576,6 +576,13 @@ describe("DashboardView", () => {
     expect(html).toContain("Audit Ledger Preparation");
     expect(html).toContain("Command Validation");
     expect(html).toContain("Safety Gate Matrix");
+    expect(html).toContain("Permission Readiness");
+    expect(html).toContain("Future Authorization Boundary");
+    expect(html).toContain("Future Required Roles");
+    expect(html).toContain("Future Required Permissions");
+    expect(html).toContain("Service account not allowed");
+    expect(html).toContain("Technician action not allowed");
+    expect(html).toContain("Permission Ready For Future Auth Phase");
     expect(html).toContain("Validation Warning Requires Review");
     expect(html).toContain("Phase allows execution: No");
     expect(html).toContain("Entity Context Present");
@@ -613,6 +620,9 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Defer review");
     expect(html).not.toContain("Archive review");
     expect(html).not.toContain("Dispatch now");
+    expect(html).not.toContain("Login");
+    expect(html).not.toContain("Sign up");
+    expect(html).not.toContain("Manage users");
   });
 
   it("renders every active standard Manual Review item without hiding safety records", () => {
@@ -666,6 +676,8 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Archive review");
     expect(html).not.toContain("Execute action");
     expect(html).not.toContain("Run preflight");
+    expect(html).not.toContain("Login");
+    expect(html).not.toContain("Manage users");
   });
 
   it("renders Manual Review filter controls and can isolate Water Emergency reviews", () => {
@@ -817,6 +829,7 @@ describe("DashboardView", () => {
       audit_ledger_dry_run:
         mockManualReviewQueue.items[1].audit_ledger_dry_run,
       command_validation: mockManualReviewQueue.items[1].command_validation,
+      permission_readiness: mockManualReviewQueue.items[1].permission_readiness,
       linked_entity_context: {
         ...mockManualReviewDetail.linked_entity_context,
         entity_type: "water_emergency",
@@ -871,6 +884,16 @@ describe("DashboardView", () => {
     expect(html).toContain("Requires Water Emergency Scope Check");
     expect(html).toContain("Command Execution Blocked Water Emergency Scope");
     expect(html).toContain("Validation Blocked Water Emergency Scope");
+    expect(html).toContain("Future Authorization Boundary");
+    expect(html).toContain("Permission Blocked Water Emergency Scope");
+    expect(html).toContain("Water Emergency-related authorization requirements");
+    expect(html).toContain("Future operator identity required");
+    expect(html).toContain("Future role authorization required");
+    expect(html).toContain("Future audit actor required");
+    expect(html).toContain("Future Required Roles");
+    expect(html).toContain("Future Forbidden Roles");
+    expect(html).toContain("Service account not allowed");
+    expect(html).toContain("Technician action not allowed");
     expect(html).toContain("Water Emergency Scope Checked");
     expect(html).toContain("Phase allows execution: No");
     expect(html).toContain("Water Emergency-related command dry-run");
@@ -901,6 +924,8 @@ describe("DashboardView", () => {
     expect(html).not.toContain("Execute action");
     expect(html).not.toContain("Run preflight");
     expect(html).not.toContain("Run preview");
+    expect(html).not.toContain("Login");
+    expect(html).not.toContain("Manage users");
   });
 
   it("renders Manual Review detail not-selected state without mock success or actions", () => {

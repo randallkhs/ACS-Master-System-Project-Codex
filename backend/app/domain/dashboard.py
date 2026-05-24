@@ -214,6 +214,40 @@ class ManualReviewCommandValidation:
 
 
 @dataclass(frozen=True, slots=True)
+class ManualReviewPermissionReadiness:
+    label: str
+    summary: str
+    candidate_future_command_type: str
+    future_required_roles: tuple[str, ...]
+    future_forbidden_roles: tuple[str, ...]
+    future_required_permissions: tuple[str, ...]
+    required_permission_labels: tuple[str, ...]
+    identity_requirement_labels: tuple[str, ...]
+    audit_correlation_references: tuple[str, ...]
+    evidence_references: tuple[str, ...]
+    is_currently_executable: bool
+    phase_allows_execution: bool
+    execution_unavailable_reason: str
+    identity_unavailable_reason: str
+    future_operator_identity_required: bool
+    future_operator_id_required: bool
+    future_operator_display_name_required: bool
+    future_operator_email_required: bool
+    future_authentication_provider_boundary: str
+    future_role_authorization_required: bool
+    future_permission_set_required: bool
+    future_audit_actor_required: bool
+    future_audit_reason_required: bool
+    future_idempotency_key_required: bool
+    future_immutable_event_required: bool
+    future_post_action_consistency_check_required: bool
+    impersonation_allowed: bool
+    service_account_allowed: bool
+    technician_action_allowed: bool
+    requires_water_emergency_scope_check: bool
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewQueueItem:
     review_item_id: UUID
     status: str
@@ -246,6 +280,7 @@ class ManualReviewQueueItem:
     command_contract: ManualReviewCommandContract
     audit_ledger_dry_run: ManualReviewAuditLedgerDryRun
     command_validation: ManualReviewCommandValidation
+    permission_readiness: ManualReviewPermissionReadiness
     evidence_references: tuple[str, ...]
 
 
@@ -271,6 +306,7 @@ class ManualReviewQueueReadModel:
     command_contract_counts: tuple[CountBucket, ...]
     audit_ledger_dry_run_counts: tuple[CountBucket, ...]
     command_validation_counts: tuple[CountBucket, ...]
+    permission_readiness_counts: tuple[CountBucket, ...]
     age_bucket_counts: tuple[CountBucket, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadata
@@ -327,6 +363,7 @@ class ManualReviewDetailReadModel:
     command_contract: ManualReviewCommandContract
     audit_ledger_dry_run: ManualReviewAuditLedgerDryRun
     command_validation: ManualReviewCommandValidation
+    permission_readiness: ManualReviewPermissionReadiness
     linked_entity_context: ManualReviewDetailLinkedEntityContext
     data_gap_counts: tuple[CountBucket, ...]
     audit_correlation_ids: tuple[str, ...]

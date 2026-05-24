@@ -170,6 +170,10 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
           title="Command Validation"
           buckets={data.command_validation_counts}
         />
+        <CountBucketPanel
+          title="Permission Readiness"
+          buckets={data.permission_readiness_counts}
+        />
       </div>
 
       <SectionCard
@@ -378,6 +382,10 @@ function ReviewQueueItemCard({
             <StatusBadge
               label={humanizeLabel(item.command_validation.label)}
               variant={badgeVariantForLabel(item.command_validation.label)}
+            />
+            <StatusBadge
+              label={humanizeLabel(item.permission_readiness.label)}
+              variant={badgeVariantForLabel(item.permission_readiness.label)}
             />
           </div>
           <div className="mt-3 text-sm font-semibold text-[#162033]">
@@ -751,6 +759,109 @@ function ReviewQueueItemCard({
           gates={item.command_validation.safety_gates}
           itemId={item.review_item_id}
         />
+      </div>
+
+      <div className="mt-3 rounded-md border border-violet-200 bg-violet-50/70 px-3 py-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Future Authorization Boundary
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(item.permission_readiness.label)}
+            variant={badgeVariantForLabel(item.permission_readiness.label)}
+          />
+          <StatusBadge
+            label={
+              item.permission_readiness.is_currently_executable
+                ? "Currently executable: Yes"
+                : "Currently executable: No"
+            }
+            variant={
+              item.permission_readiness.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              item.permission_readiness.phase_allows_execution
+                ? "Phase allows execution: Yes"
+                : "Phase allows execution: No"
+            }
+            variant={
+              item.permission_readiness.phase_allows_execution
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {item.permission_readiness.future_operator_identity_required ? (
+            <StatusBadge label="Future operator identity required" variant="info" />
+          ) : null}
+          {item.permission_readiness.future_role_authorization_required ? (
+            <StatusBadge label="Future role authorization required" variant="info" />
+          ) : null}
+          {item.permission_readiness.service_account_allowed ? null : (
+            <StatusBadge label="Service account not allowed" variant="warning" />
+          )}
+          {item.permission_readiness.technician_action_allowed ? null : (
+            <StatusBadge label="Technician action not allowed" variant="warning" />
+          )}
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {item.permission_readiness.summary}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {item.permission_readiness.execution_unavailable_reason}
+        </p>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future Required Roles
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {item.permission_readiness.future_required_roles.length > 0 ? (
+                item.permission_readiness.future_required_roles.map((role) => (
+                  <StatusBadge
+                    key={`${item.review_item_id}-${role}`}
+                    label={humanizeLabel(role)}
+                    variant="neutral"
+                  />
+                ))
+              ) : (
+                <span className="text-sm text-slate-600">
+                  No active future role candidate for this review status.
+                </span>
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future Required Permissions
+            </div>
+            <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+              {item.permission_readiness.future_required_permissions.length > 0
+                ? item.permission_readiness.future_required_permissions.join(", ")
+                : "No active future permission set for this review status."}
+            </p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Identity Boundary
+            </div>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {item.permission_readiness.identity_unavailable_reason}
+            </p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {item.permission_readiness.required_permission_labels.map((label) => (
+            <StatusBadge
+              key={`${item.review_item_id}-${label}`}
+              label={humanizeLabel(label)}
+              variant={badgeVariantForLabel(label)}
+            />
+          ))}
+        </div>
       </div>
 
       {entityLabels.length > 0 ? (

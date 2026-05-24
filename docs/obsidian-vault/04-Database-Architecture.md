@@ -993,3 +993,23 @@ Unresolved:
 - durable safety-gate/audit-ledger persistence requirements for executed actions
 - operator identity, role authorization, audit reason, idempotency, immutable event, and consistency-check persistence
 - final validation/action taxonomy and role-scoped action authority
+
+## Manual Review Permission-Readiness Projection
+
+Phase 0 Module 49 adds read-only operator-identity, role-authorization, and permission-readiness metadata to Manual Review queue and detail contracts without adding database tables or columns.
+
+Projection philosophy:
+
+- permission-readiness labels are derived from existing ReviewItem status, reason, recommended action, entity-link, Water Emergency-link, command-validation labels, command-contract labels, and evidence-reference data
+- every projected permission-readiness record is currently non-executable and Phase 0 blocks execution
+- every future permission-readiness record exposes required future auth, operator identity, role authorization, audit actor, audit reason, idempotency key, immutable event recording, post-action consistency check, and permission-set requirements
+- service accounts, technicians, and unknown operators are future forbidden Manual Review operator-action actors
+- Water Emergency scope, missing entity context, resolved/archived status, and unknown operator context remain blockers or historical visibility states
+- no operator identity table, RBAC table, permission table, command table, audit-envelope persistence, action history table, vendor execution record, AI authority, or workflow engine is added in Module 49
+
+Unresolved:
+
+- future authenticated Manual Review command validation/execution schema
+- final ACS-FSM auth provider and operator identity schema
+- durable RBAC/permission model and role-scoped action authority
+- operator identity, role authorization, audit actor, audit reason, idempotency, immutable event, and consistency-check persistence

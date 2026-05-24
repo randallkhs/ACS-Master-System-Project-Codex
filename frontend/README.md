@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 48 keeps the frontend foundation read-only while adding Manual Review command-validation and safety-gate matrix visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, and audit-ledger dry-run context.
+Phase 0 Module 49 keeps the frontend foundation read-only while adding Manual Review operator-identity, role-authorization, and permission-readiness visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, and command-validation/safety-gate context.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -330,6 +330,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Every validation record renders as `Currently executable: No` and `Phase allows execution: No` in Phase 0. These labels are not buttons, forms, inputs, mutation controls, auth controls, RBAC controls, validation execution controls, audit-write controls, or action execution controls.
 - Water Emergency-related command validation remains visibly separated from standard Manual Review validation context.
 - The UI still does not add approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, audit forms, command forms, or future command data-entry fields.
+
+## Module 49 Manual Review Operator-Identity And Permission-Readiness Notes
+
+- The Manual Review Queue and detail panel now display backend-provided permission-readiness labels, future required roles, future forbidden roles, future permission sets, identity requirement labels, audit/evidence references, and explicit non-executable flags.
+- Permission-readiness visibility explains that future Manual Review commands will require authenticated operator identity, role authorization, audit actor capture, audit reason, idempotency key, immutable event recording, and post-action consistency checks before any later action module can exist.
+- Every permission-readiness record renders as `Currently executable: No` and `Phase allows execution: No` in Phase 0. These labels are not buttons, forms, inputs, login controls, user-management controls, mutation controls, auth controls, RBAC controls, audit-write controls, or action execution controls.
+- Water Emergency-related authorization requirements remain visibly separated from standard Manual Review authorization planning.
+- The UI still does not add login, signup, user management, approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, audit forms, command forms, or future command data-entry fields.
 
 ## Module 38 Water Emergency View-State Notes
 

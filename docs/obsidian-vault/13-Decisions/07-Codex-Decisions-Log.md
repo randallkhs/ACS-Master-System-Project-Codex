@@ -1406,6 +1406,41 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-24 — Phase 0 Module 49 Operator Identity, Role Authorization Boundary, And Manual Review Permission Readiness
+
+- Decision type: Implementation / Manual Review visibility / read-only permission-readiness boundary
+- Status: Implemented
+- Decision:
+  - Extend Manual Review queue and detail read models with deterministic operator-identity, role-authorization, and permission-readiness labels, summaries, candidate future command type, future required roles, future forbidden roles, future permission sets, identity requirement labels, audit/evidence references, explicit non-executable flags, and Phase 0 execution-blocked flags.
+  - Add queue-level permission-readiness counts for operator scanability.
+  - Require every permission-readiness record to expose future auth, operator identity, role authorization, audit actor, audit reason, idempotency key, immutable event recording, post-action consistency check, and permission-set requirements while remaining non-executable.
+  - Keep Water Emergency-related authorization requirements separated from standard dispatch review preparation through persisted entity, job, visit, and Water Emergency links.
+  - Treat service accounts, technicians, and unknown operators as not allowed for future Manual Review operator actions.
+  - Treat missing entity context, Water Emergency scope, resolved/archived status, and unknown operator context as blockers or historical visibility instead of executable permission authority.
+  - Add frontend queue and detail future authorization-boundary visibility without login/signup/user-management controls, approve/reject/defer/archive/resolve/dispatch controls, forms, inputs, auth/RBAC controls, mutation controls, or button-styled permission labels.
+- Rationale:
+  - Manual Review is the system safety authority, so future action modules need visible operator identity and permission boundaries before any mutation endpoints, authenticated controls, or role enforcement are added.
+  - Permission-readiness labels document the future auth/RBAC prerequisites needed for real execution without making any action currently executable or writing audit events.
+  - The labels remain read-only Phase 0 baselines so they do not become hidden workflow execution, action authority, auth/RBAC enforcement, final business policy, legal policy, or company-liability policy.
+- Future implications:
+  - Future authenticated modules still need formal ACS-FSM auth provider selection, operator identity schema, role model, permission taxonomy, and Manual Review approve/reject/defer/archive/resolve command endpoints.
+  - Future production modules may need durable RBAC/permission persistence, operator identity capture, role authorization, audit actor capture, required audit reasons, idempotency keys, immutable event writes, impacted-entity audit writes, post-action consistency checks, outcome reason taxonomy, permission checks, and role-scoped action visibility.
+  - Legal, insurance, compliance, or company-liability policy remains outside this module unless Alfonso owner review approves it.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary
+
+---
+
 ## 2026-05-23 — Phase 0 Module 48 Manual Review Command Validation, Safety Gate Matrix, And Execution Readiness Harness
 
 - Decision type: Implementation / Manual Review visibility / read-only command-validation boundary

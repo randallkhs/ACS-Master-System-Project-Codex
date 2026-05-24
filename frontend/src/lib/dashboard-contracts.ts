@@ -190,6 +190,39 @@ export type ManualReviewCommandValidationResponse = {
   requires_linked_entity_context: boolean;
 };
 
+export type ManualReviewPermissionReadinessResponse = {
+  label: string;
+  summary: string;
+  candidate_future_command_type: string;
+  future_required_roles: string[];
+  future_forbidden_roles: string[];
+  future_required_permissions: string[];
+  required_permission_labels: string[];
+  identity_requirement_labels: string[];
+  audit_correlation_references: string[];
+  evidence_references: string[];
+  is_currently_executable: boolean;
+  phase_allows_execution: boolean;
+  execution_unavailable_reason: string;
+  identity_unavailable_reason: string;
+  future_operator_identity_required: boolean;
+  future_operator_id_required: boolean;
+  future_operator_display_name_required: boolean;
+  future_operator_email_required: boolean;
+  future_authentication_provider_boundary: string;
+  future_role_authorization_required: boolean;
+  future_permission_set_required: boolean;
+  future_audit_actor_required: boolean;
+  future_audit_reason_required: boolean;
+  future_idempotency_key_required: boolean;
+  future_immutable_event_required: boolean;
+  future_post_action_consistency_check_required: boolean;
+  impersonation_allowed: boolean;
+  service_account_allowed: boolean;
+  technician_action_allowed: boolean;
+  requires_water_emergency_scope_check: boolean;
+};
+
 export type ManualReviewQueueItemResponse = {
   review_item_id: string;
   status: string;
@@ -223,6 +256,7 @@ export type ManualReviewQueueItemResponse = {
   command_contract: ManualReviewCommandContractResponse;
   audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse;
   command_validation: ManualReviewCommandValidationResponse;
+  permission_readiness: ManualReviewPermissionReadinessResponse;
 };
 
 export type ManualReviewQueueResponse = {
@@ -247,6 +281,7 @@ export type ManualReviewQueueResponse = {
   command_contract_counts: CountBucket[];
   audit_ledger_dry_run_counts: CountBucket[];
   command_validation_counts: CountBucket[];
+  permission_readiness_counts: CountBucket[];
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   available_filters: ManualReviewFilterOptionResponse[];
@@ -761,6 +796,7 @@ export type ManualReviewDetailResponse = {
   command_contract: ManualReviewCommandContractResponse;
   audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse;
   command_validation: ManualReviewCommandValidationResponse;
+  permission_readiness: ManualReviewPermissionReadinessResponse;
   linked_entity_context: ManualReviewDetailLinkedEntityContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];

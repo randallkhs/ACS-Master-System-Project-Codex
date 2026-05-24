@@ -777,6 +777,161 @@ function ManualReviewDetailContent({
         <SafetyGateMatrix gates={detail.command_validation.safety_gates} />
       </SectionCard>
 
+      <SectionCard
+        title="Future Authorization Boundary"
+        description={
+          context.is_water_emergency_related
+            ? "Water Emergency-related authorization requirements remain separated from standard Manual Review authorization planning and are read-only."
+            : "Operator identity, role authorization, and permission readiness are displayed as read-only Phase 0 requirements only."
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge
+            label={humanizeLabel(detail.permission_readiness.label)}
+            variant={badgeVariantForLabel(detail.permission_readiness.label)}
+          />
+          <StatusBadge
+            label={
+              detail.permission_readiness.is_currently_executable
+                ? "Currently executable: Yes"
+                : "Currently executable: No"
+            }
+            variant={
+              detail.permission_readiness.is_currently_executable
+                ? "warning"
+                : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              detail.permission_readiness.phase_allows_execution
+                ? "Phase allows execution: Yes"
+                : "Phase allows execution: No"
+            }
+            variant={
+              detail.permission_readiness.phase_allows_execution
+                ? "warning"
+                : "neutral"
+            }
+          />
+          {detail.permission_readiness.future_operator_identity_required ? (
+            <StatusBadge label="Future operator identity required" variant="info" />
+          ) : null}
+          {detail.permission_readiness.future_role_authorization_required ? (
+            <StatusBadge label="Future role authorization required" variant="info" />
+          ) : null}
+          {detail.permission_readiness.future_audit_actor_required ? (
+            <StatusBadge label="Future audit actor required" variant="info" />
+          ) : null}
+          {detail.permission_readiness.future_audit_reason_required ? (
+            <StatusBadge label="Future audit reason required" variant="info" />
+          ) : null}
+          {detail.permission_readiness.future_idempotency_key_required ? (
+            <StatusBadge label="Future idempotency key required" variant="info" />
+          ) : null}
+          {detail.permission_readiness.future_immutable_event_required ? (
+            <StatusBadge label="Future immutable event required" variant="info" />
+          ) : null}
+          {detail.permission_readiness.future_post_action_consistency_check_required ? (
+            <StatusBadge label="Future consistency check required" variant="info" />
+          ) : null}
+          {detail.permission_readiness.service_account_allowed ? null : (
+            <StatusBadge label="Service account not allowed" variant="warning" />
+          )}
+          {detail.permission_readiness.technician_action_allowed ? null : (
+            <StatusBadge label="Technician action not allowed" variant="warning" />
+          )}
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          {detail.permission_readiness.summary}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {detail.permission_readiness.execution_unavailable_reason}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {detail.permission_readiness.identity_unavailable_reason}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {detail.permission_readiness.future_authentication_provider_boundary}
+        </p>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future Required Roles
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.permission_readiness.future_required_roles.length > 0 ? (
+                detail.permission_readiness.future_required_roles.map((role) => (
+                  <StatusBadge
+                    key={role}
+                    label={humanizeLabel(role)}
+                    variant="neutral"
+                  />
+                ))
+              ) : (
+                <span className="text-sm text-slate-600">
+                  No active future role candidate for this review status.
+                </span>
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future Forbidden Roles
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.permission_readiness.future_forbidden_roles.map((role) => (
+                <StatusBadge
+                  key={role}
+                  label={humanizeLabel(role)}
+                  variant={badgeVariantForLabel(role)}
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Candidate Future Command
+            </div>
+            <DetailRow
+              label="Candidate"
+              value={humanizeLabel(
+                detail.permission_readiness.candidate_future_command_type,
+              )}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future Required Permissions
+            </div>
+            <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+              {detail.permission_readiness.future_required_permissions.length > 0
+                ? detail.permission_readiness.future_required_permissions.join(", ")
+                : "No active future permission set for this review status."}
+            </p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Permission Readiness Labels
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.permission_readiness.required_permission_labels.map((label) => (
+                <StatusBadge
+                  key={label}
+                  label={humanizeLabel(label)}
+                  variant={badgeVariantForLabel(label)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <SectionCard
           title="Reason And Evidence Context"

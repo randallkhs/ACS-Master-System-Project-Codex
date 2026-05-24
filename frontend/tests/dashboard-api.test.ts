@@ -197,7 +197,22 @@ describe("dashboard API client", () => {
     expect(result.data.command_validation_counts[0].label).toBe(
       "validation_warning_requires_review"
     );
+    expect(result.data.permission_readiness_counts[0].label).toBe(
+      "permission_ready_for_future_auth_phase"
+    );
     expect(result.data.items[0].command_validation.phase_allows_execution).toBe(
+      false
+    );
+    expect(result.data.items[0].permission_readiness.phase_allows_execution).toBe(
+      false
+    );
+    expect(
+      result.data.items[0].permission_readiness.future_operator_identity_required
+    ).toBe(true);
+    expect(
+      result.data.items[0].permission_readiness.future_role_authorization_required
+    ).toBe(true);
+    expect(result.data.items[0].permission_readiness.service_account_allowed).toBe(
       false
     );
     expect(
@@ -221,6 +236,8 @@ describe("dashboard API client", () => {
     );
     expect(result.data?.linked_entity_context.is_dispatch_related).toBe(true);
     expect(result.data?.command_validation.is_currently_executable).toBe(false);
+    expect(result.data?.permission_readiness.is_currently_executable).toBe(false);
+    expect(result.data?.permission_readiness.phase_allows_execution).toBe(false);
     expect(result.data?.command_validation.safety_gates.at(-1)?.key).toBe(
       "phase_allows_execution"
     );
