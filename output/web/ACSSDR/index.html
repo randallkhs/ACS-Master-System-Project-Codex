@@ -1051,7 +1051,7 @@
 
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
-                <strong>Last updated: May 25, 2026 at 12:28 PM EDT</strong>
+                <strong>Last updated: May 25, 2026 at 2:42 PM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1061,16 +1061,16 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>53</strong>
+                <strong>54</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
-                <strong>1</strong>
-                <span>New auth diagnostics and secret-hygiene safety update added since the last public report</span>
+                <strong>3</strong>
+                <span>Auth readiness updates added since the public report was last showing Module 51</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Read-only runtime auth safety and credential-leak prevention summary now visible</span>
+                <span>Read-only auth claims, token dry-run, and role-resolution summary now visible</span>
               </div>
               <div class="stat-card">
                 <strong>0</strong>
@@ -2330,6 +2330,30 @@
                 dispatch, vendor calls, or record mutation.
               </div>
             </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 54 auth claims mapping token verification dry run role resolution contract no jwt no jwks no rbac no login water emergency separated">
+              <div class="module-top">
+                <span class="module-number">54</span>
+                <div>
+                  <h3>Auth Claims Mapping and Role Resolution Readiness</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module documents the future auth claims contract, token-verification dry-run
+                boundary, and role-resolution rules needed before any real authentication or RBAC
+                module can be considered.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                The dashboard can now explain that token verification is still disabled, real tokens
+                are not parsed, JWKS is not fetched, auth headers are not emitted, required future
+                claims are documented, service accounts are blocked for Manual Review actions, and
+                unknown roles stay blocked. Water Emergency authorization context stays separated.
+                The dashboard still does not add login, logout, user management, action buttons,
+                dispatch, vendor calls, or record mutation.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -2362,6 +2386,7 @@
             <div class="check-item"><span class="check">✓</span><span>Manual Review auth-boundary, operator registry, role catalog, and permission catalog visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Auth provider configuration, environment safety, and local development auth-readiness visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Auth diagnostics, secret-hygiene verification, and runtime safety visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Auth claims mapping, token dry-run, and role-resolution readiness visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2382,22 +2407,22 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 53 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 54 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 53 completed read-only auth diagnostics, secret-hygiene verification, runtime
-            auth safety visibility, and post-commit safety cleanup for the credential-check helper.
-            The module was reviewed and committed before Module 54 work begins. This gives ACS a
-            clear checkpoint showing that real auth credentials, token verification, RBAC
+            Module 54 completed read-only auth claims mapping, token-verification dry-run
+            visibility, role-resolution rules, and future claim-contract documentation. The module
+            was reviewed and committed before the next Phase 0 module begins. This gives ACS a clear
+            checkpoint showing that real token parsing, token verification, JWKS fetching, RBAC
             enforcement, and sign-in behavior are still future work and are not active in Phase 0.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The dashboard can now show that auth remains disabled, token verification is off,
-                RBAC enforcement is off, sign-in UI is unavailable, auth headers are not required or
-                emitted, real credentials are not committed, and a safety helper checks for tracked
-                credential hazards.
+                The dashboard can now show the future claims that auth will need, including
+                operator identity, email, role, permission, issuer, audience, and timing claims,
+                while also showing that real tokens are not parsed, token verification is off, JWKS
+                is not fetched, and auth headers are not emitted.
               </p>
             </article>
             <article class="overview-card">
@@ -2405,26 +2430,26 @@
               <p>
                 Manual Review is the safety system. This work helps Luis and the office understand
                 that future action modules cannot start until real auth provider configuration,
-                verified operator identity, RBAC, audit actor handling, and secret-management
-                practices are ready. It keeps Phase 0 conservative: no credentials are exposed, no
-                token verification is active, no auth headers are added, no login UI is available,
-                and Water Emergency-related authorization stays separated.
+                verified operator identity, RBAC, role/permission mapping, audit actor handling,
+                and secret-management practices are ready. It keeps Phase 0 conservative: no tokens
+                are parsed, no credentials are exposed, no auth headers are added, no login UI is
+                available, and Water Emergency-related authorization stays separated.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 53 passed backend checks, frontend checks, local PostgreSQL live dashboard
-                verification, browser checks, ChatGPT review, and secret-hygiene cleanup follow-up.
+                Module 54 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                verification, browser checks, ChatGPT review, and Review ZIP freshness checks.
                 It has been committed and pushed by Randall.
               </p>
             </article>
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is Module 54: auth claims mapping, token-verification dry-run
-                metadata, and future role-resolution contract visibility. Module 54 is not marked
-                complete yet.
+                The next planned area is the next Phase 0 module after Module 54. That future module
+                is not marked complete here and will only be added after review, verification,
+                commit, and push are complete.
               </p>
             </article>
           </div>

@@ -6,6 +6,37 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-25 — Phase 0 Module 55 Route Protection Matrix, Access Decision Dry-Run, And UI Permission Boundary
+
+- Decision type: Implementation / auth boundary / read-only route protection planning baseline
+- Status: Implemented
+- Decision:
+  - Extend Manual Review auth-boundary readiness metadata with a read-only route protection matrix and access decision dry-run.
+  - Map current dashboard API routes, frontend dashboard sections, and future action surfaces to future roles, future permissions, denied future roles, Manual Review sensitivity, Water Emergency sensitivity, mutation sensitivity, and owner-review flags.
+  - Keep enforcement, Phase 0 enforcement allowance, route guarding, token verification, RBAC enforcement, current auth denial, and current RBAC denial disabled.
+  - Add future `water_emergency.view` and `dispatch.view` permission labels as planning-only permissions that authorize no current action.
+  - Add frontend queue and detail route/access boundary visibility without login/logout/signup/user-management UI, auth headers, token/session behavior, JWT parsing, fake users, fake roles, route guards, section hiding, role assignment, or action controls.
+- Rationale:
+  - Future auth/RBAC modules need a stable route and UI permission-boundary map before any real route guard or role-scoped visibility can be implemented safely.
+  - The access decision dry-run lets reviewers see which surfaces will need protection while preserving the Phase 0 public/read-only dashboard behavior.
+  - Water Emergency and Manual Review surfaces require explicit separation before future action modules are considered.
+- Future implications:
+  - Future production modules still need final route guard architecture, frontend section-hiding policy, secure provider configuration, token verification middleware, JWKS strategy, operator registry persistence, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review command endpoints.
+  - Future legal, insurance, warranty, drying certification, billing, customer-promise, or formal policy action surfaces require Alfonso owner review before executable behavior or binding policy exists.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+
+---
+
 ## 2026-05-25 — Phase 0 Module 54 Auth Claims Mapping, Token Verification Dry-Run, And Role Resolution Contract
 
 - Decision type: Implementation / auth boundary / read-only claims and role-resolution planning baseline

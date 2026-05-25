@@ -4,6 +4,14 @@ FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
 This module is Phase 0 scaffolding only. It does not implement live Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or production external dispatch integration workflows yet.
 
+## Module 55 Route Protection Matrix Notes
+
+Module 55 adds read-only route protection matrix and access decision dry-run metadata to the Manual Review auth-boundary read model. It maps current dashboard API routes, frontend sections, and future action surfaces to future roles and permissions for planning visibility only.
+
+The matrix does not enforce authentication, require headers, parse or validate JWTs, add route guards, enforce RBAC, hide frontend sections, create mutation endpoints, or execute Manual Review or Water Emergency actions. `enforcement_enabled`, `phase_allows_enforcement`, `token_verification_enabled`, `rbac_enforcement_enabled`, and `route_guarding_enabled` must remain false in Phase 0.
+
+Water Emergency-related routes and sections stay marked separately from standard Manual Review visibility. Future legal, insurance, warranty, certification, billing, or customer-promise action surfaces are marked as requiring Alfonso owner review before any formal policy or executable workflow exists.
+
 ## Architecture
 
 - FastAPI application package in `app/`

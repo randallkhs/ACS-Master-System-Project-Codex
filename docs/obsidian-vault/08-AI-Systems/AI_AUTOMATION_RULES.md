@@ -534,3 +534,19 @@ AI boundary:
 - Water Emergency-related readiness must remain separated from standard dispatch and cannot be auto-scoped by AI
 
 Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend mutation boundaries and future authenticated auth/RBAC/audit/event controls remain authoritative.
+
+## Phase 0 Module 55 Route Protection Matrix Boundary
+
+Route protection matrix labels, future route-to-permission mappings, UI permission-boundary labels, and access decision dry-run counts are deterministic backend read-model metadata.
+
+AI boundary:
+
+- AI must not decide route access
+- AI must not enable route guards, route denial, UI section hiding, token verification, JWT parsing, auth headers, or RBAC enforcement
+- AI must not create fake roles, fake operators, login/session/token behavior, or fake route protection
+- AI must not generate executable approve/reject/defer/archive/resolve commands
+- AI must not bypass Manual Review, auth, operator identity, role authorization, audit reason, idempotency, immutable event recording, post-action consistency checks, owner review, or the Phase 0 execution block
+- AI must not convert route protection visibility into dispatch execution, vendor calls, audit writes, route enforcement, role enforcement, mutation endpoints, or workflow transitions
+- Water Emergency-related route protection must remain separated from standard dispatch and cannot be auto-scoped by AI
+
+Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend route protection and future authenticated auth/RBAC/audit/event controls remain authoritative.

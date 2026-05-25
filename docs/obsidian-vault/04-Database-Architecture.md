@@ -1070,3 +1070,21 @@ Unresolved:
 
 - final provider claim names and production credential ownership
 - token verification middleware, JWKS strategy, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority
+
+## Manual Review Route Protection Matrix Projection
+
+Phase 0 Module 55 adds read-only route protection matrix and access decision dry-run metadata to the Manual Review auth-boundary read model without adding database tables or columns.
+
+Projection philosophy:
+
+- route protection metadata is deterministic planning metadata layered on the existing auth boundary, auth configuration, auth diagnostics, and claims mapping projections
+- API routes, frontend sections, and future action surfaces are mapped to future roles and permissions as labels only
+- `enforcement_enabled`, `phase_allows_enforcement`, `route_guarding_enabled`, token verification, and RBAC enforcement remain false in Phase 0
+- access decision dry-run metadata simulates readiness only and never denies requests, hides UI, requires headers, parses tokens, validates JWTs, or creates route guards
+- Water Emergency-related route and section metadata remains separated from standard Manual Review and dispatch visibility
+- legal, insurance, warranty, drying certification, billing, customer-promise, and formal policy surfaces are flagged for Alfonso owner review before executable behavior or binding policy exists
+- no route protection table, route guard table, RBAC table, token/session table, JWT/JWKS table, operator identity table, mutation endpoint, vendor execution record, AI authority, or workflow engine is added in Module 55
+
+Unresolved:
+
+- final route guard architecture, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, frontend section hiding policy, and authenticated Manual Review action authority

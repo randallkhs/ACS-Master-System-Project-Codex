@@ -411,6 +411,55 @@ class ManualReviewAuthClaimsMappingReadiness:
 
 
 @dataclass(frozen=True, slots=True)
+class RouteProtectionMatrixItem:
+    route_or_section_key: str
+    label: str
+    type: str
+    route_or_section: str
+    currently_public_in_phase_0: bool
+    future_auth_required: bool
+    future_rbac_required: bool
+    future_required_roles: tuple[str, ...]
+    future_required_permissions: tuple[str, ...]
+    future_denied_roles: tuple[str, ...]
+    water_emergency_sensitive: bool
+    manual_review_sensitive: bool
+    mutation_sensitive: bool
+    owner_review_required_if_legal_or_insurance: bool
+    enforcement_enabled: bool
+    phase_allows_enforcement: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class AccessDecisionDryRun:
+    summary: str
+    access_decision_dry_run_enabled: bool
+    enforcement_enabled: bool
+    phase_allows_enforcement: bool
+    token_verification_enabled: bool
+    rbac_enforcement_enabled: bool
+    route_guarding_enabled: bool
+    simulated_decisions_only: bool
+    currently_denied_by_auth: bool
+    currently_denied_by_rbac: bool
+    future_auth_required_count: int
+    future_rbac_required_count: int
+    future_manual_review_protected_surface_count: int
+    future_water_emergency_protected_surface_count: int
+    future_mutation_surface_count: int
+    unknown_permission_mapping_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewRouteProtectionReadiness:
+    summary: str
+    route_protection_matrix_available: bool
+    access_decision_dry_run: AccessDecisionDryRun
+    matrix_items: tuple[RouteProtectionMatrixItem, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewAuthBoundaryReadiness:
     summary: str
     auth_implemented: bool
@@ -433,6 +482,7 @@ class ManualReviewAuthBoundaryReadiness:
     future_permissions: tuple[AuthBoundaryPermissionCatalogItem, ...]
     auth_configuration_readiness: ManualReviewAuthConfigurationReadiness
     auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadiness
+    route_protection_readiness: ManualReviewRouteProtectionReadiness
 
 
 @dataclass(frozen=True, slots=True)

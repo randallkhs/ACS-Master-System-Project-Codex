@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from app.core.config import Settings
 from app.db.session import get_db_session
 from app.domain.dashboard import (
+    AccessDecisionDryRun,
     AuthBoundaryOperatorIdentityField,
     AuthBoundaryPermissionCatalogItem,
     AuthBoundaryRoleCatalogItem,
@@ -41,6 +42,7 @@ from app.domain.dashboard import (
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
     ManualReviewResultWindowMetadata,
+    ManualReviewRouteProtectionReadiness,
     ManualReviewSafetyGate,
     ManualReviewSortOption,
     ManualReviewSummary,
@@ -51,6 +53,7 @@ from app.domain.dashboard import (
     OperationalTimelineEntry,
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
+    RouteProtectionMatrixItem,
     WaterEmergencyAgingFollowUpItem,
     WaterEmergencyAgingFollowUpSummary,
     WaterEmergencyDashboardReadModel,
@@ -1034,6 +1037,195 @@ def manual_review_auth_claims_mapping_readiness_contract() -> (
     )
 
 
+def manual_review_route_protection_readiness_contract() -> ManualReviewRouteProtectionReadiness:
+    matrix_items = (
+        RouteProtectionMatrixItem(
+            route_or_section_key="api_health",
+            label="Health API",
+            type="api_route",
+            route_or_section="GET /api/v1/health",
+            currently_public_in_phase_0=True,
+            future_auth_required=False,
+            future_rbac_required=False,
+            future_required_roles=(),
+            future_required_permissions=(),
+            future_denied_roles=(),
+            water_emergency_sensitive=False,
+            manual_review_sensitive=False,
+            mutation_sensitive=False,
+            owner_review_required_if_legal_or_insurance=False,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            reason="Health remains public in Phase 0.",
+        ),
+        RouteProtectionMatrixItem(
+            route_or_section_key="api_manual_review_queue",
+            label="Manual Review Queue API",
+            type="api_route",
+            route_or_section="GET /api/v1/dashboard/manual-review/queue",
+            currently_public_in_phase_0=True,
+            future_auth_required=True,
+            future_rbac_required=True,
+            future_required_roles=("owner", "operations_manager", "reviewer"),
+            future_required_permissions=("manual_review.view",),
+            future_denied_roles=("system_service", "technician", "unknown_operator"),
+            water_emergency_sensitive=False,
+            manual_review_sensitive=True,
+            mutation_sensitive=False,
+            owner_review_required_if_legal_or_insurance=False,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            reason="Manual Review queue is future-protected planning metadata only.",
+        ),
+        RouteProtectionMatrixItem(
+            route_or_section_key="api_manual_review_detail",
+            label="Manual Review Detail API",
+            type="api_route",
+            route_or_section="GET /api/v1/dashboard/manual-review/queue/{review_item_id}",
+            currently_public_in_phase_0=True,
+            future_auth_required=True,
+            future_rbac_required=True,
+            future_required_roles=("owner", "operations_manager", "reviewer"),
+            future_required_permissions=("manual_review.detail.view",),
+            future_denied_roles=("system_service", "technician", "unknown_operator"),
+            water_emergency_sensitive=False,
+            manual_review_sensitive=True,
+            mutation_sensitive=False,
+            owner_review_required_if_legal_or_insurance=False,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            reason="Manual Review detail reads remain non-enforced planning metadata.",
+        ),
+        RouteProtectionMatrixItem(
+            route_or_section_key="api_water_emergency_dashboard",
+            label="Water Emergency dashboard API",
+            type="api_route",
+            route_or_section="GET /api/v1/dashboard/water-emergency",
+            currently_public_in_phase_0=True,
+            future_auth_required=True,
+            future_rbac_required=True,
+            future_required_roles=("owner", "operations_manager", "reviewer"),
+            future_required_permissions=("water_emergency.view",),
+            future_denied_roles=("system_service", "technician", "unknown_operator"),
+            water_emergency_sensitive=True,
+            manual_review_sensitive=True,
+            mutation_sensitive=False,
+            owner_review_required_if_legal_or_insurance=True,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            reason="Water Emergency read visibility stays separated and future-protected.",
+        ),
+        RouteProtectionMatrixItem(
+            route_or_section_key="frontend_manual_review_queue",
+            label="Manual Review Queue section",
+            type="frontend_section",
+            route_or_section="Manual Review Queue",
+            currently_public_in_phase_0=True,
+            future_auth_required=True,
+            future_rbac_required=True,
+            future_required_roles=("owner", "operations_manager", "reviewer"),
+            future_required_permissions=("manual_review.view",),
+            future_denied_roles=("system_service", "technician", "unknown_operator"),
+            water_emergency_sensitive=False,
+            manual_review_sensitive=True,
+            mutation_sensitive=False,
+            owner_review_required_if_legal_or_insurance=False,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            reason="Manual Review queue UI does not grant current action authority.",
+        ),
+        RouteProtectionMatrixItem(
+            route_or_section_key="frontend_auth_readiness_visibility",
+            label="Auth Boundary / Readiness visibility",
+            type="frontend_section",
+            route_or_section="Auth Boundary / Readiness visibility",
+            currently_public_in_phase_0=True,
+            future_auth_required=True,
+            future_rbac_required=True,
+            future_required_roles=("owner", "operations_manager", "reviewer"),
+            future_required_permissions=("dashboard.view", "audit.view", "manual_review.view"),
+            future_denied_roles=("system_service", "unknown_operator"),
+            water_emergency_sensitive=False,
+            manual_review_sensitive=True,
+            mutation_sensitive=False,
+            owner_review_required_if_legal_or_insurance=False,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            reason="Auth readiness visibility documents future boundaries only.",
+        ),
+        RouteProtectionMatrixItem(
+            route_or_section_key="future_manual_review_action_execution",
+            label="Future Manual Review action execution surface",
+            type="future_action",
+            route_or_section="Future Manual Review action endpoints and controls",
+            currently_public_in_phase_0=False,
+            future_auth_required=True,
+            future_rbac_required=True,
+            future_required_roles=("owner", "operations_manager", "reviewer"),
+            future_required_permissions=("manual_review.approve.future",),
+            future_denied_roles=("system_service", "technician", "unknown_operator"),
+            water_emergency_sensitive=False,
+            manual_review_sensitive=True,
+            mutation_sensitive=True,
+            owner_review_required_if_legal_or_insurance=False,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            reason="Future Manual Review actions remain non-executable.",
+        ),
+        RouteProtectionMatrixItem(
+            route_or_section_key="future_legal_insurance_sensitive_action_surface",
+            label="Future legal or insurance sensitive action surface",
+            type="future_action",
+            route_or_section=(
+                "Future policy, billing, certification, warranty, or customer promise actions"
+            ),
+            currently_public_in_phase_0=False,
+            future_auth_required=True,
+            future_rbac_required=True,
+            future_required_roles=("owner", "operations_manager"),
+            future_required_permissions=("manual_review.resolve.future",),
+            future_denied_roles=("system_service", "technician", "unknown_operator"),
+            water_emergency_sensitive=True,
+            manual_review_sensitive=True,
+            mutation_sensitive=True,
+            owner_review_required_if_legal_or_insurance=True,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            reason="Legal or insurance-sensitive actions require Alfonso owner review.",
+        ),
+    )
+
+    return ManualReviewRouteProtectionReadiness(
+        summary="Phase 0 route protection metadata is read-only and non-enforced.",
+        route_protection_matrix_available=True,
+        access_decision_dry_run=AccessDecisionDryRun(
+            summary="Access decisions are simulated only and deny nothing now.",
+            access_decision_dry_run_enabled=True,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            token_verification_enabled=False,
+            rbac_enforcement_enabled=False,
+            route_guarding_enabled=False,
+            simulated_decisions_only=True,
+            currently_denied_by_auth=False,
+            currently_denied_by_rbac=False,
+            future_auth_required_count=sum(1 for item in matrix_items if item.future_auth_required),
+            future_rbac_required_count=sum(1 for item in matrix_items if item.future_rbac_required),
+            future_manual_review_protected_surface_count=sum(
+                1 for item in matrix_items if item.manual_review_sensitive
+            ),
+            future_water_emergency_protected_surface_count=sum(
+                1 for item in matrix_items if item.water_emergency_sensitive
+            ),
+            future_mutation_surface_count=sum(
+                1 for item in matrix_items if item.mutation_sensitive
+            ),
+            unknown_permission_mapping_count=0,
+        ),
+        matrix_items=matrix_items,
+    )
+
+
 def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundaryReadiness:
     return ManualReviewAuthBoundaryReadiness(
         summary=(
@@ -1246,6 +1438,7 @@ def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundary
             ),
         ),
         auth_claims_mapping_readiness=manual_review_auth_claims_mapping_readiness_contract(),
+        route_protection_readiness=manual_review_route_protection_readiness_contract(),
     )
 
 
@@ -2517,6 +2710,58 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert claim_fixtures["phase0_example_operator_claims"]["contains_real_user_data"] is False
     assert claim_fixtures["phase0_example_operator_claims"]["contains_token"] is False
     assert claim_fixtures["phase0_example_operator_claims"]["contains_secret"] is False
+    route_protection = auth_boundary["route_protection_readiness"]
+    access_dry_run = route_protection["access_decision_dry_run"]
+    matrix = {item["route_or_section_key"]: item for item in route_protection["matrix_items"]}
+    assert access_dry_run["access_decision_dry_run_enabled"] is True
+    assert access_dry_run["enforcement_enabled"] is False
+    assert access_dry_run["phase_allows_enforcement"] is False
+    assert access_dry_run["token_verification_enabled"] is False
+    assert access_dry_run["rbac_enforcement_enabled"] is False
+    assert access_dry_run["route_guarding_enabled"] is False
+    assert access_dry_run["simulated_decisions_only"] is True
+    assert access_dry_run["currently_denied_by_auth"] is False
+    assert access_dry_run["currently_denied_by_rbac"] is False
+    assert access_dry_run["future_auth_required_count"] > 0
+    assert access_dry_run["future_rbac_required_count"] > 0
+    assert access_dry_run["future_manual_review_protected_surface_count"] > 0
+    assert access_dry_run["future_water_emergency_protected_surface_count"] > 0
+    assert access_dry_run["future_mutation_surface_count"] > 0
+    assert access_dry_run["unknown_permission_mapping_count"] == 0
+    assert matrix["api_health"]["currently_public_in_phase_0"] is True
+    assert matrix["api_health"]["future_auth_required"] is False
+    assert matrix["api_health"]["future_required_permissions"] == []
+    assert matrix["api_health"]["enforcement_enabled"] is False
+    assert matrix["api_manual_review_queue"]["future_auth_required"] is True
+    assert matrix["api_manual_review_queue"]["future_rbac_required"] is True
+    assert "manual_review.view" in matrix["api_manual_review_queue"]["future_required_permissions"]
+    assert matrix["api_manual_review_queue"]["manual_review_sensitive"] is True
+    assert matrix["api_manual_review_queue"]["mutation_sensitive"] is False
+    assert (
+        "manual_review.detail.view"
+        in matrix["api_manual_review_detail"]["future_required_permissions"]
+    )
+    assert (
+        "water_emergency.view"
+        in matrix["api_water_emergency_dashboard"]["future_required_permissions"]
+    )
+    assert matrix["api_water_emergency_dashboard"]["water_emergency_sensitive"] is True
+    assert matrix["frontend_manual_review_queue"]["type"] == "frontend_section"
+    assert (
+        "manual_review.view"
+        in matrix["frontend_manual_review_queue"]["future_required_permissions"]
+    )
+    assert matrix["future_manual_review_action_execution"]["type"] == "future_action"
+    assert matrix["future_manual_review_action_execution"]["currently_public_in_phase_0"] is False
+    assert matrix["future_manual_review_action_execution"]["mutation_sensitive"] is True
+    assert matrix["future_manual_review_action_execution"]["enforcement_enabled"] is False
+    assert matrix["future_manual_review_action_execution"]["phase_allows_enforcement"] is False
+    assert (
+        matrix["future_legal_insurance_sensitive_action_surface"][
+            "owner_review_required_if_legal_or_insurance"
+        ]
+        is True
+    )
     assert (
         manual_review_queue_response.json()["items"][0]["command_validation"][
             "is_currently_executable"

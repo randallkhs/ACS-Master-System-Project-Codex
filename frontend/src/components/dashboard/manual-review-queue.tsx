@@ -489,6 +489,8 @@ function AuthBoundaryReadinessPanel({
   const diagnostics =
     boundary.auth_configuration_readiness.runtime_safety_diagnostics;
   const claimsMapping = boundary.auth_claims_mapping_readiness;
+  const routeProtection = boundary.route_protection_readiness;
+  const accessDryRun = routeProtection.access_decision_dry_run;
 
   return (
     <SectionCard
@@ -912,6 +914,186 @@ function AuthBoundaryReadinessPanel({
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+        <div className="mt-4 rounded-md border border-slate-200 bg-white p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Route Protection Matrix
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {routeProtection.summary} Access labels are read-only planning
+            metadata and do not hide dashboard sections or deny backend routes.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <MiniMetric
+              label="Access Decision Dry-Run"
+              value={
+                accessDryRun.access_decision_dry_run_enabled
+                  ? "Access Decision Dry-Run enabled"
+                  : "Access Decision Dry-Run unavailable"
+              }
+            />
+            <MiniMetric
+              label="Enforcement"
+              value={
+                accessDryRun.enforcement_enabled
+                  ? "Enforcement enabled"
+                  : "Enforcement disabled"
+              }
+            />
+            <MiniMetric
+              label="Phase allows enforcement"
+              value={
+                accessDryRun.phase_allows_enforcement
+                  ? "Phase allows enforcement: Yes"
+                  : "Phase allows enforcement: No"
+              }
+            />
+            <MiniMetric
+              label="Route guarding"
+              value={
+                accessDryRun.route_guarding_enabled
+                  ? "Route guarding enabled"
+                  : "Route guarding disabled"
+              }
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <StatusBadge
+              label={
+                accessDryRun.token_verification_enabled
+                  ? "Token verification enabled"
+                  : "Token verification disabled"
+              }
+              variant={accessDryRun.token_verification_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                accessDryRun.rbac_enforcement_enabled
+                  ? "RBAC enforcement enabled"
+                  : "RBAC enforcement disabled"
+              }
+              variant={accessDryRun.rbac_enforcement_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                accessDryRun.simulated_decisions_only
+                  ? "Simulated decisions only"
+                  : "Live access decisions active"
+              }
+              variant={accessDryRun.simulated_decisions_only ? "neutral" : "danger"}
+            />
+            <StatusBadge
+              label={
+                accessDryRun.currently_denied_by_auth
+                  ? "Currently denied by auth"
+                  : "Not currently denied by auth"
+              }
+              variant={accessDryRun.currently_denied_by_auth ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                accessDryRun.currently_denied_by_rbac
+                  ? "Currently denied by RBAC"
+                  : "Not currently denied by RBAC"
+              }
+              variant={accessDryRun.currently_denied_by_rbac ? "danger" : "neutral"}
+            />
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <MiniMetric
+              label="Future protected surfaces"
+              value={formatCount(accessDryRun.future_auth_required_count)}
+            />
+            <MiniMetric
+              label="Manual Review protected surfaces"
+              value={formatCount(
+                accessDryRun.future_manual_review_protected_surface_count,
+              )}
+            />
+            <MiniMetric
+              label="Water Emergency protected surfaces"
+              value={formatCount(
+                accessDryRun.future_water_emergency_protected_surface_count,
+              )}
+            />
+            <MiniMetric
+              label="Future mutation surfaces"
+              value={formatCount(accessDryRun.future_mutation_surface_count)}
+            />
+            <MiniMetric
+              label="Unknown permission mappings"
+              value={formatCount(accessDryRun.unknown_permission_mapping_count)}
+            />
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {routeProtection.matrix_items.map((item) => (
+              <div
+                key={item.route_or_section_key}
+                className="rounded-md border border-slate-200 bg-slate-50/70 p-3"
+              >
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-[#162033]">
+                      {item.label}
+                    </div>
+                    <div className="mt-1 break-words text-xs font-medium text-slate-500">
+                      {item.route_or_section}
+                    </div>
+                  </div>
+                  <StatusBadge
+                    label={
+                      item.enforcement_enabled
+                        ? "Enforced"
+                        : "Read-only mapping"
+                    }
+                    variant={item.enforcement_enabled ? "danger" : "neutral"}
+                  />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <StatusBadge
+                    label={
+                      item.currently_public_in_phase_0
+                        ? "Public in Phase 0"
+                        : "Future surface only"
+                    }
+                    variant={
+                      item.currently_public_in_phase_0 ? "neutral" : "warning"
+                    }
+                  />
+                  {item.manual_review_sensitive ? (
+                    <StatusBadge
+                      label="Manual Review sensitive"
+                      variant="warning"
+                    />
+                  ) : null}
+                  {item.water_emergency_sensitive ? (
+                    <StatusBadge
+                      label="Water Emergency sensitive"
+                      variant="warning"
+                    />
+                  ) : null}
+                  {item.mutation_sensitive ? (
+                    <StatusBadge label="Mutation-sensitive" variant="danger" />
+                  ) : null}
+                  {item.owner_review_required_if_legal_or_insurance ? (
+                    <StatusBadge
+                      label="Alfonso owner review for legal or insurance policy"
+                      variant="warning"
+                    />
+                  ) : null}
+                </div>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  {item.reason}
+                </p>
+                <p className="mt-2 break-words text-xs font-semibold text-slate-500">
+                  Future permissions:{" "}
+                  {item.future_required_permissions.length > 0
+                    ? item.future_required_permissions.join(", ")
+                    : "none"}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">

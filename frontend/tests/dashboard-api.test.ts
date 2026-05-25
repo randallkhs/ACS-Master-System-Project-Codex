@@ -361,6 +361,44 @@ describe("dashboard API client", () => {
       )
     ).toBe(true);
     expect(
+      result.data.auth_boundary_readiness.route_protection_readiness
+        .access_decision_dry_run.enforcement_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.route_protection_readiness
+        .access_decision_dry_run.phase_allows_enforcement
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.route_protection_readiness
+        .access_decision_dry_run.route_guarding_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.route_protection_readiness.matrix_items.some(
+        (item) =>
+          item.route_or_section_key === "api_manual_review_queue" &&
+          item.future_required_permissions.includes("manual_review.view") &&
+          item.enforcement_enabled === false
+      )
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.route_protection_readiness.matrix_items.some(
+        (item) =>
+          item.route_or_section_key === "api_water_emergency_dashboard" &&
+          item.future_required_permissions.includes("water_emergency.view") &&
+          item.water_emergency_sensitive
+      )
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.route_protection_readiness.matrix_items.some(
+        (item) =>
+          item.route_or_section_key === "future_manual_review_action_execution" &&
+          item.type === "future_action" &&
+          item.currently_public_in_phase_0 === false &&
+          item.mutation_sensitive &&
+          item.phase_allows_enforcement === false
+      )
+    ).toBe(true);
+    expect(
       result.data.items[0].command_validation.safety_gates.at(-1)?.key
     ).toBe("phase_allows_execution");
     expect(result.data.taxonomy_metadata.randall_authorized_phase_0_baseline).toBe(

@@ -375,6 +375,52 @@ export type ManualReviewAuthClaimsMappingReadinessResponse = {
   example_claim_fixtures: AuthClaimsExampleFixtureResponse[];
 };
 
+export type RouteProtectionMatrixItemResponse = {
+  route_or_section_key: string;
+  label: string;
+  type: "api_route" | "frontend_page" | "frontend_section" | "future_action";
+  route_or_section: string;
+  currently_public_in_phase_0: boolean;
+  future_auth_required: boolean;
+  future_rbac_required: boolean;
+  future_required_roles: string[];
+  future_required_permissions: string[];
+  future_denied_roles: string[];
+  water_emergency_sensitive: boolean;
+  manual_review_sensitive: boolean;
+  mutation_sensitive: boolean;
+  owner_review_required_if_legal_or_insurance: boolean;
+  enforcement_enabled: boolean;
+  phase_allows_enforcement: boolean;
+  reason: string;
+};
+
+export type AccessDecisionDryRunResponse = {
+  summary: string;
+  access_decision_dry_run_enabled: boolean;
+  enforcement_enabled: boolean;
+  phase_allows_enforcement: boolean;
+  token_verification_enabled: boolean;
+  rbac_enforcement_enabled: boolean;
+  route_guarding_enabled: boolean;
+  simulated_decisions_only: boolean;
+  currently_denied_by_auth: boolean;
+  currently_denied_by_rbac: boolean;
+  future_auth_required_count: number;
+  future_rbac_required_count: number;
+  future_manual_review_protected_surface_count: number;
+  future_water_emergency_protected_surface_count: number;
+  future_mutation_surface_count: number;
+  unknown_permission_mapping_count: number;
+};
+
+export type ManualReviewRouteProtectionReadinessResponse = {
+  summary: string;
+  route_protection_matrix_available: boolean;
+  access_decision_dry_run: AccessDecisionDryRunResponse;
+  matrix_items: RouteProtectionMatrixItemResponse[];
+};
+
 export type ManualReviewAuthBoundaryReadinessResponse = {
   summary: string;
   auth_implemented: boolean;
@@ -397,6 +443,7 @@ export type ManualReviewAuthBoundaryReadinessResponse = {
   future_permissions: AuthBoundaryPermissionCatalogItemResponse[];
   auth_configuration_readiness: ManualReviewAuthConfigurationReadinessResponse;
   auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadinessResponse;
+  route_protection_readiness: ManualReviewRouteProtectionReadinessResponse;
 };
 
 export type ManualReviewMutationBoundaryLockResponse = {

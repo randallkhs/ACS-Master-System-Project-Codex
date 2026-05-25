@@ -583,3 +583,28 @@ Rules:
 Open concerns:
 
 - final ACS-FSM auth provider selection, provider claim names, production credential ownership, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority remain future work
+
+---
+
+# 25. Phase 0 Route Protection Matrix And Access Decision Dry-Run Boundary
+
+Module 55 adds read-only future route protection matrix, frontend section permission-boundary metadata, and access decision dry-run visibility.
+
+Rules:
+
+- route protection metadata is a Randall-authorized Phase 0 planning baseline only
+- `enforcement_enabled` must remain false in Phase 0
+- `phase_allows_enforcement` must remain false in Phase 0
+- `route_guarding_enabled` must remain false in Phase 0
+- `token_verification_enabled` and `rbac_enforcement_enabled` must remain false in Phase 0
+- access decision dry-run metadata is simulated visibility only and must not deny routes, require headers, parse JWTs, hide UI, or authorize actions
+- backend dashboard routes and frontend dashboard sections may be mapped to future roles and permissions, but these mappings do not enforce access now
+- Manual Review route mappings must remain visibly tied to future Manual Review view/detail permissions and must not create approve, reject, defer, archive, resolve, or dispatch authority
+- Water Emergency route mappings must remain separated from standard Manual Review and dispatch visibility
+- future mutation surfaces are labels only and remain non-executable
+- future legal, insurance, warranty, drying certification, billing, financial, customer-promise, or formal policy surfaces require Alfonso owner review before any executable behavior or formal policy exists
+- no login, logout, signup, user management, token/session behavior, auth headers, fake user identity, fake role enforcement, route guards, RBAC enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final ACS-FSM auth provider selection, production credential ownership, route guard architecture, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, frontend section hiding policy, and authenticated Manual Review action authority remain future work

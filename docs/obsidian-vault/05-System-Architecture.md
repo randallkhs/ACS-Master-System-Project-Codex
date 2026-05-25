@@ -1103,6 +1103,26 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 55 Route Protection Matrix And Access Decision Dry-Run
+
+Module 55 extends the read-only auth boundary with future route protection, access decision dry-run, and UI permission-boundary planning metadata without implementing auth or route protection:
+
+- backend read models expose current dashboard API routes, frontend sections, and future action surfaces as deterministic planning metadata
+- route items expose future auth requirements, future RBAC requirements, future roles, future permissions, denied future roles, Manual Review sensitivity, Water Emergency sensitivity, mutation sensitivity, and owner-review flags
+- access decision dry-run metadata reports simulated readiness counts only; `enforcement_enabled`, `phase_allows_enforcement`, `route_guarding_enabled`, `token_verification_enabled`, and `rbac_enforcement_enabled` remain false
+- Manual Review queue/detail mappings use future `manual_review.view` and `manual_review.detail.view` permission labels without granting action authority
+- Water Emergency dashboard/detail mappings use future Water Emergency read labels and remain separated from standard Manual Review and dispatch visibility
+- future mutation surfaces remain non-executable and continue to require auth, RBAC, audit envelope, idempotency, immutable events, post-action consistency checks, and review workflow before implementation
+- frontend queue and detail panels display route protection and access decision readiness as read-only evidence and do not add login/logout UI, auth headers, token/session behavior, fake authenticated users, forms, inputs, route guards, role assignment, section hiding, or button-styled access labels
+
+The boundary remains projection-only. The endpoint and UI do not authenticate users, parse or validate JWTs, fetch JWKS, enforce route protection, enforce RBAC, hide UI based on roles, execute Manual Review commands, mutate review records, write audit events, create POST/PUT/PATCH/DELETE endpoints, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- final ACS-FSM route guard architecture, frontend section-hiding policy, token verification middleware, JWKS strategy, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

@@ -986,6 +986,28 @@ Open API/frontend concerns:
 - secure VPS secret configuration and local development auth mode
 - token verification middleware, JWKS strategy, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority after a future reviewed auth module exists
 
+## Phase 0 Module 55 Route Protection Matrix And Access Decision Dry-Run Boundary
+
+The Manual Review queue and detail API contracts now include read-only route protection matrix and access decision dry-run metadata for future auth/RBAC planning.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes `auth_boundary_readiness.route_protection_readiness` metadata with route protection matrix availability, access decision dry-run enabled, enforcement disabled, Phase 0 enforcement allowance false, token verification disabled, RBAC enforcement disabled, route guarding disabled, simulated decisions only, current auth/RBAC denial false, future protected-surface counts, and unknown mapping counts.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the same route protection matrix metadata alongside the selected review item's existing auth-boundary, auth-configuration, auth-diagnostics, auth-claims, permission-readiness, command-validation, dry-run, command-contract, preview, preflight, decision-readiness, linked-entity, and timeline context.
+- Matrix items document current dashboard API routes, frontend dashboard sections, and future action surfaces with future roles, future permissions, denied future roles, Manual Review sensitivity, Water Emergency sensitivity, mutation sensitivity, and Alfonso owner-review flags where legal/insurance/company-liability implications may exist.
+- Manual Review routes map to future Manual Review view/detail permissions only and do not create action authority.
+- Water Emergency routes map to future Water Emergency read/review permissions and remain separated from standard Manual Review and dispatch visibility.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no auth/RBAC enforcement, route guards, route denial, section hiding, real token parsing, JWT validation, token verification, JWKS fetch, login/logout/session behavior, auth headers, fake authenticated user data, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- route protection labels and access decision dry-run labels are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, credential provisioning, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM route guard architecture, frontend section-hiding policy, token verification middleware, JWKS strategy, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority after a future reviewed auth module exists
+
 ## Phase 0 Module 53 Auth Diagnostics And Secret Hygiene Boundary
 
 The Manual Review queue and detail API contracts now include read-only auth diagnostics and runtime safety metadata for future auth configuration checks.

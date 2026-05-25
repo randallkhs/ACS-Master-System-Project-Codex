@@ -1515,6 +1515,66 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
     assert claim_fixtures["phase0_example_operator_claims"].contains_token is False
     assert claim_fixtures["phase0_example_operator_claims"].contains_secret is False
 
+    route_protection = boundary.route_protection_readiness
+    access_dry_run = route_protection.access_decision_dry_run
+    matrix = {item.route_or_section_key: item for item in route_protection.matrix_items}
+
+    assert access_dry_run.access_decision_dry_run_enabled is True
+    assert access_dry_run.enforcement_enabled is False
+    assert access_dry_run.phase_allows_enforcement is False
+    assert access_dry_run.token_verification_enabled is False
+    assert access_dry_run.rbac_enforcement_enabled is False
+    assert access_dry_run.route_guarding_enabled is False
+    assert access_dry_run.simulated_decisions_only is True
+    assert access_dry_run.currently_denied_by_auth is False
+    assert access_dry_run.currently_denied_by_rbac is False
+    assert access_dry_run.future_auth_required_count > 0
+    assert access_dry_run.future_rbac_required_count > 0
+    assert access_dry_run.future_manual_review_protected_surface_count > 0
+    assert access_dry_run.future_water_emergency_protected_surface_count > 0
+    assert access_dry_run.future_mutation_surface_count > 0
+    assert access_dry_run.unknown_permission_mapping_count == 0
+
+    assert matrix["api_health"].currently_public_in_phase_0 is True
+    assert matrix["api_health"].future_auth_required is False
+    assert matrix["api_health"].future_required_permissions == ()
+    assert matrix["api_health"].enforcement_enabled is False
+    assert matrix["api_health"].phase_allows_enforcement is False
+    assert matrix["api_manual_review_queue"].type == "api_route"
+    assert matrix["api_manual_review_queue"].future_auth_required is True
+    assert matrix["api_manual_review_queue"].future_rbac_required is True
+    assert "manual_review.view" in matrix["api_manual_review_queue"].future_required_permissions
+    assert matrix["api_manual_review_queue"].manual_review_sensitive is True
+    assert matrix["api_manual_review_queue"].mutation_sensitive is False
+    assert matrix["api_manual_review_detail"].manual_review_sensitive is True
+    assert (
+        "manual_review.detail.view"
+        in matrix["api_manual_review_detail"].future_required_permissions
+    )
+    assert "water_emergency.view" in permissions
+    assert "dispatch.view" in permissions
+    assert (
+        "water_emergency.view"
+        in matrix["api_water_emergency_dashboard"].future_required_permissions
+    )
+    assert matrix["api_water_emergency_dashboard"].water_emergency_sensitive is True
+    assert matrix["frontend_manual_review_queue"].type == "frontend_section"
+    assert (
+        "manual_review.view" in matrix["frontend_manual_review_queue"].future_required_permissions
+    )
+    assert matrix["frontend_auth_readiness_visibility"].manual_review_sensitive is True
+    assert matrix["future_manual_review_action_execution"].type == "future_action"
+    assert matrix["future_manual_review_action_execution"].currently_public_in_phase_0 is False
+    assert matrix["future_manual_review_action_execution"].mutation_sensitive is True
+    assert matrix["future_manual_review_action_execution"].enforcement_enabled is False
+    assert matrix["future_manual_review_action_execution"].phase_allows_enforcement is False
+    assert (
+        matrix[
+            "future_legal_insurance_sensitive_action_surface"
+        ].owner_review_required_if_legal_or_insurance
+        is True
+    )
+
 
 def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:
     now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)

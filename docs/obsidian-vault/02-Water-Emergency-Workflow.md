@@ -694,3 +694,25 @@ Future work:
 - role-scoped Water Emergency review authority
 - durable audit/idempotency/event/consistency infrastructure
 - owner-reviewed legal, insurance, warranty, drying certification, or company-liability language if future actions affect formal policy
+
+---
+
+# 18. Phase 0 Module 55 Route Protection Matrix Separation
+
+Water Emergency-related dashboard routes and Manual Review readiness sections may now expose read-only future route-protection and permission-boundary metadata.
+
+Separation rules:
+
+- Water Emergency route-protection metadata is visibility only and does not guard routes, hide UI, or execute Water Emergency actions
+- Water Emergency dashboard/detail routes must remain mapped separately from standard Manual Review and dispatch route planning
+- future Water Emergency action surfaces remain non-executable and require future auth, RBAC, owner/manager boundary review, audit envelope, idempotency, immutable event recording, consistency checks, and Water Emergency scope checks
+- legal, insurance, drying certification, warranty, billing, customer-promise, or formal policy surfaces require Alfonso owner review before executable behavior or binding language exists
+- no Water Emergency close, resolve, dispatch, route guard, login, user management, token/session behavior, fake role enforcement, vendor, AI, auth/RBAC enforcement, mutation endpoint, or workflow execution behavior is added
+
+Future work:
+
+- authenticated Manual Review and Water Emergency action workflows
+- final route guard architecture, operator identity, and RBAC model
+- role-scoped Water Emergency review authority
+- durable audit/idempotency/event/consistency infrastructure
+- owner-reviewed legal, insurance, warranty, drying certification, or company-liability language if future actions affect formal policy

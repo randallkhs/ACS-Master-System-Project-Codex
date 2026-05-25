@@ -1700,3 +1700,20 @@ Dispatch boundary:
 * no dispatch execution, vendor call, approval action, login/session/token behavior, auth/RBAC enforcement, fake role enforcement, audit write, mutation endpoint, or workflow engine behavior is added
 
 Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules, durable audit/event persistence, explicit Manual Review command execution rules, formal operator permission checks, and approved mutation-boundary release criteria exist.
+
+---
+
+Phase 0 Module 55 Route Protection Matrix Boundary
+
+Route protection matrix and access decision dry-run metadata are intentionally outside the dispatch execution path.
+
+Dispatch boundary:
+
+* route protection labels do not authorize dispatch
+* `dispatch.view` is a future read permission label only and does not dispatch, schedule, authorize, or call vendors
+* future Manual Review commands remain currently non-executable and Phase 0 blocks execution
+* Water Emergency-related route mappings require separated scope and owner-review planning and do not enter standard dispatch action preparation
+* enforcement, route guarding, token verification, and RBAC enforcement are disabled
+* no dispatch execution, vendor call, approval action, login/session/token behavior, auth headers, route guard, fake role enforcement, audit write, mutation endpoint, or workflow engine behavior is added
+
+Future dispatch-facing work may consume reviewed Manual Review outcomes only after authenticated action modules, durable audit/event persistence, explicit Manual Review command execution rules, formal route protection/RBAC checks, and approved mutation-boundary release criteria exist.

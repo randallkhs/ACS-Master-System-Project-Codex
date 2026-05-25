@@ -66,6 +66,9 @@ function ManualReviewDetailContent({
     detail.auth_boundary_readiness.auth_configuration_readiness;
   const authDiagnostics = authConfig.runtime_safety_diagnostics;
   const authClaims = detail.auth_boundary_readiness.auth_claims_mapping_readiness;
+  const routeProtection =
+    detail.auth_boundary_readiness.route_protection_readiness;
+  const accessDryRun = routeProtection.access_decision_dry_run;
 
   return (
     <div className="space-y-4">
@@ -370,6 +373,83 @@ function ManualReviewDetailContent({
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Route Protection Matrix
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {routeProtection.summary} The detail view shows future
+            route-to-permission boundaries only; it does not guard routes or
+            hide sections in Phase 0.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <StatusBadge
+              label={
+                accessDryRun.enforcement_enabled
+                  ? "Enforcement enabled"
+                  : "Enforcement disabled"
+              }
+              variant={accessDryRun.enforcement_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                accessDryRun.phase_allows_enforcement
+                  ? "Phase allows enforcement: Yes"
+                  : "Phase allows enforcement: No"
+              }
+              variant={
+                accessDryRun.phase_allows_enforcement ? "danger" : "neutral"
+              }
+            />
+            <StatusBadge
+              label={
+                accessDryRun.route_guarding_enabled
+                  ? "Route guarding enabled"
+                  : "Route guarding disabled"
+              }
+              variant={accessDryRun.route_guarding_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                accessDryRun.rbac_enforcement_enabled
+                  ? "RBAC enforcement enabled"
+                  : "RBAC enforcement disabled"
+              }
+              variant={
+                accessDryRun.rbac_enforcement_enabled ? "danger" : "neutral"
+              }
+            />
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {routeProtection.matrix_items
+              .filter(
+                (item) =>
+                  item.manual_review_sensitive ||
+                  item.water_emergency_sensitive ||
+                  item.mutation_sensitive,
+              )
+              .map((item) => (
+                <div
+                  key={item.route_or_section_key}
+                  className="rounded-md border border-slate-200 bg-white p-3"
+                >
+                  <div className="text-sm font-semibold text-[#162033]">
+                    {item.label}
+                  </div>
+                  <p className="mt-2 break-words text-xs font-medium text-slate-500">
+                    {item.route_or_section}
+                  </p>
+                  <p className="mt-2 break-words text-xs font-semibold text-slate-500">
+                    Future permissions:{" "}
+                    {item.future_required_permissions.length > 0
+                      ? item.future_required_permissions.join(", ")
+                      : "none"}
+                  </p>
+                </div>
+              ))}
           </div>
         </div>
 

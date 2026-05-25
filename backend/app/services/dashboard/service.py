@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.domain.dashboard import (
+    AccessDecisionDryRun,
     AuthBoundaryOperatorIdentityField,
     AuthBoundaryPermissionCatalogItem,
     AuthBoundaryRoleCatalogItem,
@@ -44,6 +45,7 @@ from app.domain.dashboard import (
     ManualReviewQueueReadModel,
     ManualReviewReasonEvidenceContext,
     ManualReviewResultWindowMetadata,
+    ManualReviewRouteProtectionReadiness,
     ManualReviewSafetyGate,
     ManualReviewSortOption,
     ManualReviewSummary,
@@ -54,6 +56,7 @@ from app.domain.dashboard import (
     OperationalTimelineEntry,
     ReconciliationRecoverySummary,
     RouteAssignmentSummary,
+    RouteProtectionMatrixItem,
     WaterEmergencyAgingFollowUpItem,
     WaterEmergencyAgingFollowUpSummary,
     WaterEmergencyDashboardReadModel,
@@ -2626,6 +2629,18 @@ MANUAL_REVIEW_PERMISSION_CATALOG_DEFINITIONS = (
         ),
     ),
     (
+        "water_emergency.view",
+        "Water Emergency view",
+        "water_emergency_read",
+        "Future read permission label for Water Emergency dashboard and detail visibility.",
+    ),
+    (
+        "dispatch.view",
+        "Dispatch view",
+        "dispatch_read",
+        "Future read permission label for dispatch dashboard visibility.",
+    ),
+    (
         "dashboard.view",
         "Dashboard view",
         "dashboard_read",
@@ -2973,6 +2988,351 @@ AUTH_EXAMPLE_CLAIM_FIXTURE_DEFINITIONS = (
         "Static service-role example documents the blocked service-account boundary.",
     ),
 )
+ROUTE_PROTECTION_MATRIX_DEFINITIONS = (
+    {
+        "route_or_section_key": "api_health",
+        "label": "Health API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/health",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": False,
+        "future_rbac_required": False,
+        "future_required_roles": (),
+        "future_required_permissions": (),
+        "future_denied_roles": (),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": False,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Health remains a public operational liveness check in Phase 0.",
+    },
+    {
+        "route_or_section_key": "api_dashboard_overview",
+        "label": "Dashboard overview API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/dashboard/overview",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": (
+            "owner",
+            "operations_manager",
+            "office_admin",
+            "dispatcher",
+            "reviewer",
+        ),
+        "future_required_permissions": ("dashboard.view",),
+        "future_denied_roles": ("unknown_operator",),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": False,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Future dashboard reads should require an authenticated ACS operator.",
+    },
+    {
+        "route_or_section_key": "api_dashboard_lifecycle",
+        "label": "Lifecycle API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/dashboard/lifecycle",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": (
+            "owner",
+            "operations_manager",
+            "office_admin",
+            "dispatcher",
+            "reviewer",
+        ),
+        "future_required_permissions": ("dashboard.view",),
+        "future_denied_roles": ("unknown_operator",),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": False,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Lifecycle read visibility is future-protected but not enforced now.",
+    },
+    {
+        "route_or_section_key": "api_dashboard_review",
+        "label": "Review summary API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/dashboard/review",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("dashboard.view", "manual_review.view"),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Manual Review summary visibility is future-protected planning metadata.",
+    },
+    {
+        "route_or_section_key": "api_manual_review_queue",
+        "label": "Manual Review Queue API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/dashboard/manual-review/queue",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("manual_review.view",),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Manual Review queue remains visible and read-only in Phase 0.",
+    },
+    {
+        "route_or_section_key": "api_manual_review_detail",
+        "label": "Manual Review Detail API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/dashboard/manual-review/queue/{review_item_id}",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("manual_review.detail.view",),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Manual Review detail reads need future identity before action modules.",
+    },
+    {
+        "route_or_section_key": "api_dashboard_dispatch",
+        "label": "Dispatch dashboard API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/dashboard/dispatch",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "dispatcher"),
+        "future_required_permissions": ("dispatch.view",),
+        "future_denied_roles": ("system_service", "unknown_operator"),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": False,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Dispatch visibility is future-protected and never dispatches now.",
+    },
+    {
+        "route_or_section_key": "api_water_emergency_dashboard",
+        "label": "Water Emergency dashboard API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/dashboard/water-emergency",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("water_emergency.view", "water_emergency.review.view"),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": True,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": True,
+        "reason": "Water Emergency visibility remains isolated and future-protected.",
+    },
+    {
+        "route_or_section_key": "api_water_emergency_detail",
+        "label": "Water Emergency Detail API",
+        "type": "api_route",
+        "route_or_section": "GET /api/v1/dashboard/water-emergency/{water_emergency_id}",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("water_emergency.view", "water_emergency.review.view"),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": True,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": True,
+        "reason": "Water Emergency detail is separated from standard flow visibility.",
+    },
+    {
+        "route_or_section_key": "frontend_dashboard_page",
+        "label": "Dashboard page",
+        "type": "frontend_page",
+        "route_or_section": "/dashboard",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": (
+            "owner",
+            "operations_manager",
+            "office_admin",
+            "dispatcher",
+            "reviewer",
+        ),
+        "future_required_permissions": ("dashboard.view",),
+        "future_denied_roles": ("unknown_operator",),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": False,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Frontend route planning is read-only and hides no sections now.",
+    },
+    {
+        "route_or_section_key": "frontend_manual_review_queue",
+        "label": "Manual Review Queue section",
+        "type": "frontend_section",
+        "route_or_section": "Manual Review Queue",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("manual_review.view",),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Queue UI is visible but does not grant current action authority.",
+    },
+    {
+        "route_or_section_key": "frontend_manual_review_detail",
+        "label": "Manual Review Detail section",
+        "type": "frontend_section",
+        "route_or_section": "Manual Review Detail",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("manual_review.detail.view",),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Detail UI remains read-only and future-permission mapped.",
+    },
+    {
+        "route_or_section_key": "frontend_water_emergency_command_view",
+        "label": "Water Emergency Command View",
+        "type": "frontend_section",
+        "route_or_section": "Water Emergency Command View",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("water_emergency.view", "water_emergency.review.view"),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": True,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": True,
+        "reason": "Water Emergency sections stay visually and authorization-planning separated.",
+    },
+    {
+        "route_or_section_key": "frontend_water_emergency_detail",
+        "label": "Water Emergency Detail section",
+        "type": "frontend_section",
+        "route_or_section": "Water Emergency Detail",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("water_emergency.view",),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": True,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": True,
+        "reason": "Water Emergency detail visibility remains separated from standard jobs.",
+    },
+    {
+        "route_or_section_key": "frontend_auth_readiness_visibility",
+        "label": "Auth Boundary / Readiness visibility",
+        "type": "frontend_section",
+        "route_or_section": "Auth Boundary / Readiness visibility",
+        "currently_public_in_phase_0": True,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": ("dashboard.view", "audit.view", "manual_review.view"),
+        "future_denied_roles": ("system_service", "unknown_operator"),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": False,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": "Auth readiness visibility documents boundaries and enforces nothing now.",
+    },
+    {
+        "route_or_section_key": "future_manual_review_action_execution",
+        "label": "Future Manual Review action execution surface",
+        "type": "future_action",
+        "route_or_section": "Future Manual Review action endpoints and controls",
+        "currently_public_in_phase_0": False,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager", "reviewer"),
+        "future_required_permissions": (
+            "manual_review.approve.future",
+            "manual_review.reject.future",
+            "manual_review.defer.future",
+            "manual_review.archive.future",
+            "manual_review.resolve.future",
+            "manual_review.request_information.future",
+        ),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": False,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": True,
+        "owner_review_required_if_legal_or_insurance": False,
+        "reason": (
+            "Future Manual Review mutations require auth, RBAC, audit, idempotency, and review."
+        ),
+    },
+    {
+        "route_or_section_key": "future_water_emergency_action_execution",
+        "label": "Future Water Emergency action execution surface",
+        "type": "future_action",
+        "route_or_section": "Future Water Emergency action endpoints and controls",
+        "currently_public_in_phase_0": False,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager"),
+        "future_required_permissions": ("water_emergency.review.future_action",),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": True,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": True,
+        "owner_review_required_if_legal_or_insurance": True,
+        "reason": (
+            "Future Water Emergency action surfaces require separated owner-reviewed boundaries."
+        ),
+    },
+    {
+        "route_or_section_key": "future_legal_insurance_sensitive_action_surface",
+        "label": "Future legal or insurance sensitive action surface",
+        "type": "future_action",
+        "route_or_section": (
+            "Future policy, billing, certification, warranty, or customer promise actions"
+        ),
+        "currently_public_in_phase_0": False,
+        "future_auth_required": True,
+        "future_rbac_required": True,
+        "future_required_roles": ("owner", "operations_manager"),
+        "future_required_permissions": (
+            "manual_review.resolve.future",
+            "water_emergency.review.future_action",
+        ),
+        "future_denied_roles": ("system_service", "technician", "unknown_operator"),
+        "water_emergency_sensitive": True,
+        "manual_review_sensitive": True,
+        "mutation_sensitive": True,
+        "owner_review_required_if_legal_or_insurance": True,
+        "reason": (
+            "Customer, billing, insurance, warranty, and certification "
+            "behavior requires Alfonso owner review."
+        ),
+    },
+)
 
 
 def auth_configuration_variable(
@@ -3169,6 +3529,83 @@ def manual_review_auth_claims_mapping_readiness() -> ManualReviewAuthClaimsMappi
     )
 
 
+def route_protection_matrix_item(definition: dict[str, object]) -> RouteProtectionMatrixItem:
+    return RouteProtectionMatrixItem(
+        route_or_section_key=str(definition["route_or_section_key"]),
+        label=str(definition["label"]),
+        type=str(definition["type"]),
+        route_or_section=str(definition["route_or_section"]),
+        currently_public_in_phase_0=bool(definition["currently_public_in_phase_0"]),
+        future_auth_required=bool(definition["future_auth_required"]),
+        future_rbac_required=bool(definition["future_rbac_required"]),
+        future_required_roles=tuple(definition["future_required_roles"]),
+        future_required_permissions=tuple(definition["future_required_permissions"]),
+        future_denied_roles=tuple(definition["future_denied_roles"]),
+        water_emergency_sensitive=bool(definition["water_emergency_sensitive"]),
+        manual_review_sensitive=bool(definition["manual_review_sensitive"]),
+        mutation_sensitive=bool(definition["mutation_sensitive"]),
+        owner_review_required_if_legal_or_insurance=bool(
+            definition["owner_review_required_if_legal_or_insurance"],
+        ),
+        enforcement_enabled=False,
+        phase_allows_enforcement=False,
+        reason=str(definition["reason"]),
+    )
+
+
+def manual_review_route_protection_readiness() -> ManualReviewRouteProtectionReadiness:
+    matrix_items = tuple(
+        route_protection_matrix_item(definition)
+        for definition in ROUTE_PROTECTION_MATRIX_DEFINITIONS
+    )
+    unknown_permission_mapping_count = sum(
+        1
+        for item in matrix_items
+        if (item.future_auth_required or item.future_rbac_required)
+        and not item.future_required_permissions
+    )
+    future_auth_required_count = sum(1 for item in matrix_items if item.future_auth_required)
+    future_rbac_required_count = sum(1 for item in matrix_items if item.future_rbac_required)
+
+    return ManualReviewRouteProtectionReadiness(
+        summary=(
+            "Phase 0 defines future API route, frontend section, and future-action "
+            "protection mappings as read-only metadata. The access decision dry-run "
+            "simulates readiness only; it does not deny routes, require tokens, "
+            "hide UI, enforce RBAC, or execute actions."
+        ),
+        route_protection_matrix_available=True,
+        access_decision_dry_run=AccessDecisionDryRun(
+            summary=(
+                "Access decisions are simulated for planning visibility only. "
+                "Enforcement, route guarding, token verification, and RBAC remain disabled."
+            ),
+            access_decision_dry_run_enabled=True,
+            enforcement_enabled=False,
+            phase_allows_enforcement=False,
+            token_verification_enabled=False,
+            rbac_enforcement_enabled=False,
+            route_guarding_enabled=False,
+            simulated_decisions_only=True,
+            currently_denied_by_auth=False,
+            currently_denied_by_rbac=False,
+            future_auth_required_count=future_auth_required_count,
+            future_rbac_required_count=future_rbac_required_count,
+            future_manual_review_protected_surface_count=sum(
+                1 for item in matrix_items if item.manual_review_sensitive
+            ),
+            future_water_emergency_protected_surface_count=sum(
+                1 for item in matrix_items if item.water_emergency_sensitive
+            ),
+            future_mutation_surface_count=sum(
+                1 for item in matrix_items if item.mutation_sensitive
+            ),
+            unknown_permission_mapping_count=unknown_permission_mapping_count,
+        ),
+        matrix_items=matrix_items,
+    )
+
+
 def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness:
     return ManualReviewAuthBoundaryReadiness(
         summary=(
@@ -3241,6 +3678,7 @@ def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness
         ),
         auth_configuration_readiness=manual_review_auth_configuration_readiness(),
         auth_claims_mapping_readiness=manual_review_auth_claims_mapping_readiness(),
+        route_protection_readiness=manual_review_route_protection_readiness(),
     )
 
 
