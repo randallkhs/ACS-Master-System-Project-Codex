@@ -236,6 +236,36 @@ describe("dashboard API client", () => {
       )
     ).toBe(true);
     expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .auth_provider_configured
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .auth_provider
+    ).toBe("disabled");
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .token_verification_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .committed_credentials_allowed
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness.backend_variables.some(
+        (variable) =>
+          variable.name === "ACS_FSM_AUTH_PROVIDER" &&
+          variable.safe_placeholder === "disabled"
+      )
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness.frontend_variables.some(
+        (variable) =>
+          variable.name === "NEXT_PUBLIC_ACS_AUTH_ENABLED" &&
+          variable.safe_placeholder === "false"
+      )
+    ).toBe(true);
+    expect(
       result.data.items[0].command_validation.safety_gates.at(-1)?.key
     ).toBe("phase_allows_execution");
     expect(result.data.taxonomy_metadata.randall_authorized_phase_0_baseline).toBe(

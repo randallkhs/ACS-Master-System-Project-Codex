@@ -9,6 +9,7 @@ from app.domain.dashboard import (
     AuthBoundaryOperatorIdentityField,
     AuthBoundaryPermissionCatalogItem,
     AuthBoundaryRoleCatalogItem,
+    AuthConfigurationVariable,
     CountBucket,
     DashboardDispatchSummary,
     DashboardOverviewReadModel,
@@ -18,6 +19,7 @@ from app.domain.dashboard import (
     ManualReviewActionPreflight,
     ManualReviewAuditLedgerDryRun,
     ManualReviewAuthBoundaryReadiness,
+    ManualReviewAuthConfigurationReadiness,
     ManualReviewCommandContract,
     ManualReviewCommandValidation,
     ManualReviewDecisionReadiness,
@@ -997,6 +999,83 @@ def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundary
                 future_planning_only=True,
                 authorizes_actions_now=False,
                 reason="Future read permission label only.",
+            ),
+        ),
+        auth_configuration_readiness=ManualReviewAuthConfigurationReadiness(
+            summary=(
+                "Phase 0 defines future auth provider environment placeholders "
+                "without enabling auth, token verification, or RBAC."
+            ),
+            auth_provider_configured=False,
+            auth_provider="disabled",
+            token_verification_enabled=False,
+            rbac_enforcement_enabled=False,
+            login_ui_available=False,
+            frontend_auth_config_available=False,
+            real_credentials_required=True,
+            committed_credentials_allowed=False,
+            local_dev_auth_mode="disabled",
+            future_provider_selection_required=True,
+            randall_controls_provider_configuration=True,
+            alfonso_owner_review_required_for_legal_policy=True,
+            backend_variables=(
+                AuthConfigurationVariable(
+                    name="ACS_FSM_AUTH_PROVIDER",
+                    scope="backend",
+                    safe_placeholder="disabled",
+                    required_for_future_auth=True,
+                    contains_secret=False,
+                    committed_placeholder_allowed=True,
+                    real_value_must_not_be_committed=True,
+                    reason="Future provider selector placeholder only.",
+                ),
+                AuthConfigurationVariable(
+                    name="ACS_FSM_AUTH_ENABLED",
+                    scope="backend",
+                    safe_placeholder="false",
+                    required_for_future_auth=True,
+                    contains_secret=False,
+                    committed_placeholder_allowed=True,
+                    real_value_must_not_be_committed=True,
+                    reason="Auth disabled placeholder only.",
+                ),
+                AuthConfigurationVariable(
+                    name="ACS_FSM_AUTH_ISSUER_URL",
+                    scope="backend",
+                    safe_placeholder="",
+                    required_for_future_auth=True,
+                    contains_secret=False,
+                    committed_placeholder_allowed=True,
+                    real_value_must_not_be_committed=True,
+                    reason="Future issuer placeholder only.",
+                ),
+            ),
+            frontend_variables=(
+                AuthConfigurationVariable(
+                    name="NEXT_PUBLIC_ACS_AUTH_ENABLED",
+                    scope="frontend",
+                    safe_placeholder="false",
+                    required_for_future_auth=True,
+                    contains_secret=False,
+                    committed_placeholder_allowed=True,
+                    real_value_must_not_be_committed=True,
+                    reason="Frontend auth disabled placeholder only.",
+                ),
+                AuthConfigurationVariable(
+                    name="NEXT_PUBLIC_ACS_AUTH_STATUS_URL",
+                    scope="frontend",
+                    safe_placeholder="",
+                    required_for_future_auth=True,
+                    contains_secret=False,
+                    committed_placeholder_allowed=True,
+                    real_value_must_not_be_committed=True,
+                    reason="Future auth status placeholder only.",
+                ),
+            ),
+            provider_options=(
+                "google_workspace_oidc_future_option",
+                "google_oauth_oidc_future_option",
+                "randall_selected_oidc_provider_future_option",
             ),
         ),
     )
@@ -2182,6 +2261,35 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert permission_catalog["manual_review.approve.future"]["current_enforced"] is False
     assert permission_catalog["manual_review.approve.future"]["authorizes_actions_now"] is False
     assert permission_catalog["manual_review.approve.future"]["future_planning_only"] is True
+    auth_config = auth_boundary["auth_configuration_readiness"]
+    assert auth_config["auth_provider_configured"] is False
+    assert auth_config["auth_provider"] == "disabled"
+    assert auth_config["token_verification_enabled"] is False
+    assert auth_config["rbac_enforcement_enabled"] is False
+    assert auth_config["login_ui_available"] is False
+    assert auth_config["frontend_auth_config_available"] is False
+    assert auth_config["real_credentials_required"] is True
+    assert auth_config["committed_credentials_allowed"] is False
+    assert auth_config["local_dev_auth_mode"] == "disabled"
+    backend_auth_vars = {
+        variable["name"]: variable for variable in auth_config["backend_variables"]
+    }
+    frontend_auth_vars = {
+        variable["name"]: variable for variable in auth_config["frontend_variables"]
+    }
+    assert backend_auth_vars["ACS_FSM_AUTH_PROVIDER"]["safe_placeholder"] == "disabled"
+    assert backend_auth_vars["ACS_FSM_AUTH_ENABLED"]["safe_placeholder"] == "false"
+    assert (
+        backend_auth_vars["ACS_FSM_AUTH_ISSUER_URL"]["real_value_must_not_be_committed"]
+        is True
+    )
+    assert frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_ENABLED"]["safe_placeholder"] == "false"
+    assert (
+        frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_STATUS_URL"][
+            "real_value_must_not_be_committed"
+        ]
+        is True
+    )
     assert (
         manual_review_queue_response.json()["items"][0]["command_validation"][
             "is_currently_executable"

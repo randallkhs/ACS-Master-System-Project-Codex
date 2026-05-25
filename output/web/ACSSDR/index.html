@@ -1051,7 +1051,7 @@
 
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
-                <strong>Last updated: May 24, 2026 at 3:01 AM EDT</strong>
+                <strong>Last updated: May 24, 2026 at 8:52 PM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1061,16 +1061,16 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>50</strong>
+                <strong>51</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>New Manual Review execution-readiness update added since the last public report</span>
+                <span>New Manual Review auth-boundary readiness update added since the last public report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Read-only mutation-boundary and transition-plan summary now visible</span>
+                <span>Read-only operator identity, role, and permission catalog summary now visible</span>
               </div>
               <div class="stat-card">
                 <strong>0</strong>
@@ -2259,6 +2259,30 @@
                 record mutation.
               </div>
             </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 51 manual review operator identity registry role catalog permission catalog auth boundary readiness service account blocked future auth rbac water emergency separated">
+              <div class="module-top">
+                <span class="module-number">51</span>
+                <div>
+                  <h3>Operator Identity, Role Catalog, and Auth Boundary Readiness</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module defines the read-only planning view for future operator identity,
+                provisional roles, future permissions, and the auth/RBAC boundary that must exist
+                before Manual Review actions can ever become real.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                The dashboard can now explain that auth is not implemented, RBAC is not enforced,
+                sign-in UI is unavailable, action execution is unavailable, operator identities are
+                not persisted, service accounts are blocked for Manual Review actions, and future
+                role/permission labels are planning-only. Water Emergency-related authorization
+                stays separated. The dashboard still does not add login, role assignment, action
+                buttons, dispatch, vendor calls, or record mutation.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -2288,6 +2312,7 @@
             <div class="check-item"><span class="check">✓</span><span>Manual Review command-validation and safety-gate matrix visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review operator-identity, role-authorization, and permission-readiness visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Manual Review execution-readiness audit and mutation-boundary visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Manual Review auth-boundary, operator registry, role catalog, and permission catalog visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2308,39 +2333,39 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 50 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 51 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 50 completed the read-only Manual Review execution-readiness audit, mutation
-            boundary lock, and future transition plan. The module was reviewed and committed
-            before Module 51 work begins. This gives ACS a clear checkpoint showing that Manual
-            Review actions are still not executable in Phase 0 and that future auth, RBAC, audit,
-            idempotency, immutable-event, consistency, and owner-review requirements remain
-            prerequisites before any action module can be considered.
+            Module 51 completed read-only Manual Review auth-boundary readiness, future operator
+            identity registry requirements, provisional role catalog visibility, and future
+            permission catalog visibility. The module was reviewed and committed before Module 52
+            work begins. This gives ACS a clear checkpoint showing that future Manual Review
+            actions still require real auth, RBAC, operator identity, and audit actor preparation
+            before any action module can be considered.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The Manual Review Queue can now show a read-only execution-readiness summary,
-                mutation-boundary status, current executable count, future transition
-                prerequisites, and owner-review guardrails for liability-sensitive future actions.
+                The Manual Review Queue and detail view can now show that auth is not implemented,
+                RBAC is not enforced, sign-in UI is unavailable, action execution is unavailable,
+                operator identities are metadata-only planning requirements, service accounts are
+                blocked for Manual Review actions, and future role/permission labels are read-only.
               </p>
             </article>
             <article class="overview-card">
               <h3>Why it matters</h3>
               <p>
                 Manual Review is the safety system. This work helps Luis and the office understand
-                that ACS has a clear boundary before future action buttons or mutation endpoints
-                are discussed. It keeps Phase 0 conservative: Manual Review mutations are disabled,
-                current executable count is zero, mutation endpoints are unavailable, Water
-                Emergency-related readiness stays separated, and liability-sensitive outcomes are
-                flagged for owner review.
+                that future action modules cannot rely on anonymous users, fake roles, service
+                accounts, or unreviewed permissions. It keeps Phase 0 conservative: no role grants
+                authority now, no UI is hidden or unlocked by fake roles, Water Emergency-related
+                authorization stays separated, and future auth/RBAC work remains clearly ahead.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 50 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                Module 51 passed backend checks, frontend checks, local PostgreSQL live dashboard
                 verification, browser checks, and ChatGPT review follow-up. It has been committed
                 and pushed by Randall.
               </p>
@@ -2348,9 +2373,9 @@
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is Module 51: read-only operator identity registry, role
-                catalog, permission catalog, and auth-boundary readiness visibility. Module 51 is
-                not marked complete yet.
+                The next planned area is Module 52: auth provider configuration contract,
+                environment safety, and local development auth readiness. Module 52 is not marked
+                complete yet.
               </p>
             </article>
           </div>

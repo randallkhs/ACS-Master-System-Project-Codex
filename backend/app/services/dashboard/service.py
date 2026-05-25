@@ -12,6 +12,7 @@ from app.domain.dashboard import (
     AuthBoundaryOperatorIdentityField,
     AuthBoundaryPermissionCatalogItem,
     AuthBoundaryRoleCatalogItem,
+    AuthConfigurationVariable,
     CountBucket,
     DashboardDispatchSummary,
     DashboardOverviewReadModel,
@@ -21,6 +22,7 @@ from app.domain.dashboard import (
     ManualReviewActionPreflight,
     ManualReviewAuditLedgerDryRun,
     ManualReviewAuthBoundaryReadiness,
+    ManualReviewAuthConfigurationReadiness,
     ManualReviewCommandContract,
     ManualReviewCommandValidation,
     ManualReviewDecisionReadiness,
@@ -2630,6 +2632,155 @@ MANUAL_REVIEW_PERMISSION_CATALOG_DEFINITIONS = (
         "Future read permission label for audit visibility.",
     ),
 )
+MANUAL_REVIEW_AUTH_PROVIDER_OPTIONS = (
+    "google_workspace_oidc_future_option",
+    "google_oauth_oidc_future_option",
+    "randall_selected_oidc_provider_future_option",
+)
+BACKEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS = (
+    (
+        "ACS_FSM_AUTH_PROVIDER",
+        "disabled",
+        "Selects the future auth provider. Phase 0 keeps it disabled.",
+    ),
+    (
+        "ACS_FSM_AUTH_ENABLED",
+        "false",
+        "Keeps backend auth disabled until a reviewed auth module enables it.",
+    ),
+    (
+        "ACS_FSM_AUTH_ISSUER_URL",
+        "",
+        "Future OIDC issuer URL supplied by environment, never hardcoded.",
+    ),
+    (
+        "ACS_FSM_AUTH_AUDIENCE",
+        "",
+        "Future token audience supplied by environment, never hardcoded.",
+    ),
+    (
+        "ACS_FSM_AUTH_JWKS_URL",
+        "",
+        "Future public signing-key discovery URL supplied by environment.",
+    ),
+    (
+        "ACS_FSM_AUTH_ALLOWED_EMAIL_DOMAINS",
+        "",
+        "Future allowed-domain policy supplied by environment after review.",
+    ),
+    (
+        "ACS_FSM_AUTH_REQUIRE_VERIFIED_EMAIL",
+        "true",
+        "Future provider should require verified email before operator actions.",
+    ),
+    (
+        "ACS_FSM_AUTH_LOCAL_DEV_MODE",
+        "false",
+        "Future local auth mode remains disabled by default.",
+    ),
+    (
+        "ACS_FSM_AUTH_ROLE_CLAIM",
+        "",
+        "Future role claim mapping supplied by environment after RBAC review.",
+    ),
+    (
+        "ACS_FSM_AUTH_PERMISSION_CLAIM",
+        "",
+        "Future permission claim mapping supplied by environment after RBAC review.",
+    ),
+)
+FRONTEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS = (
+    (
+        "NEXT_PUBLIC_ACS_AUTH_ENABLED",
+        "false",
+        "Future frontend auth visibility flag; it does not enable login in Phase 0.",
+    ),
+    (
+        "NEXT_PUBLIC_ACS_AUTH_PROVIDER",
+        "disabled",
+        "Future frontend provider label; Phase 0 keeps provider UI disabled.",
+    ),
+    (
+        "NEXT_PUBLIC_ACS_AUTH_LOGIN_URL",
+        "",
+        "Future login route or provider URL; no login control uses it now.",
+    ),
+    (
+        "NEXT_PUBLIC_ACS_AUTH_LOGOUT_URL",
+        "",
+        "Future logout route or provider URL; no logout control uses it now.",
+    ),
+    (
+        "NEXT_PUBLIC_ACS_AUTH_STATUS_URL",
+        "",
+        "Future auth-status route; no authenticated user call uses it now.",
+    ),
+)
+
+
+def auth_configuration_variable(
+    *,
+    name: str,
+    scope: str,
+    safe_placeholder: str,
+    reason: str,
+) -> AuthConfigurationVariable:
+    return AuthConfigurationVariable(
+        name=name,
+        scope=scope,
+        safe_placeholder=safe_placeholder,
+        required_for_future_auth=True,
+        contains_secret=False,
+        committed_placeholder_allowed=True,
+        real_value_must_not_be_committed=True,
+        reason=reason,
+    )
+
+
+def manual_review_auth_configuration_readiness() -> ManualReviewAuthConfigurationReadiness:
+    return ManualReviewAuthConfigurationReadiness(
+        summary=(
+            "Phase 0 defines future auth provider environment placeholders only. "
+            "Auth stays disabled, token verification is inactive, RBAC is not "
+            "enforced, and real credentials must be supplied later through secure "
+            "runtime configuration."
+        ),
+        auth_provider_configured=False,
+        auth_provider="disabled",
+        token_verification_enabled=False,
+        rbac_enforcement_enabled=False,
+        login_ui_available=False,
+        frontend_auth_config_available=False,
+        real_credentials_required=True,
+        committed_credentials_allowed=False,
+        local_dev_auth_mode="disabled",
+        future_provider_selection_required=True,
+        randall_controls_provider_configuration=True,
+        alfonso_owner_review_required_for_legal_policy=True,
+        backend_variables=tuple(
+            auth_configuration_variable(
+                name=name,
+                scope="backend",
+                safe_placeholder=safe_placeholder,
+                reason=reason,
+            )
+            for name, safe_placeholder, reason in (
+                BACKEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS
+            )
+        ),
+        frontend_variables=tuple(
+            auth_configuration_variable(
+                name=name,
+                scope="frontend",
+                safe_placeholder=safe_placeholder,
+                reason=reason,
+            )
+            for name, safe_placeholder, reason in (
+                FRONTEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS
+            )
+        ),
+        provider_options=MANUAL_REVIEW_AUTH_PROVIDER_OPTIONS,
+    )
 
 
 def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness:
@@ -2704,6 +2855,7 @@ def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness
                 reason,
             ) in MANUAL_REVIEW_PERMISSION_CATALOG_DEFINITIONS
         ),
+        auth_configuration_readiness=manual_review_auth_configuration_readiness(),
     )
 
 

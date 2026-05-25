@@ -253,6 +253,36 @@ export type AuthBoundaryPermissionCatalogItemResponse = {
   reason: string;
 };
 
+export type AuthConfigurationVariableResponse = {
+  name: string;
+  scope: string;
+  safe_placeholder: string;
+  required_for_future_auth: boolean;
+  contains_secret: boolean;
+  committed_placeholder_allowed: boolean;
+  real_value_must_not_be_committed: boolean;
+  reason: string;
+};
+
+export type ManualReviewAuthConfigurationReadinessResponse = {
+  summary: string;
+  auth_provider_configured: boolean;
+  auth_provider: string;
+  token_verification_enabled: boolean;
+  rbac_enforcement_enabled: boolean;
+  login_ui_available: boolean;
+  frontend_auth_config_available: boolean;
+  real_credentials_required: boolean;
+  committed_credentials_allowed: boolean;
+  local_dev_auth_mode: string;
+  future_provider_selection_required: boolean;
+  randall_controls_provider_configuration: boolean;
+  alfonso_owner_review_required_for_legal_policy: boolean;
+  backend_variables: AuthConfigurationVariableResponse[];
+  frontend_variables: AuthConfigurationVariableResponse[];
+  provider_options: string[];
+};
+
 export type ManualReviewAuthBoundaryReadinessResponse = {
   summary: string;
   auth_implemented: boolean;
@@ -273,6 +303,7 @@ export type ManualReviewAuthBoundaryReadinessResponse = {
   operator_identity_fields: AuthBoundaryOperatorIdentityFieldResponse[];
   provisional_roles: AuthBoundaryRoleCatalogItemResponse[];
   future_permissions: AuthBoundaryPermissionCatalogItemResponse[];
+  auth_configuration_readiness: ManualReviewAuthConfigurationReadinessResponse;
 };
 
 export type ManualReviewMutationBoundaryLockResponse = {

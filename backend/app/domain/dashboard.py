@@ -281,6 +281,38 @@ class AuthBoundaryPermissionCatalogItem:
 
 
 @dataclass(frozen=True, slots=True)
+class AuthConfigurationVariable:
+    name: str
+    scope: str
+    safe_placeholder: str
+    required_for_future_auth: bool
+    contains_secret: bool
+    committed_placeholder_allowed: bool
+    real_value_must_not_be_committed: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewAuthConfigurationReadiness:
+    summary: str
+    auth_provider_configured: bool
+    auth_provider: str
+    token_verification_enabled: bool
+    rbac_enforcement_enabled: bool
+    login_ui_available: bool
+    frontend_auth_config_available: bool
+    real_credentials_required: bool
+    committed_credentials_allowed: bool
+    local_dev_auth_mode: str
+    future_provider_selection_required: bool
+    randall_controls_provider_configuration: bool
+    alfonso_owner_review_required_for_legal_policy: bool
+    backend_variables: tuple[AuthConfigurationVariable, ...]
+    frontend_variables: tuple[AuthConfigurationVariable, ...]
+    provider_options: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewAuthBoundaryReadiness:
     summary: str
     auth_implemented: bool
@@ -301,6 +333,7 @@ class ManualReviewAuthBoundaryReadiness:
     operator_identity_fields: tuple[AuthBoundaryOperatorIdentityField, ...]
     provisional_roles: tuple[AuthBoundaryRoleCatalogItem, ...]
     future_permissions: tuple[AuthBoundaryPermissionCatalogItem, ...]
+    auth_configuration_readiness: ManualReviewAuthConfigurationReadiness
 
 
 @dataclass(frozen=True, slots=True)

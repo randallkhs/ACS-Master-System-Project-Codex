@@ -263,6 +263,36 @@ class AuthBoundaryPermissionCatalogItemResponse(DashboardSchema):
     reason: str
 
 
+class AuthConfigurationVariableResponse(DashboardSchema):
+    name: str
+    scope: str
+    safe_placeholder: str
+    required_for_future_auth: bool
+    contains_secret: bool
+    committed_placeholder_allowed: bool
+    real_value_must_not_be_committed: bool
+    reason: str
+
+
+class ManualReviewAuthConfigurationReadinessResponse(DashboardSchema):
+    summary: str
+    auth_provider_configured: bool
+    auth_provider: str
+    token_verification_enabled: bool
+    rbac_enforcement_enabled: bool
+    login_ui_available: bool
+    frontend_auth_config_available: bool
+    real_credentials_required: bool
+    committed_credentials_allowed: bool
+    local_dev_auth_mode: str
+    future_provider_selection_required: bool
+    randall_controls_provider_configuration: bool
+    alfonso_owner_review_required_for_legal_policy: bool
+    backend_variables: tuple[AuthConfigurationVariableResponse, ...]
+    frontend_variables: tuple[AuthConfigurationVariableResponse, ...]
+    provider_options: tuple[str, ...]
+
+
 class ManualReviewAuthBoundaryReadinessResponse(DashboardSchema):
     summary: str
     auth_implemented: bool
@@ -283,6 +313,7 @@ class ManualReviewAuthBoundaryReadinessResponse(DashboardSchema):
     operator_identity_fields: tuple[AuthBoundaryOperatorIdentityFieldResponse, ...]
     provisional_roles: tuple[AuthBoundaryRoleCatalogItemResponse, ...]
     future_permissions: tuple[AuthBoundaryPermissionCatalogItemResponse, ...]
+    auth_configuration_readiness: ManualReviewAuthConfigurationReadinessResponse
 
 
 class ManualReviewMutationBoundaryLockResponse(DashboardSchema):

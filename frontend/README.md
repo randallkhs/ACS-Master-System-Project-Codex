@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 51 keeps the frontend foundation read-only while adding Manual Review auth-boundary readiness, operator identity registry field visibility, provisional role catalog visibility, and future permission catalog visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
+Phase 0 Module 52 keeps the frontend foundation read-only while adding auth configuration readiness visibility, safe future auth provider placeholder visibility, and explicit disabled auth/token/RBAC status on top of the existing Manual Review auth-boundary readiness, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -354,6 +354,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - The operator identity registry fields, provisional roles, and future permissions are planning labels only. They do not persist operator identities, enforce roles, hide/show UI based on roles, add auth headers, create token/session behavior, or authorize Manual Review actions.
 - Service accounts, technicians, and unknown operators remain blocked for future Manual Review operator actions unless a later reviewed module explicitly changes that boundary.
 - The UI still does not add login, signup, user management, role assignment, approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, audit forms, command forms, or future command data-entry fields.
+
+## Module 52 Auth Configuration Readiness Notes
+
+- The Manual Review Queue and detail panel now display backend-provided auth configuration readiness as read-only operational visibility.
+- The auth configuration panel renders `auth_provider = disabled`, token verification disabled, RBAC enforcement disabled, local dev auth mode disabled, committed credentials not allowed, real credentials required later, and future provider selection required.
+- Backend placeholders such as `ACS_FSM_AUTH_PROVIDER` and frontend placeholders such as `NEXT_PUBLIC_ACS_AUTH_ENABLED` are shown as safe planning labels only.
+- `frontend/.env.example` lists public future auth placeholders only. These do not enable login, logout, token/session behavior, auth headers, fake users, role assignment, or current RBAC behavior.
+- The UI still does not add login, logout, signup, user management, role assignment, approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth enforcement, RBAC enforcement, workflow execution controls, audit forms, command forms, or future command data-entry fields.
 
 ## Module 38 Water Emergency View-State Notes
 

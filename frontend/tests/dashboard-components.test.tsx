@@ -593,6 +593,14 @@ describe("DashboardView", () => {
     expect(html).toContain("Service accounts blocked for Manual Review actions");
     expect(html).toContain("Service account action not allowed");
     expect(html).toContain("Impersonation not allowed");
+    expect(html).toContain("Auth Configuration Readiness");
+    expect(html).toContain("Auth provider disabled");
+    expect(html).toContain("Token verification disabled");
+    expect(html).toContain("RBAC enforcement disabled");
+    expect(html).toContain("Local dev auth mode disabled");
+    expect(html).toContain("Committed credentials not allowed");
+    expect(html).toContain("ACS_FSM_AUTH_PROVIDER");
+    expect(html).toContain("NEXT_PUBLIC_ACS_AUTH_ENABLED");
     expect(html).toContain("manual_review.approve.future");
     expect(html).toContain("water_emergency.review.future_action");
     expect(html).toContain("Future auth required");

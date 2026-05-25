@@ -6,6 +6,39 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-24 — Phase 0 Module 52 Auth Provider Configuration Contract, Environment Safety, And Local Dev Auth Readiness
+
+- Decision type: Implementation / auth boundary / read-only configuration-readiness planning baseline
+- Status: Implemented
+- Decision:
+  - Extend Manual Review auth-boundary readiness metadata with read-only auth configuration readiness.
+  - Define safe future backend auth placeholder labels using the existing `ACS_FSM_AUTH_*` namespace.
+  - Define safe future frontend auth placeholder labels using `NEXT_PUBLIC_ACS_AUTH_*` names for public UI configuration only.
+  - Update `.env.example`, `backend/.env.example`, and `frontend/.env.example` with placeholders only; no real credentials, service account JSON, private keys, tokens, `.env`, or `.env.local` are added.
+  - Explicitly report auth provider configured, token verification, RBAC enforcement, sign-in UI, and frontend auth config availability as false in Phase 0.
+  - Add frontend queue and detail auth configuration readiness visibility without login/logout/signup/user-management UI, auth headers, token/session behavior, fake users, fake roles, role assignment, or action controls.
+- Rationale:
+  - Future auth/RBAC modules need stable configuration names and secret-handling rules before real provider logic exists.
+  - The module makes the environment contract visible while preserving the current Phase 0 read-only and non-executable safety boundary.
+  - Safe placeholders reduce future setup ambiguity without committing credentials or implying auth is active.
+- Future implications:
+  - Future production modules still need final provider selection, secure VPS secret configuration, real credential ownership, token verification middleware, operator registry persistence, RBAC enforcement, role-scoped visibility, and authenticated Manual Review command endpoints.
+  - Randall controls future provider technical configuration; Alfonso owner review remains required only where legal, insurance, compliance, contractual, financial-liability, customer-liability, or formal company-policy consequences are involved.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Backend/frontend environment examples
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - System architecture notes
+  - API/frontend contract notes
+
+---
+
 ## 2026-05-24 — Phase 0 Module 51 Operator Identity Registry, Role Catalog, And Auth Boundary Readiness
 
 - Decision type: Implementation / Manual Review visibility / read-only auth-boundary planning baseline

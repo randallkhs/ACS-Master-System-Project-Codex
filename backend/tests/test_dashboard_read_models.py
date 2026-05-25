@@ -1328,6 +1328,9 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
     roles = {role.key: role for role in boundary.provisional_roles}
     permissions = {permission.key: permission for permission in boundary.future_permissions}
     identity_fields = {field.key: field for field in boundary.operator_identity_fields}
+    auth_config = boundary.auth_configuration_readiness
+    backend_auth_vars = {variable.name: variable for variable in auth_config.backend_variables}
+    frontend_auth_vars = {variable.name: variable for variable in auth_config.frontend_variables}
 
     assert review.status == "open"
     assert boundary.auth_implemented is False
@@ -1382,6 +1385,33 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
     assert identity_fields["operator_id"].required_for_future_actions is True
     assert identity_fields["audit_actor_id"].required_for_future_actions is True
     assert identity_fields["external_subject_id"].persisted_now is False
+    assert auth_config.auth_provider_configured is False
+    assert auth_config.auth_provider == "disabled"
+    assert auth_config.token_verification_enabled is False
+    assert auth_config.rbac_enforcement_enabled is False
+    assert auth_config.login_ui_available is False
+    assert auth_config.frontend_auth_config_available is False
+    assert auth_config.real_credentials_required is True
+    assert auth_config.committed_credentials_allowed is False
+    assert auth_config.local_dev_auth_mode == "disabled"
+    assert auth_config.future_provider_selection_required is True
+    assert auth_config.randall_controls_provider_configuration is True
+    assert auth_config.alfonso_owner_review_required_for_legal_policy is True
+    assert auth_config.provider_options == (
+        "google_workspace_oidc_future_option",
+        "google_oauth_oidc_future_option",
+        "randall_selected_oidc_provider_future_option",
+    )
+    assert backend_auth_vars["ACS_FSM_AUTH_PROVIDER"].safe_placeholder == "disabled"
+    assert backend_auth_vars["ACS_FSM_AUTH_ENABLED"].safe_placeholder == "false"
+    assert backend_auth_vars["ACS_FSM_AUTH_ISSUER_URL"].real_value_must_not_be_committed is True
+    assert backend_auth_vars["ACS_FSM_AUTH_JWKS_URL"].contains_secret is False
+    assert frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_ENABLED"].safe_placeholder == "false"
+    assert frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_PROVIDER"].safe_placeholder == "disabled"
+    assert (
+        frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_LOGIN_URL"].real_value_must_not_be_committed
+        is True
+    )
 
 
 def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:

@@ -1040,6 +1040,29 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 52 Auth Provider Configuration And Environment Safety
+
+Module 52 extends the read-only auth boundary with a future provider configuration contract and environment safety baseline:
+
+- backend read models expose auth configuration readiness metadata as deterministic planning visibility
+- `auth_provider_configured`, `token_verification_enabled`, `rbac_enforcement_enabled`, `login_ui_available`, and `frontend_auth_config_available` remain false
+- the current provider and local dev auth mode are `disabled`
+- backend placeholder names use the existing `ACS_FSM_` settings namespace and include `ACS_FSM_AUTH_PROVIDER`, `ACS_FSM_AUTH_ENABLED`, issuer, audience, JWKS, allowed-domain, verified-email, local-dev-mode, role-claim, and permission-claim placeholders
+- frontend placeholder names use public `NEXT_PUBLIC_ACS_AUTH_*` labels for future UI configuration only
+- safe placeholders are committed in example files, but real credentials, `.env`, `.env.local`, service account JSON, private keys, and tokens remain forbidden from source control
+- Randall controls future provider technical configuration; Alfonso owner review remains required only for legal, insurance, compliance, contractual, financial-liability, customer-liability, or formal company-policy consequences
+- frontend queue and detail panels display auth configuration readiness as read-only evidence and do not add login/logout UI, auth headers, token/session behavior, fake authenticated users, forms, inputs, role assignment, or button-styled auth labels
+
+The boundary remains projection-only. The endpoint and UI do not authenticate users, verify tokens, enforce RBAC, persist identities, create fake users, hide UI based on roles, execute Manual Review commands, mutate review records, write audit events, create POST/PUT/PATCH/DELETE endpoints, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- final ACS-FSM auth provider selection and production credential ownership
+- secure VPS secret configuration and local development auth mode
+- token verification dependencies, auth middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

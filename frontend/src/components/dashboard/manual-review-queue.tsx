@@ -565,6 +565,122 @@ function AuthBoundaryReadinessPanel({
         />
       </div>
 
+      <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Auth Configuration Readiness
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {boundary.auth_configuration_readiness.summary} No committed
+          credentials, token verification, auth headers, or sign-in controls are
+          active in Phase 0.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MiniMetric
+            label="Auth provider"
+            value={`Auth provider ${humanizeLabel(
+              boundary.auth_configuration_readiness.auth_provider,
+            ).toLowerCase()}`}
+          />
+          <MiniMetric
+            label="Token verification"
+            value={
+              boundary.auth_configuration_readiness.token_verification_enabled
+                ? "Token verification enabled"
+                : "Token verification disabled"
+            }
+          />
+          <MiniMetric
+            label="RBAC enforcement"
+            value={
+              boundary.auth_configuration_readiness.rbac_enforcement_enabled
+                ? "RBAC enforcement enabled"
+                : "RBAC enforcement disabled"
+            }
+          />
+          <MiniMetric
+            label="Local dev auth mode"
+            value={`Local dev auth mode ${humanizeLabel(
+              boundary.auth_configuration_readiness.local_dev_auth_mode,
+            ).toLowerCase()}`}
+          />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <StatusBadge
+            label={
+              boundary.auth_configuration_readiness.committed_credentials_allowed
+                ? "Committed credentials allowed"
+                : "Committed credentials not allowed"
+            }
+            variant={
+              boundary.auth_configuration_readiness.committed_credentials_allowed
+                ? "danger"
+                : "warning"
+            }
+          />
+          <StatusBadge
+            label={
+              boundary.auth_configuration_readiness.real_credentials_required
+                ? "Real credentials required later"
+                : "Real credentials not required"
+            }
+            variant={
+              boundary.auth_configuration_readiness.real_credentials_required
+                ? "info"
+                : "danger"
+            }
+          />
+          <StatusBadge
+            label={
+              boundary.auth_configuration_readiness.future_provider_selection_required
+                ? "Future provider selection required"
+                : "Future provider already selected"
+            }
+            variant={
+              boundary.auth_configuration_readiness
+                .future_provider_selection_required
+                ? "info"
+                : "danger"
+            }
+          />
+          <StatusBadge
+            label={
+              boundary.auth_configuration_readiness
+                .randall_controls_provider_configuration
+                ? "Randall controls provider configuration"
+                : "Provider configuration owner missing"
+            }
+            variant={
+              boundary.auth_configuration_readiness
+                .randall_controls_provider_configuration
+                ? "neutral"
+                : "danger"
+            }
+          />
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Backend placeholders
+            </div>
+            <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+              {boundary.auth_configuration_readiness.backend_variables
+                .map((variable) => variable.name)
+                .join(", ")}
+            </p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Frontend placeholders
+            </div>
+            <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+              {boundary.auth_configuration_readiness.frontend_variables
+                .map((variable) => variable.name)
+                .join(", ")}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-4 grid gap-3 lg:grid-cols-3">
         <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3">
           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">

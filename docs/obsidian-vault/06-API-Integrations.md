@@ -937,3 +937,27 @@ Open API/frontend concerns:
 - durable operator identity registry schema and lifecycle policy
 - approved RBAC role model and permission taxonomy
 - role-scoped Manual Review visibility and action authority after authentication exists
+
+## Phase 0 Module 52 Auth Provider Configuration Readiness Boundary
+
+The Manual Review queue and detail API contracts now include read-only auth configuration readiness metadata for future provider setup, environment safety, and local development auth planning.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes `auth_boundary_readiness.auth_configuration_readiness` metadata with provider configured false, provider disabled, token verification disabled, RBAC enforcement disabled, sign-in UI unavailable, frontend auth config unavailable, real credentials required later, committed credentials disallowed, local dev auth mode disabled, and future provider selection required.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the same auth configuration readiness metadata alongside the selected review item's existing auth-boundary, permission-readiness, command-validation, dry-run, command-contract, preview, preflight, decision-readiness, linked-entity, and timeline context.
+- Backend environment placeholder labels use `ACS_FSM_AUTH_*` names in the existing backend settings namespace.
+- Frontend environment placeholder labels use `NEXT_PUBLIC_ACS_AUTH_*` names for future public UI configuration only.
+- Safe placeholders may appear in `.env.example` files. Real credentials, service account JSON, private keys, tokens, `.env`, and `.env.local` remain forbidden from source control.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no auth/RBAC enforcement, token verification, login/logout/session behavior, auth headers, fake authenticated user data, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- auth provider labels and environment placeholder labels are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM authentication provider and production credential ownership
+- secure VPS secret configuration and local development auth mode
+- token verification middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority after a future reviewed auth module exists

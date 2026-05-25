@@ -509,3 +509,29 @@ Rules:
 Open concerns:
 
 - final ACS-FSM auth provider, production credential ownership, durable operator registry schema, RBAC role model, permission taxonomy, role-scoped visibility, and Manual Review action authority remain future work
+
+---
+
+# 22. Phase 0 Auth Provider Configuration And Environment Safety
+
+Module 52 adds a read-only future auth provider configuration contract and safe environment placeholder baseline.
+
+Rules:
+
+- auth configuration metadata is a Randall-authorized Phase 0 planning baseline only
+- `auth_provider_configured` must remain false in Phase 0
+- `auth_provider` must remain `disabled` in Phase 0
+- `token_verification_enabled` must remain false in Phase 0
+- `rbac_enforcement_enabled` must remain false in Phase 0
+- `login_ui_available` must remain false in Phase 0
+- `frontend_auth_config_available` remains false until a future reviewed auth module intentionally enables frontend auth behavior
+- committed credentials are not allowed
+- `.env.example`, `backend/.env.example`, and `frontend/.env.example` may include safe placeholders only
+- real auth credentials, tenant values, private keys, service account JSON, tokens, `.env`, and `.env.local` must not be committed
+- Randall controls future Google/account/provider technical configuration decisions
+- Alfonso owner review is required only where auth-related decisions create legal, insurance, compliance, contractual, financial-liability, customer-liability, or formal company-policy consequences
+- no login, logout, signup, user management, token/session behavior, auth headers, fake user identity, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, RBAC, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final ACS-FSM auth provider selection, credential ownership, local development auth mode, production VPS secret configuration, token verification, RBAC enforcement, and role-scoped Manual Review action authority remain future work

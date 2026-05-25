@@ -62,6 +62,8 @@ function ManualReviewDetailContent({
   detail: ManualReviewDetailResponse;
 }) {
   const { review_item: item, linked_entity_context: context } = detail;
+  const authConfig =
+    detail.auth_boundary_readiness.auth_configuration_readiness;
 
   return (
     <div className="space-y-4">
@@ -164,6 +166,55 @@ function ManualReviewDetailContent({
                 : "danger"
             }
           />
+        </div>
+
+        <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Auth Configuration Readiness
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <StatusBadge
+              label={`Auth provider ${humanizeLabel(
+                authConfig.auth_provider,
+              ).toLowerCase()}`}
+              variant="neutral"
+            />
+            <StatusBadge
+              label={
+                authConfig.token_verification_enabled
+                  ? "Token verification enabled"
+                  : "Token verification disabled"
+              }
+              variant={authConfig.token_verification_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                authConfig.rbac_enforcement_enabled
+                  ? "RBAC enforcement enabled"
+                  : "RBAC enforcement disabled"
+              }
+              variant={authConfig.rbac_enforcement_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                authConfig.committed_credentials_allowed
+                  ? "Committed credentials allowed"
+                  : "Committed credentials not allowed"
+              }
+              variant={
+                authConfig.committed_credentials_allowed ? "danger" : "warning"
+              }
+            />
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {authConfig.summary} Backend placeholders include{" "}
+            {authConfig.backend_variables.map((variable) => variable.name).join(", ")}.
+            Frontend placeholders include{" "}
+            {authConfig.frontend_variables
+              .map((variable) => variable.name)
+              .join(", ")}
+            .
+          </p>
         </div>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
