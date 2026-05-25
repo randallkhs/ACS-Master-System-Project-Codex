@@ -1575,6 +1575,95 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
         is True
     )
 
+    auth_rbac_audit = boundary.auth_rbac_readiness_audit
+    enforcement_lock = auth_rbac_audit.enforcement_boundary_lock
+    prerequisites = {
+        prerequisite.key: prerequisite
+        for prerequisite in auth_rbac_audit.future_transition_prerequisites
+    }
+
+    assert auth_rbac_audit.auth_implemented is False
+    assert auth_rbac_audit.auth_enabled is False
+    assert auth_rbac_audit.token_verification_enabled is False
+    assert auth_rbac_audit.real_token_parsing_enabled is False
+    assert auth_rbac_audit.jwks_fetch_enabled is False
+    assert auth_rbac_audit.rbac_enforced is False
+    assert auth_rbac_audit.route_guarding_enabled is False
+    assert auth_rbac_audit.login_ui_available is False
+    assert auth_rbac_audit.auth_headers_required is False
+    assert auth_rbac_audit.auth_headers_emitted_by_frontend is False
+    assert auth_rbac_audit.operator_identity_registry_available is False
+    assert auth_rbac_audit.role_catalog_available is True
+    assert auth_rbac_audit.permission_catalog_available is True
+    assert auth_rbac_audit.claims_mapping_available is True
+    assert auth_rbac_audit.route_protection_matrix_available is True
+    assert auth_rbac_audit.access_decision_dry_run_available is True
+    assert auth_rbac_audit.secret_hygiene_helper_available is True
+    assert auth_rbac_audit.committed_credentials_allowed is False
+    assert auth_rbac_audit.service_account_manual_review_allowed is False
+    assert auth_rbac_audit.technician_manual_review_action_allowed is False
+    assert auth_rbac_audit.future_auth_required_before_actions is True
+    assert auth_rbac_audit.future_rbac_required_before_actions is True
+    assert auth_rbac_audit.future_audit_actor_required_before_actions is True
+    assert auth_rbac_audit.future_provider_selection_required is True
+    assert auth_rbac_audit.future_real_credentials_required is True
+    assert auth_rbac_audit.route_protection_enforcement_required_before_actions is True
+    assert auth_rbac_audit.manual_review_action_execution_available is False
+    assert auth_rbac_audit.water_emergency_action_execution_available is False
+    assert auth_rbac_audit.readiness_gap_count > 0
+    assert auth_rbac_audit.owner_review_required_count > 0
+
+    assert enforcement_lock.auth_enforcement_enabled is False
+    assert enforcement_lock.token_verification_enabled is False
+    assert enforcement_lock.real_token_parsing_enabled is False
+    assert enforcement_lock.jwks_fetch_enabled is False
+    assert enforcement_lock.rbac_enforcement_enabled is False
+    assert enforcement_lock.route_guarding_enabled is False
+    assert enforcement_lock.login_ui_available is False
+    assert enforcement_lock.user_management_available is False
+    assert enforcement_lock.action_execution_available is False
+    assert enforcement_lock.mutation_endpoints_available is False
+    assert enforcement_lock.phase_allows_auth_enforcement is False
+    assert enforcement_lock.phase_allows_rbac_enforcement is False
+    assert enforcement_lock.phase_allows_route_guarding is False
+    assert enforcement_lock.phase_allows_manual_review_actions is False
+
+    assert prerequisites["provider_selected_by_randall"].status == ("blocked_by_provider_selection")
+    assert prerequisites["real_credentials_supplied_outside_git"].status == (
+        "blocked_by_real_credentials"
+    )
+    assert prerequisites["backend_token_verification_implementation_approved"].status == (
+        "blocked_by_auth_implementation"
+    )
+    assert prerequisites["route_guard_implementation_tested"].status == (
+        "blocked_by_route_guarding"
+    )
+    assert prerequisites["manual_review_action_permissions_approved"].status == (
+        "blocked_by_rbac_implementation"
+    )
+    assert prerequisites["water_emergency_action_permissions_approved"].status == (
+        "blocked_by_owner_review"
+    )
+    assert prerequisites["audit_actor_idempotency_integration_approved"].status == (
+        "blocked_by_audit"
+    )
+    assert prerequisites["secret_hygiene_check_included_in_verification"].status == (
+        "satisfied_now"
+    )
+    assert all(
+        prerequisite.status != "satisfied_now"
+        for key, prerequisite in prerequisites.items()
+        if key
+        not in {
+            "secret_hygiene_check_included_in_verification",
+            "chatgpt_review_gui_workflow_mandatory",
+        }
+    )
+    assert (
+        prerequisites["customer_or_insurance_access_policy_review"].requires_alfonso_owner_review
+        is True
+    )
+
 
 def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:
     now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)

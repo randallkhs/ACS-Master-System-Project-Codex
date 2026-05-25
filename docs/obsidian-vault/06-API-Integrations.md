@@ -962,6 +962,28 @@ Open API/frontend concerns:
 - secure VPS secret configuration and local development auth mode
 - token verification middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority after a future reviewed auth module exists
 
+## Phase 0 Module 56 Auth/RBAC Readiness Audit Boundary
+
+The Manual Review queue and detail API contracts now include a read-only Auth/RBAC readiness audit and enforcement-boundary lock for future auth/RBAC transition planning.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes `auth_boundary_readiness.auth_rbac_readiness_audit` metadata with auth implementation/enabled false, token verification false, real token parsing false, JWKS fetch false, RBAC enforcement false, route guarding false, auth headers required/emitted false, role and permission catalogs available, claims mapping available, route protection matrix available, access decision dry-run available, secret hygiene helper available, committed credentials disallowed, service-account Manual Review action allowed false, technician Manual Review action allowed false, future auth/RBAC/audit actor requirements true, route protection enforcement required before actions true, and Manual Review/Water Emergency action execution false.
+- the audit includes `enforcement_boundary_lock` metadata with auth enforcement, token verification, real token parsing, JWKS fetch, RBAC enforcement, route guarding, sign-in UI, user management, action execution, mutation endpoints, and Phase 0 enforcement allowances all false.
+- the audit includes future transition prerequisites grouped by provider selection, real credentials/secret hygiene, token verification, claims mapping, operator identity, RBAC/role policy, route protection, Manual Review action permissions, Water Emergency action permissions, audit actor/idempotency, legal/owner review, and review workflow.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the same auth-boundary audit metadata alongside the selected review item's existing read-only context.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no auth/RBAC enforcement, route guards, route denial, section hiding, real token parsing, JWT validation, token verification, JWKS fetch, login/logout/session behavior, auth headers, fake authenticated user data, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- auth/RBAC readiness labels and enforcement-boundary labels are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, credential provisioning, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM authentication provider and production credential ownership
+- secure VPS secret configuration, token verification middleware, JWKS strategy, RBAC enforcement, route guard architecture, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy after future reviewed modules exist
+
 ## Phase 0 Module 54 Auth Claims Mapping And Token Dry-Run Boundary
 
 The Manual Review queue and detail API contracts now include read-only auth claims mapping, token-verification dry-run, and role-resolution readiness metadata for future auth/RBAC planning.

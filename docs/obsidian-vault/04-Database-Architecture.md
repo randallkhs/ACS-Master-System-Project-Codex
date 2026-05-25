@@ -1088,3 +1088,19 @@ Projection philosophy:
 Unresolved:
 
 - final route guard architecture, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, frontend section hiding policy, and authenticated Manual Review action authority
+
+## Auth/RBAC Readiness Audit Projection
+
+Phase 0 Module 56 adds a read-only Auth/RBAC readiness audit, enforcement-boundary lock, and future transition prerequisite checklist to the Manual Review auth-boundary read model without adding database tables or columns.
+
+Projection philosophy:
+
+- Auth/RBAC readiness audit metadata is computed from existing read-model/catalog layers and static Phase 0 contract definitions
+- enforcement-boundary lock metadata explicitly keeps auth enforcement, token verification, real token parsing, JWKS fetch, RBAC enforcement, route guarding, sign-in UI, user management, action execution, mutation endpoints, and Phase 0 enforcement allowances false
+- future prerequisites describe provider selection, real credentials, token verification, claims mapping, operator identity, RBAC policy, route guarding, Manual Review action permissions, Water Emergency action permissions, audit actor/idempotency, owner review, and review workflow as planning states only
+- Water Emergency action authorization remains separated from standard Manual Review and dispatch projections
+- no operator identity table, RBAC table, route protection table, token/session table, JWT/JWKS table, audit-action table, mutation endpoint, vendor execution record, AI authority, or workflow engine is added in Module 56
+
+Unresolved:
+
+- final auth provider, production secret provisioning, token verification middleware, route guard architecture, RBAC enforcement, role-to-permission expansion, role-scoped visibility, audit actor/idempotency persistence, and authenticated action authority remain future schema/design work

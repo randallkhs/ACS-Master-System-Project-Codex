@@ -431,6 +431,69 @@ class ManualReviewRouteProtectionReadinessResponse(DashboardSchema):
     matrix_items: tuple[RouteProtectionMatrixItemResponse, ...]
 
 
+class AuthRbacEnforcementBoundaryLockResponse(DashboardSchema):
+    auth_enforcement_enabled: bool
+    token_verification_enabled: bool
+    real_token_parsing_enabled: bool
+    jwks_fetch_enabled: bool
+    rbac_enforcement_enabled: bool
+    route_guarding_enabled: bool
+    login_ui_available: bool
+    user_management_available: bool
+    action_execution_available: bool
+    mutation_endpoints_available: bool
+    phase_allows_auth_enforcement: bool
+    phase_allows_rbac_enforcement: bool
+    phase_allows_route_guarding: bool
+    phase_allows_manual_review_actions: bool
+
+
+class AuthRbacTransitionPrerequisiteResponse(DashboardSchema):
+    key: str
+    label: str
+    blocker_group: str
+    status: str
+    satisfied_now: bool
+    requires_alfonso_owner_review: bool
+    reason: str
+
+
+class AuthRbacReadinessAuditResponse(DashboardSchema):
+    summary: str
+    auth_implemented: bool
+    auth_enabled: bool
+    token_verification_enabled: bool
+    real_token_parsing_enabled: bool
+    jwks_fetch_enabled: bool
+    rbac_enforced: bool
+    route_guarding_enabled: bool
+    login_ui_available: bool
+    auth_headers_required: bool
+    auth_headers_emitted_by_frontend: bool
+    operator_identity_registry_available: bool
+    role_catalog_available: bool
+    permission_catalog_available: bool
+    claims_mapping_available: bool
+    route_protection_matrix_available: bool
+    access_decision_dry_run_available: bool
+    secret_hygiene_helper_available: bool
+    committed_credentials_allowed: bool
+    service_account_manual_review_allowed: bool
+    technician_manual_review_action_allowed: bool
+    future_auth_required_before_actions: bool
+    future_rbac_required_before_actions: bool
+    future_audit_actor_required_before_actions: bool
+    future_provider_selection_required: bool
+    future_real_credentials_required: bool
+    route_protection_enforcement_required_before_actions: bool
+    manual_review_action_execution_available: bool
+    water_emergency_action_execution_available: bool
+    readiness_gap_count: int
+    owner_review_required_count: int
+    enforcement_boundary_lock: AuthRbacEnforcementBoundaryLockResponse
+    future_transition_prerequisites: tuple[AuthRbacTransitionPrerequisiteResponse, ...]
+
+
 class ManualReviewAuthBoundaryReadinessResponse(DashboardSchema):
     summary: str
     auth_implemented: bool
@@ -454,6 +517,7 @@ class ManualReviewAuthBoundaryReadinessResponse(DashboardSchema):
     auth_configuration_readiness: ManualReviewAuthConfigurationReadinessResponse
     auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadinessResponse
     route_protection_readiness: ManualReviewRouteProtectionReadinessResponse
+    auth_rbac_readiness_audit: AuthRbacReadinessAuditResponse
 
 
 class ManualReviewMutationBoundaryLockResponse(DashboardSchema):

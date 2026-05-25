@@ -17,6 +17,9 @@ from app.domain.dashboard import (
     AuthClaimsExampleFixture,
     AuthConfigurationVariable,
     AuthDiagnosticCheck,
+    AuthRbacEnforcementBoundaryLock,
+    AuthRbacReadinessAudit,
+    AuthRbacTransitionPrerequisite,
     AuthRoleResolutionRule,
     CountBucket,
     DashboardDispatchSummary,
@@ -3335,6 +3338,188 @@ ROUTE_PROTECTION_MATRIX_DEFINITIONS = (
 )
 
 
+AUTH_RBAC_TRANSITION_PREREQUISITE_DEFINITIONS = (
+    {
+        "key": "provider_selected_by_randall",
+        "label": "Provider selected by Randall",
+        "blocker_group": "provider_selection",
+        "status": "blocked_by_provider_selection",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": (
+            "Future auth cannot start until Randall selects the production identity provider."
+        ),
+    },
+    {
+        "key": "real_credentials_supplied_outside_git",
+        "label": "Real credentials supplied outside Git",
+        "blocker_group": "real_credentials_secret_hygiene",
+        "status": "blocked_by_real_credentials",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": (
+            "Real provider credentials must be supplied through runtime secret configuration, "
+            "never committed source files."
+        ),
+    },
+    {
+        "key": "backend_token_verification_implementation_approved",
+        "label": "Backend token verification implementation approved",
+        "blocker_group": "token_verification",
+        "status": "blocked_by_auth_implementation",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "Token verification remains future work and is not active in Phase 0.",
+    },
+    {
+        "key": "frontend_login_logout_ux_approved",
+        "label": "Frontend login/logout UX approved",
+        "blocker_group": "token_verification",
+        "status": "blocked_by_auth_implementation",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "No login or logout UI exists in Phase 0.",
+    },
+    {
+        "key": "operator_identity_registry_implementation_approved",
+        "label": "Operator identity registry implementation approved",
+        "blocker_group": "operator_identity",
+        "status": "blocked_by_auth_implementation",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "Operator identity remains metadata-only until a future implementation module.",
+    },
+    {
+        "key": "role_catalog_finalized_first_production_release",
+        "label": "Role catalog finalized for first production release",
+        "blocker_group": "rbac_role_policy",
+        "status": "blocked_by_rbac_implementation",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "Current roles are provisional planning labels and do not grant authority.",
+    },
+    {
+        "key": "permission_catalog_finalized_first_production_release",
+        "label": "Permission catalog finalized for first production release",
+        "blocker_group": "rbac_role_policy",
+        "status": "blocked_by_rbac_implementation",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "Current permissions are future labels and do not authorize actions.",
+    },
+    {
+        "key": "claims_mapping_finalized",
+        "label": "Claims mapping finalized",
+        "blocker_group": "claims_mapping",
+        "status": "blocked_by_auth_implementation",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "Claims are documented for future mapping only; no request tokens are parsed.",
+    },
+    {
+        "key": "secret_hygiene_check_included_in_verification",
+        "label": "Secret hygiene check included in verification",
+        "blocker_group": "real_credentials_secret_hygiene",
+        "status": "satisfied_now",
+        "satisfied_now": True,
+        "requires_alfonso_owner_review": False,
+        "reason": ("The Phase 0 auth configuration safety helper is part of module verification."),
+    },
+    {
+        "key": "route_protection_matrix_approved",
+        "label": "Route protection matrix approved",
+        "blocker_group": "route_protection",
+        "status": "planned_future",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": (
+            "The matrix exists as read-only planning metadata and still needs future "
+            "approval before enforcement."
+        ),
+    },
+    {
+        "key": "route_guard_implementation_tested",
+        "label": "Route guard implementation tested",
+        "blocker_group": "route_protection",
+        "status": "blocked_by_route_guarding",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "No route guards exist in Phase 0.",
+    },
+    {
+        "key": "manual_review_action_permissions_approved",
+        "label": "Manual Review action permissions approved",
+        "blocker_group": "manual_review_action_permissions",
+        "status": "blocked_by_rbac_implementation",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": (
+            "Manual Review actions remain unavailable until future auth, RBAC, and audit work."
+        ),
+    },
+    {
+        "key": "water_emergency_action_permissions_approved",
+        "label": "Water Emergency action permissions approved",
+        "blocker_group": "water_emergency_action_permissions",
+        "status": "blocked_by_owner_review",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": True,
+        "reason": (
+            "Water Emergency action authority may affect insurance, service commitments, "
+            "or company-liability boundaries."
+        ),
+    },
+    {
+        "key": "audit_actor_idempotency_integration_approved",
+        "label": "Audit actor/idempotency integration approved",
+        "blocker_group": "audit_actor_idempotency",
+        "status": "blocked_by_audit",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "Action modules need audit actor and idempotency design before execution.",
+    },
+    {
+        "key": "rollback_replay_strategy_updated_for_action_modules",
+        "label": "Rollback/replay strategy updated for action modules",
+        "blocker_group": "audit_actor_idempotency",
+        "status": "planned_future",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "Future action modules must define recovery behavior before mutations exist.",
+    },
+    {
+        "key": "acssdr_stakeholder_report_update_in_workflow",
+        "label": "ACSSDR stakeholder report update in workflow",
+        "blocker_group": "review_workflow",
+        "status": "planned_future",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": False,
+        "reason": "Each new module must still update ACSSDR only for the prior committed module.",
+    },
+    {
+        "key": "chatgpt_review_gui_workflow_mandatory",
+        "label": "ChatGPT review/Review GUI workflow mandatory",
+        "blocker_group": "review_workflow",
+        "status": "satisfied_now",
+        "satisfied_now": True,
+        "requires_alfonso_owner_review": False,
+        "reason": "The current Phase 0 workflow still requires external review before commit.",
+    },
+    {
+        "key": "customer_or_insurance_access_policy_review",
+        "label": "Customer or insurance access policy review",
+        "blocker_group": "legal_owner_review",
+        "status": "blocked_by_owner_review",
+        "satisfied_now": False,
+        "requires_alfonso_owner_review": True,
+        "reason": (
+            "Customer-facing promises, insurance documentation, billing access, warranties, "
+            "and formal company policy require Alfonso owner review."
+        ),
+    },
+)
+
+
 def auth_configuration_variable(
     *,
     name: str,
@@ -3606,7 +3791,109 @@ def manual_review_route_protection_readiness() -> ManualReviewRouteProtectionRea
     )
 
 
+def auth_rbac_transition_prerequisite(
+    definition: dict[str, object],
+) -> AuthRbacTransitionPrerequisite:
+    return AuthRbacTransitionPrerequisite(
+        key=str(definition["key"]),
+        label=str(definition["label"]),
+        blocker_group=str(definition["blocker_group"]),
+        status=str(definition["status"]),
+        satisfied_now=bool(definition["satisfied_now"]),
+        requires_alfonso_owner_review=bool(definition["requires_alfonso_owner_review"]),
+        reason=str(definition["reason"]),
+    )
+
+
+def manual_review_auth_rbac_readiness_audit(
+    *,
+    auth_configuration_readiness: ManualReviewAuthConfigurationReadiness,
+    auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadiness,
+    route_protection_readiness: ManualReviewRouteProtectionReadiness,
+) -> AuthRbacReadinessAudit:
+    transition_prerequisites = tuple(
+        auth_rbac_transition_prerequisite(definition)
+        for definition in AUTH_RBAC_TRANSITION_PREREQUISITE_DEFINITIONS
+    )
+    readiness_gap_count = sum(
+        1
+        for prerequisite in transition_prerequisites
+        if prerequisite.status not in {"satisfied_now", "not_applicable"}
+    )
+    owner_review_required_count = sum(
+        1 for prerequisite in transition_prerequisites if prerequisite.requires_alfonso_owner_review
+    )
+    diagnostics = auth_configuration_readiness.runtime_safety_diagnostics
+
+    return AuthRbacReadinessAudit(
+        summary=(
+            "Modules 51-55 are consolidated into a Phase 0 auth/RBAC readiness "
+            "audit. Auth, token verification, RBAC, route guarding, login UI, "
+            "user management, and action execution remain locked off."
+        ),
+        auth_implemented=False,
+        auth_enabled=diagnostics.auth_enabled,
+        token_verification_enabled=auth_claims_mapping_readiness.token_verification_enabled,
+        real_token_parsing_enabled=auth_claims_mapping_readiness.real_token_parsing_enabled,
+        jwks_fetch_enabled=auth_claims_mapping_readiness.jwks_fetch_enabled,
+        rbac_enforced=False,
+        route_guarding_enabled=route_protection_readiness.access_decision_dry_run.route_guarding_enabled,
+        login_ui_available=auth_configuration_readiness.login_ui_available,
+        auth_headers_required=auth_claims_mapping_readiness.auth_headers_required,
+        auth_headers_emitted_by_frontend=(
+            auth_claims_mapping_readiness.auth_headers_emitted_by_frontend
+        ),
+        operator_identity_registry_available=False,
+        role_catalog_available=True,
+        permission_catalog_available=True,
+        claims_mapping_available=auth_claims_mapping_readiness.required_claims_documented,
+        route_protection_matrix_available=(
+            route_protection_readiness.route_protection_matrix_available
+        ),
+        access_decision_dry_run_available=(
+            route_protection_readiness.access_decision_dry_run.access_decision_dry_run_enabled
+        ),
+        secret_hygiene_helper_available=bool(diagnostics.secret_hygiene_helper),
+        committed_credentials_allowed=auth_configuration_readiness.committed_credentials_allowed,
+        service_account_manual_review_allowed=False,
+        technician_manual_review_action_allowed=False,
+        future_auth_required_before_actions=True,
+        future_rbac_required_before_actions=True,
+        future_audit_actor_required_before_actions=True,
+        future_provider_selection_required=(
+            auth_configuration_readiness.future_provider_selection_required
+        ),
+        future_real_credentials_required=auth_configuration_readiness.real_credentials_required,
+        route_protection_enforcement_required_before_actions=True,
+        manual_review_action_execution_available=False,
+        water_emergency_action_execution_available=False,
+        readiness_gap_count=readiness_gap_count,
+        owner_review_required_count=owner_review_required_count,
+        enforcement_boundary_lock=AuthRbacEnforcementBoundaryLock(
+            auth_enforcement_enabled=False,
+            token_verification_enabled=False,
+            real_token_parsing_enabled=False,
+            jwks_fetch_enabled=False,
+            rbac_enforcement_enabled=False,
+            route_guarding_enabled=False,
+            login_ui_available=False,
+            user_management_available=False,
+            action_execution_available=False,
+            mutation_endpoints_available=False,
+            phase_allows_auth_enforcement=False,
+            phase_allows_rbac_enforcement=False,
+            phase_allows_route_guarding=False,
+            phase_allows_manual_review_actions=False,
+        ),
+        future_transition_prerequisites=transition_prerequisites,
+    )
+
+
 def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness:
+    auth_configuration_readiness = manual_review_auth_configuration_readiness()
+    auth_claims_mapping_readiness = manual_review_auth_claims_mapping_readiness()
+    route_protection_readiness = manual_review_route_protection_readiness()
+
     return ManualReviewAuthBoundaryReadiness(
         summary=(
             "Phase 0 exposes the future operator identity registry, role catalog, "
@@ -3676,9 +3963,14 @@ def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness
                 reason,
             ) in MANUAL_REVIEW_PERMISSION_CATALOG_DEFINITIONS
         ),
-        auth_configuration_readiness=manual_review_auth_configuration_readiness(),
-        auth_claims_mapping_readiness=manual_review_auth_claims_mapping_readiness(),
-        route_protection_readiness=manual_review_route_protection_readiness(),
+        auth_configuration_readiness=auth_configuration_readiness,
+        auth_claims_mapping_readiness=auth_claims_mapping_readiness,
+        route_protection_readiness=route_protection_readiness,
+        auth_rbac_readiness_audit=manual_review_auth_rbac_readiness_audit(
+            auth_configuration_readiness=auth_configuration_readiness,
+            auth_claims_mapping_readiness=auth_claims_mapping_readiness,
+            route_protection_readiness=route_protection_readiness,
+        ),
     )
 
 

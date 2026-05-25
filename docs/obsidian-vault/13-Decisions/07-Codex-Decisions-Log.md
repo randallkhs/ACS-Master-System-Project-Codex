@@ -1566,6 +1566,40 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-25 — Phase 0 Module 56 Auth/RBAC Readiness Audit, Enforcement Boundary Lock, And Transition Plan
+
+- Decision type: Implementation / Auth-RBAC readiness / read-only enforcement boundary
+- Status: Implemented
+- Decision:
+  - Consolidate Modules 51-55 into a read-only Auth/RBAC readiness audit under the existing Manual Review auth-boundary read model.
+  - Add an enforcement-boundary lock that explicitly keeps auth enforcement, token verification, real token parsing, JWKS fetch, RBAC enforcement, route guarding, sign-in UI, user management, action execution, mutation endpoints, and Phase 0 enforcement allowances false.
+  - Add future transition prerequisites for provider selection, real credentials outside Git, token verification approval, frontend sign-in UX approval, operator identity implementation, role catalog finalization, permission catalog finalization, claims mapping, secret hygiene verification, route protection approval, route guard testing, Manual Review action permission approval, Water Emergency action permission approval, audit actor/idempotency integration, rollback/replay strategy, ACSSDR workflow, review workflow, and legal/insurance owner review.
+  - Keep Water Emergency action readiness separated from standard Manual Review readiness and flagged for owner-review where legal, insurance, warranty, billing, customer promise, or company-liability policy may be affected.
+  - Display the audit, lock, and prerequisite groups in the Manual Review queue UI as read-only operational visibility.
+- Rationale:
+  - Future auth/RBAC work needs a deterministic checkpoint before any real authentication, token verification, route guards, RBAC enforcement, or Manual Review action execution can be considered.
+  - A consolidated audit makes the remaining gaps explicit without creating fake access control or unsafe workflow authority.
+  - Alfonso owner-review flags keep legal, insurance, and company-liability decisions outside silent software defaults.
+- Future implications:
+  - Future auth modules still need selected provider configuration, real credentials supplied outside Git, token verification middleware, frontend sign-in UX, durable operator identity, finalized role/permission policy, route guards, audit actor/idempotency integration, action permissions, and reviewed rollback/replay strategy.
+  - Auth/RBAC enforcement, route protection enforcement, Manual Review actions, Water Emergency actions, and owner-reviewed legal/company policy remain unresolved future work.
+  - The Review GUI/ChatGPT review workflow and ACSSDR previous-module reporting remain mandatory before commits.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Water Emergency workflow documentation
+  - Dispatch boundary documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+  - AI/dashboard safety boundary
+
+---
+
 ## 2026-05-24 — Phase 0 Module 50 Manual Review Execution Readiness Audit, Mutation Boundary Lock, And Transition Plan
 
 - Decision type: Implementation / Manual Review visibility / read-only execution-readiness boundary

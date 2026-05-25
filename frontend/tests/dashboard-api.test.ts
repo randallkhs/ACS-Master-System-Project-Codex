@@ -399,6 +399,78 @@ describe("dashboard API client", () => {
       )
     ).toBe(true);
     expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .auth_implemented
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .auth_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .token_verification_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .real_token_parsing_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .jwks_fetch_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .rbac_enforced
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .route_guarding_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .manual_review_action_execution_available
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .water_emergency_action_execution_available
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .enforcement_boundary_lock.phase_allows_auth_enforcement
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .enforcement_boundary_lock.phase_allows_rbac_enforcement
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .enforcement_boundary_lock.phase_allows_route_guarding
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .future_transition_prerequisites.some(
+          (prerequisite) =>
+            prerequisite.key === "provider_selected_by_randall" &&
+            prerequisite.status === "blocked_by_provider_selection"
+        )
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .future_transition_prerequisites.some(
+          (prerequisite) =>
+            prerequisite.key === "secret_hygiene_check_included_in_verification" &&
+            prerequisite.status === "satisfied_now"
+        )
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .future_transition_prerequisites.some(
+          (prerequisite) =>
+            prerequisite.key === "water_emergency_action_permissions_approved" &&
+            prerequisite.requires_alfonso_owner_review
+        )
+    ).toBe(true);
+    expect(
       result.data.items[0].command_validation.safety_gates.at(-1)?.key
     ).toBe("phase_allows_execution");
     expect(result.data.taxonomy_metadata.randall_authorized_phase_0_baseline).toBe(

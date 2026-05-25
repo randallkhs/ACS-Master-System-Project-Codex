@@ -481,6 +481,36 @@ function ExecutionReadinessAuditPanel({
   );
 }
 
+const authRbacBlockerGroupLabels: Record<string, string> = {
+  provider_selection: "Provider selection",
+  real_credentials_secret_hygiene: "Real credentials / secret hygiene",
+  token_verification: "Token verification",
+  claims_mapping: "Claims mapping",
+  operator_identity: "Operator identity",
+  rbac_role_policy: "RBAC / role policy",
+  route_protection: "Route protection",
+  manual_review_action_permissions: "Manual Review action permissions",
+  water_emergency_action_permissions: "Water Emergency action permissions",
+  audit_actor_idempotency: "Audit actor / idempotency",
+  legal_owner_review: "Legal / owner review",
+  review_workflow: "Review workflow",
+};
+
+const authRbacBlockerGroupOrder = [
+  "provider_selection",
+  "real_credentials_secret_hygiene",
+  "token_verification",
+  "claims_mapping",
+  "operator_identity",
+  "rbac_role_policy",
+  "route_protection",
+  "manual_review_action_permissions",
+  "water_emergency_action_permissions",
+  "audit_actor_idempotency",
+  "legal_owner_review",
+  "review_workflow",
+];
+
 function AuthBoundaryReadinessPanel({
   boundary,
 }: {
@@ -491,6 +521,16 @@ function AuthBoundaryReadinessPanel({
   const claimsMapping = boundary.auth_claims_mapping_readiness;
   const routeProtection = boundary.route_protection_readiness;
   const accessDryRun = routeProtection.access_decision_dry_run;
+  const authRbacAudit = boundary.auth_rbac_readiness_audit;
+  const enforcementLock = authRbacAudit.enforcement_boundary_lock;
+  const transitionPrerequisitesByGroup =
+    authRbacAudit.future_transition_prerequisites.reduce<
+      Record<string, typeof authRbacAudit.future_transition_prerequisites>
+    >((groups, prerequisite) => {
+      const existing = groups[prerequisite.blocker_group] ?? [];
+      groups[prerequisite.blocker_group] = [...existing, prerequisite];
+      return groups;
+    }, {});
 
   return (
     <SectionCard
@@ -514,6 +554,167 @@ function AuthBoundaryReadinessPanel({
           label="Action execution"
           value={boundary.action_execution_available ? "Available" : "Unavailable"}
         />
+      </div>
+
+      <div className="mt-4 rounded-md border border-amber-200 bg-amber-50/60 p-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">
+          Auth/RBAC Readiness Audit
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-700">
+          {authRbacAudit.summary} This is read-only operational visibility; it
+          does not deny routes, hide UI, verify tokens, or unlock actions.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MiniMetric
+            label="Auth enforcement"
+            value={
+              enforcementLock.auth_enforcement_enabled
+                ? "Auth enforcement enabled"
+                : "Auth enforcement disabled"
+            }
+          />
+          <MiniMetric
+            label="RBAC enforcement"
+            value={
+              enforcementLock.rbac_enforcement_enabled
+                ? "RBAC enforcement enabled"
+                : "RBAC enforcement disabled"
+            }
+          />
+          <MiniMetric
+            label="Route guarding"
+            value={
+              enforcementLock.route_guarding_enabled
+                ? "Route guarding enabled"
+                : "Route guarding disabled"
+            }
+          />
+          <MiniMetric
+            label="Sign-in UI"
+            value={
+              enforcementLock.login_ui_available
+                ? "Sign-in UI available"
+                : "Sign-in UI unavailable"
+            }
+          />
+          <MiniMetric
+            label="User management"
+            value={
+              enforcementLock.user_management_available
+                ? "User management available"
+                : "User management unavailable"
+            }
+          />
+          <MiniMetric
+            label="Manual Review actions"
+            value={
+              authRbacAudit.manual_review_action_execution_available
+                ? "Manual Review actions available"
+                : "Manual Review actions unavailable"
+            }
+          />
+          <MiniMetric
+            label="Water Emergency actions"
+            value={
+              authRbacAudit.water_emergency_action_execution_available
+                ? "Water Emergency actions available"
+                : "Water Emergency actions unavailable"
+            }
+          />
+          <MiniMetric
+            label="Readiness gaps"
+            value={formatCount(authRbacAudit.readiness_gap_count)}
+          />
+        </div>
+        <div className="mt-4 rounded-md border border-amber-200 bg-white p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">
+            Enforcement Boundary Lock
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              ["Auth enforcement disabled", !enforcementLock.auth_enforcement_enabled],
+              [
+                "Token verification disabled",
+                !enforcementLock.token_verification_enabled,
+              ],
+              [
+                "Real token parsing disabled",
+                !enforcementLock.real_token_parsing_enabled,
+              ],
+              ["JWKS fetch disabled", !enforcementLock.jwks_fetch_enabled],
+              ["RBAC enforcement disabled", !enforcementLock.rbac_enforcement_enabled],
+              ["Route guarding disabled", !enforcementLock.route_guarding_enabled],
+              ["Sign-in UI unavailable", !enforcementLock.login_ui_available],
+              [
+                "User management unavailable",
+                !enforcementLock.user_management_available,
+              ],
+              [
+                "Manual Review actions unavailable",
+                !enforcementLock.phase_allows_manual_review_actions,
+              ],
+              [
+                "Mutation endpoints unavailable",
+                !enforcementLock.mutation_endpoints_available,
+              ],
+            ].map(([label, locked]) => (
+              <StatusBadge
+                key={String(label)}
+                label={String(label)}
+                variant={locked ? "neutral" : "danger"}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {authRbacBlockerGroupOrder.map((groupKey) => {
+            const prerequisites = transitionPrerequisitesByGroup[groupKey] ?? [];
+
+            if (prerequisites.length === 0) {
+              return null;
+            }
+
+            return (
+              <div
+                key={groupKey}
+                className="rounded-md border border-amber-200 bg-white p-3"
+              >
+                <div className="text-sm font-semibold text-[#162033]">
+                  {authRbacBlockerGroupLabels[groupKey] ?? humanizeLabel(groupKey)}
+                </div>
+                <div className="mt-3 space-y-3">
+                  {prerequisites.map((prerequisite) => (
+                    <div
+                      key={prerequisite.key}
+                      className="rounded-md border border-slate-200 bg-slate-50/70 p-3"
+                    >
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="break-words text-sm font-semibold text-[#162033]">
+                            {prerequisite.label}
+                          </div>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">
+                            {prerequisite.reason}
+                          </p>
+                        </div>
+                        <StatusBadge
+                          label={humanizeLabel(prerequisite.status)}
+                          variant={
+                            prerequisite.status === "satisfied_now"
+                              ? "neutral"
+                              : prerequisite.requires_alfonso_owner_review
+                                ? "warning"
+                                : "info"
+                          }
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">

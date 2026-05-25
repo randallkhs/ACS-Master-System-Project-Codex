@@ -695,6 +695,24 @@ Future work:
 - durable audit/idempotency/event/consistency infrastructure
 - owner-reviewed legal, insurance, warranty, drying certification, or company-liability language if future actions affect formal policy
 
+# 19. Phase 0 Module 56 Auth/RBAC Readiness Audit Separation
+
+Water Emergency-related authorization readiness is included in the read-only Auth/RBAC readiness audit, but it remains separated from standard Manual Review and dispatch planning.
+
+Separation rules:
+
+- Water Emergency action execution remains unavailable
+- Water Emergency action permissions remain future prerequisites and must not be marked satisfied in Phase 0
+- owner-review flags must remain visible when future access or action policy could affect insurance, drying certification, warranty, billing, customer promises, or company-liability boundaries
+- route guarding, token verification, RBAC enforcement, sign-in UI, user management, mutation endpoints, audit writes, and workflow execution remain disabled
+- no Water Emergency close, resolve, dispatch, vendor, AI, or automatic workflow behavior is added
+
+Future work:
+
+- reviewed Water Emergency action permissions after auth/RBAC exists
+- owner-approved legal, insurance, warranty, drying certification, or company-liability policy before any binding action or customer-facing promise is implemented
+- audit actor, idempotency, immutable event, and post-action consistency integration for any future executable Water Emergency module
+
 ---
 
 # 18. Phase 0 Module 55 Route Protection Matrix Separation

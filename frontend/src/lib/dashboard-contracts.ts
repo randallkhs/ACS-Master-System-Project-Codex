@@ -421,6 +421,69 @@ export type ManualReviewRouteProtectionReadinessResponse = {
   matrix_items: RouteProtectionMatrixItemResponse[];
 };
 
+export type AuthRbacEnforcementBoundaryLockResponse = {
+  auth_enforcement_enabled: boolean;
+  token_verification_enabled: boolean;
+  real_token_parsing_enabled: boolean;
+  jwks_fetch_enabled: boolean;
+  rbac_enforcement_enabled: boolean;
+  route_guarding_enabled: boolean;
+  login_ui_available: boolean;
+  user_management_available: boolean;
+  action_execution_available: boolean;
+  mutation_endpoints_available: boolean;
+  phase_allows_auth_enforcement: boolean;
+  phase_allows_rbac_enforcement: boolean;
+  phase_allows_route_guarding: boolean;
+  phase_allows_manual_review_actions: boolean;
+};
+
+export type AuthRbacTransitionPrerequisiteResponse = {
+  key: string;
+  label: string;
+  blocker_group: string;
+  status: string;
+  satisfied_now: boolean;
+  requires_alfonso_owner_review: boolean;
+  reason: string;
+};
+
+export type AuthRbacReadinessAuditResponse = {
+  summary: string;
+  auth_implemented: boolean;
+  auth_enabled: boolean;
+  token_verification_enabled: boolean;
+  real_token_parsing_enabled: boolean;
+  jwks_fetch_enabled: boolean;
+  rbac_enforced: boolean;
+  route_guarding_enabled: boolean;
+  login_ui_available: boolean;
+  auth_headers_required: boolean;
+  auth_headers_emitted_by_frontend: boolean;
+  operator_identity_registry_available: boolean;
+  role_catalog_available: boolean;
+  permission_catalog_available: boolean;
+  claims_mapping_available: boolean;
+  route_protection_matrix_available: boolean;
+  access_decision_dry_run_available: boolean;
+  secret_hygiene_helper_available: boolean;
+  committed_credentials_allowed: boolean;
+  service_account_manual_review_allowed: boolean;
+  technician_manual_review_action_allowed: boolean;
+  future_auth_required_before_actions: boolean;
+  future_rbac_required_before_actions: boolean;
+  future_audit_actor_required_before_actions: boolean;
+  future_provider_selection_required: boolean;
+  future_real_credentials_required: boolean;
+  route_protection_enforcement_required_before_actions: boolean;
+  manual_review_action_execution_available: boolean;
+  water_emergency_action_execution_available: boolean;
+  readiness_gap_count: number;
+  owner_review_required_count: number;
+  enforcement_boundary_lock: AuthRbacEnforcementBoundaryLockResponse;
+  future_transition_prerequisites: AuthRbacTransitionPrerequisiteResponse[];
+};
+
 export type ManualReviewAuthBoundaryReadinessResponse = {
   summary: string;
   auth_implemented: boolean;
@@ -444,6 +507,7 @@ export type ManualReviewAuthBoundaryReadinessResponse = {
   auth_configuration_readiness: ManualReviewAuthConfigurationReadinessResponse;
   auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadinessResponse;
   route_protection_readiness: ManualReviewRouteProtectionReadinessResponse;
+  auth_rbac_readiness_audit: AuthRbacReadinessAuditResponse;
 };
 
 export type ManualReviewMutationBoundaryLockResponse = {

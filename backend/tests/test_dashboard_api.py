@@ -14,6 +14,9 @@ from app.domain.dashboard import (
     AuthClaimsExampleFixture,
     AuthConfigurationVariable,
     AuthDiagnosticCheck,
+    AuthRbacEnforcementBoundaryLock,
+    AuthRbacReadinessAudit,
+    AuthRbacTransitionPrerequisite,
     AuthRoleResolutionRule,
     CountBucket,
     DashboardDispatchSummary,
@@ -1226,6 +1229,150 @@ def manual_review_route_protection_readiness_contract() -> ManualReviewRouteProt
     )
 
 
+def auth_rbac_enforcement_boundary_lock_contract() -> AuthRbacEnforcementBoundaryLock:
+    return AuthRbacEnforcementBoundaryLock(
+        auth_enforcement_enabled=False,
+        token_verification_enabled=False,
+        real_token_parsing_enabled=False,
+        jwks_fetch_enabled=False,
+        rbac_enforcement_enabled=False,
+        route_guarding_enabled=False,
+        login_ui_available=False,
+        user_management_available=False,
+        action_execution_available=False,
+        mutation_endpoints_available=False,
+        phase_allows_auth_enforcement=False,
+        phase_allows_rbac_enforcement=False,
+        phase_allows_route_guarding=False,
+        phase_allows_manual_review_actions=False,
+    )
+
+
+def auth_rbac_transition_prerequisites_contract() -> tuple[
+    AuthRbacTransitionPrerequisite,
+    ...,
+]:
+    return (
+        AuthRbacTransitionPrerequisite(
+            key="provider_selected_by_randall",
+            label="Provider selected by Randall",
+            blocker_group="provider_selection",
+            status="blocked_by_provider_selection",
+            satisfied_now=False,
+            requires_alfonso_owner_review=False,
+            reason="Future provider selection remains required.",
+        ),
+        AuthRbacTransitionPrerequisite(
+            key="real_credentials_supplied_outside_git",
+            label="Real credentials supplied outside Git",
+            blocker_group="real_credentials_secret_hygiene",
+            status="blocked_by_real_credentials",
+            satisfied_now=False,
+            requires_alfonso_owner_review=False,
+            reason="Real credentials must remain outside committed source files.",
+        ),
+        AuthRbacTransitionPrerequisite(
+            key="route_guard_implementation_tested",
+            label="Route guard implementation tested",
+            blocker_group="route_protection",
+            status="blocked_by_route_guarding",
+            satisfied_now=False,
+            requires_alfonso_owner_review=False,
+            reason="Route guards are future work.",
+        ),
+        AuthRbacTransitionPrerequisite(
+            key="manual_review_action_permissions_approved",
+            label="Manual Review action permissions approved",
+            blocker_group="manual_review_action_permissions",
+            status="blocked_by_rbac_implementation",
+            satisfied_now=False,
+            requires_alfonso_owner_review=False,
+            reason="Manual Review action permissions are future work.",
+        ),
+        AuthRbacTransitionPrerequisite(
+            key="water_emergency_action_permissions_approved",
+            label="Water Emergency action permissions approved",
+            blocker_group="water_emergency_action_permissions",
+            status="blocked_by_owner_review",
+            satisfied_now=False,
+            requires_alfonso_owner_review=True,
+            reason="Water Emergency action authority requires owner review.",
+        ),
+        AuthRbacTransitionPrerequisite(
+            key="secret_hygiene_check_included_in_verification",
+            label="Secret hygiene check included in verification",
+            blocker_group="real_credentials_secret_hygiene",
+            status="satisfied_now",
+            satisfied_now=True,
+            requires_alfonso_owner_review=False,
+            reason="Secret hygiene verification is part of the module checks.",
+        ),
+        AuthRbacTransitionPrerequisite(
+            key="audit_actor_idempotency_integration_approved",
+            label="Audit actor/idempotency integration approved",
+            blocker_group="audit_actor_idempotency",
+            status="blocked_by_audit",
+            satisfied_now=False,
+            requires_alfonso_owner_review=False,
+            reason="Audit actor and idempotency design remain future work.",
+        ),
+        AuthRbacTransitionPrerequisite(
+            key="customer_or_insurance_access_policy_review",
+            label="Customer or insurance access policy review",
+            blocker_group="legal_owner_review",
+            status="blocked_by_owner_review",
+            satisfied_now=False,
+            requires_alfonso_owner_review=True,
+            reason="Legal and insurance policy requires owner review.",
+        ),
+    )
+
+
+def manual_review_auth_rbac_readiness_audit_contract() -> AuthRbacReadinessAudit:
+    prerequisites = auth_rbac_transition_prerequisites_contract()
+    return AuthRbacReadinessAudit(
+        summary="Phase 0 Auth/RBAC readiness audit remains read-only.",
+        auth_implemented=False,
+        auth_enabled=False,
+        token_verification_enabled=False,
+        real_token_parsing_enabled=False,
+        jwks_fetch_enabled=False,
+        rbac_enforced=False,
+        route_guarding_enabled=False,
+        login_ui_available=False,
+        auth_headers_required=False,
+        auth_headers_emitted_by_frontend=False,
+        operator_identity_registry_available=False,
+        role_catalog_available=True,
+        permission_catalog_available=True,
+        claims_mapping_available=True,
+        route_protection_matrix_available=True,
+        access_decision_dry_run_available=True,
+        secret_hygiene_helper_available=True,
+        committed_credentials_allowed=False,
+        service_account_manual_review_allowed=False,
+        technician_manual_review_action_allowed=False,
+        future_auth_required_before_actions=True,
+        future_rbac_required_before_actions=True,
+        future_audit_actor_required_before_actions=True,
+        future_provider_selection_required=True,
+        future_real_credentials_required=True,
+        route_protection_enforcement_required_before_actions=True,
+        manual_review_action_execution_available=False,
+        water_emergency_action_execution_available=False,
+        readiness_gap_count=sum(
+            1
+            for prerequisite in prerequisites
+            if prerequisite.status not in {"satisfied_now", "not_applicable"}
+        ),
+        owner_review_required_count=sum(
+            1 for prerequisite in prerequisites if prerequisite.requires_alfonso_owner_review
+        ),
+        enforcement_boundary_lock=auth_rbac_enforcement_boundary_lock_contract(),
+        future_transition_prerequisites=prerequisites,
+    )
+
+
 def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundaryReadiness:
     return ManualReviewAuthBoundaryReadiness(
         summary=(
@@ -1439,6 +1586,7 @@ def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundary
         ),
         auth_claims_mapping_readiness=manual_review_auth_claims_mapping_readiness_contract(),
         route_protection_readiness=manual_review_route_protection_readiness_contract(),
+        auth_rbac_readiness_audit=manual_review_auth_rbac_readiness_audit_contract(),
     )
 
 
@@ -2760,6 +2908,78 @@ def test_dashboard_api_routes_return_read_only_contracts(
         matrix["future_legal_insurance_sensitive_action_surface"][
             "owner_review_required_if_legal_or_insurance"
         ]
+        is True
+    )
+    auth_rbac_audit = auth_boundary["auth_rbac_readiness_audit"]
+    enforcement_lock = auth_rbac_audit["enforcement_boundary_lock"]
+    prerequisites = {
+        prerequisite["key"]: prerequisite
+        for prerequisite in auth_rbac_audit["future_transition_prerequisites"]
+    }
+    assert auth_rbac_audit["auth_implemented"] is False
+    assert auth_rbac_audit["auth_enabled"] is False
+    assert auth_rbac_audit["token_verification_enabled"] is False
+    assert auth_rbac_audit["real_token_parsing_enabled"] is False
+    assert auth_rbac_audit["jwks_fetch_enabled"] is False
+    assert auth_rbac_audit["rbac_enforced"] is False
+    assert auth_rbac_audit["route_guarding_enabled"] is False
+    assert auth_rbac_audit["login_ui_available"] is False
+    assert auth_rbac_audit["auth_headers_required"] is False
+    assert auth_rbac_audit["auth_headers_emitted_by_frontend"] is False
+    assert auth_rbac_audit["operator_identity_registry_available"] is False
+    assert auth_rbac_audit["role_catalog_available"] is True
+    assert auth_rbac_audit["permission_catalog_available"] is True
+    assert auth_rbac_audit["claims_mapping_available"] is True
+    assert auth_rbac_audit["route_protection_matrix_available"] is True
+    assert auth_rbac_audit["access_decision_dry_run_available"] is True
+    assert auth_rbac_audit["secret_hygiene_helper_available"] is True
+    assert auth_rbac_audit["committed_credentials_allowed"] is False
+    assert auth_rbac_audit["service_account_manual_review_allowed"] is False
+    assert auth_rbac_audit["technician_manual_review_action_allowed"] is False
+    assert auth_rbac_audit["future_provider_selection_required"] is True
+    assert auth_rbac_audit["future_real_credentials_required"] is True
+    assert auth_rbac_audit["route_protection_enforcement_required_before_actions"] is True
+    assert auth_rbac_audit["manual_review_action_execution_available"] is False
+    assert auth_rbac_audit["water_emergency_action_execution_available"] is False
+    assert auth_rbac_audit["readiness_gap_count"] > 0
+    assert auth_rbac_audit["owner_review_required_count"] > 0
+    assert enforcement_lock["auth_enforcement_enabled"] is False
+    assert enforcement_lock["token_verification_enabled"] is False
+    assert enforcement_lock["real_token_parsing_enabled"] is False
+    assert enforcement_lock["jwks_fetch_enabled"] is False
+    assert enforcement_lock["rbac_enforcement_enabled"] is False
+    assert enforcement_lock["route_guarding_enabled"] is False
+    assert enforcement_lock["login_ui_available"] is False
+    assert enforcement_lock["user_management_available"] is False
+    assert enforcement_lock["action_execution_available"] is False
+    assert enforcement_lock["mutation_endpoints_available"] is False
+    assert enforcement_lock["phase_allows_auth_enforcement"] is False
+    assert enforcement_lock["phase_allows_rbac_enforcement"] is False
+    assert enforcement_lock["phase_allows_route_guarding"] is False
+    assert enforcement_lock["phase_allows_manual_review_actions"] is False
+    assert prerequisites["provider_selected_by_randall"]["status"] == (
+        "blocked_by_provider_selection"
+    )
+    assert prerequisites["real_credentials_supplied_outside_git"]["status"] == (
+        "blocked_by_real_credentials"
+    )
+    assert prerequisites["route_guard_implementation_tested"]["status"] == (
+        "blocked_by_route_guarding"
+    )
+    assert prerequisites["manual_review_action_permissions_approved"]["status"] == (
+        "blocked_by_rbac_implementation"
+    )
+    assert prerequisites["water_emergency_action_permissions_approved"]["status"] == (
+        "blocked_by_owner_review"
+    )
+    assert prerequisites["audit_actor_idempotency_integration_approved"]["status"] == (
+        "blocked_by_audit"
+    )
+    assert prerequisites["secret_hygiene_check_included_in_verification"]["status"] == (
+        "satisfied_now"
+    )
+    assert (
+        prerequisites["customer_or_insurance_access_policy_review"]["requires_alfonso_owner_review"]
         is True
     )
     assert (

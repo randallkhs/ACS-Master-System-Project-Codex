@@ -608,3 +608,21 @@ Rules:
 Open concerns:
 
 - final ACS-FSM auth provider selection, production credential ownership, route guard architecture, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, frontend section hiding policy, and authenticated Manual Review action authority remain future work
+
+## Phase 0 Module 56 Auth/RBAC Readiness Audit And Enforcement Boundary
+
+Module 56 consolidates Modules 51-55 into a read-only Auth/RBAC readiness audit, enforcement-boundary lock, and future transition checklist.
+
+Rules:
+
+- the Auth/RBAC readiness audit is a Randall-authorized Phase 0 planning baseline only
+- auth enforcement, token verification, real token parsing, JWKS fetch, RBAC enforcement, route guarding, sign-in UI, user management, action execution, mutation endpoints, and Phase 0 enforcement allowances must remain false
+- future transition prerequisites must not mark auth/RBAC enforcement, route protection enforcement, Manual Review action readiness, or Water Emergency action readiness as satisfied
+- provider selection, real credentials, token verification, claims mapping, operator identity, RBAC/role policy, route guards, Manual Review action permissions, Water Emergency action permissions, audit actor/idempotency, and review workflow remain future prerequisites
+- service accounts and technicians remain blocked from Manual Review operator actions unless a future reviewed module explicitly changes that boundary
+- Water Emergency action permissions remain separated from standard Manual Review and require owner-review visibility where legal, insurance, warranty, drying certification, billing, customer-promise, or formal policy consequences may exist
+- no login, logout, signup, user management, token/session behavior, auth headers, JWT parsing, JWKS fetch, fake user identity, fake role enforcement, route guards, RBAC enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final ACS-FSM auth provider selection, real secret configuration, route guard architecture, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, audit actor/idempotency integration, and owner-reviewed legal/company policy remain future work

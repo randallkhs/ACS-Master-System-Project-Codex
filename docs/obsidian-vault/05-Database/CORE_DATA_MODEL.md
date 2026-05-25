@@ -790,6 +790,24 @@ Water Emergency-specific statuses may include:
 
 ---
 
+## Phase 0 Module 56 Auth/RBAC Readiness Audit Data Boundary
+
+Module 56 does not add durable data entities. The Auth/RBAC readiness audit, enforcement-boundary lock, and transition prerequisites are read-model metadata layered over the existing Manual Review auth-boundary contract.
+
+Current data-model boundary:
+
+- no operator identity table is created
+- no RBAC table is created
+- no route protection enforcement table is created
+- no token/session/JWT/JWKS storage is created
+- no audit-action or idempotency persistence is created
+- no Manual Review or Water Emergency mutation state is added
+- service-account and technician Manual Review action blocks remain future authorization planning metadata only
+
+Future data-model work may require durable operator identities, role assignments, permission grants, audit actor references, idempotency records, immutable action events, and route guard configuration after reviewed auth/RBAC implementation modules are approved.
+
+---
+
 ## Constraints To Confirm With Operations
 
 - complete ACS job/service taxonomy

@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 55 keeps the frontend foundation read-only while adding route protection matrix, access decision dry-run, and UI permission-boundary readiness visibility on top of the existing Manual Review auth-boundary readiness, auth configuration readiness, auth diagnostics/runtime safety visibility, auth claims mapping, token-verification dry-run boundary, role-resolution readiness, safe secret-hygiene status, auth header disabled status, explicit disabled auth/token/RBAC status, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
+Phase 0 Module 56 keeps the frontend foundation read-only while adding Auth/RBAC readiness audit, enforcement-boundary lock, and future transition prerequisite visibility on top of the existing route protection matrix, access decision dry-run, UI permission-boundary readiness, Manual Review auth-boundary readiness, auth configuration readiness, auth diagnostics/runtime safety visibility, auth claims mapping, token-verification dry-run boundary, role-resolution readiness, safe secret-hygiene status, auth header disabled status, explicit disabled auth/token/RBAC status, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -371,6 +371,25 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - The Manual Review Queue and detail panel now display read-only auth diagnostics showing auth disabled, token verification disabled, RBAC disabled, auth headers not required, frontend auth headers not emitted, and runtime auth mode `read_only_phase_0`.
 - Secret-hygiene status is shown only as safe booleans: no tracked `.env`, no tracked `.env.local`, no tracked service account JSON, private key not detected, and placeholder values only.
 - The frontend does not render secret values, does not add login/logout/user-management controls, does not add token/session behavior, and does not add auth headers to the dashboard API client.
+
+## Module 54 Auth Claims Mapping And Role Resolution Notes
+
+- The Manual Review Queue and detail panel display read-only future auth claims, role-resolution, and token-verification dry-run readiness.
+- Token verification, real token parsing, JWKS fetch, auth headers, and RBAC enforcement remain disabled. Claim, role, and permission labels are not clickable controls and do not hide or unlock UI.
+- Safe example claim fixtures contain placeholder domains only and do not render real users, credentials, tokens, JWT samples, private keys, or service account JSON.
+
+## Module 55 Route Protection Matrix And Access Decision Dry-Run Notes
+
+- The Manual Review Queue and detail panel display backend-provided route protection matrix and access decision dry-run visibility.
+- Future API routes, frontend sections, and future action surfaces are mapped to future role and permission labels only. Enforcement, Phase 0 enforcement allowance, route guarding, token verification, and RBAC enforcement remain disabled.
+- Route, permission, and access labels are read-only evidence. They do not deny routes, hide sections, emit auth headers, add JWT parsing, or create action authority.
+
+## Module 56 Auth/RBAC Readiness Audit Notes
+
+- The Manual Review Queue panel now displays the Auth/RBAC readiness audit, enforcement-boundary lock, and future transition prerequisites as read-only operational visibility.
+- The audit shows auth enforcement disabled, token verification disabled, real token parsing disabled, JWKS fetch disabled, RBAC enforcement disabled, route guarding disabled, sign-in UI unavailable, user management unavailable, Manual Review actions unavailable, and Water Emergency actions unavailable.
+- Future prerequisites are grouped by provider selection, real credentials/secret hygiene, token verification, claims mapping, operator identity, RBAC/role policy, route protection, Manual Review action permissions, Water Emergency action permissions, audit actor/idempotency, legal/owner review, and review workflow.
+- The UI still does not add login/logout/signup/user-management controls, role assignment, forms, inputs, auth headers, token/session behavior, route guards, section hiding, approve/reject/defer/archive controls, dispatch controls, vendor calls, AI controls, or executable readiness labels.
 
 ## Module 38 Water Emergency View-State Notes
 
