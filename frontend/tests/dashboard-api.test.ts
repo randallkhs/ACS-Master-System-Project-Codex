@@ -215,6 +215,26 @@ describe("dashboard API client", () => {
     expect(result.data.items[0].permission_readiness.service_account_allowed).toBe(
       false
     );
+    expect(result.data.auth_boundary_readiness.auth_implemented).toBe(false);
+    expect(result.data.auth_boundary_readiness.rbac_enforced).toBe(false);
+    expect(result.data.auth_boundary_readiness.action_execution_available).toBe(
+      false
+    );
+    expect(
+      result.data.auth_boundary_readiness.service_accounts_blocked_for_manual_review_actions
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.provisional_roles.some(
+        (role) => role.key === "system_service" && role.is_service_account_role
+      )
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.future_permissions.some(
+        (permission) =>
+          permission.key === "manual_review.approve.future" &&
+          permission.authorizes_actions_now === false
+      )
+    ).toBe(true);
     expect(
       result.data.items[0].command_validation.safety_gates.at(-1)?.key
     ).toBe("phase_allows_execution");

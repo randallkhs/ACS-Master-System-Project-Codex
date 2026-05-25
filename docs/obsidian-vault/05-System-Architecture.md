@@ -1017,6 +1017,29 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 51 Manual Review Auth-Boundary Readiness
+
+Module 51 starts the controlled transition toward future auth/RBAC modules by adding read-only auth-boundary readiness metadata without implementing auth:
+
+- backend read models expose future operator identity registry fields, metadata-only registry mode, provisional role catalog, future permission catalog, service-account prohibition, and explicit auth/RBAC/action-execution false flags
+- `auth_implemented`, `rbac_enforced`, `login_ui_available`, and `action_execution_available` remain false
+- `operator_identity_registry_available` remains false because no operator identities are persisted in Phase 0
+- service accounts, technicians, and unknown operators are not future Manual Review operator-action actors under the current baseline
+- frontend queue and detail panels display the catalog metadata as read-only evidence and do not add login/signup/user-management UI, role assignment UI, auth headers, token/session behavior, role enforcement, action controls, or button-styled role/permission labels
+- Water Emergency-related authorization and future action scope remain separated from standard Manual Review readiness
+
+The boundary remains projection-only. The endpoint and UI do not authenticate users, enforce RBAC, persist identities, create fake users, hide UI based on fake roles, execute Manual Review commands, mutate review records, write audit events, create POST/PUT/PATCH/DELETE endpoints, persist idempotency keys, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- final ACS-FSM auth provider and credential ownership
+- durable operator identity registry schema
+- approved RBAC role model and permission taxonomy
+- role-scoped Manual Review visibility and action authority after authentication exists
+- future authenticated Manual Review command validation/execution workflows
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

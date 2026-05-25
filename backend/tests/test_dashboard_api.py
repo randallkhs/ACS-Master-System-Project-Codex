@@ -6,6 +6,9 @@ from fastapi.testclient import TestClient
 from app.core.config import Settings
 from app.db.session import get_db_session
 from app.domain.dashboard import (
+    AuthBoundaryOperatorIdentityField,
+    AuthBoundaryPermissionCatalogItem,
+    AuthBoundaryRoleCatalogItem,
     CountBucket,
     DashboardDispatchSummary,
     DashboardOverviewReadModel,
@@ -14,6 +17,7 @@ from app.domain.dashboard import (
     GovernanceAccountabilitySummary,
     ManualReviewActionPreflight,
     ManualReviewAuditLedgerDryRun,
+    ManualReviewAuthBoundaryReadiness,
     ManualReviewCommandContract,
     ManualReviewCommandValidation,
     ManualReviewDecisionReadiness,
@@ -904,6 +908,100 @@ def manual_review_permission_readiness_contract(
     )
 
 
+def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundaryReadiness:
+    return ManualReviewAuthBoundaryReadiness(
+        summary=(
+            "Phase 0 exposes future auth boundary metadata without implementing auth, "
+            "RBAC, login, tokens, or action execution."
+        ),
+        auth_implemented=False,
+        rbac_enforced=False,
+        login_ui_available=False,
+        action_execution_available=False,
+        operator_identity_registry_available=False,
+        operator_identity_registry_mode="metadata_only_not_persisted",
+        role_catalog_available=True,
+        permission_catalog_available=True,
+        service_accounts_blocked_for_manual_review_actions=True,
+        future_auth_required_before_actions=True,
+        future_rbac_required_before_actions=True,
+        future_audit_actor_required_before_actions=True,
+        production_credentials_required_for_real_auth=True,
+        impersonation_allowed=False,
+        service_account_allowed_for_manual_review_actions=False,
+        operator_identity_fields=(
+            AuthBoundaryOperatorIdentityField(
+                key="operator_id",
+                label="Operator ID",
+                required_for_future_actions=True,
+                persisted_now=False,
+                sensitive=False,
+                reason="Future Manual Review actions require a durable operator identifier.",
+            ),
+            AuthBoundaryOperatorIdentityField(
+                key="audit_actor_id",
+                label="Audit actor ID",
+                required_for_future_actions=True,
+                persisted_now=False,
+                sensitive=False,
+                reason="Future Manual Review actions must record an audit actor.",
+            ),
+        ),
+        provisional_roles=(
+            AuthBoundaryRoleCatalogItem(
+                key="reviewer",
+                label="Reviewer",
+                phase="phase_0_planning_label",
+                manual_review_action_allowed_now=False,
+                manual_review_action_allowed_future=True,
+                is_service_account_role=False,
+                requires_future_authorization=True,
+                reason="Future reviewer labels identify Manual Review candidates only.",
+            ),
+            AuthBoundaryRoleCatalogItem(
+                key="technician",
+                label="Technician",
+                phase="phase_0_planning_label",
+                manual_review_action_allowed_now=False,
+                manual_review_action_allowed_future=False,
+                is_service_account_role=False,
+                requires_future_authorization=True,
+                reason="Technicians are not allowed for Manual Review actions in Phase 0.",
+            ),
+            AuthBoundaryRoleCatalogItem(
+                key="system_service",
+                label="System service",
+                phase="phase_0_planning_label",
+                manual_review_action_allowed_now=False,
+                manual_review_action_allowed_future=False,
+                is_service_account_role=True,
+                requires_future_authorization=True,
+                reason="Service accounts cannot perform Manual Review operator actions.",
+            ),
+        ),
+        future_permissions=(
+            AuthBoundaryPermissionCatalogItem(
+                key="manual_review.approve.future",
+                label="Future Manual Review approve",
+                category="manual_review_future_action",
+                current_enforced=False,
+                future_planning_only=True,
+                authorizes_actions_now=False,
+                reason="Future approve permission label only.",
+            ),
+            AuthBoundaryPermissionCatalogItem(
+                key="manual_review.view",
+                label="Manual Review view",
+                category="manual_review_read",
+                current_enforced=False,
+                future_planning_only=True,
+                authorizes_actions_now=False,
+                reason="Future read permission label only.",
+            ),
+        ),
+    )
+
+
 def manual_review_execution_readiness_audit_contract() -> ManualReviewExecutionReadinessAudit:
     return ManualReviewExecutionReadinessAudit(
         summary=(
@@ -1058,6 +1156,7 @@ def manual_review_queue_contract() -> ManualReviewQueueReadModel:
             CountBucket(label="permission_blocked_resolved_or_archived", count=1),
         ),
         execution_readiness_audit=manual_review_execution_readiness_audit_contract(),
+        auth_boundary_readiness=manual_review_auth_boundary_readiness_contract(),
         age_bucket_counts=(
             CountBucket(label="new", count=1),
             CountBucket(label="resolved_or_archived", count=1),
@@ -1649,6 +1748,7 @@ def manual_review_detail_contract() -> ManualReviewDetailReadModel:
         audit_ledger_dry_run=review_item.audit_ledger_dry_run,
         command_validation=review_item.command_validation,
         permission_readiness=review_item.permission_readiness,
+        auth_boundary_readiness=manual_review_auth_boundary_readiness_contract(),
         linked_entity_context=ManualReviewDetailLinkedEntityContext(
             entity_type="job",
             entity_id=UUID("00000000-0000-0000-0000-000000000041"),
@@ -2058,6 +2158,30 @@ def test_dashboard_api_routes_return_read_only_contracts(
             "future_required_permissions"
         ]
     )
+    auth_boundary = manual_review_queue_response.json()["auth_boundary_readiness"]
+    assert auth_boundary["auth_implemented"] is False
+    assert auth_boundary["rbac_enforced"] is False
+    assert auth_boundary["login_ui_available"] is False
+    assert auth_boundary["action_execution_available"] is False
+    assert auth_boundary["operator_identity_registry_available"] is False
+    assert auth_boundary["operator_identity_registry_mode"] == "metadata_only_not_persisted"
+    assert auth_boundary["role_catalog_available"] is True
+    assert auth_boundary["permission_catalog_available"] is True
+    assert auth_boundary["service_accounts_blocked_for_manual_review_actions"] is True
+    assert auth_boundary["service_account_allowed_for_manual_review_actions"] is False
+    assert auth_boundary["future_auth_required_before_actions"] is True
+    assert auth_boundary["future_rbac_required_before_actions"] is True
+    role_catalog = {role["key"]: role for role in auth_boundary["provisional_roles"]}
+    permission_catalog = {
+        permission["key"]: permission for permission in auth_boundary["future_permissions"]
+    }
+    assert role_catalog["system_service"]["manual_review_action_allowed_future"] is False
+    assert role_catalog["system_service"]["is_service_account_role"] is True
+    assert role_catalog["technician"]["manual_review_action_allowed_future"] is False
+    assert role_catalog["reviewer"]["manual_review_action_allowed_now"] is False
+    assert permission_catalog["manual_review.approve.future"]["current_enforced"] is False
+    assert permission_catalog["manual_review.approve.future"]["authorizes_actions_now"] is False
+    assert permission_catalog["manual_review.approve.future"]["future_planning_only"] is True
     assert (
         manual_review_queue_response.json()["items"][0]["command_validation"][
             "is_currently_executable"

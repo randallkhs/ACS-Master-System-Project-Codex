@@ -583,6 +583,18 @@ describe("DashboardView", () => {
     expect(html).toContain("Currently executable count 0");
     expect(html).toContain("Mutation endpoints unavailable");
     expect(html).toContain("Manual Review actions are not executable in Phase 0");
+    expect(html).toContain("Auth Boundary Readiness");
+    expect(html).toContain("Auth implemented");
+    expect(html).toContain("RBAC enforced");
+    expect(html).toContain("Sign-in UI available");
+    expect(html).toContain("Operator Identity Registry");
+    expect(html).toContain("Role Catalog");
+    expect(html).toContain("Permission Catalog");
+    expect(html).toContain("Service accounts blocked for Manual Review actions");
+    expect(html).toContain("Service account action not allowed");
+    expect(html).toContain("Impersonation not allowed");
+    expect(html).toContain("manual_review.approve.future");
+    expect(html).toContain("water_emergency.review.future_action");
     expect(html).toContain("Future auth required");
     expect(html).toContain("Future RBAC required");
     expect(html).toContain("Future operator identity");

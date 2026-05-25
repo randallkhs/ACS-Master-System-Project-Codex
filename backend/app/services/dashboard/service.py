@@ -9,6 +9,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.domain.dashboard import (
+    AuthBoundaryOperatorIdentityField,
+    AuthBoundaryPermissionCatalogItem,
+    AuthBoundaryRoleCatalogItem,
     CountBucket,
     DashboardDispatchSummary,
     DashboardOverviewReadModel,
@@ -17,6 +20,7 @@ from app.domain.dashboard import (
     GovernanceAccountabilitySummary,
     ManualReviewActionPreflight,
     ManualReviewAuditLedgerDryRun,
+    ManualReviewAuthBoundaryReadiness,
     ManualReviewCommandContract,
     ManualReviewCommandValidation,
     ManualReviewDecisionReadiness,
@@ -704,6 +708,7 @@ class DashboardReadModelService:
             execution_readiness_audit=manual_review_execution_readiness_audit(
                 queue_items,
             ),
+            auth_boundary_readiness=manual_review_auth_boundary_readiness(),
             age_bucket_counts=count_by_attr(queue_items, "age_bucket"),
             audit_correlation_count=count_audit_correlation_ids(review_items),
             taxonomy_metadata=manual_review_taxonomy_metadata(),
@@ -766,6 +771,7 @@ class DashboardReadModelService:
             audit_ledger_dry_run=queue_item.audit_ledger_dry_run,
             command_validation=queue_item.command_validation,
             permission_readiness=queue_item.permission_readiness,
+            auth_boundary_readiness=manual_review_auth_boundary_readiness(),
             linked_entity_context=manual_review_detail_linked_entity_context(
                 queue_item,
                 jobs=jobs,
@@ -2403,6 +2409,302 @@ MANUAL_REVIEW_IDENTITY_UNAVAILABLE_REASON = (
     "Phase 0 does not implement login, sessions, token handling, operator identity, "
     "or RBAC; future Manual Review commands remain non-executable."
 )
+MANUAL_REVIEW_OPERATOR_IDENTITY_FIELD_DEFINITIONS = (
+    (
+        "operator_id",
+        "Operator ID",
+        True,
+        "Future Manual Review actions require a durable operator identifier.",
+    ),
+    (
+        "display_name",
+        "Display name",
+        True,
+        "Future audit envelopes need a readable operator name for review visibility.",
+    ),
+    (
+        "email",
+        "Email",
+        True,
+        "Future auth identity should include a reviewed contact identifier.",
+    ),
+    (
+        "role_assignments",
+        "Role assignments",
+        True,
+        "Future RBAC needs approved role membership before action execution.",
+    ),
+    (
+        "status",
+        "Status",
+        True,
+        "Future operators must have active, disabled, or review-required status.",
+    ),
+    (
+        "authentication_provider",
+        "Authentication provider",
+        True,
+        "Future auth must record which provider supplies the operator identity.",
+    ),
+    (
+        "external_subject_id",
+        "External subject ID",
+        True,
+        "Future auth must bind ACS-FSM operators to a provider subject without faking identity.",
+    ),
+    (
+        "created_at",
+        "Created at",
+        True,
+        "Future operator registry records require audit-friendly lifecycle timestamps.",
+    ),
+    (
+        "updated_at",
+        "Updated at",
+        True,
+        "Future operator changes require visible update timestamps.",
+    ),
+    (
+        "disabled_at",
+        "Disabled at",
+        False,
+        "Future disabled operators need an optional timestamp when access is removed.",
+    ),
+    (
+        "last_seen_at",
+        "Last seen at",
+        False,
+        "Future session/auth visibility may record the latest observed operator activity.",
+    ),
+    (
+        "audit_actor_id",
+        "Audit actor ID",
+        True,
+        "Future Manual Review actions must record an immutable audit actor reference.",
+    ),
+    (
+        "is_service_account",
+        "Is service account",
+        True,
+        "Future operator records must distinguish service accounts from human operators.",
+    ),
+)
+MANUAL_REVIEW_ROLE_CATALOG_DEFINITIONS = (
+    (
+        "owner",
+        "Owner",
+        True,
+        False,
+        "Future owner-level action or override labels still require real auth and RBAC.",
+    ),
+    (
+        "operations_manager",
+        "Operations manager",
+        True,
+        False,
+        "Future operations manager review labels remain planning-only until RBAC exists.",
+    ),
+    (
+        "office_admin",
+        "Office admin",
+        True,
+        False,
+        "Future office admin role labels may support information requests after auth exists.",
+    ),
+    (
+        "dispatcher",
+        "Dispatcher",
+        True,
+        False,
+        "Future dispatcher labels may support dispatch-related review visibility only.",
+    ),
+    (
+        "reviewer",
+        "Reviewer",
+        True,
+        False,
+        "Future reviewer labels identify Manual Review candidates without granting authority.",
+    ),
+    (
+        "technician",
+        "Technician",
+        False,
+        False,
+        (
+            "Technicians are not allowed for Manual Review operator actions unless "
+            "a future module authorizes it."
+        ),
+    ),
+    (
+        "system_service",
+        "System service",
+        False,
+        True,
+        "Service accounts are not allowed to perform future Manual Review operator actions.",
+    ),
+    (
+        "unknown_operator",
+        "Unknown operator",
+        False,
+        False,
+        "Unknown operators are blocked until future authenticated identity exists.",
+    ),
+)
+MANUAL_REVIEW_PERMISSION_CATALOG_DEFINITIONS = (
+    (
+        "manual_review.view",
+        "Manual Review view",
+        "manual_review_read",
+        "Future read permission label for Manual Review queue visibility.",
+    ),
+    (
+        "manual_review.detail.view",
+        "Manual Review detail view",
+        "manual_review_read",
+        "Future read permission label for Manual Review detail visibility.",
+    ),
+    (
+        "manual_review.approve.future",
+        "Future Manual Review approve",
+        "manual_review_future_action",
+        "Future approve permission label only; it does not authorize approval now.",
+    ),
+    (
+        "manual_review.reject.future",
+        "Future Manual Review reject",
+        "manual_review_future_action",
+        "Future reject permission label only; it does not authorize rejection now.",
+    ),
+    (
+        "manual_review.defer.future",
+        "Future Manual Review defer",
+        "manual_review_future_action",
+        "Future defer permission label only; it does not authorize deferral now.",
+    ),
+    (
+        "manual_review.archive.future",
+        "Future Manual Review archive",
+        "manual_review_future_action",
+        "Future archive permission label only; it does not authorize archiving now.",
+    ),
+    (
+        "manual_review.resolve.future",
+        "Future Manual Review resolve",
+        "manual_review_future_action",
+        "Future resolve permission label only; it does not authorize resolution now.",
+    ),
+    (
+        "manual_review.request_information.future",
+        "Future Manual Review request information",
+        "manual_review_future_action",
+        (
+            "Future request-information permission label only; it does not send "
+            "or mutate anything now."
+        ),
+    ),
+    (
+        "water_emergency.review.view",
+        "Water Emergency review view",
+        "water_emergency_read",
+        "Future read permission label for separated Water Emergency review visibility.",
+    ),
+    (
+        "water_emergency.review.future_action",
+        "Future Water Emergency review action",
+        "water_emergency_future_action",
+        (
+            "Future Water Emergency action label only; scope and owner-review "
+            "boundaries remain required."
+        ),
+    ),
+    (
+        "dashboard.view",
+        "Dashboard view",
+        "dashboard_read",
+        "Future read permission label for dashboard visibility.",
+    ),
+    (
+        "audit.view",
+        "Audit view",
+        "audit_read",
+        "Future read permission label for audit visibility.",
+    ),
+)
+
+
+def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness:
+    return ManualReviewAuthBoundaryReadiness(
+        summary=(
+            "Phase 0 exposes the future operator identity registry, role catalog, "
+            "permission catalog, and auth boundary as read-only planning metadata. "
+            "No authentication, RBAC enforcement, login UI, token behavior, or "
+            "Manual Review action execution is implemented."
+        ),
+        auth_implemented=False,
+        rbac_enforced=False,
+        login_ui_available=False,
+        action_execution_available=False,
+        operator_identity_registry_available=False,
+        operator_identity_registry_mode="metadata_only_not_persisted",
+        role_catalog_available=True,
+        permission_catalog_available=True,
+        service_accounts_blocked_for_manual_review_actions=True,
+        future_auth_required_before_actions=True,
+        future_rbac_required_before_actions=True,
+        future_audit_actor_required_before_actions=True,
+        production_credentials_required_for_real_auth=True,
+        impersonation_allowed=False,
+        service_account_allowed_for_manual_review_actions=False,
+        operator_identity_fields=tuple(
+            AuthBoundaryOperatorIdentityField(
+                key=key,
+                label=label,
+                required_for_future_actions=required,
+                persisted_now=False,
+                sensitive=key in {"email", "external_subject_id"},
+                reason=reason,
+            )
+            for key, label, required, reason in (
+                MANUAL_REVIEW_OPERATOR_IDENTITY_FIELD_DEFINITIONS
+            )
+        ),
+        provisional_roles=tuple(
+            AuthBoundaryRoleCatalogItem(
+                key=key,
+                label=label,
+                phase="phase_0_planning_label",
+                manual_review_action_allowed_now=False,
+                manual_review_action_allowed_future=allowed_future,
+                is_service_account_role=is_service_account,
+                requires_future_authorization=True,
+                reason=reason,
+            )
+            for (
+                key,
+                label,
+                allowed_future,
+                is_service_account,
+                reason,
+            ) in MANUAL_REVIEW_ROLE_CATALOG_DEFINITIONS
+        ),
+        future_permissions=tuple(
+            AuthBoundaryPermissionCatalogItem(
+                key=key,
+                label=label,
+                category=category,
+                current_enforced=False,
+                future_planning_only=True,
+                authorizes_actions_now=False,
+                reason=reason,
+            )
+            for (
+                key,
+                label,
+                category,
+                reason,
+            ) in MANUAL_REVIEW_PERMISSION_CATALOG_DEFINITIONS
+        ),
+    )
 
 
 def manual_review_permission_readiness(

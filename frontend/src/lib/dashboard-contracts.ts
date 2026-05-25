@@ -223,6 +223,58 @@ export type ManualReviewPermissionReadinessResponse = {
   requires_water_emergency_scope_check: boolean;
 };
 
+export type AuthBoundaryOperatorIdentityFieldResponse = {
+  key: string;
+  label: string;
+  required_for_future_actions: boolean;
+  persisted_now: boolean;
+  sensitive: boolean;
+  reason: string;
+};
+
+export type AuthBoundaryRoleCatalogItemResponse = {
+  key: string;
+  label: string;
+  phase: string;
+  manual_review_action_allowed_now: boolean;
+  manual_review_action_allowed_future: boolean;
+  is_service_account_role: boolean;
+  requires_future_authorization: boolean;
+  reason: string;
+};
+
+export type AuthBoundaryPermissionCatalogItemResponse = {
+  key: string;
+  label: string;
+  category: string;
+  current_enforced: boolean;
+  future_planning_only: boolean;
+  authorizes_actions_now: boolean;
+  reason: string;
+};
+
+export type ManualReviewAuthBoundaryReadinessResponse = {
+  summary: string;
+  auth_implemented: boolean;
+  rbac_enforced: boolean;
+  login_ui_available: boolean;
+  action_execution_available: boolean;
+  operator_identity_registry_available: boolean;
+  operator_identity_registry_mode: string;
+  role_catalog_available: boolean;
+  permission_catalog_available: boolean;
+  service_accounts_blocked_for_manual_review_actions: boolean;
+  future_auth_required_before_actions: boolean;
+  future_rbac_required_before_actions: boolean;
+  future_audit_actor_required_before_actions: boolean;
+  production_credentials_required_for_real_auth: boolean;
+  impersonation_allowed: boolean;
+  service_account_allowed_for_manual_review_actions: boolean;
+  operator_identity_fields: AuthBoundaryOperatorIdentityFieldResponse[];
+  provisional_roles: AuthBoundaryRoleCatalogItemResponse[];
+  future_permissions: AuthBoundaryPermissionCatalogItemResponse[];
+};
+
 export type ManualReviewMutationBoundaryLockResponse = {
   manual_review_mutations_enabled: boolean;
   action_execution_phase: string;
@@ -334,6 +386,7 @@ export type ManualReviewQueueResponse = {
   command_validation_counts: CountBucket[];
   permission_readiness_counts: CountBucket[];
   execution_readiness_audit: ManualReviewExecutionReadinessAuditResponse;
+  auth_boundary_readiness: ManualReviewAuthBoundaryReadinessResponse;
   audit_correlation_count: number;
   taxonomy_metadata: ManualReviewTaxonomyMetadataResponse;
   available_filters: ManualReviewFilterOptionResponse[];
@@ -849,6 +902,7 @@ export type ManualReviewDetailResponse = {
   audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse;
   command_validation: ManualReviewCommandValidationResponse;
   permission_readiness: ManualReviewPermissionReadinessResponse;
+  auth_boundary_readiness: ManualReviewAuthBoundaryReadinessResponse;
   linked_entity_context: ManualReviewDetailLinkedEntityContextResponse;
   data_gap_counts: CountBucket[];
   audit_correlation_ids: string[];

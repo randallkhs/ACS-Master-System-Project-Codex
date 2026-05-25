@@ -233,6 +233,58 @@ class ManualReviewPermissionReadinessResponse(DashboardSchema):
     requires_water_emergency_scope_check: bool
 
 
+class AuthBoundaryOperatorIdentityFieldResponse(DashboardSchema):
+    key: str
+    label: str
+    required_for_future_actions: bool
+    persisted_now: bool
+    sensitive: bool
+    reason: str
+
+
+class AuthBoundaryRoleCatalogItemResponse(DashboardSchema):
+    key: str
+    label: str
+    phase: str
+    manual_review_action_allowed_now: bool
+    manual_review_action_allowed_future: bool
+    is_service_account_role: bool
+    requires_future_authorization: bool
+    reason: str
+
+
+class AuthBoundaryPermissionCatalogItemResponse(DashboardSchema):
+    key: str
+    label: str
+    category: str
+    current_enforced: bool
+    future_planning_only: bool
+    authorizes_actions_now: bool
+    reason: str
+
+
+class ManualReviewAuthBoundaryReadinessResponse(DashboardSchema):
+    summary: str
+    auth_implemented: bool
+    rbac_enforced: bool
+    login_ui_available: bool
+    action_execution_available: bool
+    operator_identity_registry_available: bool
+    operator_identity_registry_mode: str
+    role_catalog_available: bool
+    permission_catalog_available: bool
+    service_accounts_blocked_for_manual_review_actions: bool
+    future_auth_required_before_actions: bool
+    future_rbac_required_before_actions: bool
+    future_audit_actor_required_before_actions: bool
+    production_credentials_required_for_real_auth: bool
+    impersonation_allowed: bool
+    service_account_allowed_for_manual_review_actions: bool
+    operator_identity_fields: tuple[AuthBoundaryOperatorIdentityFieldResponse, ...]
+    provisional_roles: tuple[AuthBoundaryRoleCatalogItemResponse, ...]
+    future_permissions: tuple[AuthBoundaryPermissionCatalogItemResponse, ...]
+
+
 class ManualReviewMutationBoundaryLockResponse(DashboardSchema):
     manual_review_mutations_enabled: bool
     action_execution_phase: str
@@ -343,6 +395,7 @@ class ManualReviewQueueResponse(DashboardSchema):
     command_validation_counts: tuple[CountBucketResponse, ...]
     permission_readiness_counts: tuple[CountBucketResponse, ...]
     execution_readiness_audit: ManualReviewExecutionReadinessAuditResponse
+    auth_boundary_readiness: ManualReviewAuthBoundaryReadinessResponse
     age_bucket_counts: tuple[CountBucketResponse, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadataResponse
@@ -397,6 +450,7 @@ class ManualReviewDetailResponse(DashboardSchema):
     audit_ledger_dry_run: ManualReviewAuditLedgerDryRunResponse
     command_validation: ManualReviewCommandValidationResponse
     permission_readiness: ManualReviewPermissionReadinessResponse
+    auth_boundary_readiness: ManualReviewAuthBoundaryReadinessResponse
     linked_entity_context: ManualReviewDetailLinkedEntityContextResponse
     data_gap_counts: tuple[CountBucketResponse, ...]
     audit_correlation_ids: tuple[str, ...]

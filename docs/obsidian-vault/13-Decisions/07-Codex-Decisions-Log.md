@@ -6,6 +6,39 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-24 — Phase 0 Module 51 Operator Identity Registry, Role Catalog, And Auth Boundary Readiness
+
+- Decision type: Implementation / Manual Review visibility / read-only auth-boundary planning baseline
+- Status: Implemented
+- Decision:
+  - Extend Manual Review queue and detail read models with read-only auth-boundary readiness metadata.
+  - Define future operator identity registry fields as metadata only: operator ID, display name, email, role assignments, status, authentication provider, external subject ID, lifecycle timestamps, audit actor ID, and service-account indicator.
+  - Define a provisional role catalog for owner, operations manager, office admin, dispatcher, reviewer, technician, system service, and unknown operator.
+  - Define a future permission catalog for Manual Review view/detail/future actions, Water Emergency review visibility/future action labels, dashboard view, and audit view.
+  - Explicitly report auth, RBAC, sign-in UI, action execution, and persisted operator registry availability as false in Phase 0.
+  - Keep service accounts, technicians, and unknown operators blocked for future Manual Review operator actions unless a later reviewed module changes that boundary.
+  - Add frontend queue and detail auth-boundary visibility without login/signup/user-management UI, role assignment UI, auth headers, token/session behavior, role enforcement, or action controls.
+- Rationale:
+  - Future Manual Review action modules need a durable operator identity, role catalog, permission taxonomy, and audit actor boundary before any authenticated execution can exist.
+  - The module makes those future requirements visible while preserving the current Phase 0 read-only and non-executable safety boundary.
+  - Metadata-only catalog visibility avoids fake auth, fake roles, hidden UI authorization, and unsafe workflow authority.
+- Future implications:
+  - Future production modules still need final auth provider selection, credential ownership, persisted operator registry schema, RBAC enforcement, role-scoped visibility, and authenticated Manual Review command endpoints.
+  - Future action modules must still satisfy audit envelope, idempotency, immutable event, post-action consistency, Review GUI/ChatGPT review, and Alfonso owner-review guardrails where liability is involved.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+
+---
+
 ## 2026-05-15 — Pre-Implementation Architecture Ingestion Baseline
 
 - Decision type: Architecture / workflow / AI operating policy

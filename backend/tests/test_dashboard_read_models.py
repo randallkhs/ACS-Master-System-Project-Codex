@@ -1303,6 +1303,87 @@ def test_manual_review_execution_readiness_audit_locks_mutation_boundary() -> No
     )
 
 
+def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
+    now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
+    job_id = uuid4()
+    review = ReviewItem(
+        id=uuid4(),
+        job_id=job_id,
+        entity_type="job",
+        entity_id=job_id,
+        reason_code="operator_decision_requested",
+        status="open",
+        severity="medium",
+        recommended_action="approve synthetic review",
+        created_at=now - timedelta(minutes=20),
+        audit_correlation_id="audit-manual-review-auth-boundary",
+    )
+
+    queue = DashboardReadModelService(now=lambda: now).build_manual_review_queue(
+        jobs=[Job(id=job_id, job_type="standard", status="awaiting_dispatch")],
+        review_items=[review],
+    )
+
+    boundary = queue.auth_boundary_readiness
+    roles = {role.key: role for role in boundary.provisional_roles}
+    permissions = {permission.key: permission for permission in boundary.future_permissions}
+    identity_fields = {field.key: field for field in boundary.operator_identity_fields}
+
+    assert review.status == "open"
+    assert boundary.auth_implemented is False
+    assert boundary.rbac_enforced is False
+    assert boundary.login_ui_available is False
+    assert boundary.action_execution_available is False
+    assert boundary.operator_identity_registry_available is False
+    assert boundary.operator_identity_registry_mode == "metadata_only_not_persisted"
+    assert boundary.role_catalog_available is True
+    assert boundary.permission_catalog_available is True
+    assert boundary.service_accounts_blocked_for_manual_review_actions is True
+    assert boundary.service_account_allowed_for_manual_review_actions is False
+    assert boundary.impersonation_allowed is False
+    assert boundary.production_credentials_required_for_real_auth is True
+    assert boundary.future_auth_required_before_actions is True
+    assert boundary.future_rbac_required_before_actions is True
+    assert boundary.future_audit_actor_required_before_actions is True
+
+    assert set(roles) == {
+        "owner",
+        "operations_manager",
+        "office_admin",
+        "dispatcher",
+        "reviewer",
+        "technician",
+        "system_service",
+        "unknown_operator",
+    }
+    assert roles["system_service"].manual_review_action_allowed_future is False
+    assert roles["system_service"].is_service_account_role is True
+    assert roles["technician"].manual_review_action_allowed_future is False
+    assert roles["reviewer"].manual_review_action_allowed_now is False
+    assert roles["owner"].requires_future_authorization is True
+
+    assert {
+        "manual_review.view",
+        "manual_review.detail.view",
+        "manual_review.approve.future",
+        "manual_review.reject.future",
+        "manual_review.defer.future",
+        "manual_review.archive.future",
+        "manual_review.resolve.future",
+        "manual_review.request_information.future",
+        "water_emergency.review.view",
+        "water_emergency.review.future_action",
+        "dashboard.view",
+        "audit.view",
+    }.issubset(permissions)
+    assert all(permission.current_enforced is False for permission in permissions.values())
+    assert all(permission.authorizes_actions_now is False for permission in permissions.values())
+    assert permissions["manual_review.approve.future"].future_planning_only is True
+    assert identity_fields["operator_id"].required_for_future_actions is True
+    assert identity_fields["audit_actor_id"].required_for_future_actions is True
+    assert identity_fields["external_subject_id"].persisted_now is False
+
+
 def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:
     now = datetime(2026, 5, 16, 12, 0, tzinfo=UTC)
     review = ReviewItem(

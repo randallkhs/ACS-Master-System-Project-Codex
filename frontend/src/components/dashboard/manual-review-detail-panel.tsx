@@ -114,6 +114,91 @@ function ManualReviewDetailContent({
       </SectionCard>
 
       <SectionCard
+        title="Auth Boundary Readiness"
+        description={`${detail.auth_boundary_readiness.summary} This detail view is read-only and does not authenticate operators, enforce roles, or execute actions.`}
+      >
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge
+            label={
+              detail.auth_boundary_readiness.auth_implemented
+                ? "Auth implemented"
+                : "Auth not implemented"
+            }
+            variant={
+              detail.auth_boundary_readiness.auth_implemented ? "danger" : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              detail.auth_boundary_readiness.rbac_enforced
+                ? "RBAC enforced"
+                : "RBAC not enforced"
+            }
+            variant={
+              detail.auth_boundary_readiness.rbac_enforced ? "danger" : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              detail.auth_boundary_readiness.action_execution_available
+                ? "Action execution available"
+                : "Action execution unavailable"
+            }
+            variant={
+              detail.auth_boundary_readiness.action_execution_available
+                ? "danger"
+                : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              detail.auth_boundary_readiness
+                .service_accounts_blocked_for_manual_review_actions
+                ? "Service accounts blocked for Manual Review actions"
+                : "Service accounts not blocked"
+            }
+            variant={
+              detail.auth_boundary_readiness
+                .service_accounts_blocked_for_manual_review_actions
+                ? "warning"
+                : "danger"
+            }
+          />
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future roles
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {detail.auth_boundary_readiness.provisional_roles.map((role) => (
+                <StatusBadge
+                  key={role.key}
+                  label={humanizeLabel(role.key)}
+                  variant={
+                    role.manual_review_action_allowed_future
+                      ? "neutral"
+                      : "warning"
+                  }
+                />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              Future permissions
+            </div>
+            <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+              {detail.auth_boundary_readiness.future_permissions
+                .map((permission) => permission.key)
+                .join(", ")}
+            </p>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
         title="Decision Readiness"
         description={
           context.is_water_emergency_related

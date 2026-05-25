@@ -248,6 +248,62 @@ class ManualReviewPermissionReadiness:
 
 
 @dataclass(frozen=True, slots=True)
+class AuthBoundaryOperatorIdentityField:
+    key: str
+    label: str
+    required_for_future_actions: bool
+    persisted_now: bool
+    sensitive: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class AuthBoundaryRoleCatalogItem:
+    key: str
+    label: str
+    phase: str
+    manual_review_action_allowed_now: bool
+    manual_review_action_allowed_future: bool
+    is_service_account_role: bool
+    requires_future_authorization: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class AuthBoundaryPermissionCatalogItem:
+    key: str
+    label: str
+    category: str
+    current_enforced: bool
+    future_planning_only: bool
+    authorizes_actions_now: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewAuthBoundaryReadiness:
+    summary: str
+    auth_implemented: bool
+    rbac_enforced: bool
+    login_ui_available: bool
+    action_execution_available: bool
+    operator_identity_registry_available: bool
+    operator_identity_registry_mode: str
+    role_catalog_available: bool
+    permission_catalog_available: bool
+    service_accounts_blocked_for_manual_review_actions: bool
+    future_auth_required_before_actions: bool
+    future_rbac_required_before_actions: bool
+    future_audit_actor_required_before_actions: bool
+    production_credentials_required_for_real_auth: bool
+    impersonation_allowed: bool
+    service_account_allowed_for_manual_review_actions: bool
+    operator_identity_fields: tuple[AuthBoundaryOperatorIdentityField, ...]
+    provisional_roles: tuple[AuthBoundaryRoleCatalogItem, ...]
+    future_permissions: tuple[AuthBoundaryPermissionCatalogItem, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewMutationBoundaryLock:
     manual_review_mutations_enabled: bool
     action_execution_phase: str
@@ -362,6 +418,7 @@ class ManualReviewQueueReadModel:
     command_validation_counts: tuple[CountBucket, ...]
     permission_readiness_counts: tuple[CountBucket, ...]
     execution_readiness_audit: ManualReviewExecutionReadinessAudit
+    auth_boundary_readiness: ManualReviewAuthBoundaryReadiness
     age_bucket_counts: tuple[CountBucket, ...]
     audit_correlation_count: int
     taxonomy_metadata: ManualReviewTaxonomyMetadata
@@ -419,6 +476,7 @@ class ManualReviewDetailReadModel:
     audit_ledger_dry_run: ManualReviewAuditLedgerDryRun
     command_validation: ManualReviewCommandValidation
     permission_readiness: ManualReviewPermissionReadiness
+    auth_boundary_readiness: ManualReviewAuthBoundaryReadiness
     linked_entity_context: ManualReviewDetailLinkedEntityContext
     data_gap_counts: tuple[CountBucket, ...]
     audit_correlation_ids: tuple[str, ...]

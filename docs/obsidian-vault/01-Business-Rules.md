@@ -486,3 +486,26 @@ Open concerns:
 
 - final ACS-FSM auth provider, operator identity schema, RBAC model, permission taxonomy, audit envelope schema, idempotency strategy, immutable event write strategy, rollback/replay strategy, post-action consistency checks, and Manual Review action authority remain future work
 - legal, insurance, compliance, customer-liability, or formal company-policy language requires Alfonso owner review
+
+# 21. Phase 0 Manual Review Auth Boundary And Operator Catalog
+
+Module 51 adds read-only auth-boundary readiness metadata for future Manual Review operator identity, role catalog, and permission catalog planning.
+
+Rules:
+
+- auth-boundary metadata is a Randall-authorized Phase 0 planning baseline only
+- `auth_implemented` must remain false in Phase 0
+- `rbac_enforced` must remain false in Phase 0
+- `login_ui_available` must remain false in Phase 0
+- `action_execution_available` must remain false in Phase 0
+- `operator_identity_registry_available` must remain false while the registry is metadata-only and not persisted
+- future operator identity registry fields may be listed for planning, but they do not persist operator identities yet
+- provisional roles such as owner, operations manager, office admin, dispatcher, reviewer, technician, system service, and unknown operator are planning labels only
+- future permissions such as Manual Review view/detail/future action labels, Water Emergency review labels, dashboard view, and audit view are planning labels only
+- service accounts, technicians, and unknown operators are not allowed for future Manual Review operator actions unless a later reviewed module explicitly changes the boundary
+- Water Emergency-related authorization and future action scope must remain separated from standard Manual Review readiness
+- no login, signup, user management, token/session behavior, auth headers, fake user identity, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, RBAC, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final ACS-FSM auth provider, production credential ownership, durable operator registry schema, RBAC role model, permission taxonomy, role-scoped visibility, and Manual Review action authority remain future work

@@ -3,6 +3,7 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import type {
   DashboardFetchResult,
+  ManualReviewAuthBoundaryReadinessResponse,
   ManualReviewExecutionReadinessAuditResponse,
   ManualReviewQueueItemResponse,
   ManualReviewQueueResponse,
@@ -178,6 +179,7 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
       </div>
 
       <ExecutionReadinessAuditPanel audit={data.execution_readiness_audit} />
+      <AuthBoundaryReadinessPanel boundary={data.auth_boundary_readiness} />
 
       <SectionCard
         title="Manual Review View State"
@@ -474,6 +476,155 @@ function ExecutionReadinessAuditPanel({
           financial commitments remain non-binding visibility until Alfonso owner
           review is completed.
         </p>
+      </div>
+    </SectionCard>
+  );
+}
+
+function AuthBoundaryReadinessPanel({
+  boundary,
+}: {
+  boundary: ManualReviewAuthBoundaryReadinessResponse;
+}) {
+  return (
+    <SectionCard
+      title="Auth Boundary Readiness"
+      description={`${boundary.summary} This catalog is read-only planning visibility and does not authenticate users, enforce roles, or execute Manual Review actions.`}
+    >
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <MiniMetric
+          label="Auth implemented"
+          value={boundary.auth_implemented ? "Yes" : "False"}
+        />
+        <MiniMetric
+          label="RBAC enforced"
+          value={boundary.rbac_enforced ? "Yes" : "False"}
+        />
+        <MiniMetric
+          label="Sign-in UI available"
+          value={boundary.login_ui_available ? "Yes" : "False"}
+        />
+        <MiniMetric
+          label="Action execution"
+          value={boundary.action_execution_available ? "Available" : "Unavailable"}
+        />
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <StatusBadge
+          label={
+            boundary.future_auth_required_before_actions
+              ? "Future auth required before actions"
+              : "Future auth requirement missing"
+          }
+          variant={boundary.future_auth_required_before_actions ? "info" : "danger"}
+        />
+        <StatusBadge
+          label={
+            boundary.future_rbac_required_before_actions
+              ? "Future RBAC required before actions"
+              : "Future RBAC requirement missing"
+          }
+          variant={boundary.future_rbac_required_before_actions ? "info" : "danger"}
+        />
+        <StatusBadge
+          label={
+            boundary.service_accounts_blocked_for_manual_review_actions
+              ? "Service accounts blocked for Manual Review actions"
+              : "Service accounts not blocked"
+          }
+          variant={
+            boundary.service_accounts_blocked_for_manual_review_actions
+              ? "warning"
+              : "danger"
+          }
+        />
+        <StatusBadge
+          label={
+            boundary.service_account_allowed_for_manual_review_actions
+              ? "Service account action allowed"
+              : "Service account action not allowed"
+          }
+          variant={
+            boundary.service_account_allowed_for_manual_review_actions
+              ? "danger"
+              : "warning"
+          }
+        />
+        <StatusBadge
+          label={
+            boundary.impersonation_allowed
+              ? "Impersonation allowed"
+              : "Impersonation not allowed"
+          }
+          variant={boundary.impersonation_allowed ? "danger" : "warning"}
+        />
+        <StatusBadge
+          label={humanizeLabel(boundary.operator_identity_registry_mode)}
+          variant="neutral"
+        />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Operator Identity Registry
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {boundary.operator_identity_fields.map((field) => (
+              <StatusBadge
+                key={field.key}
+                label={`${field.label}: ${field.persisted_now ? "Persisted" : "Not persisted"}`}
+                variant={field.required_for_future_actions ? "info" : "neutral"}
+              />
+            ))}
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Operator identities are not persisted in Phase 0. Production
+            credentials and a real auth provider remain required before actions.
+          </p>
+        </div>
+
+        <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Role Catalog
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {boundary.provisional_roles.map((role) => (
+              <StatusBadge
+                key={role.key}
+                label={`${role.label}: ${
+                  role.manual_review_action_allowed_future
+                    ? "Future planning"
+                    : "Not allowed"
+                }`}
+                variant={
+                  role.manual_review_action_allowed_future ? "neutral" : "warning"
+                }
+              />
+            ))}
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Roles are provisional Phase 0 labels only. No UI is hidden or
+            unlocked based on these roles.
+          </p>
+        </div>
+
+        <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Permission Catalog
+          </div>
+          <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+            {boundary.future_permissions
+              .map((permission) => permission.key)
+              .join(", ")}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Permissions are future-planning labels only. They do not authorize
+            approve, reject, defer, archive, resolve, dispatch, or login
+            behavior now.
+          </p>
+        </div>
       </div>
     </SectionCard>
   );

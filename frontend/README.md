@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 50 keeps the frontend foundation read-only while adding Manual Review execution-readiness audit, mutation-boundary lock, future transition prerequisite, and owner-review guardrail visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, and permission-readiness context.
+Phase 0 Module 51 keeps the frontend foundation read-only while adding Manual Review auth-boundary readiness, operator identity registry field visibility, provisional role catalog visibility, and future permission catalog visibility on top of the existing queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -346,6 +346,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Future prerequisites remain grouped as visibility for auth/RBAC, audit envelope, idempotency, immutable event, consistency check, action-contract, frontend action UI, ACSSDR report workflow, Review GUI/ChatGPT review workflow, and Alfonso owner review. They do not mark Manual Review mutation readiness as satisfied.
 - Water Emergency-related readiness counts remain separate from standard Manual Review counts.
 - The UI still does not add login, signup, user management, approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, audit forms, command forms, or future command data-entry fields.
+
+## Module 51 Manual Review Auth-Boundary Readiness Notes
+
+- The Manual Review Queue and detail panel now display backend-provided auth-boundary readiness metadata as read-only operational visibility.
+- The auth-boundary panel renders `auth_implemented = false`, `rbac_enforced = false`, sign-in UI unavailable, action execution unavailable, metadata-only operator registry mode, service accounts blocked for Manual Review actions, and future auth/RBAC/audit-actor requirements.
+- The operator identity registry fields, provisional roles, and future permissions are planning labels only. They do not persist operator identities, enforce roles, hide/show UI based on roles, add auth headers, create token/session behavior, or authorize Manual Review actions.
+- Service accounts, technicians, and unknown operators remain blocked for future Manual Review operator actions unless a later reviewed module explicitly changes that boundary.
+- The UI still does not add login, signup, user management, role assignment, approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth, RBAC, workflow execution controls, audit forms, command forms, or future command data-entry fields.
 
 ## Module 38 Water Emergency View-State Notes
 

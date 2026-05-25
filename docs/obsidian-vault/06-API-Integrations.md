@@ -913,3 +913,27 @@ Open API/frontend concerns:
 - final ACS-FSM auth provider, operator identity schema, role model, and permission taxonomy
 - approved audit envelope, idempotency, immutable event, rollback/replay, and post-action consistency strategies
 - owner-reviewed legal, insurance, warranty, drying certification, formal policy, and financial action boundaries
+
+## Phase 0 Module 51 Manual Review Auth-Boundary Readiness Boundary
+
+The Manual Review queue and detail API contracts now include read-only auth-boundary readiness metadata for future operator identity, role catalog, and permission catalog preparation.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes `auth_boundary_readiness` metadata with `auth_implemented = false`, `rbac_enforced = false`, `login_ui_available = false`, `action_execution_available = false`, `operator_identity_registry_available = false`, metadata-only operator registry mode, role catalog availability, permission catalog availability, service-account prohibition, and future auth/RBAC/audit-actor requirements.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the same auth-boundary readiness metadata alongside the selected review item's existing decision-readiness, preflight, preview, command-contract, dry-run, validation, permission-readiness, linked-entity, and timeline context.
+- The operator identity registry fields, provisional role catalog, and future permission catalog are planning metadata only. They are not persisted identities, enforced roles, action grants, or authenticated user data.
+- Service accounts, technicians, and unknown operators remain blocked for future Manual Review operator actions unless a later reviewed module explicitly changes the boundary.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no auth/RBAC enforcement, login/session/token behavior, auth headers, fake user identity, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- role and permission labels are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM authentication provider
+- durable operator identity registry schema and lifecycle policy
+- approved RBAC role model and permission taxonomy
+- role-scoped Manual Review visibility and action authority after authentication exists
