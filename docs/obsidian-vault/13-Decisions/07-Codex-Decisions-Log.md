@@ -6,6 +6,37 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-25 — Phase 0 Module 54 Auth Claims Mapping, Token Verification Dry-Run, And Role Resolution Contract
+
+- Decision type: Implementation / auth boundary / read-only claims and role-resolution planning baseline
+- Status: Implemented
+- Decision:
+  - Extend Manual Review auth-boundary readiness metadata with read-only auth claims mapping readiness.
+  - Document future subject, email, email verification, display name, role, permission, provider, issuer, audience, tenant/domain, expiration, issued-at, and auth-time claim expectations.
+  - Add token-verification dry-run visibility while explicitly keeping token verification, real token parsing, JWKS fetch, required auth headers, frontend-emitted auth headers, and RBAC enforcement disabled.
+  - Document role-resolution rules that map unknown roles to `unknown_operator`, block service-account/system-service roles from Manual Review operator actions, and keep technician Manual Review action authority blocked unless a future reviewed module authorizes it.
+  - Add frontend queue and detail auth claims/role-resolution visibility without login/logout/signup/user-management UI, auth headers, token/session behavior, fake users, fake roles, role assignment, or action controls.
+- Rationale:
+  - Future auth/RBAC modules need a stable claim contract before real provider integration or token verification begins.
+  - Dry-run and role-resolution metadata lets reviewers see what will eventually be required while preserving the Phase 0 non-executable safety boundary.
+  - Safe placeholder claim fixtures reduce implementation ambiguity without introducing real tokens, real users, credentials, or JWT-like strings.
+- Future implications:
+  - Future production modules still need final provider claim names, secure VPS secret configuration, real credential ownership, token verification middleware, JWKS strategy, operator registry persistence, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review command endpoints.
+  - Randall controls future provider technical configuration; Alfonso owner review remains required only where legal, insurance, compliance, contractual, financial-liability, customer-liability, or formal company-policy consequences are involved.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+
+---
+
 ## 2026-05-25 — Phase 0 Module 53 Auth Configuration Diagnostics, Secret Hygiene Verification, And Runtime Safety Visibility
 
 - Decision type: Implementation / auth boundary / read-only diagnostics and secret-hygiene planning baseline

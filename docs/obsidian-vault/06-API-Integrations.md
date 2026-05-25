@@ -962,6 +962,30 @@ Open API/frontend concerns:
 - secure VPS secret configuration and local development auth mode
 - token verification middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority after a future reviewed auth module exists
 
+## Phase 0 Module 54 Auth Claims Mapping And Token Dry-Run Boundary
+
+The Manual Review queue and detail API contracts now include read-only auth claims mapping, token-verification dry-run, and role-resolution readiness metadata for future auth/RBAC planning.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes `auth_boundary_readiness.auth_claims_mapping_readiness` metadata with token dry-run visibility, token verification disabled, real token parsing disabled, JWKS fetch disabled, required auth headers false, frontend-emitted auth headers false, claim mapping not configured, role claim not configured, permission claim not configured, required claims documented, safe example fixtures available, and service-account/technician block rules documented.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the same auth claims mapping metadata alongside the selected review item's existing auth-boundary, auth-configuration, auth-diagnostics, permission-readiness, command-validation, dry-run, command-contract, preview, preflight, decision-readiness, linked-entity, and timeline context.
+- Claim contract labels document future subject, email, email verification, display name, role, permission, provider, issuer, audience, tenant/domain, expiration, issued-at, and auth-time expectations.
+- Role-resolution labels document unknown-role mapping to `unknown_operator`, service-account/system-service blocking for Manual Review actions, and technician blocking unless a future reviewed module authorizes it.
+- Safe claim fixtures are placeholder examples only and must not include real user data, real tokens, private keys, service account JSON, credentials, or JWT-like strings.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no auth/RBAC enforcement, real token parsing, token verification, JWKS fetch, login/logout/session behavior, auth headers, fake authenticated user data, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- auth claim labels, dry-run labels, and role-resolution labels are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, credential provisioning, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM authentication provider claim names and production credential ownership
+- secure VPS secret configuration and local development auth mode
+- token verification middleware, JWKS strategy, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority after a future reviewed auth module exists
+
 ## Phase 0 Module 53 Auth Diagnostics And Secret Hygiene Boundary
 
 The Manual Review queue and detail API contracts now include read-only auth diagnostics and runtime safety metadata for future auth configuration checks.

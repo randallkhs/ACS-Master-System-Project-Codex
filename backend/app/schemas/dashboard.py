@@ -282,6 +282,40 @@ class AuthDiagnosticCheckResponse(DashboardSchema):
     reason: str
 
 
+class AuthClaimContractResponse(DashboardSchema):
+    key: str
+    label: str
+    claim_name: str
+    required_for_future_auth: bool
+    configured_now: bool
+    sensitive: bool
+    reason: str
+
+
+class AuthRoleResolutionRuleResponse(DashboardSchema):
+    key: str
+    label: str
+    input_role: str
+    resolved_role: str
+    manual_review_action_allowed_now: bool
+    manual_review_action_allowed_future: bool
+    blocked_for_manual_review_actions: bool
+    requires_future_rbac: bool
+    reason: str
+
+
+class AuthClaimsExampleFixtureResponse(DashboardSchema):
+    key: str
+    label: str
+    email_domain: str
+    roles: tuple[str, ...]
+    permissions: tuple[str, ...]
+    contains_real_user_data: bool
+    contains_token: bool
+    contains_secret: bool
+    reason: str
+
+
 class ManualReviewAuthRuntimeSafetyDiagnosticsResponse(DashboardSchema):
     summary: str
     auth_enabled: bool
@@ -328,6 +362,29 @@ class ManualReviewAuthConfigurationReadinessResponse(DashboardSchema):
     runtime_safety_diagnostics: ManualReviewAuthRuntimeSafetyDiagnosticsResponse
 
 
+class ManualReviewAuthClaimsMappingReadinessResponse(DashboardSchema):
+    summary: str
+    token_verification_dry_run_available: bool
+    token_verification_enabled: bool
+    real_token_parsing_enabled: bool
+    jwks_fetch_enabled: bool
+    auth_headers_required: bool
+    auth_headers_emitted_by_frontend: bool
+    claim_mapping_configured: bool
+    role_claim_configured: bool
+    permission_claim_configured: bool
+    required_claims_documented: bool
+    example_claim_fixture_available: bool
+    example_claim_fixture_contains_real_user_data: bool
+    service_account_block_rule_documented: bool
+    technician_block_rule_documented: bool
+    future_auth_required_before_actions: bool
+    future_rbac_required_before_actions: bool
+    claim_contracts: tuple[AuthClaimContractResponse, ...]
+    role_resolution_rules: tuple[AuthRoleResolutionRuleResponse, ...]
+    example_claim_fixtures: tuple[AuthClaimsExampleFixtureResponse, ...]
+
+
 class ManualReviewAuthBoundaryReadinessResponse(DashboardSchema):
     summary: str
     auth_implemented: bool
@@ -349,6 +406,7 @@ class ManualReviewAuthBoundaryReadinessResponse(DashboardSchema):
     provisional_roles: tuple[AuthBoundaryRoleCatalogItemResponse, ...]
     future_permissions: tuple[AuthBoundaryPermissionCatalogItemResponse, ...]
     auth_configuration_readiness: ManualReviewAuthConfigurationReadinessResponse
+    auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadinessResponse
 
 
 class ManualReviewMutationBoundaryLockResponse(DashboardSchema):

@@ -1052,3 +1052,21 @@ Unresolved:
 - final ACS-FSM auth provider and production credential ownership
 - secure VPS secret configuration and local development auth mode
 - token verification, auth middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority
+
+## Manual Review Auth Claims Mapping Projection
+
+Phase 0 Module 54 adds read-only auth claims mapping, token-verification dry-run, and role-resolution metadata to the Manual Review auth-boundary read model without adding database tables or columns.
+
+Projection philosophy:
+
+- auth claims mapping is deterministic planning metadata layered on the existing auth boundary, auth configuration readiness, and auth diagnostics projections
+- `token_verification_enabled`, `real_token_parsing_enabled`, `jwks_fetch_enabled`, required auth headers, and frontend-emitted auth headers remain false in Phase 0
+- future subject, email, email verification, display name, role, permission, provider, issuer, audience, tenant/domain, expiration, issued-at, and auth-time claims are documented as future contract labels only
+- role resolution metadata maps unknown roles to `unknown_operator`, blocks `system_service` and service-account subjects for Manual Review operator actions, and keeps technician Manual Review action authority blocked unless a future reviewed module authorizes it
+- example claim fixtures use placeholder scope only and do not contain real user data, real tokens, private keys, service account JSON, credentials, or JWT-like strings
+- no auth claims table, token/session table, credential table, JWKS cache table, operator identity table, RBAC table, mutation endpoint, vendor execution record, AI authority, or workflow engine is added in Module 54
+
+Unresolved:
+
+- final provider claim names and production credential ownership
+- token verification middleware, JWKS strategy, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority

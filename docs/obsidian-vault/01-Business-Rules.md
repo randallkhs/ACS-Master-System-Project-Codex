@@ -559,3 +559,27 @@ Rules:
 Open concerns:
 
 - final ACS-FSM auth provider selection, production credential ownership, VPS secret configuration, local development auth mode, token verification, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority remain future work
+
+---
+
+# 24. Phase 0 Auth Claims Mapping And Role Resolution Boundary
+
+Module 54 adds read-only future auth claims mapping, token-verification dry-run boundary, and role-resolution readiness visibility.
+
+Rules:
+
+- auth claims metadata is a Randall-authorized Phase 0 planning baseline only
+- `token_verification_enabled` must remain false in Phase 0
+- `real_token_parsing_enabled` must remain false in Phase 0
+- `jwks_fetch_enabled` must remain false in Phase 0
+- `auth_headers_required` and `auth_headers_emitted_by_frontend` must remain false in Phase 0
+- future subject, email, email verification, display name, role, permission, provider, issuer, audience, tenant/domain, expiration, issued-at, and auth-time claims are documentation/readiness labels only
+- unknown roles resolve to `unknown_operator` for future planning and must not grant action authority
+- `system_service` and service-account subjects must not perform future Manual Review operator actions
+- `technician` remains blocked from Manual Review actions unless a future reviewed module explicitly authorizes that boundary
+- example claim fixtures must use placeholder domains such as `example.com` and must not contain real user data, real tokens, private keys, service account JSON, credentials, or JWT-like strings
+- no login, logout, signup, user management, token/session behavior, auth headers, fake user identity, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, RBAC, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final ACS-FSM auth provider selection, provider claim names, production credential ownership, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority remain future work

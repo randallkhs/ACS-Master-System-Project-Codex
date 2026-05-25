@@ -1084,6 +1084,25 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 54 Auth Claims Mapping, Token Dry-Run, And Role Resolution
+
+Module 54 extends the read-only auth boundary with future claims mapping and role-resolution planning metadata without implementing auth:
+
+- backend read models expose future subject, email, email verification, display name, role, permission, provider, issuer, audience, tenant/domain, expiration, issued-at, and auth-time claim labels as deterministic planning metadata
+- token-verification dry-run visibility is available as metadata, but `token_verification_enabled`, `real_token_parsing_enabled`, `jwks_fetch_enabled`, `auth_headers_required`, and `auth_headers_emitted_by_frontend` remain false
+- role-resolution metadata maps unknown roles to `unknown_operator`, blocks service-account/system-service roles for Manual Review operator actions, and keeps technician Manual Review action authority blocked unless a future reviewed module authorizes it
+- safe example claim fixtures use placeholder-only `example.com` scope and do not include real user data, real tokens, private keys, service account JSON, credentials, or JWT-like strings
+- frontend queue and detail panels display claims mapping, dry-run, and role-resolution readiness as read-only evidence and do not add login/logout UI, auth headers, token/session behavior, fake authenticated users, forms, inputs, role assignment, or button-styled auth labels
+
+The boundary remains projection-only. The endpoint and UI do not authenticate users, parse request tokens, verify tokens, fetch JWKS, enforce RBAC, persist identities, create fake users, hide UI based on roles, execute Manual Review commands, mutate review records, write audit events, create POST/PUT/PATCH/DELETE endpoints, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- final ACS-FSM provider claim names and production credential ownership
+- token verification middleware, JWKS strategy, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

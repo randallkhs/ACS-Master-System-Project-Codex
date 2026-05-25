@@ -12,8 +12,11 @@ from app.domain.dashboard import (
     AuthBoundaryOperatorIdentityField,
     AuthBoundaryPermissionCatalogItem,
     AuthBoundaryRoleCatalogItem,
+    AuthClaimContract,
+    AuthClaimsExampleFixture,
     AuthConfigurationVariable,
     AuthDiagnosticCheck,
+    AuthRoleResolutionRule,
     CountBucket,
     DashboardDispatchSummary,
     DashboardOverviewReadModel,
@@ -23,6 +26,7 @@ from app.domain.dashboard import (
     ManualReviewActionPreflight,
     ManualReviewAuditLedgerDryRun,
     ManualReviewAuthBoundaryReadiness,
+    ManualReviewAuthClaimsMappingReadiness,
     ManualReviewAuthConfigurationReadiness,
     ManualReviewAuthRuntimeSafetyDiagnostics,
     ManualReviewCommandContract,
@@ -2770,6 +2774,205 @@ AUTH_RUNTIME_DIAGNOSTIC_CHECK_DEFINITIONS = (
         "Example files should contain disabled, false, true, or empty placeholders only.",
     ),
 )
+AUTH_CLAIM_CONTRACT_DEFINITIONS = (
+    (
+        "subject",
+        "Subject claim",
+        "sub",
+        True,
+        True,
+        "Future auth must bind each operator to a stable provider subject.",
+    ),
+    (
+        "email",
+        "Email claim",
+        "email",
+        True,
+        True,
+        "Future operator identity should include an email when the provider supports it.",
+    ),
+    (
+        "email_verified",
+        "Verified email claim",
+        "email_verified",
+        True,
+        False,
+        "Future auth should require verified email before operator actions.",
+    ),
+    (
+        "display_name",
+        "Display name claim",
+        "name",
+        True,
+        False,
+        "Future UI and audit records need an operator display name.",
+    ),
+    (
+        "role",
+        "Role claim",
+        "roles",
+        True,
+        False,
+        "Future RBAC will map provider roles only after a reviewed auth module.",
+    ),
+    (
+        "permission",
+        "Permission claim",
+        "permissions",
+        True,
+        False,
+        "Future permissions remain planning labels and authorize no action in Phase 0.",
+    ),
+    (
+        "provider",
+        "Provider claim",
+        "provider",
+        True,
+        False,
+        "Future auth should preserve which provider issued the operator identity.",
+    ),
+    (
+        "issuer",
+        "Issuer claim",
+        "iss",
+        True,
+        False,
+        "Future token verification must check issuer after provider configuration.",
+    ),
+    (
+        "audience",
+        "Audience claim",
+        "aud",
+        True,
+        False,
+        "Future token verification must check audience after provider configuration.",
+    ),
+    (
+        "tenant_domain",
+        "Tenant or domain claim",
+        "hd",
+        False,
+        False,
+        "Future provider setup may use a hosted-domain claim when available.",
+    ),
+    (
+        "expiration",
+        "Expiration claim",
+        "exp",
+        True,
+        False,
+        "Future token verification must reject expired tokens.",
+    ),
+    (
+        "issued_at",
+        "Issued-at claim",
+        "iat",
+        True,
+        False,
+        "Future token verification should preserve issued-at timing for audits.",
+    ),
+    (
+        "auth_time",
+        "Authentication time claim",
+        "auth_time",
+        False,
+        False,
+        "Future auth may use auth-time freshness checks for sensitive actions.",
+    ),
+)
+AUTH_ROLE_RESOLUTION_RULE_DEFINITIONS = (
+    (
+        "owner_future_planning_label",
+        "Owner future planning label",
+        "owner",
+        "owner",
+        False,
+        True,
+        False,
+        "Owner override remains future-only and may require Alfonso owner "
+        "review for liability-sensitive actions.",
+    ),
+    (
+        "operations_manager_future_planning_label",
+        "Operations manager future planning label",
+        "operations_manager",
+        "operations_manager",
+        False,
+        True,
+        False,
+        "Operations manager claims do not grant action authority in Phase 0.",
+    ),
+    (
+        "reviewer_future_planning_label",
+        "Reviewer future planning label",
+        "reviewer",
+        "reviewer",
+        False,
+        True,
+        False,
+        "Reviewer claims identify future Manual Review actors only.",
+    ),
+    (
+        "dispatcher_future_planning_label",
+        "Dispatcher future planning label",
+        "dispatcher",
+        "dispatcher",
+        False,
+        True,
+        False,
+        "Dispatcher claims remain future planning labels and do not dispatch now.",
+    ),
+    (
+        "technician_blocked_for_manual_review_actions",
+        "Technician blocked",
+        "technician",
+        "technician",
+        False,
+        False,
+        True,
+        "Technician claims cannot perform Manual Review actions unless a future "
+        "reviewed module authorizes that boundary.",
+    ),
+    (
+        "system_service_blocked_for_manual_review_actions",
+        "System service blocked",
+        "system_service",
+        "system_service",
+        False,
+        False,
+        True,
+        "Service accounts cannot perform Manual Review operator actions.",
+    ),
+    (
+        "unknown_role_maps_to_unknown_operator",
+        "Unknown role maps to unknown operator",
+        "unrecognized_role",
+        "unknown_operator",
+        False,
+        False,
+        True,
+        "Unknown roles must remain blocked and resolve to unknown_operator "
+        "until future RBAC review.",
+    ),
+)
+AUTH_EXAMPLE_CLAIM_FIXTURE_DEFINITIONS = (
+    (
+        "phase0_example_operator_claims",
+        "Phase 0 example operator claims",
+        "example.com",
+        ("reviewer",),
+        ("manual_review.view", "manual_review.detail.view"),
+        "Static example data only; no token, credential, or real operator identity.",
+    ),
+    (
+        "phase0_example_service_claims",
+        "Phase 0 example service claims",
+        "example.com",
+        ("system_service",),
+        ("dashboard.view",),
+        "Static service-role example documents the blocked service-account boundary.",
+    ),
+)
 
 
 def auth_configuration_variable(
@@ -2876,6 +3079,96 @@ def manual_review_auth_runtime_safety_diagnostics() -> ManualReviewAuthRuntimeSa
     )
 
 
+def manual_review_auth_claims_mapping_readiness() -> ManualReviewAuthClaimsMappingReadiness:
+    return ManualReviewAuthClaimsMappingReadiness(
+        summary=(
+            "Phase 0 documents the future auth claims mapping, role resolution, "
+            "and token-verification dry-run boundary as read-only metadata. It "
+            "does not parse request tokens, verify signatures, fetch JWKS, add "
+            "auth headers, or enforce RBAC."
+        ),
+        token_verification_dry_run_available=True,
+        token_verification_enabled=False,
+        real_token_parsing_enabled=False,
+        jwks_fetch_enabled=False,
+        auth_headers_required=False,
+        auth_headers_emitted_by_frontend=False,
+        claim_mapping_configured=False,
+        role_claim_configured=False,
+        permission_claim_configured=False,
+        required_claims_documented=True,
+        example_claim_fixture_available=True,
+        example_claim_fixture_contains_real_user_data=False,
+        service_account_block_rule_documented=True,
+        technician_block_rule_documented=True,
+        future_auth_required_before_actions=True,
+        future_rbac_required_before_actions=True,
+        claim_contracts=tuple(
+            AuthClaimContract(
+                key=key,
+                label=label,
+                claim_name=claim_name,
+                required_for_future_auth=required,
+                configured_now=False,
+                sensitive=sensitive,
+                reason=reason,
+            )
+            for (
+                key,
+                label,
+                claim_name,
+                required,
+                sensitive,
+                reason,
+            ) in AUTH_CLAIM_CONTRACT_DEFINITIONS
+        ),
+        role_resolution_rules=tuple(
+            AuthRoleResolutionRule(
+                key=key,
+                label=label,
+                input_role=input_role,
+                resolved_role=resolved_role,
+                manual_review_action_allowed_now=allowed_now,
+                manual_review_action_allowed_future=allowed_future,
+                blocked_for_manual_review_actions=blocked,
+                requires_future_rbac=True,
+                reason=reason,
+            )
+            for (
+                key,
+                label,
+                input_role,
+                resolved_role,
+                allowed_now,
+                allowed_future,
+                blocked,
+                reason,
+            ) in AUTH_ROLE_RESOLUTION_RULE_DEFINITIONS
+        ),
+        example_claim_fixtures=tuple(
+            AuthClaimsExampleFixture(
+                key=key,
+                label=label,
+                email_domain=email_domain,
+                roles=roles,
+                permissions=permissions,
+                contains_real_user_data=False,
+                contains_token=False,
+                contains_secret=False,
+                reason=reason,
+            )
+            for (
+                key,
+                label,
+                email_domain,
+                roles,
+                permissions,
+                reason,
+            ) in AUTH_EXAMPLE_CLAIM_FIXTURE_DEFINITIONS
+        ),
+    )
+
+
 def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness:
     return ManualReviewAuthBoundaryReadiness(
         summary=(
@@ -2947,6 +3240,7 @@ def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness
             ) in MANUAL_REVIEW_PERMISSION_CATALOG_DEFINITIONS
         ),
         auth_configuration_readiness=manual_review_auth_configuration_readiness(),
+        auth_claims_mapping_readiness=manual_review_auth_claims_mapping_readiness(),
     )
 
 

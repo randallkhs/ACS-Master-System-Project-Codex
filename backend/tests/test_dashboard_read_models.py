@@ -1329,10 +1329,14 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
     permissions = {permission.key: permission for permission in boundary.future_permissions}
     identity_fields = {field.key: field for field in boundary.operator_identity_fields}
     auth_config = boundary.auth_configuration_readiness
+    claims_mapping = boundary.auth_claims_mapping_readiness
     diagnostics = auth_config.runtime_safety_diagnostics
     diagnostic_checks = {check.key: check for check in diagnostics.diagnostic_checks}
     backend_auth_vars = {variable.name: variable for variable in auth_config.backend_variables}
     frontend_auth_vars = {variable.name: variable for variable in auth_config.frontend_variables}
+    claim_contracts = {claim.key: claim for claim in claims_mapping.claim_contracts}
+    role_resolution_rules = {rule.key: rule for rule in claims_mapping.role_resolution_rules}
+    claim_fixtures = {fixture.key: fixture for fixture in claims_mapping.example_claim_fixtures}
 
     assert review.status == "open"
     assert boundary.auth_implemented is False
@@ -1445,6 +1449,71 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
         frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_LOGIN_URL"].real_value_must_not_be_committed
         is True
     )
+    assert claims_mapping.token_verification_dry_run_available is True
+    assert claims_mapping.token_verification_enabled is False
+    assert claims_mapping.real_token_parsing_enabled is False
+    assert claims_mapping.jwks_fetch_enabled is False
+    assert claims_mapping.auth_headers_required is False
+    assert claims_mapping.auth_headers_emitted_by_frontend is False
+    assert claims_mapping.claim_mapping_configured is False
+    assert claims_mapping.role_claim_configured is False
+    assert claims_mapping.permission_claim_configured is False
+    assert claims_mapping.required_claims_documented is True
+    assert claims_mapping.example_claim_fixture_available is True
+    assert claims_mapping.example_claim_fixture_contains_real_user_data is False
+    assert claims_mapping.service_account_block_rule_documented is True
+    assert claims_mapping.technician_block_rule_documented is True
+    assert claims_mapping.future_auth_required_before_actions is True
+    assert claims_mapping.future_rbac_required_before_actions is True
+    assert {
+        "subject",
+        "email",
+        "email_verified",
+        "display_name",
+        "role",
+        "permission",
+        "provider",
+        "issuer",
+        "audience",
+        "tenant_domain",
+        "expiration",
+        "issued_at",
+        "auth_time",
+    }.issubset(claim_contracts)
+    assert claim_contracts["subject"].claim_name == "sub"
+    assert claim_contracts["email_verified"].claim_name == "email_verified"
+    assert claim_contracts["role"].claim_name == "roles"
+    assert claim_contracts["permission"].claim_name == "permissions"
+    assert claim_contracts["role"].configured_now is False
+    assert role_resolution_rules["unknown_role_maps_to_unknown_operator"].resolved_role == (
+        "unknown_operator"
+    )
+    assert (
+        role_resolution_rules[
+            "unknown_role_maps_to_unknown_operator"
+        ].blocked_for_manual_review_actions
+        is True
+    )
+    assert (
+        role_resolution_rules[
+            "system_service_blocked_for_manual_review_actions"
+        ].blocked_for_manual_review_actions
+        is True
+    )
+    assert (
+        role_resolution_rules[
+            "technician_blocked_for_manual_review_actions"
+        ].manual_review_action_allowed_now
+        is False
+    )
+    assert (
+        role_resolution_rules["reviewer_future_planning_label"].manual_review_action_allowed_now
+        is False
+    )
+    assert claim_fixtures["phase0_example_operator_claims"].email_domain == "example.com"
+    assert claim_fixtures["phase0_example_operator_claims"].contains_real_user_data is False
+    assert claim_fixtures["phase0_example_operator_claims"].contains_token is False
+    assert claim_fixtures["phase0_example_operator_claims"].contains_secret is False
 
 
 def test_manual_review_audit_ledger_dry_run_does_not_mutate_review_status() -> None:

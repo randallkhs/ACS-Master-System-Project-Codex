@@ -488,6 +488,7 @@ function AuthBoundaryReadinessPanel({
 }) {
   const diagnostics =
     boundary.auth_configuration_readiness.runtime_safety_diagnostics;
+  const claimsMapping = boundary.auth_claims_mapping_readiness;
 
   return (
     <SectionCard
@@ -778,6 +779,139 @@ function AuthBoundaryReadinessPanel({
                 variant={check.passed ? "neutral" : "danger"}
               />
             ))}
+          </div>
+        </div>
+        <div className="mt-4 rounded-md border border-slate-200 bg-white p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Auth Claims Mapping
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {claimsMapping.summary} Claims, roles, and permissions are future
+            planning labels only.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <MiniMetric
+              label="Token dry-run"
+              value={
+                claimsMapping.token_verification_dry_run_available
+                  ? "Token verification dry-run available"
+                  : "Token verification dry-run unavailable"
+              }
+            />
+            <MiniMetric
+              label="Real token parsing"
+              value={
+                claimsMapping.real_token_parsing_enabled
+                  ? "Real token parsing enabled"
+                  : "Real token parsing disabled"
+              }
+            />
+            <MiniMetric
+              label="JWKS fetch"
+              value={
+                claimsMapping.jwks_fetch_enabled
+                  ? "JWKS fetch enabled"
+                  : "JWKS fetch disabled"
+              }
+            />
+            <MiniMetric
+              label="Auth headers emitted"
+              value={
+                claimsMapping.auth_headers_emitted_by_frontend
+                  ? "Auth headers emitted"
+                  : "Auth headers not emitted"
+              }
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <StatusBadge
+              label={
+                claimsMapping.required_claims_documented
+                  ? "Required claims documented"
+                  : "Required claims missing"
+              }
+              variant={claimsMapping.required_claims_documented ? "neutral" : "danger"}
+            />
+            <StatusBadge
+              label={
+                claimsMapping.service_account_block_rule_documented
+                  ? "Service account block rule documented"
+                  : "Service account block rule missing"
+              }
+              variant={
+                claimsMapping.service_account_block_rule_documented
+                  ? "warning"
+                  : "danger"
+              }
+            />
+            <StatusBadge
+              label={
+                claimsMapping.technician_block_rule_documented
+                  ? "Technician block rule documented"
+                  : "Technician block rule missing"
+              }
+              variant={
+                claimsMapping.technician_block_rule_documented ? "warning" : "danger"
+              }
+            />
+            <StatusBadge
+              label={
+                claimsMapping.example_claim_fixture_contains_real_user_data
+                  ? "Fixture contains real user data"
+                  : "Fixture contains no real user data"
+              }
+              variant={
+                claimsMapping.example_claim_fixture_contains_real_user_data
+                  ? "danger"
+                  : "neutral"
+              }
+            />
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Required Claim Contract
+              </div>
+              <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+                {claimsMapping.claim_contracts
+                  .map((claim) => `${claim.label}: ${claim.claim_name}`)
+                  .join(", ")}
+              </p>
+            </div>
+            <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Role Resolution Readiness
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {claimsMapping.role_resolution_rules.map((rule) => (
+                  <StatusBadge
+                    key={rule.key}
+                    label={rule.label}
+                    variant={
+                      rule.blocked_for_manual_review_actions ? "warning" : "neutral"
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="rounded-md border border-slate-200 bg-slate-50/70 p-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Safe Claim Fixtures
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {claimsMapping.example_claim_fixtures.map((fixture) => (
+                  <StatusBadge
+                    key={fixture.key}
+                    label={`${fixture.label}: ${fixture.email_domain}`}
+                    variant={
+                      fixture.contains_token || fixture.contains_secret
+                        ? "danger"
+                        : "neutral"
+                    }
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">

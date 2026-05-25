@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 53 keeps the frontend foundation read-only while adding auth diagnostics/runtime safety visibility, safe secret-hygiene status, auth header disabled status, and explicit disabled auth/token/RBAC status on top of the existing Manual Review auth-boundary readiness, auth configuration readiness, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
+Phase 0 Module 54 keeps the frontend foundation read-only while adding auth claims mapping, token-verification dry-run boundary, and role-resolution readiness visibility on top of the existing Manual Review auth-boundary readiness, auth configuration readiness, auth diagnostics/runtime safety visibility, safe secret-hygiene status, auth header disabled status, explicit disabled auth/token/RBAC status, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -142,6 +142,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Water Emergency filter/sort view-state panel with frontend-only saved preferences
 - Water Emergency Randall-authorized Phase 0 baseline and Alfonso owner-review boundary notes
 - Manual Review queue filter/sort view-state panel with frontend-only saved preferences
+- Manual Review auth claims mapping and role-resolution readiness panels with token parsing and JWKS fetch disabled
 - Manual Review action-preflight visibility for future operator identity, audit reason, auth, and blocker preparation
 - Manual Review future-action preview visibility for expected non-binding outcomes, impacted entities, and future operator identity/audit reason requirements
 - Manual Review future command-contract visibility for future auth, operator identity, role authorization, audit reason, idempotency key, immutable event recording, and post-action consistency check requirements

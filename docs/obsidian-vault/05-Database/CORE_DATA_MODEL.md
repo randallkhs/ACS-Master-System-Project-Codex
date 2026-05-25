@@ -230,6 +230,8 @@ Module 48 adds Manual Review command-validation and safety-gate matrix visibilit
 
 Module 53 adds Manual Review auth diagnostics and secret-hygiene visibility as read-model metadata only. It does not add auth tables, token/session tables, credential tables, RBAC enforcement tables, persisted operator identities, mutation endpoints, workflow transitions, service account JSON storage, private key storage, vendor execution records, AI authority, or a workflow engine. Future production modules may need authenticated operator identity persistence, secure provider configuration, token verification, RBAC enforcement, role-scoped visibility, and credential ownership procedures after the auth workflow is explicitly designed.
 
+Module 54 adds Manual Review auth claims mapping, token-verification dry-run, and role-resolution readiness as read-model metadata only. It does not add auth tables, token/session tables, credential tables, JWKS cache tables, RBAC enforcement tables, persisted operator identities, mutation endpoints, workflow transitions, service account JSON storage, private key storage, real-token fixtures, vendor execution records, AI authority, or a workflow engine. Future production modules may need final provider claim names, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, and authenticated Manual Review action authority after the auth workflow is explicitly designed.
+
 ## Audit Logs
 
 Represents durable trace history.
@@ -708,6 +710,24 @@ No database table or column was added for:
 - workflow engine state
 
 The read model derives execution-readiness counts from existing Manual Review queue items and their decision-readiness, action-preflight, future-action preview, command-contract, audit-ledger dry-run, command-validation, safety-gate, and permission-readiness metadata. It reports `manual_review_mutations_enabled = false`, `action_execution_phase = read_only_phase_0`, `currently_executable_count = 0`, `mutation_endpoints_available = false`, and future auth/RBAC/audit/idempotency/immutable-event/consistency prerequisites as Randall-authorized Phase 0 visibility baselines only. Water Emergency-related readiness remains separately counted. Liability-sensitive customer-facing, insurance, warranty, drying certification, policy, and billing/financial outcomes are flagged for Alfonso owner review before any binding policy or action authority exists.
+
+## Phase 0 Module 54 Manual Review Auth Claims Mapping Read-Model Note
+
+Module 54 adds Manual Review auth claims mapping and role-resolution visibility as dashboard read-model projections only.
+
+Not added:
+
+- auth implementation
+- token verification
+- real token parsing
+- JWKS fetch or cache
+- auth headers
+- login/session/token tables
+- persisted operator identities
+- RBAC enforcement
+- Manual Review action execution
+
+The read model documents future claim labels for subject, email, verified email, display name, role, permission, provider, issuer, audience, tenant/domain, expiration, issued-at, and auth-time. It reports token verification dry-run visibility while keeping verification, real parsing, JWKS fetch, and auth headers disabled. Role-resolution metadata maps unknown roles to `unknown_operator`, blocks service-account/system-service roles for Manual Review operator actions, and keeps technician Manual Review actions blocked unless a future reviewed module authorizes that boundary.
 
 ---
 

@@ -272,6 +272,40 @@ export type AuthDiagnosticCheckResponse = {
   reason: string;
 };
 
+export type AuthClaimContractResponse = {
+  key: string;
+  label: string;
+  claim_name: string;
+  required_for_future_auth: boolean;
+  configured_now: boolean;
+  sensitive: boolean;
+  reason: string;
+};
+
+export type AuthRoleResolutionRuleResponse = {
+  key: string;
+  label: string;
+  input_role: string;
+  resolved_role: string;
+  manual_review_action_allowed_now: boolean;
+  manual_review_action_allowed_future: boolean;
+  blocked_for_manual_review_actions: boolean;
+  requires_future_rbac: boolean;
+  reason: string;
+};
+
+export type AuthClaimsExampleFixtureResponse = {
+  key: string;
+  label: string;
+  email_domain: string;
+  roles: string[];
+  permissions: string[];
+  contains_real_user_data: boolean;
+  contains_token: boolean;
+  contains_secret: boolean;
+  reason: string;
+};
+
 export type ManualReviewAuthRuntimeSafetyDiagnosticsResponse = {
   summary: string;
   auth_enabled: boolean;
@@ -318,6 +352,29 @@ export type ManualReviewAuthConfigurationReadinessResponse = {
   runtime_safety_diagnostics: ManualReviewAuthRuntimeSafetyDiagnosticsResponse;
 };
 
+export type ManualReviewAuthClaimsMappingReadinessResponse = {
+  summary: string;
+  token_verification_dry_run_available: boolean;
+  token_verification_enabled: boolean;
+  real_token_parsing_enabled: boolean;
+  jwks_fetch_enabled: boolean;
+  auth_headers_required: boolean;
+  auth_headers_emitted_by_frontend: boolean;
+  claim_mapping_configured: boolean;
+  role_claim_configured: boolean;
+  permission_claim_configured: boolean;
+  required_claims_documented: boolean;
+  example_claim_fixture_available: boolean;
+  example_claim_fixture_contains_real_user_data: boolean;
+  service_account_block_rule_documented: boolean;
+  technician_block_rule_documented: boolean;
+  future_auth_required_before_actions: boolean;
+  future_rbac_required_before_actions: boolean;
+  claim_contracts: AuthClaimContractResponse[];
+  role_resolution_rules: AuthRoleResolutionRuleResponse[];
+  example_claim_fixtures: AuthClaimsExampleFixtureResponse[];
+};
+
 export type ManualReviewAuthBoundaryReadinessResponse = {
   summary: string;
   auth_implemented: boolean;
@@ -339,6 +396,7 @@ export type ManualReviewAuthBoundaryReadinessResponse = {
   provisional_roles: AuthBoundaryRoleCatalogItemResponse[];
   future_permissions: AuthBoundaryPermissionCatalogItemResponse[];
   auth_configuration_readiness: ManualReviewAuthConfigurationReadinessResponse;
+  auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadinessResponse;
 };
 
 export type ManualReviewMutationBoundaryLockResponse = {

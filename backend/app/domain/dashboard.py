@@ -302,6 +302,43 @@ class AuthDiagnosticCheck:
 
 
 @dataclass(frozen=True, slots=True)
+class AuthClaimContract:
+    key: str
+    label: str
+    claim_name: str
+    required_for_future_auth: bool
+    configured_now: bool
+    sensitive: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class AuthRoleResolutionRule:
+    key: str
+    label: str
+    input_role: str
+    resolved_role: str
+    manual_review_action_allowed_now: bool
+    manual_review_action_allowed_future: bool
+    blocked_for_manual_review_actions: bool
+    requires_future_rbac: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class AuthClaimsExampleFixture:
+    key: str
+    label: str
+    email_domain: str
+    roles: tuple[str, ...]
+    permissions: tuple[str, ...]
+    contains_real_user_data: bool
+    contains_token: bool
+    contains_secret: bool
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewAuthRuntimeSafetyDiagnostics:
     summary: str
     auth_enabled: bool
@@ -350,6 +387,30 @@ class ManualReviewAuthConfigurationReadiness:
 
 
 @dataclass(frozen=True, slots=True)
+class ManualReviewAuthClaimsMappingReadiness:
+    summary: str
+    token_verification_dry_run_available: bool
+    token_verification_enabled: bool
+    real_token_parsing_enabled: bool
+    jwks_fetch_enabled: bool
+    auth_headers_required: bool
+    auth_headers_emitted_by_frontend: bool
+    claim_mapping_configured: bool
+    role_claim_configured: bool
+    permission_claim_configured: bool
+    required_claims_documented: bool
+    example_claim_fixture_available: bool
+    example_claim_fixture_contains_real_user_data: bool
+    service_account_block_rule_documented: bool
+    technician_block_rule_documented: bool
+    future_auth_required_before_actions: bool
+    future_rbac_required_before_actions: bool
+    claim_contracts: tuple[AuthClaimContract, ...]
+    role_resolution_rules: tuple[AuthRoleResolutionRule, ...]
+    example_claim_fixtures: tuple[AuthClaimsExampleFixture, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewAuthBoundaryReadiness:
     summary: str
     auth_implemented: bool
@@ -371,6 +432,7 @@ class ManualReviewAuthBoundaryReadiness:
     provisional_roles: tuple[AuthBoundaryRoleCatalogItem, ...]
     future_permissions: tuple[AuthBoundaryPermissionCatalogItem, ...]
     auth_configuration_readiness: ManualReviewAuthConfigurationReadiness
+    auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadiness
 
 
 @dataclass(frozen=True, slots=True)

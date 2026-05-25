@@ -304,6 +304,63 @@ describe("dashboard API client", () => {
       )
     ).toBe(true);
     expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .token_verification_dry_run_available
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .token_verification_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .real_token_parsing_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .jwks_fetch_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .auth_headers_required
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .auth_headers_emitted_by_frontend
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .required_claims_documented
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .service_account_block_rule_documented
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness
+        .technician_block_rule_documented
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness.claim_contracts.some(
+        (claim) => claim.key === "subject" && claim.claim_name === "sub"
+      )
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness.role_resolution_rules.some(
+        (rule) =>
+          rule.key === "unknown_role_maps_to_unknown_operator" &&
+          rule.resolved_role === "unknown_operator" &&
+          rule.blocked_for_manual_review_actions
+      )
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_claims_mapping_readiness.example_claim_fixtures.some(
+        (fixture) =>
+          fixture.key === "phase0_example_operator_claims" &&
+          fixture.email_domain === "example.com" &&
+          fixture.contains_token === false
+      )
+    ).toBe(true);
+    expect(
       result.data.items[0].command_validation.safety_gates.at(-1)?.key
     ).toBe("phase_allows_execution");
     expect(result.data.taxonomy_metadata.randall_authorized_phase_0_baseline).toBe(

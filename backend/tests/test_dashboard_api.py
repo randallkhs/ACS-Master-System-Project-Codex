@@ -9,8 +9,11 @@ from app.domain.dashboard import (
     AuthBoundaryOperatorIdentityField,
     AuthBoundaryPermissionCatalogItem,
     AuthBoundaryRoleCatalogItem,
+    AuthClaimContract,
+    AuthClaimsExampleFixture,
     AuthConfigurationVariable,
     AuthDiagnosticCheck,
+    AuthRoleResolutionRule,
     CountBucket,
     DashboardDispatchSummary,
     DashboardOverviewReadModel,
@@ -20,6 +23,7 @@ from app.domain.dashboard import (
     ManualReviewActionPreflight,
     ManualReviewAuditLedgerDryRun,
     ManualReviewAuthBoundaryReadiness,
+    ManualReviewAuthClaimsMappingReadiness,
     ManualReviewAuthConfigurationReadiness,
     ManualReviewAuthRuntimeSafetyDiagnostics,
     ManualReviewCommandContract,
@@ -912,6 +916,124 @@ def manual_review_permission_readiness_contract(
     )
 
 
+def manual_review_auth_claims_mapping_readiness_contract() -> (
+    ManualReviewAuthClaimsMappingReadiness
+):
+    return ManualReviewAuthClaimsMappingReadiness(
+        summary=(
+            "Phase 0 documents future claims mapping and token dry-run boundaries "
+            "without parsing request tokens or enforcing RBAC."
+        ),
+        token_verification_dry_run_available=True,
+        token_verification_enabled=False,
+        real_token_parsing_enabled=False,
+        jwks_fetch_enabled=False,
+        auth_headers_required=False,
+        auth_headers_emitted_by_frontend=False,
+        claim_mapping_configured=False,
+        role_claim_configured=False,
+        permission_claim_configured=False,
+        required_claims_documented=True,
+        example_claim_fixture_available=True,
+        example_claim_fixture_contains_real_user_data=False,
+        service_account_block_rule_documented=True,
+        technician_block_rule_documented=True,
+        future_auth_required_before_actions=True,
+        future_rbac_required_before_actions=True,
+        claim_contracts=(
+            AuthClaimContract(
+                key="subject",
+                label="Subject claim",
+                claim_name="sub",
+                required_for_future_auth=True,
+                configured_now=False,
+                sensitive=True,
+                reason="Future auth must bind each operator to a stable provider subject.",
+            ),
+            AuthClaimContract(
+                key="role",
+                label="Role claim",
+                claim_name="roles",
+                required_for_future_auth=True,
+                configured_now=False,
+                sensitive=False,
+                reason="Future RBAC will map this claim after review.",
+            ),
+            AuthClaimContract(
+                key="permission",
+                label="Permission claim",
+                claim_name="permissions",
+                required_for_future_auth=True,
+                configured_now=False,
+                sensitive=False,
+                reason="Future permissions remain planning labels in Phase 0.",
+            ),
+        ),
+        role_resolution_rules=(
+            AuthRoleResolutionRule(
+                key="reviewer_future_planning_label",
+                label="Reviewer future planning label",
+                input_role="reviewer",
+                resolved_role="reviewer",
+                manual_review_action_allowed_now=False,
+                manual_review_action_allowed_future=True,
+                blocked_for_manual_review_actions=False,
+                requires_future_rbac=True,
+                reason="Reviewer claims do not grant action authority in Phase 0.",
+            ),
+            AuthRoleResolutionRule(
+                key="system_service_blocked_for_manual_review_actions",
+                label="System service blocked",
+                input_role="system_service",
+                resolved_role="system_service",
+                manual_review_action_allowed_now=False,
+                manual_review_action_allowed_future=False,
+                blocked_for_manual_review_actions=True,
+                requires_future_rbac=True,
+                reason="Service accounts cannot perform Manual Review operator actions.",
+            ),
+            AuthRoleResolutionRule(
+                key="technician_blocked_for_manual_review_actions",
+                label="Technician blocked",
+                input_role="technician",
+                resolved_role="technician",
+                manual_review_action_allowed_now=False,
+                manual_review_action_allowed_future=False,
+                blocked_for_manual_review_actions=True,
+                requires_future_rbac=True,
+                reason=(
+                    "Technician claims cannot perform Manual Review actions unless "
+                    "a future reviewed module authorizes that boundary."
+                ),
+            ),
+            AuthRoleResolutionRule(
+                key="unknown_role_maps_to_unknown_operator",
+                label="Unknown role maps to unknown operator",
+                input_role="unrecognized_role",
+                resolved_role="unknown_operator",
+                manual_review_action_allowed_now=False,
+                manual_review_action_allowed_future=False,
+                blocked_for_manual_review_actions=True,
+                requires_future_rbac=True,
+                reason="Unknown roles must remain blocked until future RBAC review.",
+            ),
+        ),
+        example_claim_fixtures=(
+            AuthClaimsExampleFixture(
+                key="phase0_example_operator_claims",
+                label="Phase 0 example operator claims",
+                email_domain="example.com",
+                roles=("reviewer",),
+                permissions=("manual_review.view", "manual_review.detail.view"),
+                contains_real_user_data=False,
+                contains_token=False,
+                contains_secret=False,
+                reason="Static example data only; no token or real operator identity.",
+            ),
+        ),
+    )
+
+
 def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundaryReadiness:
     return ManualReviewAuthBoundaryReadiness(
         summary=(
@@ -1123,6 +1245,7 @@ def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundary
                 ),
             ),
         ),
+        auth_claims_mapping_readiness=manual_review_auth_claims_mapping_readiness_contract(),
     )
 
 
@@ -2307,6 +2430,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert permission_catalog["manual_review.approve.future"]["authorizes_actions_now"] is False
     assert permission_catalog["manual_review.approve.future"]["future_planning_only"] is True
     auth_config = auth_boundary["auth_configuration_readiness"]
+    claims_mapping = auth_boundary["auth_claims_mapping_readiness"]
     diagnostics = auth_config["runtime_safety_diagnostics"]
     assert auth_config["auth_provider_configured"] is False
     assert auth_config["auth_provider"] == "disabled"
@@ -2350,6 +2474,49 @@ def test_dashboard_api_routes_return_read_only_contracts(
         frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_STATUS_URL"]["real_value_must_not_be_committed"]
         is True
     )
+    assert claims_mapping["token_verification_dry_run_available"] is True
+    assert claims_mapping["token_verification_enabled"] is False
+    assert claims_mapping["real_token_parsing_enabled"] is False
+    assert claims_mapping["jwks_fetch_enabled"] is False
+    assert claims_mapping["auth_headers_required"] is False
+    assert claims_mapping["auth_headers_emitted_by_frontend"] is False
+    assert claims_mapping["claim_mapping_configured"] is False
+    assert claims_mapping["role_claim_configured"] is False
+    assert claims_mapping["permission_claim_configured"] is False
+    assert claims_mapping["required_claims_documented"] is True
+    assert claims_mapping["example_claim_fixture_available"] is True
+    assert claims_mapping["example_claim_fixture_contains_real_user_data"] is False
+    assert claims_mapping["service_account_block_rule_documented"] is True
+    assert claims_mapping["technician_block_rule_documented"] is True
+    claim_contracts = {claim["key"]: claim for claim in claims_mapping["claim_contracts"]}
+    role_resolution_rules = {rule["key"]: rule for rule in claims_mapping["role_resolution_rules"]}
+    claim_fixtures = {
+        fixture["key"]: fixture for fixture in claims_mapping["example_claim_fixtures"]
+    }
+    assert claim_contracts["subject"]["claim_name"] == "sub"
+    assert claim_contracts["role"]["claim_name"] == "roles"
+    assert claim_contracts["permission"]["claim_name"] == "permissions"
+    assert claim_contracts["role"]["configured_now"] is False
+    assert (
+        role_resolution_rules["unknown_role_maps_to_unknown_operator"]["resolved_role"]
+        == "unknown_operator"
+    )
+    assert (
+        role_resolution_rules["system_service_blocked_for_manual_review_actions"][
+            "blocked_for_manual_review_actions"
+        ]
+        is True
+    )
+    assert (
+        role_resolution_rules["technician_blocked_for_manual_review_actions"][
+            "manual_review_action_allowed_now"
+        ]
+        is False
+    )
+    assert claim_fixtures["phase0_example_operator_claims"]["email_domain"] == "example.com"
+    assert claim_fixtures["phase0_example_operator_claims"]["contains_real_user_data"] is False
+    assert claim_fixtures["phase0_example_operator_claims"]["contains_token"] is False
+    assert claim_fixtures["phase0_example_operator_claims"]["contains_secret"] is False
     assert (
         manual_review_queue_response.json()["items"][0]["command_validation"][
             "is_currently_executable"

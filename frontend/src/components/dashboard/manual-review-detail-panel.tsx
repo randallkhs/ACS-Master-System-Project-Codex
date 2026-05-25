@@ -65,6 +65,7 @@ function ManualReviewDetailContent({
   const authConfig =
     detail.auth_boundary_readiness.auth_configuration_readiness;
   const authDiagnostics = authConfig.runtime_safety_diagnostics;
+  const authClaims = detail.auth_boundary_readiness.auth_claims_mapping_readiness;
 
   return (
     <div className="space-y-4">
@@ -279,6 +280,96 @@ function ManualReviewDetailContent({
                   : "neutral"
               }
             />
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Auth Claims Mapping
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {authClaims.summary} No request token, signature, JWKS response, auth
+            header, or permission decision is consumed in Phase 0.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <StatusBadge
+              label={
+                authClaims.token_verification_dry_run_available
+                  ? "Token verification dry-run available"
+                  : "Token verification dry-run unavailable"
+              }
+              variant={
+                authClaims.token_verification_dry_run_available ? "neutral" : "danger"
+              }
+            />
+            <StatusBadge
+              label={
+                authClaims.real_token_parsing_enabled
+                  ? "Real token parsing enabled"
+                  : "Real token parsing disabled"
+              }
+              variant={authClaims.real_token_parsing_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                authClaims.jwks_fetch_enabled ? "JWKS fetch enabled" : "JWKS fetch disabled"
+              }
+              variant={authClaims.jwks_fetch_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                authClaims.required_claims_documented
+                  ? "Required claims documented"
+                  : "Required claims missing"
+              }
+              variant={authClaims.required_claims_documented ? "neutral" : "danger"}
+            />
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Claim Contract
+              </div>
+              <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+                {authClaims.claim_contracts
+                  .map((claim) => `${claim.label}: ${claim.claim_name}`)
+                  .join(", ")}
+              </p>
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Role Resolution Readiness
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {authClaims.role_resolution_rules.map((rule) => (
+                  <StatusBadge
+                    key={rule.key}
+                    label={rule.label}
+                    variant={
+                      rule.blocked_for_manual_review_actions ? "warning" : "neutral"
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Safe Fixture Scope
+              </div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {authClaims.example_claim_fixtures.map((fixture) => (
+                  <StatusBadge
+                    key={fixture.key}
+                    label={`${fixture.label}: ${fixture.email_domain}`}
+                    variant={
+                      fixture.contains_secret || fixture.contains_token
+                        ? "danger"
+                        : "neutral"
+                    }
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
