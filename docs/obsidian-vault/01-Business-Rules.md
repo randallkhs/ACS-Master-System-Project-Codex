@@ -535,3 +535,27 @@ Rules:
 Open concerns:
 
 - final ACS-FSM auth provider selection, credential ownership, local development auth mode, production VPS secret configuration, token verification, RBAC enforcement, and role-scoped Manual Review action authority remain future work
+
+---
+
+# 23. Phase 0 Auth Diagnostics And Secret Hygiene Visibility
+
+Module 53 adds read-only auth configuration diagnostics, secret-hygiene verification, and runtime safety visibility.
+
+Rules:
+
+- auth diagnostics metadata is a Randall-authorized Phase 0 planning baseline only
+- `auth_enabled` must remain false in Phase 0
+- `auth_provider` must remain `disabled` in Phase 0
+- `token_verification_enabled` must remain false in Phase 0
+- `rbac_enforcement_enabled` must remain false in Phase 0
+- `login_ui_available` must remain false in Phase 0
+- `auth_headers_required` and `auth_headers_emitted_by_frontend` must remain false in Phase 0
+- diagnostics may report secret-hygiene booleans, but must never expose credential values
+- `.env`, `.env.local`, service account JSON, private keys, real tokens, and real credentials must not be committed
+- the secret-hygiene helper must not contact external services, mutate files, or print secret values
+- no login, logout, signup, user management, token/session behavior, auth headers, fake user identity, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, RBAC, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final ACS-FSM auth provider selection, production credential ownership, VPS secret configuration, local development auth mode, token verification, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority remain future work

@@ -6,6 +6,38 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-25 — Phase 0 Module 53 Auth Configuration Diagnostics, Secret Hygiene Verification, And Runtime Safety Visibility
+
+- Decision type: Implementation / auth boundary / read-only diagnostics and secret-hygiene planning baseline
+- Status: Implemented
+- Decision:
+  - Extend Manual Review auth configuration readiness metadata with read-only runtime auth diagnostics.
+  - Explicitly report auth enabled, token verification, RBAC enforcement, sign-in UI, required auth headers, and frontend-emitted auth headers as false in Phase 0.
+  - Surface safe secret-hygiene booleans for tracked `.env`, tracked `.env.local`, tracked service account JSON, private key detection, and placeholder-only example values.
+  - Add `backend/scripts/check_auth_config_safety.py` as a safe local helper that inspects tracked/example files, reports JSON, does not contact services, does not mutate files, and does not print secret values.
+  - Add frontend queue and detail auth diagnostics visibility without login/logout/signup/user-management UI, auth headers, token/session behavior, fake users, fake roles, role assignment, or action controls.
+- Rationale:
+  - Future auth modules need a repeatable way to verify that placeholder configuration remains safe before real credentials and provider logic are introduced.
+  - The module makes runtime safety and secret-hygiene status visible while preserving the current Phase 0 read-only and non-executable safety boundary.
+  - Safe diagnostics reduce credential-leak risk without becoming credential management, token verification, or access control.
+- Future implications:
+  - Future production modules still need final provider selection, secure VPS secret configuration, real credential ownership, token verification middleware, operator registry persistence, RBAC enforcement, role-scoped visibility, and authenticated Manual Review command endpoints.
+  - Randall controls future provider technical configuration; Alfonso owner review remains required only where legal, insurance, compliance, contractual, financial-liability, customer-liability, or formal company-policy consequences are involved.
+- Affected systems:
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Auth configuration safety helper
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend Manual Review detail panel
+  - Backend/frontend tests
+  - Manual Review business-rule documentation
+  - Database/system architecture notes
+  - API/frontend contract notes
+
+---
+
 ## 2026-05-24 — Phase 0 Module 52 Auth Provider Configuration Contract, Environment Safety, And Local Dev Auth Readiness
 
 - Decision type: Implementation / auth boundary / read-only configuration-readiness planning baseline

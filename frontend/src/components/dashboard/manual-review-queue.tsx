@@ -486,6 +486,9 @@ function AuthBoundaryReadinessPanel({
 }: {
   boundary: ManualReviewAuthBoundaryReadinessResponse;
 }) {
+  const diagnostics =
+    boundary.auth_configuration_readiness.runtime_safety_diagnostics;
+
   return (
     <SectionCard
       title="Auth Boundary Readiness"
@@ -653,9 +656,129 @@ function AuthBoundaryReadinessPanel({
               boundary.auth_configuration_readiness
                 .randall_controls_provider_configuration
                 ? "neutral"
-                : "danger"
+              : "danger"
             }
           />
+        </div>
+        <div className="mt-4 rounded-md border border-slate-200 bg-white p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Auth Diagnostics
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {diagnostics.summary} The helper is{" "}
+            {diagnostics.secret_hygiene_helper}.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <MiniMetric
+              label="Runtime auth mode"
+              value={humanizeLabel(diagnostics.runtime_auth_mode)}
+            />
+            <MiniMetric
+              label="Auth headers required"
+              value={
+                diagnostics.auth_headers_required
+                  ? "Auth headers required"
+                  : "Auth headers not required"
+              }
+            />
+            <MiniMetric
+              label="Frontend auth headers"
+              value={
+                diagnostics.auth_headers_emitted_by_frontend
+                  ? "Frontend auth headers emitted"
+                  : "Frontend auth headers not emitted"
+              }
+            />
+            <MiniMetric
+              label="Placeholder status"
+              value={
+                diagnostics.placeholder_values_only
+                  ? "Placeholder values only"
+                  : "Placeholder issue detected"
+              }
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <StatusBadge
+              label={
+                diagnostics.auth_enabled
+                  ? "Auth enabled"
+                  : "Auth disabled in Phase 0"
+              }
+              variant={diagnostics.auth_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                diagnostics.auth_headers_required
+                  ? "Auth headers required"
+                  : "Auth headers not required"
+              }
+              variant={diagnostics.auth_headers_required ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                diagnostics.auth_headers_emitted_by_frontend
+                  ? "Frontend auth headers emitted"
+                  : "Frontend auth headers not emitted"
+              }
+              variant={
+                diagnostics.auth_headers_emitted_by_frontend
+                  ? "danger"
+                  : "neutral"
+              }
+            />
+            <StatusBadge
+              label={
+                diagnostics.env_file_tracked
+                  ? "Tracked .env file detected"
+                  : "No tracked .env files"
+              }
+              variant={diagnostics.env_file_tracked ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                diagnostics.env_local_file_tracked
+                  ? "Tracked .env.local file detected"
+                  : "No tracked .env.local files"
+              }
+              variant={diagnostics.env_local_file_tracked ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                diagnostics.service_account_json_tracked
+                  ? "Service account JSON tracked"
+                  : "No service account JSON tracked"
+              }
+              variant={
+                diagnostics.service_account_json_tracked ? "danger" : "neutral"
+              }
+            />
+            <StatusBadge
+              label={
+                diagnostics.private_key_detected
+                  ? "Private key detected"
+                  : "Private key not detected"
+              }
+              variant={diagnostics.private_key_detected ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                diagnostics.placeholder_values_only
+                  ? "Placeholder values only"
+                  : "Non-placeholder values detected"
+              }
+              variant={diagnostics.placeholder_values_only ? "neutral" : "danger"}
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {diagnostics.diagnostic_checks.map((check) => (
+              <StatusBadge
+                key={check.key}
+                label={check.label}
+                variant={check.passed ? "neutral" : "danger"}
+              />
+            ))}
+          </div>
         </div>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
           <div>

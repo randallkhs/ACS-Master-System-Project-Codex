@@ -1329,6 +1329,8 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
     permissions = {permission.key: permission for permission in boundary.future_permissions}
     identity_fields = {field.key: field for field in boundary.operator_identity_fields}
     auth_config = boundary.auth_configuration_readiness
+    diagnostics = auth_config.runtime_safety_diagnostics
+    diagnostic_checks = {check.key: check for check in diagnostics.diagnostic_checks}
     backend_auth_vars = {variable.name: variable for variable in auth_config.backend_variables}
     frontend_auth_vars = {variable.name: variable for variable in auth_config.frontend_variables}
 
@@ -1397,6 +1399,37 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
     assert auth_config.future_provider_selection_required is True
     assert auth_config.randall_controls_provider_configuration is True
     assert auth_config.alfonso_owner_review_required_for_legal_policy is True
+    assert diagnostics.auth_enabled is False
+    assert diagnostics.auth_provider == "disabled"
+    assert diagnostics.auth_provider_configured is False
+    assert diagnostics.token_verification_enabled is False
+    assert diagnostics.rbac_enforcement_enabled is False
+    assert diagnostics.login_ui_available is False
+    assert diagnostics.auth_headers_required is False
+    assert diagnostics.auth_headers_emitted_by_frontend is False
+    assert diagnostics.real_credentials_required_for_future_auth is True
+    assert diagnostics.committed_credentials_allowed is False
+    assert diagnostics.service_account_json_tracked is False
+    assert diagnostics.env_file_tracked is False
+    assert diagnostics.env_local_file_tracked is False
+    assert diagnostics.private_key_detected is False
+    assert diagnostics.placeholder_values_only is True
+    assert diagnostics.local_dev_auth_mode == "disabled"
+    assert diagnostics.runtime_auth_mode == "read_only_phase_0"
+    assert diagnostics.future_provider_selection_required is True
+    assert diagnostics.randall_controls_provider_configuration is True
+    assert diagnostics.alfonso_owner_review_required_for_legal_policy is True
+    assert diagnostics.secret_hygiene_helper == "backend/scripts/check_auth_config_safety.py"
+    assert diagnostic_checks["auth_disabled_phase_0"].passed is True
+    assert diagnostic_checks["token_verification_disabled"].passed is True
+    assert diagnostic_checks["rbac_enforcement_disabled"].passed is True
+    assert diagnostic_checks["auth_headers_not_required"].passed is True
+    assert diagnostic_checks["frontend_auth_headers_not_emitted"].passed is True
+    assert diagnostic_checks["committed_credentials_disallowed"].passed is True
+    assert diagnostic_checks["tracked_env_files_blocked"].passed is True
+    assert diagnostic_checks["service_account_json_not_tracked"].passed is True
+    assert diagnostic_checks["private_key_not_detected"].passed is True
+    assert diagnostic_checks["placeholder_values_only"].passed is True
     assert auth_config.provider_options == (
         "google_workspace_oidc_future_option",
         "google_oauth_oidc_future_option",

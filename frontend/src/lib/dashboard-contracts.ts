@@ -264,6 +264,40 @@ export type AuthConfigurationVariableResponse = {
   reason: string;
 };
 
+export type AuthDiagnosticCheckResponse = {
+  key: string;
+  label: string;
+  passed: boolean;
+  severity: string;
+  reason: string;
+};
+
+export type ManualReviewAuthRuntimeSafetyDiagnosticsResponse = {
+  summary: string;
+  auth_enabled: boolean;
+  auth_provider: string;
+  auth_provider_configured: boolean;
+  token_verification_enabled: boolean;
+  rbac_enforcement_enabled: boolean;
+  login_ui_available: boolean;
+  auth_headers_required: boolean;
+  auth_headers_emitted_by_frontend: boolean;
+  real_credentials_required_for_future_auth: boolean;
+  committed_credentials_allowed: boolean;
+  service_account_json_tracked: boolean;
+  env_file_tracked: boolean;
+  env_local_file_tracked: boolean;
+  private_key_detected: boolean;
+  placeholder_values_only: boolean;
+  local_dev_auth_mode: string;
+  runtime_auth_mode: string;
+  future_provider_selection_required: boolean;
+  randall_controls_provider_configuration: boolean;
+  alfonso_owner_review_required_for_legal_policy: boolean;
+  secret_hygiene_helper: string;
+  diagnostic_checks: AuthDiagnosticCheckResponse[];
+};
+
 export type ManualReviewAuthConfigurationReadinessResponse = {
   summary: string;
   auth_provider_configured: boolean;
@@ -281,6 +315,7 @@ export type ManualReviewAuthConfigurationReadinessResponse = {
   backend_variables: AuthConfigurationVariableResponse[];
   frontend_variables: AuthConfigurationVariableResponse[];
   provider_options: string[];
+  runtime_safety_diagnostics: ManualReviewAuthRuntimeSafetyDiagnosticsResponse;
 };
 
 export type ManualReviewAuthBoundaryReadinessResponse = {

@@ -274,6 +274,40 @@ class AuthConfigurationVariableResponse(DashboardSchema):
     reason: str
 
 
+class AuthDiagnosticCheckResponse(DashboardSchema):
+    key: str
+    label: str
+    passed: bool
+    severity: str
+    reason: str
+
+
+class ManualReviewAuthRuntimeSafetyDiagnosticsResponse(DashboardSchema):
+    summary: str
+    auth_enabled: bool
+    auth_provider: str
+    auth_provider_configured: bool
+    token_verification_enabled: bool
+    rbac_enforcement_enabled: bool
+    login_ui_available: bool
+    auth_headers_required: bool
+    auth_headers_emitted_by_frontend: bool
+    real_credentials_required_for_future_auth: bool
+    committed_credentials_allowed: bool
+    service_account_json_tracked: bool
+    env_file_tracked: bool
+    env_local_file_tracked: bool
+    private_key_detected: bool
+    placeholder_values_only: bool
+    local_dev_auth_mode: str
+    runtime_auth_mode: str
+    future_provider_selection_required: bool
+    randall_controls_provider_configuration: bool
+    alfonso_owner_review_required_for_legal_policy: bool
+    secret_hygiene_helper: str
+    diagnostic_checks: tuple[AuthDiagnosticCheckResponse, ...]
+
+
 class ManualReviewAuthConfigurationReadinessResponse(DashboardSchema):
     summary: str
     auth_provider_configured: bool
@@ -291,6 +325,7 @@ class ManualReviewAuthConfigurationReadinessResponse(DashboardSchema):
     backend_variables: tuple[AuthConfigurationVariableResponse, ...]
     frontend_variables: tuple[AuthConfigurationVariableResponse, ...]
     provider_options: tuple[str, ...]
+    runtime_safety_diagnostics: ManualReviewAuthRuntimeSafetyDiagnosticsResponse
 
 
 class ManualReviewAuthBoundaryReadinessResponse(DashboardSchema):

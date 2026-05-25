@@ -252,6 +252,44 @@ describe("dashboard API client", () => {
         .committed_credentials_allowed
     ).toBe(false);
     expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.auth_enabled
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.auth_headers_required
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.auth_headers_emitted_by_frontend
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.service_account_json_tracked
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.env_file_tracked
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.env_local_file_tracked
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.private_key_detected
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.placeholder_values_only
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_configuration_readiness
+        .runtime_safety_diagnostics.diagnostic_checks.some(
+          (check) => check.key === "frontend_auth_headers_not_emitted" && check.passed
+        )
+    ).toBe(true);
+    expect(
       result.data.auth_boundary_readiness.auth_configuration_readiness.backend_variables.some(
         (variable) =>
           variable.name === "ACS_FSM_AUTH_PROVIDER" &&

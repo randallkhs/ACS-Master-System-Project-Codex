@@ -961,3 +961,26 @@ Open API/frontend concerns:
 - final ACS-FSM authentication provider and production credential ownership
 - secure VPS secret configuration and local development auth mode
 - token verification middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority after a future reviewed auth module exists
+
+## Phase 0 Module 53 Auth Diagnostics And Secret Hygiene Boundary
+
+The Manual Review queue and detail API contracts now include read-only auth diagnostics and runtime safety metadata for future auth configuration checks.
+
+Contract behavior:
+
+- `GET /api/v1/dashboard/manual-review/queue` exposes `auth_boundary_readiness.auth_configuration_readiness.runtime_safety_diagnostics` metadata with auth disabled, provider disabled, provider configured false, token verification disabled, RBAC enforcement disabled, sign-in UI unavailable, auth headers not required, frontend auth headers not emitted, real credentials required later, committed credentials disallowed, tracked `.env` false, tracked `.env.local` false, service account JSON tracked false, private key detected false, placeholder values only true, and runtime auth mode `read_only_phase_0`.
+- `GET /api/v1/dashboard/manual-review/queue/{review_item_id}` exposes the same diagnostics metadata alongside the selected review item's existing auth-boundary, auth-configuration, permission-readiness, command-validation, dry-run, command-contract, preview, preflight, decision-readiness, linked-entity, and timeline context.
+- Diagnostic check labels are visibility metadata only. They explain why auth remains disabled and why secret hygiene must remain safe before future provider setup.
+- The `backend/scripts/check_auth_config_safety.py` helper verifies tracked/example files without printing secret values, contacting external services, mutating files, or providing credential management.
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no auth/RBAC enforcement, token verification, login/logout/session behavior, auth headers, fake authenticated user data, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- auth diagnostic labels, secret-hygiene labels, and helper output are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, credential provisioning, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM authentication provider and production credential ownership
+- secure VPS secret configuration and local development auth mode
+- token verification middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority after a future reviewed auth module exists

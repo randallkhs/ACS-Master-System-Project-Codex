@@ -1063,6 +1063,27 @@ Unresolved:
 
 ---
 
+## Phase 0 Module 53 Auth Diagnostics, Secret Hygiene, And Runtime Safety
+
+Module 53 extends the read-only auth boundary with diagnostics and secret-hygiene visibility without implementing auth:
+
+- backend read models expose runtime auth diagnostics as deterministic planning visibility
+- `auth_enabled`, `token_verification_enabled`, `rbac_enforcement_enabled`, `login_ui_available`, `auth_headers_required`, and `auth_headers_emitted_by_frontend` remain false
+- `runtime_auth_mode` remains `read_only_phase_0`
+- secret-hygiene status is exposed as booleans only for tracked `.env`, `.env.local`, service account JSON, private key detection, and placeholder-only examples
+- `backend/scripts/check_auth_config_safety.py` can inspect tracked/example files and report safe JSON without printing credential values, contacting services, or mutating files
+- frontend queue and detail panels display auth diagnostics as read-only evidence and do not add login/logout UI, auth headers, token/session behavior, fake authenticated users, forms, inputs, role assignment, or button-styled auth labels
+
+The boundary remains projection-only. The endpoint, helper, and UI do not authenticate users, verify tokens, enforce RBAC, persist identities, create fake users, hide UI based on roles, execute Manual Review commands, mutate review records, write audit events, create POST/PUT/PATCH/DELETE endpoints, dispatch work, call external integrations, add AI authority, create action history, print secrets, or infer hidden workflow transitions.
+
+Unresolved:
+
+- final ACS-FSM auth provider selection and production credential ownership
+- secure VPS secret configuration and local development auth mode
+- token verification dependencies, auth middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority
+
+---
+
 ## First Module Boundary
 
 The first real implementation module is the Dispatch Operations Engine.

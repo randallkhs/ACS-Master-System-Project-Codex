@@ -13,6 +13,7 @@ from app.domain.dashboard import (
     AuthBoundaryPermissionCatalogItem,
     AuthBoundaryRoleCatalogItem,
     AuthConfigurationVariable,
+    AuthDiagnosticCheck,
     CountBucket,
     DashboardDispatchSummary,
     DashboardOverviewReadModel,
@@ -23,6 +24,7 @@ from app.domain.dashboard import (
     ManualReviewAuditLedgerDryRun,
     ManualReviewAuthBoundaryReadiness,
     ManualReviewAuthConfigurationReadiness,
+    ManualReviewAuthRuntimeSafetyDiagnostics,
     ManualReviewCommandContract,
     ManualReviewCommandValidation,
     ManualReviewDecisionReadiness,
@@ -2716,6 +2718,58 @@ FRONTEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS = (
         "Future auth-status route; no authenticated user call uses it now.",
     ),
 )
+AUTH_RUNTIME_DIAGNOSTIC_CHECK_DEFINITIONS = (
+    (
+        "auth_disabled_phase_0",
+        "Auth disabled in Phase 0",
+        "Auth remains non-enforced until a future reviewed module enables it.",
+    ),
+    (
+        "token_verification_disabled",
+        "Token verification disabled",
+        "No backend route verifies tokens in the current read-only phase.",
+    ),
+    (
+        "rbac_enforcement_disabled",
+        "RBAC enforcement disabled",
+        "Roles and permissions remain catalog labels only.",
+    ),
+    (
+        "auth_headers_not_required",
+        "Auth headers not required",
+        "Dashboard GET endpoints still require no auth header.",
+    ),
+    (
+        "frontend_auth_headers_not_emitted",
+        "Frontend auth headers not emitted",
+        "The dashboard API client does not add auth headers or token behavior.",
+    ),
+    (
+        "committed_credentials_disallowed",
+        "Committed credentials disallowed",
+        "Real credentials must be supplied later by secure runtime configuration.",
+    ),
+    (
+        "tracked_env_files_blocked",
+        "No tracked .env files",
+        "Tracked .env and .env.local files are forbidden by the Phase 0 safety boundary.",
+    ),
+    (
+        "service_account_json_not_tracked",
+        "No service account JSON tracked",
+        "Service account JSON belongs in secure runtime storage, not source control.",
+    ),
+    (
+        "private_key_not_detected",
+        "Private key not detected",
+        "Private key material must never be committed.",
+    ),
+    (
+        "placeholder_values_only",
+        "Placeholder values only",
+        "Example files should contain disabled, false, true, or empty placeholders only.",
+    ),
+)
 
 
 def auth_configuration_variable(
@@ -2764,9 +2818,7 @@ def manual_review_auth_configuration_readiness() -> ManualReviewAuthConfiguratio
                 safe_placeholder=safe_placeholder,
                 reason=reason,
             )
-            for name, safe_placeholder, reason in (
-                BACKEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS
-            )
+            for name, safe_placeholder, reason in (BACKEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS)
         ),
         frontend_variables=tuple(
             auth_configuration_variable(
@@ -2775,11 +2827,52 @@ def manual_review_auth_configuration_readiness() -> ManualReviewAuthConfiguratio
                 safe_placeholder=safe_placeholder,
                 reason=reason,
             )
-            for name, safe_placeholder, reason in (
-                FRONTEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS
-            )
+            for name, safe_placeholder, reason in (FRONTEND_AUTH_CONFIGURATION_VARIABLE_DEFINITIONS)
         ),
         provider_options=MANUAL_REVIEW_AUTH_PROVIDER_OPTIONS,
+        runtime_safety_diagnostics=manual_review_auth_runtime_safety_diagnostics(),
+    )
+
+
+def manual_review_auth_runtime_safety_diagnostics() -> ManualReviewAuthRuntimeSafetyDiagnostics:
+    return ManualReviewAuthRuntimeSafetyDiagnostics(
+        summary=(
+            "Phase 0 auth diagnostics report runtime safety flags only. Auth is "
+            "disabled, headers are not required or emitted, no token verification "
+            "or RBAC enforcement is active, and secret hygiene checks must not "
+            "print credential values."
+        ),
+        auth_enabled=False,
+        auth_provider="disabled",
+        auth_provider_configured=False,
+        token_verification_enabled=False,
+        rbac_enforcement_enabled=False,
+        login_ui_available=False,
+        auth_headers_required=False,
+        auth_headers_emitted_by_frontend=False,
+        real_credentials_required_for_future_auth=True,
+        committed_credentials_allowed=False,
+        service_account_json_tracked=False,
+        env_file_tracked=False,
+        env_local_file_tracked=False,
+        private_key_detected=False,
+        placeholder_values_only=True,
+        local_dev_auth_mode="disabled",
+        runtime_auth_mode="read_only_phase_0",
+        future_provider_selection_required=True,
+        randall_controls_provider_configuration=True,
+        alfonso_owner_review_required_for_legal_policy=True,
+        secret_hygiene_helper="backend/scripts/check_auth_config_safety.py",
+        diagnostic_checks=tuple(
+            AuthDiagnosticCheck(
+                key=key,
+                label=label,
+                passed=True,
+                severity="info",
+                reason=reason,
+            )
+            for key, label, reason in AUTH_RUNTIME_DIAGNOSTIC_CHECK_DEFINITIONS
+        ),
     )
 
 
@@ -2815,9 +2908,7 @@ def manual_review_auth_boundary_readiness() -> ManualReviewAuthBoundaryReadiness
                 sensitive=key in {"email", "external_subject_id"},
                 reason=reason,
             )
-            for key, label, required, reason in (
-                MANUAL_REVIEW_OPERATOR_IDENTITY_FIELD_DEFINITIONS
-            )
+            for key, label, required, reason in (MANUAL_REVIEW_OPERATOR_IDENTITY_FIELD_DEFINITIONS)
         ),
         provisional_roles=tuple(
             AuthBoundaryRoleCatalogItem(

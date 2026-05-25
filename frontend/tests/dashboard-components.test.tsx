@@ -599,6 +599,17 @@ describe("DashboardView", () => {
     expect(html).toContain("RBAC enforcement disabled");
     expect(html).toContain("Local dev auth mode disabled");
     expect(html).toContain("Committed credentials not allowed");
+    expect(html).toContain("Auth Diagnostics");
+    expect(html).toContain("Auth disabled in Phase 0");
+    expect(html).toContain("Auth headers not required");
+    expect(html).toContain("Frontend auth headers not emitted");
+    expect(html).toContain("No tracked .env files");
+    expect(html).toContain("No tracked .env.local files");
+    expect(html).toContain("No service account JSON tracked");
+    expect(html).toContain("Private key not detected");
+    expect(html).toContain("Placeholder values only");
+    expect(html).not.toContain("BEGIN PRIVATE KEY");
+    expect(html).not.toContain("sk-proj-");
     expect(html).toContain("ACS_FSM_AUTH_PROVIDER");
     expect(html).toContain("NEXT_PUBLIC_ACS_AUTH_ENABLED");
     expect(html).toContain("manual_review.approve.future");

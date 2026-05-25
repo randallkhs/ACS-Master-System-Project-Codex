@@ -10,6 +10,7 @@ from app.domain.dashboard import (
     AuthBoundaryPermissionCatalogItem,
     AuthBoundaryRoleCatalogItem,
     AuthConfigurationVariable,
+    AuthDiagnosticCheck,
     CountBucket,
     DashboardDispatchSummary,
     DashboardOverviewReadModel,
@@ -20,6 +21,7 @@ from app.domain.dashboard import (
     ManualReviewAuditLedgerDryRun,
     ManualReviewAuthBoundaryReadiness,
     ManualReviewAuthConfigurationReadiness,
+    ManualReviewAuthRuntimeSafetyDiagnostics,
     ManualReviewCommandContract,
     ManualReviewCommandValidation,
     ManualReviewDecisionReadiness,
@@ -1076,6 +1078,49 @@ def manual_review_auth_boundary_readiness_contract() -> ManualReviewAuthBoundary
                 "google_workspace_oidc_future_option",
                 "google_oauth_oidc_future_option",
                 "randall_selected_oidc_provider_future_option",
+            ),
+            runtime_safety_diagnostics=ManualReviewAuthRuntimeSafetyDiagnostics(
+                summary=(
+                    "Phase 0 runtime diagnostics keep auth disabled, require no "
+                    "auth headers, and expose secret hygiene status without values."
+                ),
+                auth_enabled=False,
+                auth_provider="disabled",
+                auth_provider_configured=False,
+                token_verification_enabled=False,
+                rbac_enforcement_enabled=False,
+                login_ui_available=False,
+                auth_headers_required=False,
+                auth_headers_emitted_by_frontend=False,
+                real_credentials_required_for_future_auth=True,
+                committed_credentials_allowed=False,
+                service_account_json_tracked=False,
+                env_file_tracked=False,
+                env_local_file_tracked=False,
+                private_key_detected=False,
+                placeholder_values_only=True,
+                local_dev_auth_mode="disabled",
+                runtime_auth_mode="read_only_phase_0",
+                future_provider_selection_required=True,
+                randall_controls_provider_configuration=True,
+                alfonso_owner_review_required_for_legal_policy=True,
+                secret_hygiene_helper="backend/scripts/check_auth_config_safety.py",
+                diagnostic_checks=(
+                    AuthDiagnosticCheck(
+                        key="auth_disabled_phase_0",
+                        label="Auth disabled in Phase 0",
+                        passed=True,
+                        severity="info",
+                        reason="Auth remains non-enforced until a future reviewed module.",
+                    ),
+                    AuthDiagnosticCheck(
+                        key="auth_headers_not_required",
+                        label="Auth headers not required",
+                        passed=True,
+                        severity="info",
+                        reason="Dashboard GET endpoints still require no auth header.",
+                    ),
+                ),
             ),
         ),
     )
@@ -2262,6 +2307,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert permission_catalog["manual_review.approve.future"]["authorizes_actions_now"] is False
     assert permission_catalog["manual_review.approve.future"]["future_planning_only"] is True
     auth_config = auth_boundary["auth_configuration_readiness"]
+    diagnostics = auth_config["runtime_safety_diagnostics"]
     assert auth_config["auth_provider_configured"] is False
     assert auth_config["auth_provider"] == "disabled"
     assert auth_config["token_verification_enabled"] is False
@@ -2271,6 +2317,25 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert auth_config["real_credentials_required"] is True
     assert auth_config["committed_credentials_allowed"] is False
     assert auth_config["local_dev_auth_mode"] == "disabled"
+    assert diagnostics["auth_enabled"] is False
+    assert diagnostics["auth_provider"] == "disabled"
+    assert diagnostics["auth_provider_configured"] is False
+    assert diagnostics["token_verification_enabled"] is False
+    assert diagnostics["rbac_enforcement_enabled"] is False
+    assert diagnostics["login_ui_available"] is False
+    assert diagnostics["auth_headers_required"] is False
+    assert diagnostics["auth_headers_emitted_by_frontend"] is False
+    assert diagnostics["committed_credentials_allowed"] is False
+    assert diagnostics["service_account_json_tracked"] is False
+    assert diagnostics["env_file_tracked"] is False
+    assert diagnostics["env_local_file_tracked"] is False
+    assert diagnostics["private_key_detected"] is False
+    assert diagnostics["placeholder_values_only"] is True
+    assert diagnostics["runtime_auth_mode"] == "read_only_phase_0"
+    assert diagnostics["secret_hygiene_helper"] == "backend/scripts/check_auth_config_safety.py"
+    diagnostic_checks = {check["key"]: check for check in diagnostics["diagnostic_checks"]}
+    assert diagnostic_checks["auth_disabled_phase_0"]["passed"] is True
+    assert diagnostic_checks["auth_headers_not_required"]["passed"] is True
     backend_auth_vars = {
         variable["name"]: variable for variable in auth_config["backend_variables"]
     }
@@ -2279,15 +2344,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
     }
     assert backend_auth_vars["ACS_FSM_AUTH_PROVIDER"]["safe_placeholder"] == "disabled"
     assert backend_auth_vars["ACS_FSM_AUTH_ENABLED"]["safe_placeholder"] == "false"
-    assert (
-        backend_auth_vars["ACS_FSM_AUTH_ISSUER_URL"]["real_value_must_not_be_committed"]
-        is True
-    )
+    assert backend_auth_vars["ACS_FSM_AUTH_ISSUER_URL"]["real_value_must_not_be_committed"] is True
     assert frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_ENABLED"]["safe_placeholder"] == "false"
     assert (
-        frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_STATUS_URL"][
-            "real_value_must_not_be_committed"
-        ]
+        frontend_auth_vars["NEXT_PUBLIC_ACS_AUTH_STATUS_URL"]["real_value_must_not_be_committed"]
         is True
     )
     assert (

@@ -64,6 +64,7 @@ function ManualReviewDetailContent({
   const { review_item: item, linked_entity_context: context } = detail;
   const authConfig =
     detail.auth_boundary_readiness.auth_configuration_readiness;
+  const authDiagnostics = authConfig.runtime_safety_diagnostics;
 
   return (
     <div className="space-y-4">
@@ -215,6 +216,70 @@ function ManualReviewDetailContent({
               .join(", ")}
             .
           </p>
+        </div>
+
+        <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Auth Diagnostics
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {authDiagnostics.summary} Secret values are not rendered in this
+            read-only dashboard.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <StatusBadge
+              label={
+                authDiagnostics.auth_enabled
+                  ? "Auth enabled"
+                  : "Auth disabled in Phase 0"
+              }
+              variant={authDiagnostics.auth_enabled ? "danger" : "neutral"}
+            />
+            <StatusBadge
+              label={
+                authDiagnostics.auth_headers_required
+                  ? "Auth headers required"
+                  : "Auth headers not required"
+              }
+              variant={
+                authDiagnostics.auth_headers_required ? "danger" : "neutral"
+              }
+            />
+            <StatusBadge
+              label={
+                authDiagnostics.auth_headers_emitted_by_frontend
+                  ? "Frontend auth headers emitted"
+                  : "Frontend auth headers not emitted"
+              }
+              variant={
+                authDiagnostics.auth_headers_emitted_by_frontend
+                  ? "danger"
+                  : "neutral"
+              }
+            />
+            <StatusBadge
+              label={
+                authDiagnostics.placeholder_values_only
+                  ? "Placeholder values only"
+                  : "Non-placeholder values detected"
+              }
+              variant={
+                authDiagnostics.placeholder_values_only ? "neutral" : "danger"
+              }
+            />
+            <StatusBadge
+              label={
+                authDiagnostics.service_account_json_tracked
+                  ? "Service account JSON tracked"
+                  : "No service account JSON tracked"
+              }
+              variant={
+                authDiagnostics.service_account_json_tracked
+                  ? "danger"
+                  : "neutral"
+              }
+            />
+          </div>
         </div>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-2">

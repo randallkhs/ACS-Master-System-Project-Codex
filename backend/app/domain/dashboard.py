@@ -293,6 +293,42 @@ class AuthConfigurationVariable:
 
 
 @dataclass(frozen=True, slots=True)
+class AuthDiagnosticCheck:
+    key: str
+    label: str
+    passed: bool
+    severity: str
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class ManualReviewAuthRuntimeSafetyDiagnostics:
+    summary: str
+    auth_enabled: bool
+    auth_provider: str
+    auth_provider_configured: bool
+    token_verification_enabled: bool
+    rbac_enforcement_enabled: bool
+    login_ui_available: bool
+    auth_headers_required: bool
+    auth_headers_emitted_by_frontend: bool
+    real_credentials_required_for_future_auth: bool
+    committed_credentials_allowed: bool
+    service_account_json_tracked: bool
+    env_file_tracked: bool
+    env_local_file_tracked: bool
+    private_key_detected: bool
+    placeholder_values_only: bool
+    local_dev_auth_mode: str
+    runtime_auth_mode: str
+    future_provider_selection_required: bool
+    randall_controls_provider_configuration: bool
+    alfonso_owner_review_required_for_legal_policy: bool
+    secret_hygiene_helper: str
+    diagnostic_checks: tuple[AuthDiagnosticCheck, ...]
+
+
+@dataclass(frozen=True, slots=True)
 class ManualReviewAuthConfigurationReadiness:
     summary: str
     auth_provider_configured: bool
@@ -310,6 +346,7 @@ class ManualReviewAuthConfigurationReadiness:
     backend_variables: tuple[AuthConfigurationVariable, ...]
     frontend_variables: tuple[AuthConfigurationVariable, ...]
     provider_options: tuple[str, ...]
+    runtime_safety_diagnostics: ManualReviewAuthRuntimeSafetyDiagnostics
 
 
 @dataclass(frozen=True, slots=True)

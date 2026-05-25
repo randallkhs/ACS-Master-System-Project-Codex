@@ -1034,3 +1034,21 @@ Unresolved:
 - durable RBAC/permission model and role-scoped action authority
 - approved audit envelope, idempotency, immutable event, rollback/replay, and post-action consistency strategies
 - owner-reviewed legal, insurance, warranty, certification, policy, and financial action boundaries
+
+## Manual Review Auth Diagnostics Projection
+
+Phase 0 Module 53 adds read-only auth diagnostics, runtime safety, and secret-hygiene metadata to the Manual Review auth-boundary read model without adding database tables or columns.
+
+Projection philosophy:
+
+- auth diagnostics are deterministic metadata layered on the existing auth configuration readiness projection
+- `auth_enabled`, token verification, RBAC enforcement, login UI, required auth headers, and frontend-emitted auth headers remain false in Phase 0
+- tracked `.env`, tracked `.env.local`, tracked service account JSON, private key detection, and placeholder-only status are reported as safe booleans only
+- the secret-hygiene helper inspects tracked/example files and must not read or print real credential values as dashboard data
+- no auth diagnostics table, credential table, operator identity table, RBAC table, session table, token table, mutation endpoint, vendor execution record, AI authority, or workflow engine is added in Module 53
+
+Unresolved:
+
+- final ACS-FSM auth provider and production credential ownership
+- secure VPS secret configuration and local development auth mode
+- token verification, auth middleware, RBAC enforcement, role-scoped visibility, and authenticated Manual Review action authority

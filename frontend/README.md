@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 52 keeps the frontend foundation read-only while adding auth configuration readiness visibility, safe future auth provider placeholder visibility, and explicit disabled auth/token/RBAC status on top of the existing Manual Review auth-boundary readiness, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
+Phase 0 Module 53 keeps the frontend foundation read-only while adding auth diagnostics/runtime safety visibility, safe secret-hygiene status, auth header disabled status, and explicit disabled auth/token/RBAC status on top of the existing Manual Review auth-boundary readiness, auth configuration readiness, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -362,6 +362,12 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Backend placeholders such as `ACS_FSM_AUTH_PROVIDER` and frontend placeholders such as `NEXT_PUBLIC_ACS_AUTH_ENABLED` are shown as safe planning labels only.
 - `frontend/.env.example` lists public future auth placeholders only. These do not enable login, logout, token/session behavior, auth headers, fake users, role assignment, or current RBAC behavior.
 - The UI still does not add login, logout, signup, user management, role assignment, approve, reject, defer, archive, resolve, dispatch, vendor, AI, auth enforcement, RBAC enforcement, workflow execution controls, audit forms, command forms, or future command data-entry fields.
+
+## Module 53 Auth Diagnostics And Secret Hygiene Notes
+
+- The Manual Review Queue and detail panel now display read-only auth diagnostics showing auth disabled, token verification disabled, RBAC disabled, auth headers not required, frontend auth headers not emitted, and runtime auth mode `read_only_phase_0`.
+- Secret-hygiene status is shown only as safe booleans: no tracked `.env`, no tracked `.env.local`, no tracked service account JSON, private key not detected, and placeholder values only.
+- The frontend does not render secret values, does not add login/logout/user-management controls, does not add token/session behavior, and does not add auth headers to the dashboard API client.
 
 ## Module 38 Water Emergency View-State Notes
 
