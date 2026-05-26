@@ -824,6 +824,24 @@ Future data-model work may require durable operator identities, role assignments
 
 ---
 
+## Phase 0 Module 58 Frontend Auth Core Disabled Session Data Boundary
+
+Module 58 does not add durable data entities. Frontend auth session/principal/token-state types and API auth-boundary helpers are in-memory TypeScript scaffolding only.
+
+Current data-model boundary:
+
+- no frontend or backend token/session storage is created
+- no operator identity table is created
+- no RBAC table is created
+- no route protection enforcement table is created
+- no audit actor, idempotency, immutable action event, Manual Review mutation, or Water Emergency mutation table is created
+- the dashboard API client emits no Authorization headers in Phase 0
+- Manual Review and Water Emergency action authority remains false
+
+Future data-model work may require durable operator identities, role assignments, permission grants, token verification references, frontend session references, audit actor references, idempotency records, immutable action events, and route guard configuration after reviewed auth/RBAC implementation modules are approved.
+
+---
+
 ## Constraints To Confirm With Operations
 
 - complete ACS job/service taxonomy

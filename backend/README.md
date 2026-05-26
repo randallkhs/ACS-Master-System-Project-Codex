@@ -4,6 +4,12 @@ FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
 This module is Phase 0 scaffolding only. It does not implement live Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or production external dispatch integration workflows yet.
 
+## Module 58 Frontend Auth Boundary Alignment Notes
+
+Module 58 adds frontend disabled-session and API auth-boundary scaffolding only. Backend route access remains unchanged from Module 57: current dashboard routes do not require Authorization headers, the disabled token verifier is not wired as an enforcing route guard, and no backend auth/RBAC enforcement is added.
+
+The frontend API boundary helper returns no Authorization headers in Phase 0, so backend read models continue to serve the same unauthenticated read-only dashboard contracts. Manual Review action authority, Water Emergency action authority, mutation endpoints, audit writes, token verification, JWT parsing, JWKS fetch, route guarding, RBAC checks, login/session behavior, vendor calls, AI authority, and workflow execution remain unavailable.
+
 ## Module 57 Backend Auth Core Disabled Scaffold Notes
 
 Module 57 adds the first backend auth core scaffold as disabled-by-default infrastructure. The new `app/auth/` package defines typed principal/auth-context structures, a disabled token verifier, and optional dependency helpers that current routes may inspect in the future but do not require today.

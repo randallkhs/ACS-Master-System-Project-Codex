@@ -110,6 +110,10 @@ describe("dashboard API client", () => {
         cache: "no-store"
       })
     );
+    const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(requestInit.headers).toEqual({ accept: "application/json" });
+    expect(requestInit.headers).not.toHaveProperty("Authorization");
+    expect(requestInit.headers).not.toHaveProperty("authorization");
   });
 
   it("keeps all dashboard client helpers read-only", async () => {
@@ -137,43 +141,56 @@ describe("dashboard API client", () => {
 
     const calls = fetchMock.mock.calls.map(([url, init]) => ({
       url: String(url),
-      method: init?.method
+      method: init?.method,
+      headers: init?.headers
     }));
 
     expect(calls).toEqual([
       {
         url: "https://api.acs.example.com/api/v1/dashboard/overview",
-        method: "GET"
+        method: "GET",
+        headers: { accept: "application/json" }
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/lifecycle",
-        method: "GET"
+        method: "GET",
+        headers: { accept: "application/json" }
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/review",
-        method: "GET"
+        method: "GET",
+        headers: { accept: "application/json" }
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/manual-review/queue",
-        method: "GET"
+        method: "GET",
+        headers: { accept: "application/json" }
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/manual-review/queue/41000000-0000-4000-8000-000000000001",
-        method: "GET"
+        method: "GET",
+        headers: { accept: "application/json" }
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/dispatch",
-        method: "GET"
+        method: "GET",
+        headers: { accept: "application/json" }
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/water-emergency",
-        method: "GET"
+        method: "GET",
+        headers: { accept: "application/json" }
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/water-emergency/e9acb112-409f-4d4f-b98f-4b61a437c4c7",
-        method: "GET"
+        method: "GET",
+        headers: { accept: "application/json" }
       }
     ]);
+    calls.forEach((call) => {
+      expect(call.headers).not.toHaveProperty("Authorization");
+      expect(call.headers).not.toHaveProperty("authorization");
+    });
   });
 
   it("returns the typed Water Emergency fallback when the dedicated read model is unavailable", async () => {

@@ -643,3 +643,21 @@ Rules:
 Open concerns:
 
 - final auth provider, token verification middleware, route guard architecture, RBAC enforcement, operator identity persistence, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, frontend sign-in UX, and owner-reviewed legal/company policy remain future work
+
+## Phase 0 Module 58 Frontend Auth Core Disabled Session Boundary
+
+Module 58 adds frontend auth core types, a disabled session adapter, and an API auth-boundary helper as a Randall-authorized Phase 0 technical baseline only.
+
+Rules:
+
+- frontend auth/session/principal/token-state types are planning infrastructure only
+- the disabled frontend session reports auth disabled, unauthenticated, session unavailable, token unavailable, token verification disabled, RBAC unenforced, route protection unenforced, and Phase 0 auth enforcement unavailable
+- the frontend API auth-boundary helper returns no Authorization headers in Phase 0
+- dashboard API client calls remain read-only GET calls and must not add token/session behavior
+- no frontend session, principal, role, or permission label grants Manual Review or Water Emergency action authority
+- no UI may be hidden, unlocked, or action-enabled from fake auth values in Module 58
+- Manual Review remains authoritative and Water Emergency remains separated from standard workflow visibility
+
+Open concerns:
+
+- future login/session/token/RBAC/route-protection/action implementation still requires explicit reviewed modules before any enforcement exists

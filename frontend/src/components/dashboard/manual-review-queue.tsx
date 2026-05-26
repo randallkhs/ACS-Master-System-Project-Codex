@@ -36,6 +36,10 @@ import {
   badgeVariantForLabel,
   StatusBadge,
 } from "@/components/dashboard/status-badge";
+import {
+  getDisabledFrontendAuthSession,
+  getFrontendApiAuthBoundaryReadiness,
+} from "@/lib/auth";
 
 type ManualReviewQueueProps = {
   result: DashboardFetchResult<ManualReviewQueueResponse>;
@@ -523,6 +527,8 @@ function AuthBoundaryReadinessPanel({
   const accessDryRun = routeProtection.access_decision_dry_run;
   const authRbacAudit = boundary.auth_rbac_readiness_audit;
   const enforcementLock = authRbacAudit.enforcement_boundary_lock;
+  const frontendAuthSession = getDisabledFrontendAuthSession();
+  const frontendApiBoundary = getFrontendApiAuthBoundaryReadiness();
   const transitionPrerequisitesByGroup =
     authRbacAudit.future_transition_prerequisites.reduce<
       Record<string, typeof authRbacAudit.future_transition_prerequisites>
@@ -762,6 +768,143 @@ function AuthBoundaryReadinessPanel({
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+          Frontend Auth Boundary
+        </div>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Frontend auth remains disabled in Phase 0. The dashboard does not
+          create sessions, store tokens, emit Authorization headers, hide UI from
+          fake roles, or grant Manual Review or Water Emergency action authority.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <MiniMetric
+            label="Frontend auth"
+            value={
+              frontendAuthSession.auth_enabled
+                ? "Frontend auth enabled"
+                : "Frontend auth disabled"
+            }
+          />
+          <MiniMetric
+            label="Session"
+            value={
+              frontendAuthSession.session_available
+                ? "Session available"
+                : "Session unavailable"
+            }
+          />
+          <MiniMetric
+            label="Token"
+            value={
+              frontendAuthSession.token_available
+                ? "Token available"
+                : "Token unavailable"
+            }
+          />
+          <MiniMetric
+            label="Token verification"
+            value={
+              frontendAuthSession.token_verified
+                ? "Token verification enabled"
+                : "Token verification disabled"
+            }
+          />
+          <MiniMetric
+            label="API auth boundary"
+            value={
+              frontendApiBoundary.authorization_headers_emitted
+                ? "Authorization headers emitted"
+                : "Authorization headers not emitted"
+            }
+          />
+          <MiniMetric
+            label="API client"
+            value={
+              frontendApiBoundary.api_client_authenticated
+                ? "API client authenticated"
+                : "API client unauthenticated"
+            }
+          />
+          <MiniMetric
+            label="Sign-in UI"
+            value={
+              frontendAuthSession.login_ui_available
+                ? "Sign-in UI available"
+                : "Sign-in UI unavailable"
+            }
+          />
+          <MiniMetric
+            label="Phase enforcement"
+            value={
+              frontendAuthSession.phase_allows_auth_enforcement
+                ? "Phase allows frontend auth"
+                : "Phase does not allow frontend auth"
+            }
+          />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <StatusBadge
+            label={
+              frontendAuthSession.authorization_headers_emitted
+                ? "Authorization headers emitted"
+                : "Authorization headers not emitted"
+            }
+            variant={
+              frontendAuthSession.authorization_headers_emitted
+                ? "danger"
+                : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              frontendAuthSession.user_management_available
+                ? "User management available"
+                : "User management unavailable"
+            }
+            variant={
+              frontendAuthSession.user_management_available ? "danger" : "neutral"
+            }
+          />
+          <StatusBadge
+            label={
+              frontendAuthSession.manual_review_action_authority_granted
+                ? "Manual Review action authority granted"
+                : "No Manual Review action authority"
+            }
+            variant={
+              frontendAuthSession.manual_review_action_authority_granted
+                ? "danger"
+                : "warning"
+            }
+          />
+          <StatusBadge
+            label={
+              frontendAuthSession.water_emergency_action_authority_granted
+                ? "Water Emergency action authority granted"
+                : "No Water Emergency action authority"
+            }
+            variant={
+              frontendAuthSession.water_emergency_action_authority_granted
+                ? "danger"
+                : "warning"
+            }
+          />
+          <StatusBadge
+            label={
+              frontendApiBoundary.future_auth_header_integration_planned
+                ? "Future auth integration planned"
+                : "Future auth integration not planned"
+            }
+            variant={
+              frontendApiBoundary.future_auth_header_integration_planned
+                ? "info"
+                : "danger"
+            }
+          />
         </div>
       </div>
 

@@ -731,6 +731,18 @@ Future work:
 - owner-approved legal, insurance, warranty, drying certification, billing, customer-promise, or company-liability policy before any binding action or customer-facing promise is implemented
 - audit actor, idempotency, immutable event, and post-action consistency integration for any future executable Water Emergency module
 
+# 21. Phase 0 Module 58 Frontend Auth Core Disabled Session Separation
+
+The frontend auth core scaffold is visible for future modules, but it does not create Water Emergency session, token, role, route, or action authority.
+
+Separation rules:
+
+- the disabled frontend session reports no Water Emergency action authority
+- frontend auth helpers do not store tokens, parse JWTs, emit Authorization headers, or hide/unlock Water Emergency UI
+- Water Emergency dashboard/detail sections remain read-only and separated from standard workflow sections
+- future Water Emergency action authority still requires reviewed backend auth, RBAC, audit actor, idempotency, and owner-review policy modules before execution
+- no Water Emergency close, resolve, dispatch, vendor, AI, or automatic workflow behavior is added
+
 ---
 
 # 18. Phase 0 Module 55 Route Protection Matrix Separation

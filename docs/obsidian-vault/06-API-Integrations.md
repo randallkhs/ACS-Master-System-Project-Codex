@@ -1005,6 +1005,27 @@ Open API/frontend concerns:
 
 - final ACS-FSM authentication provider, production credential ownership, secure VPS secret configuration, token verification middleware, JWKS strategy, RBAC enforcement, route guard architecture, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy after future reviewed modules exist
 
+## Phase 0 Module 58 Frontend Auth Boundary API Contract
+
+The frontend now includes disabled auth session and API auth-boundary helpers for future frontend auth modules.
+
+Contract behavior:
+
+- dashboard API client calls remain GET-only read-model requests
+- `frontendAuthHeadersForRequest()` returns an empty header object in Phase 0
+- no `Authorization` or lowercase `authorization` header is emitted by the dashboard API client
+- disabled frontend session state reports auth disabled, unauthenticated, session unavailable, token unavailable, token verification disabled, route protection unenforced, and no Manual Review or Water Emergency action authority
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` dashboard calls are added
+- no login/logout/signup UI, session storage, token storage, real token parsing, JWT validation, token verification, JWKS fetch, auth/RBAC enforcement, route guards, route denial, section hiding, fake authenticated user data, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- disabled frontend auth labels are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, credential provisioning, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM frontend login/session UX, authentication provider wiring, production credential ownership, secure VPS secret configuration, token verification middleware, JWKS strategy, RBAC enforcement, route guard architecture, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy after future reviewed modules exist
+
 ## Phase 0 Module 54 Auth Claims Mapping And Token Dry-Run Boundary
 
 The Manual Review queue and detail API contracts now include read-only auth claims mapping, token-verification dry-run, and role-resolution readiness metadata for future auth/RBAC planning.

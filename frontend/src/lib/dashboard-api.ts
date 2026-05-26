@@ -16,6 +16,7 @@ import {
   mockWaterEmergencyDetail,
   mockWaterEmergencyDashboard
 } from "@/lib/mock-dashboard";
+import { frontendAuthHeadersForRequest } from "@/lib/auth";
 
 export const DASHBOARD_ENDPOINTS = {
   overview: "/api/v1/dashboard/overview",
@@ -160,7 +161,8 @@ async function fetchDashboardReadModel<T>(
       method: "GET",
       cache: "no-store",
       headers: {
-        accept: "application/json"
+        accept: "application/json",
+        ...frontendAuthHeadersForRequest()
       }
     });
 
@@ -206,7 +208,8 @@ async function fetchWaterEmergencyDetailReadModel(
       method: "GET",
       cache: "no-store",
       headers: {
-        accept: "application/json"
+        accept: "application/json",
+        ...frontendAuthHeadersForRequest()
       }
     });
 
@@ -261,7 +264,8 @@ async function fetchManualReviewDetailReadModel(
       method: "GET",
       cache: "no-store",
       headers: {
-        accept: "application/json"
+        accept: "application/json",
+        ...frontendAuthHeadersForRequest()
       }
     });
 

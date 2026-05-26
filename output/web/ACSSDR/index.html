@@ -1051,7 +1051,7 @@
 
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
-                <strong>Last updated: May 25, 2026 at 6:07 PM EDT</strong>
+                <strong>Last updated: May 26, 2026 at 4:16 PM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1061,16 +1061,16 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>56</strong>
+                <strong>57</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Auth/RBAC readiness audit update added since the last public report</span>
+                <span>Backend auth core scaffold update added since the last public report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Read-only enforcement-boundary lock and transition checklist now visible</span>
+                <span>Disabled token verifier and non-enforcing auth context now visible</span>
               </div>
               <div class="stat-card">
                 <strong>0</strong>
@@ -2402,6 +2402,30 @@
                 mutation.
               </div>
             </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 57 backend auth core interface disabled token verifier auth dependency harness no auth enforcement no token verification no rbac no login water emergency separated">
+              <div class="module-top">
+                <span class="module-number">57</span>
+                <div>
+                  <h3>Backend Auth Core Interface and Disabled Token Verifier</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module adds the safe backend auth-core scaffold needed for future
+                authentication work while keeping Phase 0 routes public, read-only, and
+                non-enforcing.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                The dashboard can now show that a backend auth core exists, the token verifier is
+                disabled, optional auth context is available for future planning, current routes do
+                not require Authorization headers, route protection is not enforced, and no Manual
+                Review or Water Emergency action authority is granted. The dashboard still does not
+                add login, logout, user management, action buttons, dispatch, vendor calls, or
+                record mutation.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -2437,6 +2461,7 @@
             <div class="check-item"><span class="check">✓</span><span>Auth claims mapping, token dry-run, and role-resolution readiness visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Route protection matrix and access decision dry-run visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Auth/RBAC readiness audit, enforcement-boundary lock, and transition prerequisite visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Backend auth core scaffold, disabled token verifier, and optional auth context visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2457,41 +2482,40 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 56 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 57 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 56 completed the read-only Auth/RBAC readiness audit, enforcement-boundary
-            lock, and future transition checklist. The module was reviewed and committed before
-            the next Phase 0 module begins. This gives ACS a clear checkpoint showing that auth
-            enforcement, token verification, route guarding, RBAC enforcement, login behavior,
-            user management, and action execution are still future work and are not active in
-            Phase 0.
+            Module 57 completed the backend auth-core interface, disabled token verifier, and
+            non-enforcing auth dependency harness foundation. The module was reviewed and
+            committed before the next Phase 0 module begins. This gives ACS a clear checkpoint
+            showing that backend auth scaffolding can exist safely while token verification, route
+            protection, RBAC enforcement, login behavior, user management, and action execution are
+            still future work and are not active in Phase 0.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The dashboard can now show one consolidated audit of the auth/RBAC readiness work
-                already completed. It also shows a clear enforcement lock and the remaining
-                prerequisites for future provider selection, real credentials, token verification,
-                operator identity, RBAC policy, route protection, action permissions, audit actor
-                handling, owner review, and review workflow readiness.
+                The backend now has safe auth-core types, an always-disabled token verifier, and
+                optional auth context helpers that can be inspected by future modules without
+                blocking current dashboard routes or granting authority. The dashboard can show
+                that the scaffold exists while route protection and action authority remain off.
               </p>
             </article>
             <article class="overview-card">
               <h3>Why it matters</h3>
               <p>
                 Manual Review is the safety system. This work helps Luis and Alfonso see that the
-                system is preparing for future authentication and permissions in a controlled way
-                without turning anything on early. It keeps Phase 0 conservative: no routes are
-                guarded, no tokens are verified, no credentials are exposed, no auth headers are
-                added, no login UI is available, no actions are executable, and Water
-                Emergency-related authorization stays separated.
+                system is preparing for future authentication in a controlled way without turning
+                anything on early. It keeps Phase 0 conservative: no routes are guarded, no tokens
+                are verified, no credentials are exposed, no auth headers are required, no login UI
+                is available, no actions are executable, and Water Emergency-related authorization
+                stays separated.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 56 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                Module 57 passed backend checks, frontend checks, local PostgreSQL live dashboard
                 verification, browser checks, ChatGPT review, and Review ZIP freshness checks.
                 It has been committed and pushed by Randall.
               </p>
@@ -2499,9 +2523,10 @@
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is the next Phase 0 module after Module 56. That future module
-                is not marked complete here and will only be added after review, verification,
-                commit, and push are complete.
+                The next planned area is the frontend auth-core interface, disabled session
+                adapter, and API auth boundary harness. That future module is not marked complete
+                here and will only be added after review, verification, commit, and push are
+                complete.
               </p>
             </article>
           </div>

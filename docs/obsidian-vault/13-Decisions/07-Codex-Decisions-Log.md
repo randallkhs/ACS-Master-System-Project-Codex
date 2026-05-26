@@ -6,6 +6,32 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-26 — Phase 0 Module 58 Frontend Auth Core Interface, Disabled Session Adapter, And API Auth Boundary Harness
+
+- Decision type: Implementation / Frontend auth scaffold / disabled Phase 0 boundary
+- Status: Implemented
+- Decision:
+  - Add a frontend `src/lib/auth/` package with typed frontend auth mode/provider/status, principal/session/token-state, disabled session, anonymous Phase 0 principal, and API auth-boundary helper structures.
+  - Keep the disabled frontend session deterministic and non-authoritative: auth disabled, unauthenticated, session unavailable, token unavailable, token verification disabled, RBAC unenforced, route protection unenforced, and no Manual Review or Water Emergency action authority.
+  - Keep `frontendAuthHeadersForRequest()` empty in Phase 0 and wire the dashboard API client through it without emitting `Authorization` or lowercase `authorization` headers.
+  - Add Manual Review Queue frontend auth-boundary visibility for frontend auth disabled, session unavailable, token unavailable, token verification disabled, Authorization headers not emitted, API client unauthenticated, and future auth integration planned.
+  - Leave current dashboard routes public/read-only and do not add sign-in/sign-out UI, user management, role assignment, token storage, JWT parsing, section hiding, mutation controls, or action authority.
+- Rationale:
+  - Future auth/RBAC implementation needs stable frontend interfaces before login/session UX, auth header emission, route protection, or role-scoped visibility can safely exist.
+  - A disabled session adapter lets tests and reviewers prove frontend auth scaffolding exists without creating fake users, fake roles, fake tokens, or unsafe workflow authority.
+  - Keeping API calls GET-only and header-free preserves Phase 0 dashboard visibility while preparing a clear future integration point.
+- Future implications:
+  - Future reviewed modules still need selected provider configuration, real credentials supplied outside Git, frontend login/session UX, backend token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-to-permission expansion, role-scoped visibility, audit actor/idempotency integration, Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy.
+- Affected systems:
+  - Frontend auth package
+  - Frontend dashboard API client
+  - Frontend Manual Review queue panel
+  - Frontend tests
+  - Auth/RBAC/Manual Review/Water Emergency documentation
+  - ACSSDR stakeholder report
+
+---
+
 ## 2026-05-25 — Phase 0 Module 55 Route Protection Matrix, Access Decision Dry-Run, And UI Permission Boundary
 
 - Decision type: Implementation / auth boundary / read-only route protection planning baseline

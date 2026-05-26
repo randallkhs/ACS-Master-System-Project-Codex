@@ -1154,6 +1154,21 @@ Unresolved:
 
 - final ACS-FSM auth provider, token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-to-permission expansion, role-scoped visibility, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy
 
+## Phase 0 Module 58 Frontend Auth Core Disabled Session Scaffold
+
+Module 58 adds frontend auth core scaffolding without implementing login, sessions, token behavior, auth header emission, RBAC, route protection, or actions:
+
+- frontend `src/lib/auth/` defines typed frontend auth mode/provider/status, principal/session/token-state, disabled session, and anonymous Phase 0 principal structures
+- the disabled session adapter returns deterministic unauthenticated state with auth disabled, session unavailable, token unavailable, token verification disabled, RBAC unenforced, route protection unenforced, and Phase 0 enforcement disabled
+- the API auth-boundary helper returns an empty header object and the dashboard API client remains GET-only with no Authorization header emission
+- Manual Review queue panels display disabled frontend auth/session/API boundary visibility without sign-in/sign-out UI, user management UI, role assignment, token storage, JWT parsing, section hiding, action buttons, forms, or mutation controls
+
+The boundary remains non-enforcing. Frontend auth labels do not authenticate a user, grant RBAC, hide or unlock UI, execute Manual Review commands, mutate records, write audit events, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- final ACS-FSM frontend login/session UX, backend token verification middleware, route guard architecture, RBAC enforcement, role-scoped visibility, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy
+
 ---
 
 ## First Module Boundary

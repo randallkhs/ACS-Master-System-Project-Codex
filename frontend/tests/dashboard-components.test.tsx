@@ -641,6 +641,13 @@ describe("DashboardView", () => {
     expect(html).toContain("Auth core scaffold available");
     expect(html).toContain("Disabled token verifier available");
     expect(html).toContain("Optional auth context available");
+    expect(html).toContain("Frontend Auth Boundary");
+    expect(html).toContain("Frontend auth disabled");
+    expect(html).toContain("Session unavailable");
+    expect(html).toContain("Token unavailable");
+    expect(html).toContain("Authorization headers not emitted");
+    expect(html).toContain("API client unauthenticated");
+    expect(html).toContain("Future auth integration planned");
     expect(html).toContain("Current routes do not require auth");
     expect(html).toContain("Route protection not enforced");
     expect(html).toContain("Sign-in UI unavailable");

@@ -1749,3 +1749,17 @@ Dispatch boundary:
 * no dispatch execution, vendor call, approval action, login/session/token behavior, auth headers, JWT parsing, route guard, fake role enforcement, audit write, mutation endpoint, or workflow engine behavior is added
 
 Future dispatch-facing work may consume authenticated identity only after real auth/RBAC enforcement, route guarding, audit/event persistence, and approved action execution boundaries exist.
+
+---
+
+Phase 0 Module 58 Frontend Auth Core Disabled Session Boundary
+
+The disabled frontend auth core remains outside the dispatch execution path.
+
+Dispatch boundary:
+
+* frontend session helpers return anonymous, unauthenticated, non-authoritative Phase 0 state
+* API auth-boundary helpers emit no Authorization headers and do not store, parse, or verify tokens
+* frontend auth labels do not authorize dispatch, hide dispatch UI, unlock dispatch UI, or create route protection
+* route protection enforcement, token verification, RBAC enforcement, audit actor/idempotency integration, and authenticated action modules remain future work
+* no dispatch execution, vendor call, approval action, login/session/token behavior, JWT parsing, route guard, fake role enforcement, audit write, mutation endpoint, or workflow engine behavior is added

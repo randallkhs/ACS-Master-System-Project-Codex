@@ -568,6 +568,21 @@ AI boundary:
 
 Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend auth/RBAC, route protection, audit/event, and action controls remain authoritative.
 
+## Phase 0 Module 58 Frontend Auth Core Disabled Session Boundary
+
+Frontend auth-boundary labels, disabled-session labels, token-unavailable labels, and API auth-boundary labels are deterministic frontend/read-model planning visibility.
+
+AI boundary:
+
+- AI must not decide frontend authentication status
+- AI must not treat disabled session labels as an authenticated operator
+- AI must not enable token storage, session storage, Authorization header emission, token verification, real token parsing, JWKS fetch, provider network calls, RBAC enforcement, route guarding, UI section hiding, login/session/token behavior, or user management
+- AI must not create fake roles, fake operators, fake auth contexts, fake route access, fake owner review, or fake audit actors from frontend auth metadata
+- AI must not generate executable approve/reject/defer/archive/resolve commands
+- AI must not bypass Manual Review, auth, operator identity, role authorization, audit reason, idempotency, immutable event recording, post-action consistency checks, owner review, the Phase 0 execution block, or the Review GUI/ChatGPT review workflow
+- AI must not convert frontend auth-boundary visibility into dispatch execution, vendor calls, audit writes, route enforcement, role enforcement, mutation endpoints, or workflow transitions
+- Water Emergency-related authorization readiness must remain separated from standard dispatch and cannot be auto-scoped by AI
+
 ## Phase 0 Module 57 Backend Auth Core Disabled Scaffold Boundary
 
 Backend auth-core scaffold labels, disabled token-verifier labels, optional auth-context labels, and current-route auth requirement labels are deterministic backend metadata.

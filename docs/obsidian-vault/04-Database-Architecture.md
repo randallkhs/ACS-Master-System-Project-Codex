@@ -1121,3 +1121,19 @@ Projection philosophy:
 Unresolved:
 
 - durable operator identities, role assignments, permission grants, token verification metadata, audit actor references, idempotency records, immutable action events, and route guard configuration remain future schema/design work after reviewed auth/RBAC modules are approved
+
+## Frontend Auth Core Disabled Session Projection
+
+Phase 0 Module 58 adds frontend auth core types, a disabled session adapter, and an API auth-boundary helper without adding database tables or columns.
+
+Projection philosophy:
+
+- frontend auth/session/principal/token-state structures are in-memory TypeScript planning types only
+- no token, session, user identity, role, permission, route authorization, audit actor, idempotency key, or action authority is persisted
+- the frontend API auth-boundary helper emits no Authorization headers in Phase 0
+- backend read models remain the source of operational truth; frontend auth boundary visibility is display-only
+- no operator identity table, RBAC table, token/session/JWT/JWKS table, route protection table, audit-action table, mutation endpoint, vendor execution record, AI authority, or workflow engine is added in Module 58
+
+Unresolved:
+
+- durable operator identities, role assignments, permission grants, token verification metadata, frontend sign-in/session persistence, audit actor references, idempotency records, immutable action events, and route guard configuration remain future schema/design work after reviewed auth/RBAC modules are approved
