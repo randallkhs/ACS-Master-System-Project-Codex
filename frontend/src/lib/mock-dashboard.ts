@@ -1,4 +1,5 @@
 import type {
+  AuthStatusResponse,
   AuthRbacReadinessAuditResponse,
   DashboardOverviewResponse,
   ManualReviewAuditLedgerDryRunResponse,
@@ -12,6 +13,33 @@ import type {
   WaterEmergencyDashboardResponse,
   WaterEmergencyDetailResponse,
 } from "@/lib/dashboard-contracts";
+
+export const mockAuthStatus: AuthStatusResponse = {
+  generated_at: "2026-05-26T21:00:00Z",
+  auth_enabled: false,
+  auth_provider: "disabled",
+  auth_mode: "read_only_phase_0",
+  token_verification_enabled: false,
+  disabled_token_verifier_available: true,
+  rbac_enforcement_enabled: false,
+  route_protection_enforced: false,
+  current_routes_require_auth: false,
+  authorization_header_required: false,
+  authorization_header_parsed: false,
+  authorization_header_can_grant_authority: false,
+  jwks_fetch_enabled: false,
+  real_token_parsing_enabled: false,
+  login_ui_available: false,
+  user_management_available: false,
+  manual_review_action_authority_granted: false,
+  water_emergency_action_authority_granted: false,
+  action_execution_available: false,
+  phase_allows_auth_enforcement: false,
+  phase_allows_rbac_enforcement: false,
+  phase_allows_route_guarding: false,
+  reason:
+    "Phase 0 fallback auth status is disabled and non-enforcing. It does not report authentication success or action authority.",
+};
 
 export const mockDashboardOverview: DashboardOverviewResponse = {
   generated_at: "2026-05-16T09:30:00Z",

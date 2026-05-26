@@ -661,3 +661,21 @@ Rules:
 Open concerns:
 
 - future login/session/token/RBAC/route-protection/action implementation still requires explicit reviewed modules before any enforcement exists
+
+## Phase 0 Module 59 Backend/Frontend Auth Status Bridge Boundary
+
+Module 59 adds a read-only auth status bridge as a Randall-authorized Phase 0 technical baseline only.
+
+Rules:
+
+- `GET /api/v1/auth/status` reports disabled backend auth status and does not require Authorization
+- the endpoint does not parse Authorization headers, validate tokens, fetch JWKS, contact identity providers, enforce RBAC, guard routes, mutate data, write audit events, or return fake authenticated user data
+- the frontend consumes the status as read-only visibility and still emits no Authorization headers
+- Authorization header presence must not create access authority, authenticated operator status, Manual Review action authority, Water Emergency action authority, route access authority, or UI unlocks
+- safe fallback status must remain disabled and must not report auth success if the backend status endpoint is unavailable
+- Manual Review remains authoritative and Water Emergency remains separated from standard workflow visibility
+- no login, logout, signup, user management, token/session behavior, auth header emission, JWT parsing, JWKS fetch, fake user identity, fake role enforcement, route guards, RBAC enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final auth provider, frontend login/session UX, token verification middleware, route guard architecture, RBAC enforcement, operator identity persistence, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy remain future work

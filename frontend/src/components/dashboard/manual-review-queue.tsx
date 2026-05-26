@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import type {
+  AuthStatusResponse,
   DashboardFetchResult,
   ManualReviewAuthBoundaryReadinessResponse,
   ManualReviewExecutionReadinessAuditResponse,
@@ -43,9 +44,13 @@ import {
 
 type ManualReviewQueueProps = {
   result: DashboardFetchResult<ManualReviewQueueResponse>;
+  authStatusResult?: DashboardFetchResult<AuthStatusResponse>;
 };
 
-export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
+export function ManualReviewQueue({
+  result,
+  authStatusResult,
+}: ManualReviewQueueProps) {
   const { data } = result;
   const [fallbackPreferences, setFallbackPreferences] = useState({
     selectedFilter: "all",
@@ -183,7 +188,10 @@ export function ManualReviewQueue({ result }: ManualReviewQueueProps) {
       </div>
 
       <ExecutionReadinessAuditPanel audit={data.execution_readiness_audit} />
-      <AuthBoundaryReadinessPanel boundary={data.auth_boundary_readiness} />
+      <AuthBoundaryReadinessPanel
+        boundary={data.auth_boundary_readiness}
+        authStatusResult={authStatusResult}
+      />
 
       <SectionCard
         title="Manual Review View State"
@@ -517,8 +525,10 @@ const authRbacBlockerGroupOrder = [
 
 function AuthBoundaryReadinessPanel({
   boundary,
+  authStatusResult,
 }: {
   boundary: ManualReviewAuthBoundaryReadinessResponse;
+  authStatusResult?: DashboardFetchResult<AuthStatusResponse>;
 }) {
   const diagnostics =
     boundary.auth_configuration_readiness.runtime_safety_diagnostics;
@@ -529,6 +539,7 @@ function AuthBoundaryReadinessPanel({
   const enforcementLock = authRbacAudit.enforcement_boundary_lock;
   const frontendAuthSession = getDisabledFrontendAuthSession();
   const frontendApiBoundary = getFrontendApiAuthBoundaryReadiness();
+  const backendAuthStatus = authStatusResult?.data;
   const transitionPrerequisitesByGroup =
     authRbacAudit.future_transition_prerequisites.reduce<
       Record<string, typeof authRbacAudit.future_transition_prerequisites>
@@ -907,6 +918,147 @@ function AuthBoundaryReadinessPanel({
           />
         </div>
       </div>
+
+      {backendAuthStatus ? (
+        <div className="mt-4 rounded-md border border-slate-200 bg-slate-50/70 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+            Cross-Layer Auth Status Bridge
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Backend and frontend auth boundaries agree that Phase 0 remains
+            disabled, unauthenticated, non-enforcing, and unable to grant Manual
+            Review or Water Emergency action authority.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <MiniMetric
+              label="Backend auth"
+              value={
+                backendAuthStatus.auth_enabled
+                  ? "Backend auth enabled"
+                  : "Backend auth disabled"
+              }
+            />
+            <MiniMetric
+              label="Frontend auth"
+              value={
+                frontendAuthSession.auth_enabled
+                  ? "Frontend auth enabled"
+                  : "Frontend auth disabled"
+              }
+            />
+            <MiniMetric
+              label="Backend auth headers"
+              value={
+                backendAuthStatus.authorization_header_required
+                  ? "Backend requires auth headers"
+                  : "Backend requires no auth headers"
+              }
+            />
+            <MiniMetric
+              label="Frontend auth headers"
+              value={
+                frontendApiBoundary.authorization_headers_emitted
+                  ? "Frontend emits auth headers"
+                  : "Frontend emits no auth headers"
+              }
+            />
+            <MiniMetric
+              label="Authorization header authority"
+              value={
+                backendAuthStatus.authorization_header_can_grant_authority
+                  ? "Authorization header can grant authority"
+                  : "Authorization header cannot grant authority"
+              }
+            />
+            <MiniMetric
+              label="Backend route protection"
+              value={
+                backendAuthStatus.route_protection_enforced
+                  ? "Backend route protection enforced"
+                  : "Backend route protection not enforced"
+              }
+            />
+            <MiniMetric
+              label="Backend RBAC"
+              value={
+                backendAuthStatus.rbac_enforcement_enabled
+                  ? "Backend RBAC enforced"
+                  : "Backend RBAC not enforced"
+              }
+            />
+            <MiniMetric
+              label="Backend token verification"
+              value={
+                backendAuthStatus.token_verification_enabled
+                  ? "Backend token verification enabled"
+                  : "Backend token verification disabled"
+              }
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <StatusBadge
+              label={
+                backendAuthStatus.authorization_header_parsed
+                  ? "Authorization header parsed"
+                  : "Authorization header not parsed"
+              }
+              variant={
+                backendAuthStatus.authorization_header_parsed
+                  ? "danger"
+                  : "neutral"
+              }
+            />
+            <StatusBadge
+              label={
+                backendAuthStatus.manual_review_action_authority_granted
+                  ? "Backend Manual Review authority granted"
+                  : "Backend Manual Review authority not granted"
+              }
+              variant={
+                backendAuthStatus.manual_review_action_authority_granted
+                  ? "danger"
+                  : "warning"
+              }
+            />
+            <StatusBadge
+              label={
+                backendAuthStatus.water_emergency_action_authority_granted
+                  ? "Backend Water Emergency authority granted"
+                  : "Backend Water Emergency authority not granted"
+              }
+              variant={
+                backendAuthStatus.water_emergency_action_authority_granted
+                  ? "danger"
+                  : "warning"
+              }
+            />
+            <StatusBadge
+              label={
+                backendAuthStatus.action_execution_available
+                  ? "Action execution available"
+                  : "Action execution unavailable"
+              }
+              variant={
+                backendAuthStatus.action_execution_available
+                  ? "danger"
+                  : "neutral"
+              }
+            />
+            <StatusBadge
+              label={
+                backendAuthStatus.phase_allows_auth_enforcement
+                  ? "Phase allows auth enforcement"
+                  : "Phase blocks auth enforcement"
+              }
+              variant={
+                backendAuthStatus.phase_allows_auth_enforcement
+                  ? "danger"
+                  : "neutral"
+              }
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-4 flex flex-wrap gap-2">
         <StatusBadge

@@ -842,6 +842,25 @@ Future data-model work may require durable operator identities, role assignments
 
 ---
 
+## Phase 0 Module 59 Backend/Frontend Auth Status Bridge Data Boundary
+
+Module 59 does not add durable data entities. The backend auth status endpoint and frontend auth status bridge are read-only projections of disabled Phase 0 auth state.
+
+Current data-model boundary:
+
+- no operator identity table is created
+- no RBAC table is created
+- no token/session/JWT/JWKS storage is created
+- no route protection enforcement table is created
+- no audit actor, idempotency, immutable action event, Manual Review mutation, or Water Emergency mutation table is created
+- Authorization header presence is not read, stored, parsed, verified, or treated as an authenticated operator
+- the frontend emits no Authorization headers for the auth status bridge or dashboard API reads
+- Manual Review and Water Emergency action authority remains false
+
+Future data-model work may require durable operator identities, role assignments, permission grants, token verification references, frontend session references, audit actor references, idempotency records, immutable action events, and route guard configuration after reviewed auth/RBAC implementation modules are approved.
+
+---
+
 ## Constraints To Confirm With Operations
 
 - complete ACS job/service taxonomy

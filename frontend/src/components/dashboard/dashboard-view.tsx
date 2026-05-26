@@ -1,4 +1,5 @@
 import type {
+  AuthStatusResponse,
   DashboardFetchResult,
   DashboardOverviewResponse,
   DashboardSource,
@@ -27,6 +28,7 @@ type DashboardViewProps = {
   waterEmergencyDetailResult: DashboardFetchResult<WaterEmergencyDetailResponse | null>;
   manualReviewQueueResult?: DashboardFetchResult<ManualReviewQueueResponse>;
   manualReviewDetailResult?: DashboardFetchResult<ManualReviewDetailResponse | null>;
+  authStatusResult?: DashboardFetchResult<AuthStatusResponse>;
 };
 
 export function DashboardView({
@@ -34,7 +36,8 @@ export function DashboardView({
   waterEmergencyResult,
   waterEmergencyDetailResult,
   manualReviewQueueResult,
-  manualReviewDetailResult
+  manualReviewDetailResult,
+  authStatusResult
 }: DashboardViewProps) {
   const { data, source, errorMessage } = result;
   const { operational_summary: summary } = data;
@@ -46,7 +49,8 @@ export function DashboardView({
     waterEmergencyResult.source === "api" &&
     waterEmergencyDetailResult.source === "api" &&
     (!manualReviewQueueResult || manualReviewQueueResult.source === "api") &&
-    (!manualReviewDetailResult || manualReviewDetailResult.source === "api")
+    (!manualReviewDetailResult || manualReviewDetailResult.source === "api") &&
+    (!authStatusResult || authStatusResult.source === "api")
       ? "api"
       : "mock";
   const fallbackMessage =
@@ -55,7 +59,8 @@ export function DashboardView({
       waterEmergencyResult.errorMessage,
       waterEmergencyDetailResult.errorMessage,
       manualReviewQueueResult?.errorMessage,
-      manualReviewDetailResult?.errorMessage
+      manualReviewDetailResult?.errorMessage,
+      authStatusResult?.errorMessage
     ]
       .filter(Boolean)
       .join(" ") || undefined;
@@ -203,7 +208,10 @@ export function DashboardView({
         </section>
 
         {manualReviewQueueResult ? (
-          <ManualReviewQueue result={manualReviewQueueResult} />
+          <ManualReviewQueue
+            result={manualReviewQueueResult}
+            authStatusResult={authStatusResult}
+          />
         ) : null}
 
         <ManualReviewDetailPanel result={manualReviewDetailResult} />

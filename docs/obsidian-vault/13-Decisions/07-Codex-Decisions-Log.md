@@ -6,6 +6,34 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-26 — Phase 0 Module 59 Backend/Frontend Auth Status Bridge, Disabled Auth Health Endpoint, And Cross-Layer Non-Enforcement Contract
+
+- Decision type: Implementation / auth status bridge / disabled Phase 0 boundary
+- Status: Implemented
+- Decision:
+  - Add a GET-only `GET /api/v1/auth/status` endpoint that reports disabled Phase 0 auth status without requiring or parsing Authorization headers.
+  - Return deterministic read-only status showing auth disabled, provider disabled, token verification disabled, disabled token verifier available, RBAC disabled, route protection not enforced, current routes not requiring auth, Authorization headers not required or authoritative, login/user-management unavailable, action execution unavailable, and Manual Review/Water Emergency action authority not granted.
+  - Add frontend dashboard API contract support for the auth status endpoint with a GET-only client call that emits no `Authorization` or lowercase `authorization` headers.
+  - Add Manual Review Queue cross-layer auth status visibility showing backend auth disabled, frontend auth disabled, auth headers not required/emitted, Authorization headers not parsed or authoritative, route protection not enforced, RBAC not enforced, and action authority unavailable.
+  - Keep fallback auth status disabled if the endpoint is unavailable; it does not become a fake login/status success path.
+- Rationale:
+  - Future auth/RBAC implementation needs a stable backend/frontend status bridge before real login/session UX, token verification, route protection, or role-scoped visibility can safely exist.
+  - The bridge lets reviewers prove that backend and frontend auth scaffolds agree on the disabled/non-enforcing Phase 0 state without granting access or hiding UI.
+  - Keeping the endpoint and client GET-only preserves public read-only dashboard access while preventing unsafe workflow authority.
+- Future implications:
+  - Future reviewed modules still need selected provider configuration, real credentials supplied outside Git, frontend login/session UX, backend token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-to-permission expansion, role-scoped visibility, audit actor/idempotency integration, Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy.
+- Affected systems:
+  - Backend auth package
+  - Backend auth status API route
+  - Backend auth status schema
+  - Frontend dashboard API client/contracts/mock data
+  - Frontend Manual Review queue panel
+  - Backend/frontend tests
+  - Auth/RBAC/Manual Review/Water Emergency documentation
+  - ACSSDR stakeholder report
+
+---
+
 ## 2026-05-26 — Phase 0 Module 58 Frontend Auth Core Interface, Disabled Session Adapter, And API Auth Boundary Harness
 
 - Decision type: Implementation / Frontend auth scaffold / disabled Phase 0 boundary

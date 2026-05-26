@@ -745,6 +745,26 @@ Separation rules:
 
 ---
 
+# 22. Phase 0 Module 59 Backend/Frontend Auth Status Bridge Separation
+
+The backend/frontend auth status bridge is visible for future modules, but it does not create Water Emergency access, session, token, route, or action authority.
+
+Separation rules:
+
+- the disabled auth status endpoint reports Water Emergency action authority as unavailable
+- Authorization header presence does not create a Water Emergency operator, reviewer, closer, dispatcher, or owner authority
+- frontend auth status visibility does not store tokens, parse JWTs, emit Authorization headers, hide/unlock Water Emergency UI, or mark Water Emergency actions executable
+- Water Emergency-related authorization stays separated from standard Manual Review and dispatch planning
+- no Water Emergency close, resolve, dispatch, vendor, AI, or automatic workflow behavior is added
+
+Future work:
+
+- reviewed Water Emergency action permissions after real auth/RBAC exists
+- owner-approved legal, insurance, warranty, drying certification, billing, customer-promise, or company-liability policy before any binding action or customer-facing promise is implemented
+- audit actor, idempotency, immutable event, and post-action consistency integration for any future executable Water Emergency module
+
+---
+
 # 18. Phase 0 Module 55 Route Protection Matrix Separation
 
 Water Emergency-related dashboard routes and Manual Review readiness sections may now expose read-only future route-protection and permission-boundary metadata.

@@ -9,9 +9,11 @@ import {
   getDashboardOverview,
   getDashboardReview,
   getDashboardWaterEmergencyDetail,
-  getDashboardWaterEmergency
+  getDashboardWaterEmergency,
+  getAuthStatus
 } from "@/lib/dashboard-api";
 import {
+  mockAuthStatus,
   mockDashboardOverview,
   mockManualReviewDetail,
   mockManualReviewQueue,
@@ -50,6 +52,9 @@ describe("dashboard API client", () => {
     );
     expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.manualReviewQueue)).toBe(
       "http://127.0.0.1:8000/api/v1/dashboard/manual-review/queue"
+    );
+    expect(dashboardEndpointUrl(DASHBOARD_ENDPOINTS.authStatus)).toBe(
+      "http://127.0.0.1:8000/api/v1/auth/status"
     );
     expect(
       dashboardEndpointUrl(
@@ -116,6 +121,55 @@ describe("dashboard API client", () => {
     expect(requestInit.headers).not.toHaveProperty("authorization");
   });
 
+  it("fetches auth status as a GET-only read with no Authorization header", async () => {
+    process.env.ACS_DASHBOARD_API_BASE_URL = "https://api.acs.example.com";
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(mockAuthStatus), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getAuthStatus();
+
+    expect(result.source).toBe("api");
+    expect(result.data.auth_enabled).toBe(false);
+    expect(result.data.authorization_header_parsed).toBe(false);
+    expect(result.data.authorization_header_can_grant_authority).toBe(false);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.acs.example.com/api/v1/auth/status",
+      expect.objectContaining({
+        method: "GET",
+        cache: "no-store"
+      })
+    );
+    const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(requestInit.headers).toEqual({ accept: "application/json" });
+    expect(requestInit.headers).not.toHaveProperty("Authorization");
+    expect(requestInit.headers).not.toHaveProperty("authorization");
+  });
+
+  it("returns a disabled auth-status fallback without reporting auth success", async () => {
+    process.env.ACS_DASHBOARD_API_BASE_URL = "http://127.0.0.1:8000";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED"))
+    );
+
+    const result = await getAuthStatus();
+
+    expect(result.source).toBe("mock");
+    expect(result.data.auth_enabled).toBe(false);
+    expect(result.data.token_verification_enabled).toBe(false);
+    expect(result.data.rbac_enforcement_enabled).toBe(false);
+    expect(result.data.authorization_header_required).toBe(false);
+    expect(result.data.authorization_header_parsed).toBe(false);
+    expect(result.data.manual_review_action_authority_granted).toBe(false);
+    expect(result.data.water_emergency_action_authority_granted).toBe(false);
+    expect(result.errorMessage).toBe("connect ECONNREFUSED");
+  });
+
   it("keeps all dashboard client helpers read-only", async () => {
     process.env.ACS_DASHBOARD_API_BASE_URL = "https://api.acs.example.com";
     const fetchMock = vi.fn().mockResolvedValue(
@@ -138,6 +192,7 @@ describe("dashboard API client", () => {
     await getDashboardWaterEmergencyDetail(
       "e9acb112-409f-4d4f-b98f-4b61a437c4c7"
     );
+    await getAuthStatus();
 
     const calls = fetchMock.mock.calls.map(([url, init]) => ({
       url: String(url),
@@ -183,6 +238,11 @@ describe("dashboard API client", () => {
       },
       {
         url: "https://api.acs.example.com/api/v1/dashboard/water-emergency/e9acb112-409f-4d4f-b98f-4b61a437c4c7",
+        method: "GET",
+        headers: { accept: "application/json" }
+      },
+      {
+        url: "https://api.acs.example.com/api/v1/auth/status",
         method: "GET",
         headers: { accept: "application/json" }
       }

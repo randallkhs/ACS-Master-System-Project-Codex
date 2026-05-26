@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.routes import dashboard, dispatch, health, jobs, review, technicians
+from app.api.v1.routes import auth, dashboard, dispatch, health, jobs, review, technicians
 
 api_router = APIRouter()
 api_router.include_router(health.router, tags=["health"])
@@ -9,3 +9,4 @@ api_router.include_router(technicians.router, prefix="/technicians", tags=["tech
 api_router.include_router(review.router, prefix="/review", tags=["manual-review"])
 api_router.include_router(dispatch.router, prefix="/dispatch", tags=["dispatch"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(auth.router, prefix="/auth", tags=["auth-status"])

@@ -1162,6 +1162,32 @@ export type DashboardOverviewResponse = {
   timeline_summary: OperationalEventTimelineSummaryResponse;
 };
 
+export type AuthStatusResponse = {
+  generated_at: string;
+  auth_enabled: boolean;
+  auth_provider: string;
+  auth_mode: string;
+  token_verification_enabled: boolean;
+  disabled_token_verifier_available: boolean;
+  rbac_enforcement_enabled: boolean;
+  route_protection_enforced: boolean;
+  current_routes_require_auth: boolean;
+  authorization_header_required: boolean;
+  authorization_header_parsed: boolean;
+  authorization_header_can_grant_authority: boolean;
+  jwks_fetch_enabled: boolean;
+  real_token_parsing_enabled: boolean;
+  login_ui_available: boolean;
+  user_management_available: boolean;
+  manual_review_action_authority_granted: boolean;
+  water_emergency_action_authority_granted: boolean;
+  action_execution_available: boolean;
+  phase_allows_auth_enforcement: boolean;
+  phase_allows_rbac_enforcement: boolean;
+  phase_allows_route_guarding: boolean;
+  reason: string;
+};
+
 export type DashboardSource = "api" | "mock";
 
 export type DashboardFetchResult<T> = {

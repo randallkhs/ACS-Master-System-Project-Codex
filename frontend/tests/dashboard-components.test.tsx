@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { ScenarioStoryboard } from "@/components/dashboard/scenario-storyboard";
 import {
+  mockAuthStatus,
   mockDashboardOverview,
   mockManualReviewDetail,
   mockManualReviewQueue,
@@ -46,6 +47,11 @@ const mockManualReviewQueueResult = {
 
 const mockManualReviewDetailResult = {
   data: mockManualReviewDetail,
+  source: "mock" as const,
+};
+
+const mockAuthStatusResult = {
+  data: mockAuthStatus,
   source: "mock" as const,
 };
 
@@ -559,6 +565,7 @@ describe("DashboardView", () => {
         waterEmergencyResult={mockWaterEmergencyResult}
         waterEmergencyDetailResult={mockWaterEmergencyDetailResult}
         manualReviewQueueResult={mockManualReviewQueueResult}
+        authStatusResult={mockAuthStatusResult}
       />,
     );
 
@@ -642,6 +649,14 @@ describe("DashboardView", () => {
     expect(html).toContain("Disabled token verifier available");
     expect(html).toContain("Optional auth context available");
     expect(html).toContain("Frontend Auth Boundary");
+    expect(html).toContain("Cross-Layer Auth Status Bridge");
+    expect(html).toContain("Backend auth disabled");
+    expect(html).toContain("Backend requires no auth headers");
+    expect(html).toContain("Authorization header cannot grant authority");
+    expect(html).toContain("Backend route protection not enforced");
+    expect(html).toContain("Backend RBAC not enforced");
+    expect(html).toContain("Backend Manual Review authority not granted");
+    expect(html).toContain("Backend Water Emergency authority not granted");
     expect(html).toContain("Frontend auth disabled");
     expect(html).toContain("Session unavailable");
     expect(html).toContain("Token unavailable");

@@ -1051,7 +1051,7 @@
 
             <div class="update-card" aria-label="Report update status">
               <div class="update-status">
-                <strong>Last updated: May 26, 2026 at 4:16 PM EDT</strong>
+                <strong>Last updated: May 26, 2026 at 4:55 PM EDT</strong>
               </div>
               <p>
                 Phase 0 is still foundation work. The dashboard and development report are updated
@@ -1061,16 +1061,16 @@
 
             <div class="stats-grid" aria-label="Project progress summary">
               <div class="stat-card">
-                <strong>57</strong>
+                <strong>58</strong>
                 <span>Phase 0 modules documented through the current progress report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Backend auth core scaffold update added since the last public report</span>
+                <span>Frontend auth boundary update added since the last public report</span>
               </div>
               <div class="stat-card">
                 <strong>1</strong>
-                <span>Disabled token verifier and non-enforcing auth context now visible</span>
+                <span>Disabled session and no-auth-header API boundary now visible</span>
               </div>
               <div class="stat-card">
                 <strong>0</strong>
@@ -2426,6 +2426,28 @@
                 record mutation.
               </div>
             </article>
+
+            <article class="module-card" data-group="dashboard" data-search="module 58 frontend auth core interface disabled session adapter api auth boundary harness no auth headers no login no token storage water emergency separated">
+              <div class="module-top">
+                <span class="module-number">58</span>
+                <div>
+                  <h3>Frontend Auth Core Interface and Disabled Session Adapter</h3>
+                  <span class="module-group">Dashboard</span>
+                </div>
+              </div>
+              <p>
+                This module adds the safe frontend auth scaffold needed for future sign-in work
+                while keeping Phase 0 public, read-only, and non-enforcing.
+              </p>
+              <div class="example-box">
+                <strong>What the office may see</strong>
+                The dashboard can now show that frontend auth is disabled, no session is available,
+                no token is available, token verification is disabled, Authorization headers are
+                not emitted, and no Manual Review or Water Emergency action authority is granted.
+                The dashboard still does not add login, logout, user management, role assignment,
+                action buttons, dispatch, vendor calls, or record mutation.
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -2462,6 +2484,7 @@
             <div class="check-item"><span class="check">✓</span><span>Route protection matrix and access decision dry-run visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Auth/RBAC readiness audit, enforcement-boundary lock, and transition prerequisite visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Backend auth core scaffold, disabled token verifier, and optional auth context visibility</span></div>
+            <div class="check-item"><span class="check">✓</span><span>Frontend auth core scaffold, disabled session, and no-auth-header API boundary visibility</span></div>
             <div class="check-item"><span class="check">✓</span><span>Standard dispatch preparation and evidence flow</span></div>
             <div class="check-item"><span class="check">✓</span><span>External adapter preparation boundaries</span></div>
             <div class="check-item"><span class="check">✓</span><span>Operational event history and audit trace foundation</span></div>
@@ -2482,40 +2505,40 @@
       <section class="section-tight">
         <div class="container-shell">
           <div class="metadata-text">Latest reviewed module</div>
-          <h2>Module 57 is reviewed, committed, and ready for the next step.</h2>
+          <h2>Module 58 is reviewed, committed, and ready for the next step.</h2>
           <p class="section-intro">
-            Module 57 completed the backend auth-core interface, disabled token verifier, and
-            non-enforcing auth dependency harness foundation. The module was reviewed and
-            committed before the next Phase 0 module begins. This gives ACS a clear checkpoint
-            showing that backend auth scaffolding can exist safely while token verification, route
-            protection, RBAC enforcement, login behavior, user management, and action execution are
-            still future work and are not active in Phase 0.
+            Module 58 completed the frontend auth-core interface, disabled session adapter, and
+            API auth boundary harness foundation. The module was reviewed and committed before the
+            next Phase 0 module begins. This gives ACS a clear checkpoint showing that frontend
+            auth scaffolding can exist safely while real sessions, token handling, route
+            protection, RBAC enforcement, login behavior, user management, and action execution
+            are still future work and are not active in Phase 0.
           </p>
           <div class="overview-grid">
             <article class="overview-card">
               <h3>What was completed</h3>
               <p>
-                The backend now has safe auth-core types, an always-disabled token verifier, and
-                optional auth context helpers that can be inspected by future modules without
-                blocking current dashboard routes or granting authority. The dashboard can show
-                that the scaffold exists while route protection and action authority remain off.
+                The frontend now has safe auth/session/principal types, an always-disabled session
+                helper, and an API auth-boundary helper that sends no Authorization headers. The
+                dashboard can show that frontend auth is disabled, sessions and tokens are
+                unavailable, and no Manual Review or Water Emergency action authority is granted.
               </p>
             </article>
             <article class="overview-card">
               <h3>Why it matters</h3>
               <p>
                 Manual Review is the safety system. This work helps Luis and Alfonso see that the
-                system is preparing for future authentication in a controlled way without turning
-                anything on early. It keeps Phase 0 conservative: no routes are guarded, no tokens
-                are verified, no credentials are exposed, no auth headers are required, no login UI
-                is available, no actions are executable, and Water Emergency-related authorization
-                stays separated.
+                system is preparing for future authentication across the dashboard in a controlled
+                way without turning anything on early. It keeps Phase 0 conservative: no routes are
+                guarded, no tokens are stored or verified, no credentials are exposed, no auth
+                headers are emitted, no login UI is available, no actions are executable, and Water
+                Emergency-related authorization stays separated.
               </p>
             </article>
             <article class="overview-card">
               <h3>Verification and review status</h3>
               <p>
-                Module 57 passed backend checks, frontend checks, local PostgreSQL live dashboard
+                Module 58 passed backend checks, frontend checks, local PostgreSQL live dashboard
                 verification, browser checks, ChatGPT review, and Review ZIP freshness checks.
                 It has been committed and pushed by Randall.
               </p>
@@ -2523,10 +2546,10 @@
             <article class="overview-card">
               <h3>Coming next</h3>
               <p>
-                The next planned area is the frontend auth-core interface, disabled session
-                adapter, and API auth boundary harness. That future module is not marked complete
-                here and will only be added after review, verification, commit, and push are
-                complete.
+                The next planned area is the backend/frontend auth status bridge, disabled auth
+                health endpoint, and cross-layer non-enforcement contract. That future module is
+                not marked complete here and will only be added after review, verification,
+                commit, and push are complete.
               </p>
             </article>
           </div>

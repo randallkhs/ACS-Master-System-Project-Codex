@@ -4,6 +4,12 @@ FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
 This module is Phase 0 scaffolding only. It does not implement live Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or production external dispatch integration workflows yet.
 
+## Module 59 Auth Status Bridge Notes
+
+Module 59 adds `GET /api/v1/auth/status` as a disabled, read-only backend/frontend auth status bridge. The endpoint reports Phase 0 auth disabled, provider disabled, token verification disabled, RBAC disabled, route protection not enforced, current routes not requiring auth, Authorization headers not required or parsed, and no Manual Review or Water Emergency action authority.
+
+The endpoint does not require Authorization, does not parse Authorization headers, does not validate tokens, does not fetch JWKS, does not contact identity providers, does not return fake authenticated user data, does not mutate records, and does not write audit events. Authorization header presence cannot grant access, role, Manual Review, Water Emergency, dispatch, vendor, AI, or workflow authority.
+
 ## Module 58 Frontend Auth Boundary Alignment Notes
 
 Module 58 adds frontend disabled-session and API auth-boundary scaffolding only. Backend route access remains unchanged from Module 57: current dashboard routes do not require Authorization headers, the disabled token verifier is not wired as an enforcing route guard, and no backend auth/RBAC enforcement is added.
@@ -38,6 +44,7 @@ Water Emergency-related routes and sections stay marked separately from standard
 
 - FastAPI application package in `app/`
 - API routes under `app/api/v1/`
+- read-only disabled auth status endpoint at `/api/v1/auth/status`
 - Pydantic Settings configuration in `app/core/config.py`
 - structured logging foundation in `app/core/logging.py`
 - disabled auth core scaffolding in `app/auth/`

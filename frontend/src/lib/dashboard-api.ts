@@ -1,4 +1,5 @@
 import type {
+  AuthStatusResponse,
   DashboardDispatchSummaryResponse,
   DashboardFetchResult,
   DashboardOverviewResponse,
@@ -10,6 +11,7 @@ import type {
   WaterEmergencyDetailResponse
 } from "@/lib/dashboard-contracts";
 import {
+  mockAuthStatus,
   mockDashboardOverview,
   mockManualReviewDetail,
   mockManualReviewQueue,
@@ -28,7 +30,8 @@ export const DASHBOARD_ENDPOINTS = {
   dispatch: "/api/v1/dashboard/dispatch",
   waterEmergency: "/api/v1/dashboard/water-emergency",
   waterEmergencyDetail: (waterEmergencyId: string) =>
-    `/api/v1/dashboard/water-emergency/${encodeURIComponent(waterEmergencyId)}`
+    `/api/v1/dashboard/water-emergency/${encodeURIComponent(waterEmergencyId)}`,
+  authStatus: "/api/v1/auth/status"
 } as const;
 
 export function dashboardApiBaseUrl(): string | null {
@@ -139,6 +142,12 @@ export async function getDashboardWaterEmergencyDetail(
   }
 
   return fetchWaterEmergencyDetailReadModel(waterEmergencyId);
+}
+
+export async function getAuthStatus(): Promise<
+  DashboardFetchResult<AuthStatusResponse>
+> {
+  return fetchDashboardReadModel(DASHBOARD_ENDPOINTS.authStatus, mockAuthStatus);
 }
 
 async function fetchDashboardReadModel<T>(

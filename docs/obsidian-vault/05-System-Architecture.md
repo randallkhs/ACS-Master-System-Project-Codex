@@ -1169,6 +1169,21 @@ Unresolved:
 
 - final ACS-FSM frontend login/session UX, backend token verification middleware, route guard architecture, RBAC enforcement, role-scoped visibility, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy
 
+## Phase 0 Module 59 Backend/Frontend Auth Status Bridge
+
+Module 59 adds a cross-layer disabled auth status bridge without implementing auth, token verification, RBAC, route protection, login/session behavior, or actions:
+
+- backend `GET /api/v1/auth/status` returns disabled Phase 0 auth status with auth disabled, provider disabled, token verification disabled, RBAC disabled, route protection not enforced, current routes not requiring auth, Authorization headers not required or parsed, and action authority unavailable
+- frontend dashboard API contracts and client helper consume the status with a GET-only call and no Authorization header emission
+- Manual Review queue panels display backend/frontend disabled auth alignment without sign-in/sign-out UI, user management UI, role assignment, token storage, JWT parsing, section hiding, action buttons, forms, or mutation controls
+- fallback auth status remains disabled if the endpoint is unavailable and does not become a fake login/status success path
+
+The boundary remains non-enforcing. Current routes remain public read-only routes. Authorization header presence does not authenticate a user, grant RBAC, hide or unlock UI, execute Manual Review commands, mutate records, write audit events, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- final ACS-FSM frontend login/session UX, backend token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-scoped visibility, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy
+
 ---
 
 ## First Module Boundary

@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 58 keeps the frontend foundation read-only while adding frontend auth-core disabled session and API auth-boundary visibility on top of the existing backend auth-core disabled scaffold visibility, Auth/RBAC readiness audit, enforcement-boundary lock, future transition prerequisite visibility, route protection matrix, access decision dry-run, UI permission-boundary readiness, Manual Review auth-boundary readiness, auth configuration readiness, auth diagnostics/runtime safety visibility, auth claims mapping, token-verification dry-run boundary, role-resolution readiness, safe secret-hygiene status, auth header disabled status, explicit disabled auth/token/RBAC status, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
+Phase 0 Module 59 keeps the frontend foundation read-only while adding a backend/frontend auth status bridge on top of the frontend auth-core disabled session, API auth-boundary visibility, existing backend auth-core disabled scaffold visibility, Auth/RBAC readiness audit, enforcement-boundary lock, future transition prerequisite visibility, route protection matrix, access decision dry-run, UI permission-boundary readiness, Manual Review auth-boundary readiness, auth configuration readiness, auth diagnostics/runtime safety visibility, auth claims mapping, token-verification dry-run boundary, role-resolution readiness, safe secret-hygiene status, auth header disabled status, explicit disabled auth/token/RBAC status, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -76,6 +76,7 @@ GET http://127.0.0.1:8000/api/v1/dashboard/review
 GET http://127.0.0.1:8000/api/v1/dashboard/dispatch
 GET http://127.0.0.1:8000/api/v1/dashboard/water-emergency
 GET http://127.0.0.1:8000/api/v1/dashboard/water-emergency/{water_emergency_id}
+GET http://127.0.0.1:8000/api/v1/auth/status
 ```
 
 The backend requires a configured local PostgreSQL database for live dashboard reads. If the backend is stopped, unavailable, unmigrated, or returns an error, the frontend displays typed fallback data and marks the page as mock/fallback state.
@@ -127,6 +128,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - No mutation endpoints, dispatch execution, vendor integration calls, or AI authority are implemented.
 - Route protection and access decision panels are read-only planning visibility; they do not enforce auth, RBAC, route guards, token parsing, JWT validation, or section hiding.
 - Frontend auth helpers are disabled Phase 0 scaffolding only; they create no session, store no token, emit no Authorization header, hide no UI, and grant no action authority.
+- The auth status bridge is read-only visibility only; it does not create a login status, parse Authorization headers, report authenticated users, guard routes, or grant action authority.
 - Manual Review remains authoritative and cannot be bypassed from the UI.
 - Water Emergency remains first-class and is displayed as separated operational state where the backend contract exposes it.
 
@@ -148,6 +150,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Manual Review route protection matrix and access decision dry-run panels with enforcement, route guarding, token verification, and RBAC disabled
 - Manual Review auth-core disabled scaffold labels showing the backend auth core, disabled token verifier, and optional auth context exist for future modules while current routes still do not require auth
 - Manual Review frontend auth-boundary labels showing frontend auth disabled, session unavailable, token unavailable, token verification disabled, Authorization headers not emitted, and no Manual Review or Water Emergency action authority granted
+- Manual Review cross-layer auth status bridge labels showing backend auth disabled, frontend auth disabled, backend auth headers not required, frontend auth headers not emitted, Authorization headers not parsed or authoritative, route protection not enforced, RBAC not enforced, and action authority unavailable
 - Manual Review action-preflight visibility for future operator identity, audit reason, auth, and blocker preparation
 - Manual Review future-action preview visibility for expected non-binding outcomes, impacted entities, and future operator identity/audit reason requirements
 - Manual Review future command-contract visibility for future auth, operator identity, role authorization, audit reason, idempotency key, immutable event recording, and post-action consistency check requirements
@@ -406,6 +409,14 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - `getDisabledFrontendAuthSession()` and `getAnonymousPhase0Principal()` report auth disabled, unauthenticated, session unavailable, token unavailable, token verification disabled, RBAC unenforced, route protection unenforced, and no Manual Review or Water Emergency action authority.
 - `frontendAuthHeadersForRequest()` returns an empty header object in Phase 0. The dashboard API client remains `GET`-only and does not emit `Authorization` or lowercase `authorization` headers.
 - The Manual Review Queue displays a read-only Frontend Auth Boundary panel for disabled session/token/API auth state. It does not add sign-in/sign-out UI, user management, role assignment, token storage, JWT parsing, UI hiding, or mutation controls.
+
+## Module 59 Backend/Frontend Auth Status Bridge Notes
+
+- The dashboard now fetches `GET /api/v1/auth/status` as a read-only disabled auth status bridge when a backend base URL is configured.
+- The auth status API client call remains GET-only and emits no `Authorization` or lowercase `authorization` headers.
+- The Manual Review Queue displays cross-layer backend/frontend auth status visibility: backend auth disabled, frontend auth disabled, auth headers not required/emitted, Authorization headers not parsed or authoritative, route protection not enforced, RBAC not enforced, and no Manual Review or Water Emergency action authority.
+- If the auth status endpoint is unavailable, the frontend fallback remains disabled and does not report authentication success, token verification success, RBAC success, route protection, or action authority.
+- The UI still does not add login/logout/signup/user-management controls, role assignment, token/session storage, JWT parsing, section hiding, approve/reject/defer/archive controls, dispatch controls, vendor calls, AI controls, or executable readiness labels.
 
 ## Module 38 Water Emergency View-State Notes
 
