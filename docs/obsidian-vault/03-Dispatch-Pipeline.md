@@ -1733,3 +1733,19 @@ Dispatch boundary:
 * no dispatch execution, vendor call, approval action, login/session/token behavior, auth headers, JWT parsing, route guard, fake role enforcement, audit write, mutation endpoint, or workflow engine behavior is added
 
 Future dispatch-facing work may consume reviewed Manual Review outcomes only after auth/RBAC enforcement, route guarding, audit/event persistence, and approved action execution boundaries exist.
+
+---
+
+Phase 0 Module 57 Backend Auth Core Disabled Scaffold Boundary
+
+The disabled backend auth core remains outside the dispatch execution path.
+
+Dispatch boundary:
+
+* disabled auth context labels do not authorize dispatch
+* Authorization header presence does not create an authenticated dispatcher or operator
+* the disabled token verifier does not parse tokens, verify signatures, fetch JWKS, contact providers, or grant access
+* route protection enforcement, token verification, RBAC enforcement, audit actor/idempotency integration, and authenticated action modules remain future work
+* no dispatch execution, vendor call, approval action, login/session/token behavior, auth headers, JWT parsing, route guard, fake role enforcement, audit write, mutation endpoint, or workflow engine behavior is added
+
+Future dispatch-facing work may consume authenticated identity only after real auth/RBAC enforcement, route guarding, audit/event persistence, and approved action execution boundaries exist.

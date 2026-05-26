@@ -1,6 +1,6 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 56 keeps the frontend foundation read-only while adding Auth/RBAC readiness audit, enforcement-boundary lock, and future transition prerequisite visibility on top of the existing route protection matrix, access decision dry-run, UI permission-boundary readiness, Manual Review auth-boundary readiness, auth configuration readiness, auth diagnostics/runtime safety visibility, auth claims mapping, token-verification dry-run boundary, role-resolution readiness, safe secret-hygiene status, auth header disabled status, explicit disabled auth/token/RBAC status, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
+Phase 0 Module 57 keeps the frontend foundation read-only while adding backend auth-core disabled scaffold visibility on top of the existing Auth/RBAC readiness audit, enforcement-boundary lock, future transition prerequisite visibility, route protection matrix, access decision dry-run, UI permission-boundary readiness, Manual Review auth-boundary readiness, auth configuration readiness, auth diagnostics/runtime safety visibility, auth claims mapping, token-verification dry-run boundary, role-resolution readiness, safe secret-hygiene status, auth header disabled status, explicit disabled auth/token/RBAC status, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
 
@@ -145,6 +145,7 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - Manual Review queue filter/sort view-state panel with frontend-only saved preferences
 - Manual Review auth claims mapping and role-resolution readiness panels with token parsing and JWKS fetch disabled
 - Manual Review route protection matrix and access decision dry-run panels with enforcement, route guarding, token verification, and RBAC disabled
+- Manual Review auth-core disabled scaffold labels showing the backend auth core, disabled token verifier, and optional auth context exist for future modules while current routes still do not require auth
 - Manual Review action-preflight visibility for future operator identity, audit reason, auth, and blocker preparation
 - Manual Review future-action preview visibility for expected non-binding outcomes, impacted entities, and future operator identity/audit reason requirements
 - Manual Review future command-contract visibility for future auth, operator identity, role authorization, audit reason, idempotency key, immutable event recording, and post-action consistency check requirements
@@ -390,6 +391,12 @@ Browser QA should include `/dashboard` at desktop, laptop, and mobile widths. Us
 - The audit shows auth enforcement disabled, token verification disabled, real token parsing disabled, JWKS fetch disabled, RBAC enforcement disabled, route guarding disabled, sign-in UI unavailable, user management unavailable, Manual Review actions unavailable, and Water Emergency actions unavailable.
 - Future prerequisites are grouped by provider selection, real credentials/secret hygiene, token verification, claims mapping, operator identity, RBAC/role policy, route protection, Manual Review action permissions, Water Emergency action permissions, audit actor/idempotency, legal/owner review, and review workflow.
 - The UI still does not add login/logout/signup/user-management controls, role assignment, forms, inputs, auth headers, token/session behavior, route guards, section hiding, approve/reject/defer/archive controls, dispatch controls, vendor calls, AI controls, or executable readiness labels.
+
+## Module 57 Backend Auth Core Disabled Scaffold Notes
+
+- The Manual Review Queue panel now displays backend auth-core scaffold, disabled token verifier, optional auth context, current-route auth requirement, route-protection enforcement, Manual Review authority, and Water Emergency authority labels as read-only operational visibility.
+- The labels show that the backend auth core exists for future modules, but current routes still do not require auth, token verification remains disabled, route protection is not enforced, and no Manual Review or Water Emergency action authority is granted.
+- The UI still does not add login/logout/signup/user-management controls, role assignment, forms, inputs, auth headers, token/session behavior, JWT parsing, route guards, section hiding, approve/reject/defer/archive controls, dispatch controls, vendor calls, AI controls, or executable readiness labels.
 
 ## Module 38 Water Emergency View-State Notes
 

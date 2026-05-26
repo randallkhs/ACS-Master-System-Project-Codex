@@ -984,6 +984,27 @@ Open API/frontend concerns:
 - final ACS-FSM authentication provider and production credential ownership
 - secure VPS secret configuration, token verification middleware, JWKS strategy, RBAC enforcement, route guard architecture, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy after future reviewed modules exist
 
+## Phase 0 Module 57 Backend Auth Core Disabled Scaffold Boundary
+
+The backend now includes disabled auth core interfaces and optional auth-context helpers for future API modules.
+
+Contract behavior:
+
+- current API routes still do not require Authorization headers
+- disabled token verification returns not-verified metadata and never parses token contents, validates signatures, fetches JWKS, contacts providers, or treats any token as valid
+- optional auth context is anonymous, non-authenticated, non-RBAC, and non-enforcing
+- Manual Review queue/detail auth-boundary metadata reports auth core scaffold available, disabled token verifier available, optional auth context available, current routes require auth false, route protection enforced false, and Manual Review/Water Emergency action authority false
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` Manual Review calls are added
+- no auth/RBAC enforcement, route guards, route denial, section hiding, real token parsing, JWT validation, token verification, JWKS fetch, login/logout/session behavior, auth headers, fake authenticated user data, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- disabled auth-core labels are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, credential provisioning, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM authentication provider, production credential ownership, secure VPS secret configuration, token verification middleware, JWKS strategy, RBAC enforcement, route guard architecture, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy after future reviewed modules exist
+
 ## Phase 0 Module 54 Auth Claims Mapping And Token Dry-Run Boundary
 
 The Manual Review queue and detail API contracts now include read-only auth claims mapping, token-verification dry-run, and role-resolution readiness metadata for future auth/RBAC planning.

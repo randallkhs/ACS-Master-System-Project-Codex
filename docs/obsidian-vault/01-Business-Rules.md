@@ -626,3 +626,20 @@ Rules:
 Open concerns:
 
 - final ACS-FSM auth provider selection, real secret configuration, route guard architecture, token verification middleware, RBAC enforcement, role-to-permission expansion, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, audit actor/idempotency integration, and owner-reviewed legal/company policy remain future work
+
+## Phase 0 Module 57 Backend Auth Core Disabled Scaffold Boundary
+
+Module 57 adds backend auth core interfaces and a disabled token verifier as a Randall-authorized Phase 0 technical baseline only.
+
+Rules:
+
+- backend auth core types, disabled token verifier, optional auth context, and future auth dependency helpers are planning infrastructure only
+- current routes must remain accessible without Authorization headers
+- Authorization header presence must not create an authenticated operator, role authority, Manual Review action authority, Water Emergency action authority, route access authority, or UI unlock
+- token verification, real token parsing, signature validation, JWKS fetch, provider network calls, RBAC enforcement, route guarding, login UI, user management, action execution, mutation endpoints, and Phase 0 enforcement allowances must remain false
+- strict future-auth helpers are not wired to current routes and may only report that auth enforcement is not implemented
+- no login, logout, signup, user management, token/session behavior, auth headers, JWT parsing, JWKS fetch, fake user identity, fake role enforcement, route guards, RBAC enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final auth provider, token verification middleware, route guard architecture, RBAC enforcement, operator identity persistence, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, frontend sign-in UX, and owner-reviewed legal/company policy remain future work

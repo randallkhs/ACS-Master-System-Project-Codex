@@ -46,6 +46,20 @@ class Settings(BaseSettings):
     database_echo: bool = False
     database_pool_pre_ping: bool = True
 
+    auth_provider: str = "disabled"
+    auth_enabled: bool = False
+    auth_issuer_url: str = ""
+    auth_audience: str = ""
+    auth_jwks_url: str = ""
+    auth_allowed_email_domains: str = ""
+    auth_require_verified_email: bool = True
+    auth_local_dev_mode: bool = False
+    auth_role_claim: str = ""
+    auth_permission_claim: str = ""
+    auth_token_verification_enabled: bool = False
+    auth_rbac_enforcement_enabled: bool = False
+    auth_phase_allows_enforcement: bool = False
+
     @field_validator("environment", mode="before")
     @classmethod
     def normalize_environment(cls, value: str) -> str:
@@ -62,6 +76,11 @@ class Settings(BaseSettings):
             msg = "api_v1_prefix must start with /"
             raise ValueError(msg)
         return normalized or "/api/v1"
+
+    @field_validator("auth_provider")
+    @classmethod
+    def normalize_auth_provider(cls, value: str) -> str:
+        return value.strip().lower() or "disabled"
 
     @model_validator(mode="after")
     def validate_database_settings(self) -> Self:
@@ -87,6 +106,29 @@ class Settings(BaseSettings):
             if self.database_echo:
                 msg = "database_echo must be disabled in production"
                 raise ValueError(msg)
+
+        return self
+
+    @model_validator(mode="after")
+    def validate_phase0_auth_settings(self) -> Self:
+        if self.auth_provider != "disabled":
+            msg = "auth_provider must remain disabled during Phase 0"
+            raise ValueError(msg)
+
+        locked_flags = {
+            "auth_enabled": self.auth_enabled,
+            "auth_local_dev_mode": self.auth_local_dev_mode,
+            "auth_token_verification_enabled": self.auth_token_verification_enabled,
+            "auth_rbac_enforcement_enabled": self.auth_rbac_enforcement_enabled,
+            "auth_phase_allows_enforcement": self.auth_phase_allows_enforcement,
+        }
+        enabled_flags = [name for name, enabled in locked_flags.items() if enabled]
+        if enabled_flags:
+            msg = (
+                "Phase 0 auth scaffolding is non-enforcing; these auth settings must remain "
+                f"false: {', '.join(enabled_flags)}"
+            )
+            raise ValueError(msg)
 
         return self
 

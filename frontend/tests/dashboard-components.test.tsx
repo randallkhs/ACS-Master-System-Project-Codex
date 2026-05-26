@@ -638,10 +638,17 @@ describe("DashboardView", () => {
     expect(html).toContain("Auth enforcement disabled");
     expect(html).toContain("RBAC enforcement disabled");
     expect(html).toContain("Route guarding disabled");
+    expect(html).toContain("Auth core scaffold available");
+    expect(html).toContain("Disabled token verifier available");
+    expect(html).toContain("Optional auth context available");
+    expect(html).toContain("Current routes do not require auth");
+    expect(html).toContain("Route protection not enforced");
     expect(html).toContain("Sign-in UI unavailable");
     expect(html).toContain("User management unavailable");
     expect(html).toContain("Manual Review actions unavailable");
     expect(html).toContain("Water Emergency actions unavailable");
+    expect(html).toContain("Manual Review authority not granted");
+    expect(html).toContain("Water Emergency authority not granted");
     expect(html).toContain("Provider selection");
     expect(html).toContain("Real credentials / secret hygiene");
     expect(html).toContain("Token verification");

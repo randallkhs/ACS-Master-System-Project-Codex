@@ -436,6 +436,34 @@ describe("dashboard API client", () => {
     ).toBe(false);
     expect(
       result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .auth_core_module_available
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .disabled_token_verifier_available
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .optional_auth_context_available
+    ).toBe(true);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .token_verification_result
+    ).toBe("disabled");
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .current_routes_require_auth
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .manual_review_action_authority_granted
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
+        .water_emergency_action_authority_granted
+    ).toBe(false);
+    expect(
+      result.data.auth_boundary_readiness.auth_rbac_readiness_audit
         .enforcement_boundary_lock.phase_allows_auth_enforcement
     ).toBe(false);
     expect(

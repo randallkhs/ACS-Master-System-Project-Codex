@@ -1137,6 +1137,23 @@ Unresolved:
 
 - final ACS-FSM auth provider, real secret provisioning, token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-to-permission expansion, role-scoped visibility, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy
 
+## Phase 0 Module 57 Backend Auth Core Disabled Scaffold
+
+Module 57 adds backend auth core scaffolding without implementing auth, token verification, RBAC, route protection, or actions:
+
+- backend `app/auth/` defines typed auth mode/provider/status, principal/context, disabled auth context, anonymous Phase 0 principal, and token verification result structures
+- the disabled token verifier returns deterministic not-verified results, records only redacted header presence, and never parses token content, validates signatures, fetches JWKS, contacts providers, or treats any token as valid
+- optional auth context helpers remain anonymous, non-authenticated, non-RBAC, non-enforcing, and grant no Manual Review or Water Emergency action authority
+- strict future-auth helper behavior is not wired to current routes and only reports that auth enforcement is not implemented
+- dashboard readiness metadata reports the auth core scaffold, disabled token verifier, optional auth context, current route auth requirement, route protection enforcement, and action authority boundaries as read-only evidence
+- frontend queue panels display this disabled-auth-core visibility without login/logout UI, user management UI, role assignment, auth headers, token/session behavior, JWT parsing, route guards, section hiding, action buttons, forms, or mutation controls
+
+The boundary remains non-enforcing. Current routes remain public read-only routes. Authorization header presence does not authenticate a user, grant RBAC, hide or unlock UI, execute Manual Review commands, mutate records, write audit events, dispatch work, call external integrations, add AI authority, create action history, or infer hidden workflow transitions.
+
+Unresolved:
+
+- final ACS-FSM auth provider, token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-to-permission expansion, role-scoped visibility, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy
+
 ---
 
 ## First Module Boundary

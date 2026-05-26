@@ -466,6 +466,12 @@ export type AuthRbacReadinessAuditResponse = {
   claims_mapping_available: boolean;
   route_protection_matrix_available: boolean;
   access_decision_dry_run_available: boolean;
+  auth_core_module_available: boolean;
+  disabled_token_verifier_available: boolean;
+  optional_auth_context_available: boolean;
+  token_verification_result: string;
+  route_protection_enforced: boolean;
+  current_routes_require_auth: boolean;
   secret_hygiene_helper_available: boolean;
   committed_credentials_allowed: boolean;
   service_account_manual_review_allowed: boolean;
@@ -478,6 +484,8 @@ export type AuthRbacReadinessAuditResponse = {
   route_protection_enforcement_required_before_actions: boolean;
   manual_review_action_execution_available: boolean;
   water_emergency_action_execution_available: boolean;
+  manual_review_action_authority_granted: boolean;
+  water_emergency_action_authority_granted: boolean;
   readiness_gap_count: number;
   owner_review_required_count: number;
   enforcement_boundary_lock: AuthRbacEnforcementBoundaryLockResponse;

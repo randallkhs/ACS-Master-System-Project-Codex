@@ -1348,6 +1348,12 @@ def manual_review_auth_rbac_readiness_audit_contract() -> AuthRbacReadinessAudit
         claims_mapping_available=True,
         route_protection_matrix_available=True,
         access_decision_dry_run_available=True,
+        auth_core_module_available=True,
+        disabled_token_verifier_available=True,
+        optional_auth_context_available=True,
+        token_verification_result="disabled",
+        route_protection_enforced=False,
+        current_routes_require_auth=False,
         secret_hygiene_helper_available=True,
         committed_credentials_allowed=False,
         service_account_manual_review_allowed=False,
@@ -1360,6 +1366,8 @@ def manual_review_auth_rbac_readiness_audit_contract() -> AuthRbacReadinessAudit
         route_protection_enforcement_required_before_actions=True,
         manual_review_action_execution_available=False,
         water_emergency_action_execution_available=False,
+        manual_review_action_authority_granted=False,
+        water_emergency_action_authority_granted=False,
         readiness_gap_count=sum(
             1
             for prerequisite in prerequisites
@@ -2463,6 +2471,10 @@ def test_dashboard_api_routes_return_read_only_contracts(
         lifecycle_response = client.get("/api/v1/dashboard/lifecycle")
         review_response = client.get("/api/v1/dashboard/review")
         manual_review_queue_response = client.get("/api/v1/dashboard/manual-review/queue")
+        manual_review_queue_with_authorization_response = client.get(
+            "/api/v1/dashboard/manual-review/queue",
+            headers={"Authorization": "Bearer " + ".".join(("header", "payload", "signature"))},
+        )
         manual_review_detail_response = client.get(
             "/api/v1/dashboard/manual-review/queue/00000000-0000-0000-0000-000000000040",
         )
@@ -2497,6 +2509,7 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert review_response.status_code == 200
     assert review_response.json()["open_items"] == 0
     assert manual_review_queue_response.status_code == 200
+    assert manual_review_queue_with_authorization_response.status_code == 200
     assert manual_review_queue_response.json()["total_items"] == 2
     assert manual_review_queue_response.json()["active_attention_count"] == 1
     assert manual_review_queue_response.json()["water_emergency_related_count"] == 1
@@ -2932,6 +2945,12 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert auth_rbac_audit["claims_mapping_available"] is True
     assert auth_rbac_audit["route_protection_matrix_available"] is True
     assert auth_rbac_audit["access_decision_dry_run_available"] is True
+    assert auth_rbac_audit["auth_core_module_available"] is True
+    assert auth_rbac_audit["disabled_token_verifier_available"] is True
+    assert auth_rbac_audit["optional_auth_context_available"] is True
+    assert auth_rbac_audit["token_verification_result"] == "disabled"
+    assert auth_rbac_audit["route_protection_enforced"] is False
+    assert auth_rbac_audit["current_routes_require_auth"] is False
     assert auth_rbac_audit["secret_hygiene_helper_available"] is True
     assert auth_rbac_audit["committed_credentials_allowed"] is False
     assert auth_rbac_audit["service_account_manual_review_allowed"] is False
@@ -2941,6 +2960,8 @@ def test_dashboard_api_routes_return_read_only_contracts(
     assert auth_rbac_audit["route_protection_enforcement_required_before_actions"] is True
     assert auth_rbac_audit["manual_review_action_execution_available"] is False
     assert auth_rbac_audit["water_emergency_action_execution_available"] is False
+    assert auth_rbac_audit["manual_review_action_authority_granted"] is False
+    assert auth_rbac_audit["water_emergency_action_authority_granted"] is False
     assert auth_rbac_audit["readiness_gap_count"] > 0
     assert auth_rbac_audit["owner_review_required_count"] > 0
     assert enforcement_lock["auth_enforcement_enabled"] is False

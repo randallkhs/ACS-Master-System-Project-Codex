@@ -806,6 +806,22 @@ Current data-model boundary:
 
 Future data-model work may require durable operator identities, role assignments, permission grants, audit actor references, idempotency records, immutable action events, and route guard configuration after reviewed auth/RBAC implementation modules are approved.
 
+## Phase 0 Module 57 Backend Auth Core Disabled Scaffold Data Boundary
+
+Module 57 does not add durable data entities. Backend auth principal/context types and disabled token-verification results are in-memory scaffolding only.
+
+Current data-model boundary:
+
+- no operator identity table is created
+- no RBAC table is created
+- no token/session/JWT/JWKS storage is created
+- no route protection enforcement table is created
+- no audit actor, idempotency, immutable action event, or Manual Review mutation table is created
+- Authorization header presence is not stored and does not create an authenticated operator
+- Manual Review and Water Emergency action authority remains false
+
+Future data-model work may require durable operator identities, role assignments, permission grants, token verification references, audit actor references, idempotency records, immutable action events, and route guard configuration after reviewed auth/RBAC implementation modules are approved.
+
 ---
 
 ## Constraints To Confirm With Operations

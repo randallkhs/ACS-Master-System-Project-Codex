@@ -898,7 +898,7 @@ const mockRouteProtectionReadiness: ManualReviewRouteProtectionReadinessResponse
 
 const mockAuthRbacReadinessAudit: AuthRbacReadinessAuditResponse = {
   summary:
-    "Modules 51-55 are consolidated into a Phase 0 auth/RBAC readiness audit. Auth, token verification, RBAC, route guarding, login UI, user management, and action execution remain locked off.",
+    "Modules 51-57 are consolidated into a Phase 0 auth/RBAC readiness audit. The backend auth core scaffold and disabled token verifier are available for future modules, while auth, token verification, RBAC, route guarding, login UI, user management, and action execution remain locked off.",
   auth_implemented: false,
   auth_enabled: false,
   token_verification_enabled: false,
@@ -915,6 +915,12 @@ const mockAuthRbacReadinessAudit: AuthRbacReadinessAuditResponse = {
   claims_mapping_available: true,
   route_protection_matrix_available: true,
   access_decision_dry_run_available: true,
+  auth_core_module_available: true,
+  disabled_token_verifier_available: true,
+  optional_auth_context_available: true,
+  token_verification_result: "disabled",
+  route_protection_enforced: false,
+  current_routes_require_auth: false,
   secret_hygiene_helper_available: true,
   committed_credentials_allowed: false,
   service_account_manual_review_allowed: false,
@@ -927,6 +933,8 @@ const mockAuthRbacReadinessAudit: AuthRbacReadinessAuditResponse = {
   route_protection_enforcement_required_before_actions: true,
   manual_review_action_execution_available: false,
   water_emergency_action_execution_available: false,
+  manual_review_action_authority_granted: false,
+  water_emergency_action_authority_granted: false,
   readiness_gap_count: 16,
   owner_review_required_count: 2,
   enforcement_boundary_lock: {

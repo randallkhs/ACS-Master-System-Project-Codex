@@ -598,6 +598,26 @@ function AuthBoundaryReadinessPanel({
             }
           />
           <MiniMetric
+            label="Auth core scaffold"
+            value={
+              authRbacAudit.auth_core_module_available
+                ? "Available for future modules"
+                : "Unavailable"
+            }
+          />
+          <MiniMetric
+            label="Token verifier"
+            value={
+              authRbacAudit.disabled_token_verifier_available
+                ? "Disabled verifier available"
+                : "Unavailable"
+            }
+          />
+          <MiniMetric
+            label="Current routes require auth"
+            value={authRbacAudit.current_routes_require_auth ? "Yes" : "No"}
+          />
+          <MiniMetric
             label="User management"
             value={
               enforcementLock.user_management_available
@@ -644,6 +664,26 @@ function AuthBoundaryReadinessPanel({
               ["JWKS fetch disabled", !enforcementLock.jwks_fetch_enabled],
               ["RBAC enforcement disabled", !enforcementLock.rbac_enforcement_enabled],
               ["Route guarding disabled", !enforcementLock.route_guarding_enabled],
+              [
+                "Auth core scaffold available",
+                authRbacAudit.auth_core_module_available,
+              ],
+              [
+                "Disabled token verifier available",
+                authRbacAudit.disabled_token_verifier_available,
+              ],
+              [
+                "Optional auth context available",
+                authRbacAudit.optional_auth_context_available,
+              ],
+              [
+                "Current routes do not require auth",
+                !authRbacAudit.current_routes_require_auth,
+              ],
+              [
+                "Route protection not enforced",
+                !authRbacAudit.route_protection_enforced,
+              ],
               ["Sign-in UI unavailable", !enforcementLock.login_ui_available],
               [
                 "User management unavailable",
@@ -652,6 +692,14 @@ function AuthBoundaryReadinessPanel({
               [
                 "Manual Review actions unavailable",
                 !enforcementLock.phase_allows_manual_review_actions,
+              ],
+              [
+                "Manual Review authority not granted",
+                !authRbacAudit.manual_review_action_authority_granted,
+              ],
+              [
+                "Water Emergency authority not granted",
+                !authRbacAudit.water_emergency_action_authority_granted,
               ],
               [
                 "Mutation endpoints unavailable",

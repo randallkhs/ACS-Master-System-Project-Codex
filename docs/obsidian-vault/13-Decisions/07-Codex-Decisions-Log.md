@@ -1600,6 +1600,37 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-25 — Phase 0 Module 57 Backend Auth Core Interface, Disabled Token Verifier, And Auth Dependency Harness
+
+- Decision type: Implementation / Auth scaffold / disabled Phase 0 boundary
+- Status: Implemented
+- Decision:
+  - Add a backend `app/auth/` package with typed auth mode/provider/status, principal/context, disabled auth context, anonymous Phase 0 principal, token verification result, disabled token verifier, and optional auth dependency helpers.
+  - Keep the verifier deterministic and disabled: it records only whether an Authorization header was present and never parses token content, validates signatures, fetches JWKS, contacts identity providers, treats any token as valid, or exposes token values.
+  - Keep optional auth context anonymous, non-authenticated, non-RBAC, non-enforcing, and unable to grant Manual Review or Water Emergency action authority.
+  - Extend Manual Review auth/RBAC readiness metadata and frontend visibility to show auth core scaffold available, disabled token verifier available, optional auth context available, current routes require auth false, route protection enforced false, and action authority false.
+  - Leave current routes public/read-only and do not wire auth dependencies as route guards.
+- Rationale:
+  - Future auth/RBAC implementation needs stable backend interfaces before route protection, token verification, and authenticated action modules can safely exist.
+  - A disabled verifier allows tests and future integration points to reason about auth readiness without accepting tokens or creating fake authorization.
+  - Keeping current routes unchanged preserves Phase 0 dashboard visibility while preventing unsafe workflow authority.
+- Future implications:
+  - Future reviewed modules still need selected provider configuration, real credentials supplied outside Git, token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-to-permission expansion, role-scoped visibility, audit actor/idempotency integration, Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy.
+- Affected systems:
+  - Backend auth package
+  - Backend settings
+  - Backend dashboard domain read models
+  - Dashboard service layer
+  - Dashboard API schemas
+  - Backend tests
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Frontend tests
+  - Auth/RBAC/Manual Review/Water Emergency documentation
+  - ACSSDR stakeholder report
+
+---
+
 ## 2026-05-24 — Phase 0 Module 50 Manual Review Execution Readiness Audit, Mutation Boundary Lock, And Transition Plan
 
 - Decision type: Implementation / Manual Review visibility / read-only execution-readiness boundary

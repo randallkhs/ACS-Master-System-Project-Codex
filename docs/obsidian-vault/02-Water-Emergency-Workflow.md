@@ -713,6 +713,24 @@ Future work:
 - owner-approved legal, insurance, warranty, drying certification, or company-liability policy before any binding action or customer-facing promise is implemented
 - audit actor, idempotency, immutable event, and post-action consistency integration for any future executable Water Emergency module
 
+# 20. Phase 0 Module 57 Backend Auth Core Disabled Scaffold Separation
+
+The backend auth core scaffold is available for future modules, but Water Emergency action authority remains unavailable.
+
+Separation rules:
+
+- the disabled auth context does not grant Water Emergency action authority
+- Authorization header presence does not create a Water Emergency operator, reviewer, closer, dispatcher, or owner authority
+- token verification, real token parsing, JWKS fetch, provider network calls, route guarding, RBAC enforcement, login UI, user management, mutation endpoints, audit writes, and workflow execution remain disabled
+- Water Emergency-related authorization stays separated from standard Manual Review and dispatch planning
+- no Water Emergency close, resolve, dispatch, vendor, AI, or automatic workflow behavior is added
+
+Future work:
+
+- reviewed Water Emergency action permissions after real auth/RBAC exists
+- owner-approved legal, insurance, warranty, drying certification, billing, customer-promise, or company-liability policy before any binding action or customer-facing promise is implemented
+- audit actor, idempotency, immutable event, and post-action consistency integration for any future executable Water Emergency module
+
 ---
 
 # 18. Phase 0 Module 55 Route Protection Matrix Separation

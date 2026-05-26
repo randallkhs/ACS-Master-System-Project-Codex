@@ -8,6 +8,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth.dependencies import get_disabled_auth_context
 from app.domain.dashboard import (
     AccessDecisionDryRun,
     AuthBoundaryOperatorIdentityField,
@@ -3811,6 +3812,7 @@ def manual_review_auth_rbac_readiness_audit(
     auth_claims_mapping_readiness: ManualReviewAuthClaimsMappingReadiness,
     route_protection_readiness: ManualReviewRouteProtectionReadiness,
 ) -> AuthRbacReadinessAudit:
+    auth_context = get_disabled_auth_context()
     transition_prerequisites = tuple(
         auth_rbac_transition_prerequisite(definition)
         for definition in AUTH_RBAC_TRANSITION_PREREQUISITE_DEFINITIONS
@@ -3827,9 +3829,11 @@ def manual_review_auth_rbac_readiness_audit(
 
     return AuthRbacReadinessAudit(
         summary=(
-            "Modules 51-55 are consolidated into a Phase 0 auth/RBAC readiness "
-            "audit. Auth, token verification, RBAC, route guarding, login UI, "
-            "user management, and action execution remain locked off."
+            "Modules 51-57 are consolidated into a Phase 0 auth/RBAC readiness "
+            "audit. The backend auth core scaffold and disabled token verifier "
+            "are available for future modules, while auth, token verification, "
+            "RBAC, route guarding, login UI, user management, and action execution "
+            "remain locked off."
         ),
         auth_implemented=False,
         auth_enabled=diagnostics.auth_enabled,
@@ -3853,6 +3857,12 @@ def manual_review_auth_rbac_readiness_audit(
         access_decision_dry_run_available=(
             route_protection_readiness.access_decision_dry_run.access_decision_dry_run_enabled
         ),
+        auth_core_module_available=True,
+        disabled_token_verifier_available=True,
+        optional_auth_context_available=True,
+        token_verification_result=auth_context.token_verification_result.status.value,
+        route_protection_enforced=False,
+        current_routes_require_auth=False,
         secret_hygiene_helper_available=bool(diagnostics.secret_hygiene_helper),
         committed_credentials_allowed=auth_configuration_readiness.committed_credentials_allowed,
         service_account_manual_review_allowed=False,
@@ -3867,6 +3877,12 @@ def manual_review_auth_rbac_readiness_audit(
         route_protection_enforcement_required_before_actions=True,
         manual_review_action_execution_available=False,
         water_emergency_action_execution_available=False,
+        manual_review_action_authority_granted=(
+            auth_context.manual_review_action_authority_granted
+        ),
+        water_emergency_action_authority_granted=(
+            auth_context.water_emergency_action_authority_granted
+        ),
         readiness_gap_count=readiness_gap_count,
         owner_review_required_count=owner_review_required_count,
         enforcement_boundary_lock=AuthRbacEnforcementBoundaryLock(

@@ -507,6 +507,12 @@ class AuthRbacReadinessAudit:
     claims_mapping_available: bool
     route_protection_matrix_available: bool
     access_decision_dry_run_available: bool
+    auth_core_module_available: bool
+    disabled_token_verifier_available: bool
+    optional_auth_context_available: bool
+    token_verification_result: str
+    route_protection_enforced: bool
+    current_routes_require_auth: bool
     secret_hygiene_helper_available: bool
     committed_credentials_allowed: bool
     service_account_manual_review_allowed: bool
@@ -519,6 +525,8 @@ class AuthRbacReadinessAudit:
     route_protection_enforcement_required_before_actions: bool
     manual_review_action_execution_available: bool
     water_emergency_action_execution_available: bool
+    manual_review_action_authority_granted: bool
+    water_emergency_action_authority_granted: bool
     readiness_gap_count: int
     owner_review_required_count: int
     enforcement_boundary_lock: AuthRbacEnforcementBoundaryLock

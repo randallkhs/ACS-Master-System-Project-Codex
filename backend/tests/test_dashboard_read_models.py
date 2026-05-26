@@ -1598,6 +1598,12 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
     assert auth_rbac_audit.claims_mapping_available is True
     assert auth_rbac_audit.route_protection_matrix_available is True
     assert auth_rbac_audit.access_decision_dry_run_available is True
+    assert auth_rbac_audit.auth_core_module_available is True
+    assert auth_rbac_audit.disabled_token_verifier_available is True
+    assert auth_rbac_audit.optional_auth_context_available is True
+    assert auth_rbac_audit.token_verification_result == "disabled"
+    assert auth_rbac_audit.route_protection_enforced is False
+    assert auth_rbac_audit.current_routes_require_auth is False
     assert auth_rbac_audit.secret_hygiene_helper_available is True
     assert auth_rbac_audit.committed_credentials_allowed is False
     assert auth_rbac_audit.service_account_manual_review_allowed is False
@@ -1610,6 +1616,8 @@ def test_manual_review_auth_boundary_readiness_catalogs_are_read_only() -> None:
     assert auth_rbac_audit.route_protection_enforcement_required_before_actions is True
     assert auth_rbac_audit.manual_review_action_execution_available is False
     assert auth_rbac_audit.water_emergency_action_execution_available is False
+    assert auth_rbac_audit.manual_review_action_authority_granted is False
+    assert auth_rbac_audit.water_emergency_action_authority_granted is False
     assert auth_rbac_audit.readiness_gap_count > 0
     assert auth_rbac_audit.owner_review_required_count > 0
 
