@@ -1,7 +1,7 @@
 # ACS-FSM Risk Register
 
 Date: 2026-05-27
-Status: Module 61 documentation/readiness baseline
+Status: Module 62 documentation/readiness baseline
 
 This risk register is operational planning documentation, not legal advice.
 
@@ -10,6 +10,7 @@ This risk register is operational planning documentation, not legal advice.
 | Auth/RBAC not implemented | High | Phase 0 reports auth disabled and cutover not ready. | Select provider, configure secrets, implement token verification/RBAC/route guards. | Randall | Possible if access policy affects company liability |
 | Action execution not implemented | High | Manual Review and Water Emergency remain read-only. | Add authenticated, audited, idempotent action modules after RBAC. | Randall | Yes for liability-sensitive actions |
 | Production deployment not implemented | High | Local verification only; ACSSDR is report-only. | Create production deployment, rollback, backup, and monitoring runbooks. | Randall | Possible |
+| Deployment readiness mistaken for deployment | High | Module 62 labels production/staging/VPS/Apache/PostgreSQL/secrets/backup/monitoring as future planning only. | Require explicit production owner approval and reviewed deployment module before any server change. | Randall | Possible |
 | Integrations not implemented | High | Adapter boundaries and dry-run evidence only. | Implement approved Calendar/Sheets/FastField/email/routing adapters with audit and retries. | Randall | Yes for customer/vendor-facing outputs |
 | Water Emergency legal/insurance concerns | High | Water Emergency remains separated and read-only; owner-review flags documented. | Owner-reviewed action policy, equipment/moisture model, closure rules, audit evidence. | Alfonso/Randall | Yes |
 | Manual Review action safety | High | No action controls or mutation endpoints exist. | Authenticated actions with audit actor, idempotency, immutable events, and post-action checks. | Randall | Yes for binding actions |
@@ -24,4 +25,3 @@ This risk register is operational planning documentation, not legal advice.
 | Authorization header false authority | High | Phase 0 status reports headers not required, parsed, or authoritative. | Future token verifier must reject invalid tokens and never treat presence alone as authority. | Randall | Possible |
 | Public route visibility before auth | Medium | Phase 0 is read-only and explicitly public/non-enforcing. | Add auth/RBAC only after Phase 1/2 criteria are met. | Randall | Possible |
 | Review workflow bypass | High | Codex writes external reports; Randall commits manually after review. | Keep Review GUI/ChatGPT review mandatory before commit. | Randall | No |
-

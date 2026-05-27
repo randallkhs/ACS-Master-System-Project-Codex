@@ -73,6 +73,14 @@ The master documentation package restates that future AI remains advisory only. 
 
 ---
 
+## Phase 1 Readiness Module 62 Infrastructure Boundary
+
+Module 62 is infrastructure readiness documentation only. It does not add AI functionality, AI controls, deployment automation, server actions, production monitoring actions, vendor calls, Manual Review actions, Water Emergency actions, auth enforcement, RBAC enforcement, token verification, route guarding, or workflow execution.
+
+AI remains advisory-only in future production planning. AI must not decide deployment readiness, approve production cutover, approve backup/restore readiness, approve secrets handling, or override Randall/owner review gates.
+
+---
+
 ## Phase 0 Module 5 Boundary
 
 The intake normalization and validation foundation is deterministic only.

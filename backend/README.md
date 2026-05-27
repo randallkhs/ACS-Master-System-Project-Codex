@@ -4,6 +4,12 @@ FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
 This module is Phase 0 scaffolding only. It does not implement live Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or production external dispatch integration workflows yet.
 
+## Module 62 Phase 1 Infrastructure Readiness Notes
+
+Module 62 is documentation/readiness only. It adds `docs/obsidian-vault/00-Phase-1-Production-Infrastructure-Readiness.md` to define future environment separation, VPS runtime planning, Apache reverse proxy planning, production PostgreSQL planning, secret-management expectations, backup/restore expectations, monitoring expectations, rollback expectations, and deployment cutover prerequisites.
+
+No backend API behavior, process manager, server runtime, production database, production secret, deployment script, route access, auth enforcement, token verification, RBAC enforcement, route guarding, mutation endpoint, audit write, vendor call, Manual Review action authority, Water Emergency action authority, or workflow execution is changed by this module.
+
 ## Module 61 Master Documentation Notes
 
 Module 61 is documentation/readiness only. It adds the master system overview, Phase 0 module inventory, phase roadmap, Phase 0 completion checklist, and master risk register under `docs/obsidian-vault/`.

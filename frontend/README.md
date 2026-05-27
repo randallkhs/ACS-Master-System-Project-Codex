@@ -1,10 +1,18 @@
 # ACS Frontend Foundation
 
-Phase 0 Module 61 keeps the frontend foundation read-only and adds no frontend behavior changes. The module adds master system documentation, historical module inventory, phase roadmap, Phase 0 completion checklist, and risk register documents under `docs/obsidian-vault/`.
+Phase 1 Readiness Module 62 keeps the frontend foundation read-only and adds no frontend behavior changes. The module adds production infrastructure readiness documentation under `docs/obsidian-vault/` for future environment separation, deployment boundaries, secret-management expectations, backup/restore planning, monitoring planning, and production cutover prerequisites.
 
 The Module 60 frontend foundation remains read-only while showing Phase 0 auth boundary completion and future cutover readiness visibility on top of the backend/frontend auth status bridge, frontend auth-core disabled session, API auth-boundary visibility, existing backend auth-core disabled scaffold visibility, Auth/RBAC readiness audit, enforcement-boundary lock, future transition prerequisite visibility, route protection matrix, access decision dry-run, UI permission-boundary readiness, Manual Review auth-boundary readiness, auth configuration readiness, auth diagnostics/runtime safety visibility, auth claims mapping, token-verification dry-run boundary, role-resolution readiness, safe secret-hygiene status, auth header disabled status, explicit disabled auth/token/RBAC status, operator identity registry field visibility, provisional role catalog visibility, future permission catalog visibility, queue filtering, sorting, browser-only saved view preferences, queue result metadata, decision-readiness context, action-preflight context, future-action preview context, future command-contract context, audit-ledger dry-run context, command-validation/safety-gate context, permission-readiness context, execution-readiness audit, mutation-boundary lock, future transition prerequisites, and owner-review guardrails.
 
 The frontend is read-only. It consumes backend dashboard read-model contracts and does not execute dispatch, integrations, Manual Review resolution, AI decisions, or any operational mutation.
+
+## Module 62 Documentation Alignment Notes
+
+Module 62 does not add deployment UI, server controls, secret inputs, login UI, logout UI, user-management UI, route protection, token/session behavior, Authorization headers, action controls, mutation calls, dispatch execution, vendor calls, AI authority, or workflow execution. Production readiness guidance is captured in:
+
+- `docs/obsidian-vault/00-Phase-1-Production-Infrastructure-Readiness.md`
+- `docs/obsidian-vault/00-Phase-Roadmap.md`
+- `docs/obsidian-vault/00-ACS-FSM-Risk-Register.md`
 
 ## Module 61 Documentation Alignment Notes
 

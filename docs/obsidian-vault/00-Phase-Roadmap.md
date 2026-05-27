@@ -5,6 +5,8 @@ Status: Phase 0 transition-readiness baseline
 
 This roadmap is planning documentation only. It does not authorize execution, deployment, auth enforcement, RBAC, route protection, vendor calls, AI authority, or Manual Review/Water Emergency actions.
 
+Phase 1 production infrastructure readiness is documented in [[00-Phase-1-Production-Infrastructure-Readiness]]. That document is a readiness baseline only; it does not deploy ACS-FSM or provision production resources.
+
 ## Phase 0 - Read-Only Foundations And Safety Boundaries
 
 Goal: Build deterministic foundations, read-only visibility, local verification, Manual Review safety boundaries, Water Emergency separation, disabled auth/RBAC readiness, and stakeholder reporting.
@@ -40,6 +42,7 @@ Expected capabilities:
 - monitoring/logging plan
 - deployment rollback plan
 - ACSSDR/reporting continuity
+- environment separation and deployment boundary checklist
 
 Prerequisites: Phase 0 docs complete, tests stable, dashboard read-only stable, review workflow stable, production infrastructure plan approved.
 
@@ -247,4 +250,3 @@ Phase 2 to Phase 3:
 - Manual Review action permissions approved
 - immutable event writes tested
 - idempotency tested
-

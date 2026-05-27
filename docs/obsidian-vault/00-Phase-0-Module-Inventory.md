@@ -1,7 +1,7 @@
 # Phase 0 Module Inventory
 
 Date: 2026-05-27
-Status: Module 61 documentation/readiness baseline
+Status: Module 62 readiness baseline
 
 ## Evidence Sources
 
@@ -14,10 +14,11 @@ Status: Module 61 documentation/readiness baseline
 ## Reconstruction Notes
 
 - Modules 1-27 are reconstructed from commit history and the decision log. Exact ChatGPT review status for those early modules is not encoded in Git, so it is marked as historical/pre-current-review-workflow unless separately known.
-- Modules 28-60 have stronger ACSSDR/review-workflow evidence and are committed on `main`.
+- Modules 28-61 have stronger ACSSDR/review-workflow evidence and are committed on `main`.
 - Module 25/26 evidence is slightly ambiguous because commit `096468e` has a visual-polish title but changed integration and environment-readiness surfaces. This inventory treats `9a51c08` as Module 25 and `096468e` as Module 26 based on the best available file-change and documentation evidence.
 - One nearby commit (`a0821a3`) is a frontend UI/refactor commit that is not clearly labeled as a numbered module. It is documented as historical context rather than forced into a module number.
-- Module 61 is the active documentation/readiness module and must not be marked complete until review and commit occur.
+- Module 61 was committed as `6ac04ba`.
+- Module 62 is the active Phase 1 readiness module and must not be marked complete until review and commit occur.
 
 ## Module Inventory
 
@@ -85,7 +86,8 @@ Status: Module 61 documentation/readiness baseline
 | 58 | Frontend Auth Core Interface, Disabled Session Adapter, And API Auth Boundary Harness | `c1d80af` | Completed/committed | Frontend auth scaffold | Added disabled frontend session and no-auth-header API boundary. | Current review workflow evidence | Included in current public report |
 | 59 | Backend/Frontend Auth Status Bridge, Disabled Auth Health Endpoint, And Cross-Layer Non-Enforcement Contract | `cd317cc` | Completed/committed | Auth status bridge | Connected backend/frontend disabled auth status visibility. | Current review workflow evidence | Included in current public report |
 | 60 | Auth Boundary Completion Audit, Disabled Auth Contract Consolidation, And Future Auth Cutover Plan | `6be5dfa` | Completed/committed | Auth cutover readiness | Completed Phase 0 auth boundary audit and future cutover checklist. | Confirmed by Module 61 pre-module gate | Updated in ACSSDR on 2026-05-27 |
-| 61 | Master System Documentation, Historical Module Inventory, And Phase Transition Readiness Audit | pending | Prepared/pending | Documentation/readiness | Active module. Must not be marked complete before review and commit. | Pending | Not complete |
+| 61 | Master System Documentation, Historical Module Inventory, And Phase Transition Readiness Audit | `6ac04ba` | Completed/committed | Documentation/readiness | Added master overview, historical inventory, roadmap, checklist, and risk register. | Confirmed by Module 62 pre-module gate | Updated in ACSSDR source on 2026-05-27 |
+| 62 | Phase 1 Production Infrastructure Readiness, Deployment Boundary, And Environment Separation Foundation | pending | Prepared/pending | Documentation/readiness | Active module. Must not be marked complete before review and commit. | Pending | Not complete |
 
 ## Modules 1-27 Reconstruction Status
 

@@ -50,6 +50,16 @@ The package records that Phase 0 has produced read-only foundations and safety b
 
 ---
 
+## Phase 1 Readiness Module 62 Infrastructure Boundary
+
+Module 62 adds [[00-Phase-1-Production-Infrastructure-Readiness]] as the first Phase 1 readiness baseline.
+
+The document defines future local/test/staging/production environment separation, VPS runtime concepts, Apache reverse proxy concepts, production PostgreSQL expectations, secret-management expectations, backup/restore expectations, monitoring expectations, rollback expectations, and deployment cutover prerequisites.
+
+This is planning only. It does not deploy ACS-FSM, modify a VPS, install Apache configuration, provision production PostgreSQL, create production secrets, change runtime behavior, add auth, enforce RBAC, protect routes, execute actions, call vendors, or grant workflow authority.
+
+---
+
 ## Preferred Stack
 
 Backend:
