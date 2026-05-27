@@ -1047,6 +1047,28 @@ Open API/frontend concerns:
 
 - final ACS-FSM frontend login/session UX, authentication provider wiring, production credential ownership, secure VPS secret configuration, token verification middleware, JWKS strategy, RBAC enforcement, route guard architecture, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy after future reviewed modules exist
 
+## Phase 0 Module 60 Auth Boundary Completion API Contract
+
+The disabled auth status bridge now exposes final Phase 0 auth boundary completion, future cutover readiness, and current route accessibility audit metadata.
+
+Contract behavior:
+
+- `GET /api/v1/auth/status` remains read-only and requires no Authorization header
+- the endpoint reports `phase0_auth_boundary_complete = true`, `future_auth_cutover_ready = false`, auth implemented false, auth enabled false, token verification false, real token parsing false, JWKS fetch false, RBAC false, route guarding false, frontend Authorization headers emitted false, action authority false, mutation endpoints unavailable, committed credentials disallowed, and real credentials required for future auth
+- future cutover blocker and prerequisite labels document required future work without marking real provider credentials, token verification, RBAC, route guarding, audit actors, idempotency, immutable events, consistency checks, or action authority as satisfied
+- current route accessibility audit labels list read-only GET health/auth/dashboard/Manual Review/dispatch/Water Emergency surfaces as currently requiring no auth with enforcement disabled
+- frontend dashboard status reads remain GET-only and emit no `Authorization` or lowercase `authorization` headers
+
+Contract constraints:
+
+- no `POST`, `PUT`, `PATCH`, or `DELETE` auth calls are added
+- no login/logout/signup UI, session storage, token storage, real token parsing, JWT validation, token verification, JWKS fetch, auth/RBAC enforcement, route guards, route denial, section hiding, fake authenticated user data, fake role enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, audit write, idempotency persistence, immutable event write, or workflow execution calls are added
+- completion/cutover/route accessibility labels are Randall-authorized Phase 0 planning baselines only and must not imply current access authority, current action authority, legal policy, company-liability policy, credential provisioning, cutover approval, or executable workflow state
+
+Open API/frontend concerns:
+
+- final ACS-FSM frontend login/session UX, authentication provider wiring, production credential ownership, secure VPS secret configuration, token verification middleware, JWKS strategy, RBAC enforcement, route guard architecture, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, immutable action events, audit actor/idempotency integration, and owner-reviewed legal/company policy after future reviewed modules exist
+
 ## Phase 0 Module 54 Auth Claims Mapping And Token Dry-Run Boundary
 
 The Manual Review queue and detail API contracts now include read-only auth claims mapping, token-verification dry-run, and role-resolution readiness metadata for future auth/RBAC planning.

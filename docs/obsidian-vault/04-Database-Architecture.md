@@ -1137,3 +1137,19 @@ Projection philosophy:
 Unresolved:
 
 - durable operator identities, role assignments, permission grants, token verification metadata, frontend sign-in/session persistence, audit actor references, idempotency records, immutable action events, and route guard configuration remain future schema/design work after reviewed auth/RBAC modules are approved
+
+## Auth Boundary Completion Audit Projection
+
+Phase 0 Module 60 extends the disabled auth status projection with auth boundary completion, future cutover prerequisites, and current route accessibility audit metadata without adding database tables or columns.
+
+Projection philosophy:
+
+- auth boundary completion and future cutover readiness are deterministic read-only metadata only
+- future cutover remains not ready and no provider credential, token verification, RBAC, route guard, audit actor, idempotency, immutable event, consistency check, or action authority prerequisite is marked complete unless deterministic status metadata says so
+- current route accessibility audit records describe existing read-only GET surfaces and do not enforce route protection or create access-control records
+- Authorization header presence does not persist identity, token, session, role, permission, audit actor, or action authority
+- no operator identity table, RBAC table, token/session/JWT/JWKS table, route protection table, cutover approval table, audit-action table, mutation endpoint, vendor execution record, AI authority, or workflow engine is added in Module 60
+
+Unresolved:
+
+- durable operator identities, role assignments, permission grants, token verification metadata, frontend sign-in/session persistence, provider credential references outside Git, audit actor references, idempotency records, immutable action events, and route guard configuration remain future schema/design work after reviewed auth/RBAC modules are approved

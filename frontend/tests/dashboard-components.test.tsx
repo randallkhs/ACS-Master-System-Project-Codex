@@ -657,6 +657,13 @@ describe("DashboardView", () => {
     expect(html).toContain("Backend RBAC not enforced");
     expect(html).toContain("Backend Manual Review authority not granted");
     expect(html).toContain("Backend Water Emergency authority not granted");
+    expect(html).toContain("Phase 0 Auth Boundary Complete");
+    expect(html).toContain("Future auth cutover not ready");
+    expect(html).toContain("Current routes remain accessible without auth");
+    expect(html).toContain("Provider selected by Randall");
+    expect(html).toContain("Blocked By Provider Selection");
+    expect(html).toContain("Manual Review action permission model approved");
+    expect(html).toContain("Blocked By Action Workflow");
     expect(html).toContain("Frontend auth disabled");
     expect(html).toContain("Session unavailable");
     expect(html).toContain("Token unavailable");

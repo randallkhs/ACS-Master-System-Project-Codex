@@ -4,6 +4,12 @@ FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
 This module is Phase 0 scaffolding only. It does not implement live Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or production external dispatch integration workflows yet.
 
+## Module 60 Auth Boundary Completion Audit Notes
+
+Module 60 extends `GET /api/v1/auth/status` with a final Phase 0 auth boundary completion audit. The endpoint now reports that the disabled auth boundary scaffold is complete, real auth is not implemented, auth remains disabled, token verification remains disabled, RBAC and route guarding remain disabled, current routes still require no Authorization header, frontend Authorization headers are not emitted, Manual Review and Water Emergency action authority are not granted, mutation endpoints are unavailable, committed credentials are not allowed, and future auth cutover is not ready.
+
+The endpoint also exposes a read-only future auth cutover prerequisite checklist and current route accessibility audit. These are planning labels only. They do not verify tokens, parse JWTs, fetch JWKS, require Authorization, enforce RBAC, guard routes, mutate records, write audit events, grant action authority, or mark any provider/credential/action workflow prerequisite complete.
+
 ## Module 59 Auth Status Bridge Notes
 
 Module 59 adds `GET /api/v1/auth/status` as a disabled, read-only backend/frontend auth status bridge. The endpoint reports Phase 0 auth disabled, provider disabled, token verification disabled, RBAC disabled, route protection not enforced, current routes not requiring auth, Authorization headers not required or parsed, and no Manual Review or Water Emergency action authority.
@@ -45,6 +51,7 @@ Water Emergency-related routes and sections stay marked separately from standard
 - FastAPI application package in `app/`
 - API routes under `app/api/v1/`
 - read-only disabled auth status endpoint at `/api/v1/auth/status`
+- read-only Phase 0 auth boundary completion/cutover prerequisite/current-route accessibility audit metadata at `/api/v1/auth/status`
 - Pydantic Settings configuration in `app/core/config.py`
 - structured logging foundation in `app/core/logging.py`
 - disabled auth core scaffolding in `app/auth/`

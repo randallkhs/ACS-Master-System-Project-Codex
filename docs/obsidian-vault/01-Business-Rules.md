@@ -679,3 +679,21 @@ Rules:
 Open concerns:
 
 - final auth provider, frontend login/session UX, token verification middleware, route guard architecture, RBAC enforcement, operator identity persistence, audit actor/idempotency integration, authenticated Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy remain future work
+
+## Phase 0 Module 60 Auth Boundary Completion And Cutover Readiness Boundary
+
+Module 60 consolidates Modules 51-59 into a final read-only Phase 0 auth boundary completion audit and future cutover checklist.
+
+Rules:
+
+- Phase 0 auth boundary completion is a Randall-authorized technical baseline only; it does not make future auth cutover ready
+- auth implementation, auth enabled state, token verification, real token parsing, JWKS fetch, RBAC enforcement, route guarding, login UI, user management, mutation endpoints, Manual Review action authority, and Water Emergency action authority must remain false
+- current health/auth/dashboard/Manual Review/dispatch/Water Emergency read-only GET routes remain accessible without Authorization headers
+- Authorization header presence must not create access authority, authenticated operator status, Manual Review action authority, Water Emergency action authority, route access authority, or UI unlocks
+- future cutover prerequisites must remain blocked until future reviewed modules approve provider selection, credentials outside Git, secret storage, token verification, JWKS policy, frontend sign-in/sign-out UX, operator identity, RBAC, route guarding, action permissions, audit actor/idempotency, immutable events, consistency checks, staging tests, ACSSDR reporting, and Review GUI/ChatGPT review
+- Water Emergency action authority remains separated from standard Manual Review and requires owner-review visibility where legal, insurance, warranty, drying certification, billing, customer-promise, or formal policy consequences may exist
+- no login, logout, signup, user management, token/session behavior, Authorization header emission, JWT parsing, JWKS fetch, fake user identity, fake role enforcement, route guards, RBAC enforcement, approve, reject, defer, archive, resolve, dispatch, vendor, AI, mutation endpoint, audit write, or workflow execution authority is created
+
+Open concerns:
+
+- final auth provider, secure production secret storage, frontend login/session UX, token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-scoped visibility, authenticated Manual Review action authority, Water Emergency action authority, audit actor/idempotency integration, immutable action events, and owner-reviewed legal/company policy remain future work

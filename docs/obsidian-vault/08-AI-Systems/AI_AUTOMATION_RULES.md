@@ -585,6 +585,24 @@ AI boundary:
 
 Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend auth/RBAC, route protection, audit/event, and action controls remain authoritative.
 
+## Phase 0 Module 60 Auth Boundary Completion Audit Boundary
+
+Auth boundary completion, future cutover blocker labels, prerequisite labels, and current route accessibility audit labels are deterministic read-only planning visibility.
+
+AI boundary:
+
+- AI must not decide that future auth cutover is ready
+- AI must not mark provider selection, credentials, secret storage, token verification, RBAC, route guarding, action permissions, audit actor, idempotency, immutable events, consistency checks, staging, ACSSDR reporting, or Review GUI/ChatGPT review as satisfied unless deterministic backend metadata already reports it
+- AI must not treat Authorization header presence as an authenticated operator
+- AI must not enable token verification, real token parsing, JWKS fetch, provider network calls, RBAC enforcement, route guarding, UI section hiding, Authorization header emission, login/session/token behavior, user management, or route denial
+- AI must not create fake roles, fake operators, fake auth contexts, fake route access, fake owner review, fake cutover approval, or fake audit actors
+- AI must not generate executable approve/reject/defer/archive/resolve commands
+- AI must not bypass Manual Review, auth, operator identity, role authorization, audit reason, idempotency, immutable event recording, post-action consistency checks, owner review, the Phase 0 execution block, or the Review GUI/ChatGPT review workflow
+- AI must not convert auth boundary completion visibility into dispatch execution, vendor calls, audit writes, route enforcement, role enforcement, mutation endpoints, or workflow transitions
+- Water Emergency-related authorization readiness must remain separated from standard dispatch and cannot be auto-scoped by AI
+
+Future AI assistance, if added, may only provide advisory evidence summaries after deterministic backend auth/RBAC, route protection, audit/event, and action controls remain authoritative.
+
 ## Phase 0 Module 58 Frontend Auth Core Disabled Session Boundary
 
 Frontend auth-boundary labels, disabled-session labels, token-unavailable labels, and API auth-boundary labels are deterministic frontend/read-model planning visibility.

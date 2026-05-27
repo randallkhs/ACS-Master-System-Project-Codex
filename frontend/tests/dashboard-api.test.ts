@@ -167,6 +167,37 @@ describe("dashboard API client", () => {
     expect(result.data.authorization_header_parsed).toBe(false);
     expect(result.data.manual_review_action_authority_granted).toBe(false);
     expect(result.data.water_emergency_action_authority_granted).toBe(false);
+    expect(result.data.phase0_auth_boundary_complete).toBe(true);
+    expect(result.data.future_auth_cutover_ready).toBe(false);
+    expect(result.data.future_auth_cutover_blocked_by).toContain(
+      "provider_selection"
+    );
+    expect(result.data.future_auth_cutover_prerequisites).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: "provider_selected_by_randall",
+          status: "blocked_by_provider_selection"
+        }),
+        expect.objectContaining({
+          key: "manual_review_action_permission_model_approved",
+          status: "blocked_by_action_workflow"
+        })
+      ])
+    );
+    expect(result.data.current_route_accessibility_audit).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          route: "/api/v1/auth/status",
+          currently_requires_auth: false,
+          enforcement_enabled: false
+        }),
+        expect.objectContaining({
+          route: "/api/v1/dashboard/manual-review/queue",
+          currently_requires_auth: false,
+          enforcement_enabled: false
+        })
+      ])
+    );
     expect(result.errorMessage).toBe("connect ECONNREFUSED");
   });
 

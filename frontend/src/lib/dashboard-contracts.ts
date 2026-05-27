@@ -1162,26 +1162,63 @@ export type DashboardOverviewResponse = {
   timeline_summary: OperationalEventTimelineSummaryResponse;
 };
 
+export type AuthCutoverPrerequisiteResponse = {
+  key: string;
+  label: string;
+  status: string;
+  satisfied_now: boolean;
+  owner_review_required: boolean;
+  reason: string;
+};
+
+export type CurrentRouteAccessibilityAuditItemResponse = {
+  method: string;
+  route: string;
+  currently_requires_auth: boolean;
+  future_auth_required: boolean;
+  future_permission: string;
+  enforcement_enabled: boolean;
+  authorization_header_can_grant_authority: boolean;
+  reason: string;
+};
+
 export type AuthStatusResponse = {
   generated_at: string;
+  phase0_auth_boundary_complete: boolean;
+  auth_implemented: boolean;
   auth_enabled: boolean;
   auth_provider: string;
   auth_mode: string;
   token_verification_enabled: boolean;
+  real_token_parsing_enabled: boolean;
   disabled_token_verifier_available: boolean;
+  backend_auth_core_available: boolean;
+  frontend_disabled_session_available: boolean;
+  auth_status_bridge_available: boolean;
+  auth_status_endpoint_available: boolean;
   rbac_enforcement_enabled: boolean;
+  rbac_enforced: boolean;
   route_protection_enforced: boolean;
+  route_guarding_enabled: boolean;
   current_routes_require_auth: boolean;
   authorization_header_required: boolean;
   authorization_header_parsed: boolean;
   authorization_header_can_grant_authority: boolean;
+  frontend_authorization_headers_emitted: boolean;
   jwks_fetch_enabled: boolean;
-  real_token_parsing_enabled: boolean;
   login_ui_available: boolean;
   user_management_available: boolean;
   manual_review_action_authority_granted: boolean;
   water_emergency_action_authority_granted: boolean;
   action_execution_available: boolean;
+  mutation_endpoints_available: boolean;
+  secret_hygiene_helper_available: boolean;
+  committed_credentials_allowed: boolean;
+  real_credentials_required_for_future_auth: boolean;
+  future_auth_cutover_ready: boolean;
+  future_auth_cutover_blocked_by: string[];
+  future_auth_cutover_prerequisites: AuthCutoverPrerequisiteResponse[];
+  current_route_accessibility_audit: CurrentRouteAccessibilityAuditItemResponse[];
   phase_allows_auth_enforcement: boolean;
   phase_allows_rbac_enforcement: boolean;
   phase_allows_route_guarding: boolean;

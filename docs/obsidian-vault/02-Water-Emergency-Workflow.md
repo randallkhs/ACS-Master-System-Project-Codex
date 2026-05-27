@@ -765,6 +765,27 @@ Future work:
 
 ---
 
+# 23. Phase 0 Module 60 Auth Boundary Completion Separation
+
+The Phase 0 auth boundary completion audit is visible for future modules, but it does not create Water Emergency access, session, token, route, or action authority.
+
+Separation rules:
+
+- the completion audit reports Water Emergency action authority as unavailable and future auth cutover as not ready
+- Water Emergency dashboard/detail GET routes remain read-only and currently require no Authorization header
+- Authorization header presence does not create a Water Emergency operator, reviewer, closer, dispatcher, or owner authority
+- frontend auth/cutover visibility does not store tokens, parse JWTs, emit Authorization headers, hide/unlock Water Emergency UI, or mark Water Emergency actions executable
+- Water Emergency-related action permissions remain separated from standard Manual Review and dispatch planning
+- no Water Emergency close, resolve, dispatch, vendor, AI, mutation endpoint, audit write, or automatic workflow behavior is added
+
+Future work:
+
+- reviewed Water Emergency action permissions after real auth/RBAC exists
+- owner-approved legal, insurance, warranty, drying certification, billing, customer-promise, or company-liability policy before any binding action or customer-facing promise is implemented
+- audit actor, idempotency, immutable event, and post-action consistency integration for any future executable Water Emergency module
+
+---
+
 # 18. Phase 0 Module 55 Route Protection Matrix Separation
 
 Water Emergency-related dashboard routes and Manual Review readiness sections may now expose read-only future route-protection and permission-boundary metadata.

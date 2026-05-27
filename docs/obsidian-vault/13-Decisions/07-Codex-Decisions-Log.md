@@ -6,6 +6,32 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-26 — Phase 0 Module 60 Auth Boundary Completion Audit, Disabled Auth Contract Consolidation, And Future Auth Cutover Plan
+
+- Decision type: Implementation / auth boundary completion / disabled Phase 0 cutover checkpoint
+- Status: Implemented
+- Decision:
+  - Extend `GET /api/v1/auth/status` with a final read-only Phase 0 auth boundary completion audit that reports the auth boundary scaffold complete while auth implementation, auth enabled state, token verification, real token parsing, JWKS fetch, RBAC, route guarding, login UI, user management, mutation endpoints, and action authority remain unavailable.
+  - Add a deterministic future auth cutover blocker list and prerequisite checklist for provider selection, real credentials outside Git, secret management, token verification, JWKS policy, frontend sign-in/sign-out UX, operator identity, RBAC, route protection, Manual Review action permissions, Water Emergency owner review, audit actor, idempotency, immutable event writing, consistency checks, staging tests, ACSSDR reporting, and Review GUI/ChatGPT review.
+  - Add a current route accessibility audit for read-only GET health/auth/dashboard/Manual Review/dispatch/Water Emergency surfaces, explicitly showing current routes require no auth and enforcement is disabled.
+  - Add frontend Manual Review Queue visibility for Phase 0 auth boundary completion, future cutover-not-ready state, current route accessibility, and cutover prerequisites without adding auth UI, user management, token/session behavior, Authorization headers, route guarding, UI hiding, or action controls.
+- Rationale:
+  - Modules 51-59 created multiple disabled auth/RBAC planning layers; Module 60 provides a single completion checkpoint before any future real auth implementation can be considered.
+  - Keeping cutover readiness false prevents planning metadata from being mistaken for provider readiness, token verification, RBAC enforcement, route protection, or Manual Review/Water Emergency action authority.
+  - Current-route audit visibility helps reviewers prove that Phase 0 public read-only dashboard access remains unchanged while future route-protection labels are documented.
+- Future implications:
+  - Future reviewed modules still need provider selection, production secret storage, real credentials outside Git, frontend login/session UX, backend token verification middleware, JWKS strategy, route guard architecture, RBAC enforcement, role-to-permission expansion, role-scoped visibility, audit actor/idempotency integration, immutable action events, Manual Review action authority, Water Emergency action authority, and owner-reviewed legal/company policy.
+- Affected systems:
+  - Backend auth status read model
+  - Backend auth status schema
+  - Frontend dashboard API contracts/mock data
+  - Frontend Manual Review queue panel
+  - Backend/frontend tests
+  - Auth/RBAC/Manual Review/Water Emergency documentation
+  - ACSSDR stakeholder report
+
+---
+
 ## 2026-05-26 — Phase 0 Module 59 Backend/Frontend Auth Status Bridge, Disabled Auth Health Endpoint, And Cross-Layer Non-Enforcement Contract
 
 - Decision type: Implementation / auth status bridge / disabled Phase 0 boundary

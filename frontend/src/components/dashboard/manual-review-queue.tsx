@@ -540,6 +540,10 @@ function AuthBoundaryReadinessPanel({
   const frontendAuthSession = getDisabledFrontendAuthSession();
   const frontendApiBoundary = getFrontendApiAuthBoundaryReadiness();
   const backendAuthStatus = authStatusResult?.data;
+  const cutoverPrerequisites =
+    backendAuthStatus?.future_auth_cutover_prerequisites ?? [];
+  const routeAccessibilityAudit =
+    backendAuthStatus?.current_route_accessibility_audit ?? [];
   const transitionPrerequisitesByGroup =
     authRbacAudit.future_transition_prerequisites.reduce<
       Record<string, typeof authRbacAudit.future_transition_prerequisites>
@@ -1056,6 +1060,199 @@ function AuthBoundaryReadinessPanel({
                   : "neutral"
               }
             />
+          </div>
+        </div>
+      ) : null}
+
+      {backendAuthStatus ? (
+        <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50/50 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+            Phase 0 Auth Boundary Complete
+          </div>
+          <p className="mt-2 text-sm leading-6 text-slate-700">
+            Module 60 consolidates the disabled backend auth scaffold, disabled
+            frontend session boundary, route accessibility audit, and future
+            cutover checklist. This remains read-only and does not implement
+            authentication, RBAC, route guarding, sessions, or action execution.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <MiniMetric
+              label="Boundary completion"
+              value={
+                backendAuthStatus.phase0_auth_boundary_complete
+                  ? "Phase 0 auth boundary scaffold complete"
+                  : "Phase 0 auth boundary incomplete"
+              }
+            />
+            <MiniMetric
+              label="Future cutover"
+              value={
+                backendAuthStatus.future_auth_cutover_ready
+                  ? "Future auth cutover ready"
+                  : "Future auth cutover not ready"
+              }
+            />
+            <MiniMetric
+              label="Current route access"
+              value={
+                backendAuthStatus.current_routes_require_auth
+                  ? "Current routes require auth"
+                  : "Current routes remain accessible without auth"
+              }
+            />
+            <MiniMetric
+              label="Frontend auth headers"
+              value={
+                backendAuthStatus.frontend_authorization_headers_emitted
+                  ? "Frontend emits Authorization headers"
+                  : "Frontend emits no Authorization header"
+              }
+            />
+            <MiniMetric
+              label="Manual Review authority"
+              value={
+                backendAuthStatus.manual_review_action_authority_granted
+                  ? "Manual Review authority granted"
+                  : "No Manual Review action authority"
+              }
+            />
+            <MiniMetric
+              label="Water Emergency authority"
+              value={
+                backendAuthStatus.water_emergency_action_authority_granted
+                  ? "Water Emergency authority granted"
+                  : "No Water Emergency action authority"
+              }
+            />
+            <MiniMetric
+              label="Mutation endpoints"
+              value={
+                backendAuthStatus.mutation_endpoints_available
+                  ? "Mutation endpoints available"
+                  : "Mutation endpoints unavailable"
+              }
+            />
+            <MiniMetric
+              label="Cutover blockers"
+              value={formatCount(backendAuthStatus.future_auth_cutover_blocked_by.length)}
+            />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              [
+                "Auth implemented false",
+                !backendAuthStatus.auth_implemented,
+              ],
+              [
+                "Token verification disabled",
+                !backendAuthStatus.token_verification_enabled,
+              ],
+              [
+                "JWT parsing disabled",
+                !backendAuthStatus.real_token_parsing_enabled,
+              ],
+              ["JWKS fetch disabled", !backendAuthStatus.jwks_fetch_enabled],
+              ["RBAC disabled", !backendAuthStatus.rbac_enforced],
+              ["Route guarding disabled", !backendAuthStatus.route_guarding_enabled],
+              [
+                "Authorization header cannot grant authority",
+                !backendAuthStatus.authorization_header_can_grant_authority,
+              ],
+              [
+                "Current routes remain accessible without auth",
+                !backendAuthStatus.current_routes_require_auth,
+              ],
+              [
+                "Future auth cutover not ready",
+                !backendAuthStatus.future_auth_cutover_ready,
+              ],
+            ].map(([label, locked]) => (
+              <StatusBadge
+                key={String(label)}
+                label={String(label)}
+                variant={locked ? "neutral" : "danger"}
+              />
+            ))}
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <div className="rounded-md border border-emerald-200 bg-white p-3">
+              <div className="text-sm font-semibold text-[#162033]">
+                Future Auth Cutover Prerequisites
+              </div>
+              <div className="mt-3 space-y-3">
+                {cutoverPrerequisites.map((prerequisite) => (
+                  <div
+                    key={prerequisite.key}
+                    className="rounded-md border border-slate-200 bg-slate-50/70 p-3"
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="break-words text-sm font-semibold text-[#162033]">
+                          {prerequisite.label}
+                        </div>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">
+                          {prerequisite.reason}
+                        </p>
+                      </div>
+                      <StatusBadge
+                        label={humanizeLabel(prerequisite.status)}
+                        variant={
+                          prerequisite.satisfied_now
+                            ? "neutral"
+                            : prerequisite.owner_review_required
+                              ? "warning"
+                              : "info"
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-md border border-emerald-200 bg-white p-3">
+              <div className="text-sm font-semibold text-[#162033]">
+                Current Route Accessibility Audit
+              </div>
+              <p className="mt-2 text-xs leading-5 text-slate-600">
+                Current routes remain visible as read-only Phase 0 endpoints; the
+                listed future permissions are planning labels and do not enforce
+                access.
+              </p>
+              <div className="mt-3 space-y-3">
+                {routeAccessibilityAudit.map((route) => (
+                  <div
+                    key={`${route.method}-${route.route}`}
+                    className="rounded-md border border-slate-200 bg-slate-50/70 p-3"
+                  >
+                    <div className="break-all text-sm font-semibold text-[#162033]">
+                      {route.method} {route.route}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <StatusBadge
+                        label={
+                          route.currently_requires_auth
+                            ? "Currently requires auth"
+                            : "Currently requires no auth"
+                        }
+                        variant={route.currently_requires_auth ? "danger" : "neutral"}
+                      />
+                      <StatusBadge
+                        label={
+                          route.enforcement_enabled
+                            ? "Enforcement enabled"
+                            : "Enforcement disabled"
+                        }
+                        variant={route.enforcement_enabled ? "danger" : "neutral"}
+                      />
+                      <StatusBadge
+                        label={route.future_permission}
+                        variant="info"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       ) : null}
