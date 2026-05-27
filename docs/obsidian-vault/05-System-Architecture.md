@@ -34,6 +34,22 @@ It must avoid:
 
 ---
 
+## Phase 0 Module 61 Master Documentation Baseline
+
+Module 61 adds the durable master documentation package for the current architecture and phase transition plan:
+
+- [[00-ACS-FSM-Master-System-Overview]]
+- [[00-Phase-0-Module-Inventory]]
+- [[00-Phase-Roadmap]]
+- [[00-Phase-0-Completion-Checklist]]
+- [[00-ACS-FSM-Risk-Register]]
+
+This is a documentation/readiness baseline only. It does not change backend APIs, frontend behavior, auth enforcement, token verification, RBAC, route guarding, Manual Review action authority, Water Emergency action authority, dispatch execution, vendor calls, AI authority, or workflow execution.
+
+The package records that Phase 0 has produced read-only foundations and safety boundaries, while production deployment, real auth/RBAC, controlled actions, dispatch execution, Water Emergency execution, and live external integrations remain future phases with explicit transition criteria.
+
+---
+
 ## Preferred Stack
 
 Backend:

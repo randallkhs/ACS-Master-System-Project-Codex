@@ -65,6 +65,14 @@ AI may help explain ambiguous cases, but deterministic rules and operator decisi
 
 ---
 
+## Phase 0 Module 61 Documentation Boundary
+
+Module 61 is a documentation/readiness audit. It does not add AI functionality, AI controls, automated decisions, dispatch execution, vendor calls, Manual Review actions, Water Emergency actions, auth enforcement, RBAC enforcement, token verification, route guarding, or workflow execution.
+
+The master documentation package restates that future AI remains advisory only. AI may assist with explanation, classification, anomaly detection, summarization, or risk context only after deterministic evidence exists, and it must not override Manual Review, Water Emergency separation, owner-review boundaries, or explicit operator/system authorization.
+
+---
+
 ## Phase 0 Module 5 Boundary
 
 The intake normalization and validation foundation is deterministic only.

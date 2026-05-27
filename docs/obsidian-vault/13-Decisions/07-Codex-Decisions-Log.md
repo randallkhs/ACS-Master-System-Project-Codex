@@ -6,6 +6,34 @@ Use this file for durable decisions that affect future development. Do not recor
 
 ---
 
+## 2026-05-27 — Phase 0 Module 61 Master System Documentation, Historical Module Inventory, And Phase Transition Readiness Audit
+
+- Decision type: Documentation / readiness audit / phase transition planning
+- Status: Implemented pending review
+- Decision:
+  - Add a durable master documentation package for ACS-FSM covering the complete future system vision, current Phase 0 architecture, Manual Review safety boundary, Water Emergency separation, dispatch engine roadmap, auth/RBAC disabled boundary, audit/event strategy, future integrations, advisory-only AI, ACSSDR reporting, and Codex/ChatGPT/Review GUI workflow.
+  - Add a Phase 0 module inventory covering Modules 1-61 using Git history, existing decision logs, README evidence, and ACSSDR evidence, while marking uncertain historical review/reporting details instead of inventing them.
+  - Add a phase roadmap, Phase 0 completion checklist, and master risk register to define remaining blockers before production infrastructure, real auth/RBAC, controlled Manual Review actions, dispatch execution, Water Emergency execution, live integrations, field operations, analytics, or AI advisory enhancements.
+  - Update ACSSDR for Module 60 only as the intentional pre-module stakeholder report update for Luis and Alfonso; Module 61 remains pending until review and commit.
+- Rationale:
+  - Modules 1-60 created a large Phase 0 foundation. A master documentation checkpoint is needed before Randall decides whether Phase 0 is complete enough to move toward Phase 1 planning.
+  - Historical module details should be evidence-based. Where exact early review workflow or ACSSDR timing is not encoded in Git, the inventory marks uncertainty instead of creating false certainty.
+  - Future implementation phases need explicit transition criteria so readiness metadata is not mistaken for production deployment, auth/RBAC enforcement, route protection, action execution, vendor integration, or legal/insurance policy.
+- Future implications:
+  - Future modules should use the master overview, roadmap, checklist, inventory, and risk register as the starting point for phase decisions.
+  - Alfonso owner review remains required before formal legal, insurance, warranty, billing, customer-liability, or company-policy action behavior is finalized.
+  - ACSSDR remains one module behind active implementation: update the public stakeholder report only after the previous module is reviewed, committed, and pushed.
+- Affected systems:
+  - Master architecture documentation
+  - Phase 0 module inventory
+  - Phase roadmap
+  - Phase 0 completion checklist
+  - Risk register
+  - README/backend/frontend documentation links
+  - ACSSDR stakeholder report
+
+---
+
 ## 2026-05-26 — Phase 0 Module 60 Auth Boundary Completion Audit, Disabled Auth Contract Consolidation, And Future Auth Cutover Plan
 
 - Decision type: Implementation / auth boundary completion / disabled Phase 0 cutover checkpoint

@@ -4,6 +4,12 @@ FastAPI backend foundation for the Apple Cleaning Systems FSM platform.
 
 This module is Phase 0 scaffolding only. It does not implement live Calendar, Sheets, FastField, Verizon Connect, AI, route optimization, or production external dispatch integration workflows yet.
 
+## Module 61 Master Documentation Notes
+
+Module 61 is documentation/readiness only. It adds the master system overview, Phase 0 module inventory, phase roadmap, Phase 0 completion checklist, and master risk register under `docs/obsidian-vault/`.
+
+No backend API behavior, route access, auth enforcement, token verification, RBAC enforcement, route guarding, mutation endpoint, audit write, vendor call, Manual Review action authority, Water Emergency action authority, or workflow execution is changed by this module.
+
 ## Module 60 Auth Boundary Completion Audit Notes
 
 Module 60 extends `GET /api/v1/auth/status` with a final Phase 0 auth boundary completion audit. The endpoint now reports that the disabled auth boundary scaffold is complete, real auth is not implemented, auth remains disabled, token verification remains disabled, RBAC and route guarding remain disabled, current routes still require no Authorization header, frontend Authorization headers are not emitted, Manual Review and Water Emergency action authority are not granted, mutation endpoints are unavailable, committed credentials are not allowed, and future auth cutover is not ready.
